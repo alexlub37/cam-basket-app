@@ -40,13 +40,13 @@
       background:transparent;
       border:0;
       padding:0;
-      margin:0 0 10px 0;
+      margin:0 0 8px 0;
       min-width:auto;
       min-height:auto;
       cursor:pointer;
     }
     .hero-logo{
-      width:120px;
+      width:126px;
       height:auto;
       display:block;
       margin:0 auto;
@@ -66,22 +66,24 @@
     }
     .top-actions{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+      grid-template-columns:repeat(2, minmax(0, 170px));
+      justify-content:center;
+      gap:10px;
       margin-top:18px;
     }
     button{
       border:2px solid var(--accent);
       border-radius:18px;
-      padding:14px 10px;
-      font-size:15px;
+      padding:11px 10px;
+      font-size:14px;
       font-weight:900;
       cursor:pointer;
       min-width:0;
       background:#0b0b0b;
       color:#fff;
     }
-    .btn-light{
+    .btn-light,
+    .btn-outline.active{
       background:var(--accent);
       color:#000;
     }
@@ -123,6 +125,7 @@
       color:var(--muted);
       font-size:16px;
       line-height:1.35;
+      margin-top:4px;
     }
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .menu-btn{
@@ -250,6 +253,12 @@
       font-weight:900;
       font-size:14px;
     }
+    .modal-credit{
+      margin-top:10px;
+      text-align:center;
+      color:#9f9f9f;
+      font-size:11px;
+    }
   </style>
 </head>
 <body>
@@ -261,10 +270,10 @@
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
-        <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
-        <button class="btn-outline" onclick="showScreen('bureauScreen')">Bureau</button>
-        <button class="btn-outline" onclick="showScreen('benevolesScreen')">Bénévoles</button>
-        <button class="btn-outline" onclick="reloadData()">Mettre à jour</button>
+        <button id="btn-teams" class="btn-light" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
+        <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
+        <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
+        <button id="btn-update" class="btn-outline" onclick="setActiveButton(null); reloadData()">Mettre à jour</button>
       </div>
       <div id="status" class="status">Chargement…</div>
     </div>
@@ -274,7 +283,7 @@
     <section id="teamsScreen" class="screen active">
       <div class="card">
         <h2>Équipes <span id="seasonBadge" class="pill"></span></h2>
-        <div class="muted">Affichage limité à la saison active définie dans PARAMETRES.</div>
+        <div class="muted">Saison active uniquement.</div>
       </div>
       <div class="toolbar">
         <input id="teamSearch" class="search" type="text" placeholder="Rechercher une équipe" oninput="renderTeams()">
@@ -283,7 +292,7 @@
     </section>
 
     <section id="teamMenuScreen" class="screen">
-      <button class="back" onclick="showScreen('teamsScreen')">← Retour aux équipes</button>
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour aux équipes</button>
       <div class="card">
         <h2 id="teamMenuTitle">Équipe</h2>
         <div id="teamMenuSub" class="muted"></div>
@@ -343,7 +352,7 @@
 
 
     <section id="bureauScreen" class="screen">
-      <button class="back" onclick="showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
       <div class="card">
         <h2>Bureau</h2>
         <div class="muted">Membres du bureau du club.</div>
@@ -352,7 +361,7 @@
     </section>
 
     <section id="benevolesScreen" class="screen">
-      <button class="back" onclick="showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
       <div class="card">
         <h2>Bénévoles</h2>
         <div class="muted">Bénévoles du club.</div>
@@ -557,7 +566,8 @@
         el.innerHTML = rows.map(j => `
           <div class="item">
             <div class="item-title">${j.numero ? "#" + escapeHtml(j.numero) + " — " : ""}${escapeHtml(j.joueur)}</div>
-            <div class="item-sub">${j.licence ? "Licence : " + escapeHtml(j.licence) : "Licence non renseignée"}${j.poste ? " • Poste : " + escapeHtml(j.poste) : ""}</div>
+            <div class="item-sub">${j.licence ? "Licence : " + escapeHtml(j.licence) : "Licence non renseignée"}</div>
+            <div class="item-sub">${j.poste ? "Poste : " + escapeHtml(j.poste) : ""}</div>
           </div>
         `).join("");
       }
@@ -648,7 +658,37 @@
     }
 
 
+    function setActiveButton(name){
+      const ids = ['btn-teams','btn-bureau','btn-benevoles'];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+      });
+      if(name === 'teams') document.getElementById('btn-teams')?.classList.add('active');
+      if(name === 'bureau') document.getElementById('btn-bureau')?.classList.add('active');
+      if(name === 'benevoles') document.getElementById('btn-benevoles')?.classList.add('active');
+    }
+
+
     reloadData();
   </script>
+<div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <h3>Application CAM Basket</h3>
+      <div class="modal-line"><span class="modal-label">Version :</span> V24</div>
+      <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
+      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
+      <div class="modal-line"><span class="modal-label">Modifications :</span></div>
+      <ul class="modal-list">
+        <li>Design noir / jaune / blanc</li>
+        <li>Header centré</li>
+        <li>Boutons 2 x 2 plus lisibles</li>
+        <li>Ajout Bureau et Bénévoles</li>
+        <li>Affichage licence corrigé</li>
+      </ul>
+      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
+      <div class="modal-credit">Créé par Alex</div>
+    </div>
+  </div>
 </body>
 </html>
