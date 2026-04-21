@@ -1,62 +1,411 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAM Basket Montrichard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAM Basket Montrichard</title>
+  <meta name="theme-color" content="#1f4e79" />
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#dbe3ee;
+      --accent:#1f4e79;
+      --accent2:#2f6fab;
+      --ok:#0f766e;
+      --warn:#b45309;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#fff;
+      padding:18px 16px 20px;
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+    .header-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+    header h1{margin:0;font-size:22px}
+    header .sub{margin-top:6px;font-size:13px;opacity:.92}
+    .version-badge{
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.35);
+      color:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+    }
 
-<style>
-body{margin:0;font-family:Arial;background:#f4f7fb}
+    .header-logo{
+      width:140px;
+      max-width:45vw;
+      margin-top:12px;
+      display:block;
+    }
 
-header{
-  background:#000;
-  color:#fff;
-  padding:20px;
-  position:sticky;
-  top:0;
-}
-
-.version{
-  position:absolute;
-  right:15px;
-  top:15px;
-  background:#ffd400;
-  padding:6px 10px;
-  border-radius:20px;
-  font-weight:bold;
-}
-
-h1{margin:0}
-
-.logo{
-  width:120px;
-  margin-top:10px;
-}
-
-button{
-  padding:10px 15px;
-  border-radius:10px;
-  border:none;
-  margin-top:10px;
-}
-</style>
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    button{border:0;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer}
+    .btn-light{background:#fff;color:var(--accent)}
+    .btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45)}
+    main{padding:14px;max-width:900px;margin:0 auto}
+    .screen{display:none}.screen.active{display:block}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .muted{color:var(--muted)}
+    .list{display:grid;gap:10px}
+    .item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer}
+    .item-title{font-weight:700;font-size:16px;margin-bottom:6px}
+    .item-sub{color:var(--muted);font-size:13px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .menu-btn{background:var(--card);border:1px solid var(--line);color:var(--text);text-align:left;padding:16px;border-radius:16px;width:100%}
+    .menu-btn .big{display:block;font-size:17px;font-weight:700;margin-bottom:4px}
+    .menu-btn .small{display:block;color:var(--muted);font-size:13px;font-weight:500}
+    .detail-row{margin:8px 0;font-size:15px}
+    .detail-label{color:var(--muted);display:block;font-size:12px;margin-bottom:2px}
+    .badge-home,.badge-away{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;margin-left:8px}
+    .badge-home{background:#ecfdf5;color:var(--ok)}
+    .badge-away{background:#fff7ed;color:var(--warn)}
+    .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .search{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--line);font-size:15px;background:#fff}
+    .empty{text-align:center;color:var(--muted);padding:26px 14px;border:1px dashed var(--line);border-radius:14px;background:#fff}
+    .back{margin-bottom:10px;background:#eaf1f8;color:var(--accent)}
+    .status{margin-top:12px;font-size:13px;opacity:.95}
+    .pill{display:inline-block;background:#eef4fb;color:var(--accent);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    a.link-btn{display:inline-block;text-decoration:none;background:var(--accent);color:#fff;padding:11px 14px;border-radius:12px;font-weight:700;font-size:14px}
+  </style>
 </head>
-
 <body>
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>CAM Basket Montrichard</h1>
+        <div class="sub">Équipes • Joueurs • Matchs • Saison active</div>
+        <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="header-logo">
+      </div>
+      <div class="version-badge">Version V7</div>
+    </div>
+    <div class="top-actions">
+      <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
+      <button class="btn-outline" onclick="reloadData()">Actualiser</button>
+    </div>
+    <div id="status" class="status">Chargement…</div>
+  </header>
 
-<header>
-<div class="version">V7</div>
+  <main>
+    <section id="teamsScreen" class="screen active">
+      <div class="card">
+        <h2>Équipes <span id="seasonBadge" class="pill"></span></h2>
+        <div class="muted">Affichage limité à la saison active définie dans PARAMETRES.</div>
+      </div>
+      <div class="toolbar">
+        <input id="teamSearch" class="search" type="text" placeholder="Rechercher une équipe" oninput="renderTeams()">
+      </div>
+      <div id="teamsList" class="list"></div>
+    </section>
 
-<h1>CAM Basket Montrichard</h1>
-<p>Équipes • Joueurs • Matchs • Saison active</p>
+    <section id="teamMenuScreen" class="screen">
+      <button class="back" onclick="showScreen('teamsScreen')">← Retour aux équipes</button>
+      <div class="card">
+        <h2 id="teamMenuTitle">Équipe</h2>
+        <div id="teamMenuSub" class="muted"></div>
+      </div>
+      <div class="grid-2">
+        <button class="menu-btn" onclick="openPlayers()">
+          <span class="big">👥 Joueurs</span>
+          <span class="small">Voir l’effectif de l’équipe</span>
+        </button>
+        <button class="menu-btn" onclick="openMatches()">
+          <span class="big">📅 Matchs</span>
+          <span class="small">Voir les matchs de l’équipe</span>
+        </button>
+      </div>
+    </section>
 
-<img src="Image PNG.png" class="logo">
+    <section id="playersScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
+      <div class="card">
+        <h2 id="playersTitle">Joueurs</h2>
+        <div class="muted">Liste filtrée sur l’équipe sélectionnée et la saison active.</div>
+      </div>
+      <div id="playersList" class="list"></div>
+    </section>
 
-<br>
-<button>Équipes</button>
-<button>Actualiser</button>
+    <section id="matchesScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
+      <div class="card">
+        <h2 id="matchesTitle">Matchs</h2>
+        <div class="muted">Clique sur un match pour voir le détail et ouvrir l’itinéraire.</div>
+      </div>
+      <div id="matchesList" class="list"></div>
+    </section>
 
-</header>
+    <section id="matchDetailScreen" class="screen">
+      <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
+      <div class="card">
+        <h2 id="detailTitle">Détail match</h2>
+        <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
+        <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
+        <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
+        <div class="detail-row"><span class="detail-label">Domicile / Extérieur</span><span id="detailType"></span></div>
+        <div class="detail-row"><span class="detail-label">Gymnase</span><span id="detailGym"></span></div>
+        <div class="detail-row"><span class="detail-label">Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">Code postal</span><span id="detailPostal"></span></div>
+        <div class="detail-row"><span class="detail-label">Ville</span><span id="detailCity"></span></div>
+        <div class="detail-row"><span class="detail-label">Compétition</span><span id="detailCompetition"></span></div>
+        <div class="detail-row"><span class="detail-label">Tour</span><span id="detailTour"></span></div>
+        <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
+        <div class="detail-row"><span class="detail-label">Statut</span><span id="detailStatus"></span></div>
+        <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
+        <div style="margin-top:14px">
+          <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
+        </div>
+      </div>
+    </section>
+  </main>
 
+  <script>
+    const SHEET_ID = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
+    const SHEETS = {
+      parametres: "PARAMETRES",
+      equipes: "EQUIPES",
+      joueurs: "JOUEURS",
+      matchs: "MATCHS"
+    };
+
+    let state = {
+      season: "",
+      equipes: [],
+      joueurs: [],
+      matchs: [],
+      selectedTeam: null,
+      currentMatchRows: []
+    };
+
+    function showScreen(id){
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function setStatus(text){ document.getElementById("status").textContent = text; }
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function normalize(str){
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .trim()
+        .toLowerCase();
+    }
+
+    function badgeForType(type){
+      const t = normalize(type);
+      const isHome = ["d","dom","domicile"].includes(t);
+      const isAway = ["e","ext","exterieur","extérieur"].includes(t);
+      if (isHome) return { label: "Domicile", badge: '<span class="badge-home">Domicile</span>' };
+      if (isAway) return { label: "Extérieur", badge: '<span class="badge-away">Extérieur</span>' };
+      return { label: String(type || "-"), badge: "" };
+    }
+
+    async function fetchRows(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      const json = JSON.parse(txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
+      const cols = json.table.cols.map(c => c.label || c.id || "");
+      return (json.table.rows || []).map(r => cols.map((col, i) => {
+        const cell = r.c[i];
+        return cell ? (cell.f || cell.v || "") : "";
+      }));
+    }
+
+    function findSeason(paramRows){
+      for (const row of paramRows) {
+        const left = normalize(row[0]);
+        const right = String(row[1] || "").trim();
+        if (left === "saison active") return right;
+      }
+      return "";
+    }
+
+    async function reloadData(){
+      try{
+        setStatus("Chargement des données…");
+        const [paramRows, eqRows, jrRows, mtRows] = await Promise.all([
+          fetchRows(SHEETS.parametres),
+          fetchRows(SHEETS.equipes),
+          fetchRows(SHEETS.joueurs),
+          fetchRows(SHEETS.matchs)
+        ]);
+
+        state.season = findSeason(paramRows);
+
+        state.equipes = eqRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          categorie: String(r[2] || "").trim(),
+          coach: String(r[3] || "").trim()
+        })).filter(x => x.equipe && normalize(x.saison) !== "saison");
+
+        state.joueurs = jrRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          joueur: String(r[2] || "").trim(),
+          licence: String(r[3] || "").trim(),
+          numero: String(r[4] || "").trim(),
+          poste: String(r[5] || "").trim()
+        })).filter(x => x.joueur && normalize(x.saison) !== "saison");
+
+        // MATCHS attendu :
+        // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
+        // G Gymnase | H Adresse | I Code postal | J Ville | K Compétition | L Tour | M Score | N Statut
+        state.matchs = mtRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          date: String(r[2] || "").trim(),
+          heure: String(r[3] || "").trim(),
+          adversaire: String(r[4] || "").trim(),
+          type: String(r[5] || "").trim(),
+          gymnase: String(r[6] || "").trim(),
+          adresse: String(r[7] || "").trim(),
+          codePostal: String(r[8] || "").trim(),
+          ville: String(r[9] || "").trim(),
+          competition: String(r[10] || "").trim(),
+          tour: String(r[11] || "").trim(),
+          score: String(r[12] || "").trim(),
+          statut: String(r[13] || "").trim()
+        })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
+
+        document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
+        renderTeams();
+        setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
+      } catch(err){
+        console.error(err);
+        setStatus("Erreur de chargement");
+        document.getElementById("teamsList").innerHTML =
+          '<div class="empty">Impossible de charger les données. Vérifie les feuilles PARAMETRES, EQUIPES, JOUEURS, MATCHS.</div>';
+      }
+    }
+
+    function renderTeams(){
+      const el = document.getElementById("teamsList");
+      const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
+
+      let teams = state.equipes.filter(t => !state.season || t.saison === state.season);
+      if(q){ teams = teams.filter(t => t.equipe.toLowerCase().includes(q)); }
+
+      if(!teams.length){
+        el.innerHTML = '<div class="empty">Aucune équipe trouvée pour la saison active.</div>';
+        return;
+      }
+
+      el.innerHTML = teams.map(t => `
+        <div class="item" data-team="${escapeHtml(t.equipe)}" data-cat="${escapeHtml(t.categorie)}" data-coach="${escapeHtml(t.coach)}">
+          <div class="item-title">${escapeHtml(t.equipe)}</div>
+          <div class="item-sub">${escapeHtml(t.categorie || "Catégorie non renseignée")} ${t.coach ? "• Coach : " + escapeHtml(t.coach) : ""}</div>
+        </div>
+      `).join("");
+
+      el.querySelectorAll(".item").forEach(node => {
+        node.addEventListener("click", () => selectTeam(node.dataset.team, node.dataset.cat, node.dataset.coach));
+      });
+    }
+
+    function selectTeam(team, cat, coach){
+      state.selectedTeam = { team, cat, coach };
+      document.getElementById("teamMenuTitle").textContent = team;
+      document.getElementById("teamMenuSub").textContent = [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
+      showScreen("teamMenuScreen");
+    }
+
+    function openPlayers(){
+      const team = state.selectedTeam?.team || "";
+      document.getElementById("playersTitle").textContent = "Joueurs — " + team;
+      const rows = state.joueurs.filter(j => j.equipe === team && (!state.season || j.saison === state.season));
+
+      const el = document.getElementById("playersList");
+      if(!rows.length){
+        el.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette équipe et cette saison.</div>';
+      } else {
+        el.innerHTML = rows.map(j => `
+          <div class="item">
+            <div class="item-title">${j.numero ? "#" + escapeHtml(j.numero) + " — " : ""}${escapeHtml(j.joueur)}</div>
+            <div class="item-sub">${j.licence ? "Licence : " + escapeHtml(j.licence) : "Licence non renseignée"}${j.poste ? " • Poste : " + escapeHtml(j.poste) : ""}</div>
+          </div>
+        `).join("");
+      }
+      showScreen("playersScreen");
+    }
+
+    function openMatches(){
+      const team = state.selectedTeam?.team || "";
+      document.getElementById("matchesTitle").textContent = "Matchs — " + team;
+      const rows = state.matchs.filter(m => m.equipe === team && (!state.season || m.saison === state.season));
+      state.currentMatchRows = rows;
+
+      const el = document.getElementById("matchesList");
+      if(!rows.length){
+        el.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe et cette saison.</div>';
+      } else {
+        el.innerHTML = rows.map((m, idx) => {
+          const typeInfo = badgeForType(m.type);
+          const lieuLigne = [m.gymnase, m.ville].filter(Boolean).join(" • ");
+          return `
+            <div class="item" data-idx="${idx}">
+              <div class="item-title">${escapeHtml(m.date)} ${typeInfo.badge}</div>
+              <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(m.adversaire)}</div>
+              <div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>
+            </div>
+          `;
+        }).join("");
+
+        el.querySelectorAll(".item").forEach(node => {
+          node.addEventListener("click", () => openMatchDetail(Number(node.dataset.idx)));
+        });
+      }
+      showScreen("matchesScreen");
+    }
+
+    function openMatchDetail(idx){
+      const m = state.currentMatchRows[idx];
+      const typeInfo = badgeForType(m.type);
+      const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
+
+      document.getElementById("detailTitle").textContent = `${m.equipe} vs ${m.adversaire}`;
+      document.getElementById("detailDate").textContent = m.date || "-";
+      document.getElementById("detailTime").textContent = m.heure || "-";
+      document.getElementById("detailOpponent").textContent = m.adversaire || "-";
+      document.getElementById("detailType").textContent = typeInfo.label || "-";
+      document.getElementById("detailGym").textContent = m.gymnase || "-";
+      document.getElementById("detailAddress").textContent = m.adresse || "-";
+      document.getElementById("detailPostal").textContent = m.codePostal || "-";
+      document.getElementById("detailCity").textContent = m.ville || "-";
+      document.getElementById("detailCompetition").textContent = m.competition || "-";
+      document.getElementById("detailTour").textContent = m.tour || "-";
+      document.getElementById("detailScore").textContent = m.score || "-";
+      document.getElementById("detailStatus").textContent = m.statut || "-";
+      document.getElementById("detailSeason").textContent = m.saison || "-";
+      document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
+      showScreen("matchDetailScreen");
+    }
+
+    reloadData();
+  </script>
 </body>
 </html>
