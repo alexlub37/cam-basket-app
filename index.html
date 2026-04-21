@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+<link rel="icon" href="logo.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAM Basket Montrichard</title>
@@ -337,6 +343,8 @@
         <div class="detail-row"><span class="detail-label">Domicile / Extérieur</span><span id="detailType"></span></div>
         <div class="detail-row"><span class="detail-label">Gymnase</span><span id="detailGym"></span></div>
         <div class="detail-row"><span class="detail-label">Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">Code postal</span><span id="detailPostal"></span></div>
+        <div class="detail-row"><span class="detail-label">Ville</span><span id="detailCity"></span></div>
         <div class="detail-row"><span class="detail-label">Compétition</span><span id="detailCompetition"></span></div>
         <div class="detail-row"><span class="detail-label">Tour</span><span id="detailTour"></span></div>
         <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
@@ -612,8 +620,9 @@
       document.getElementById("detailOpponent").textContent = m.adversaire || "-";
       document.getElementById("detailType").textContent = typeInfo.label || "-";
       document.getElementById("detailGym").textContent = m.gymnase || "-";
-      const adresseComplete = [m.adresse, [m.codePostal, m.ville].filter(Boolean).join(" ")].filter(Boolean).join("<br>");
-      document.getElementById("detailAddress").innerHTML = adresseComplete || "-";
+      document.getElementById("detailAddress").textContent = m.adresse || "-";
+      document.getElementById("detailPostal").textContent = m.codePostal || "-";
+      document.getElementById("detailCity").textContent = m.ville || "-";
       document.getElementById("detailCompetition").textContent = m.competition || "-";
       document.getElementById("detailTour").textContent = m.tour || "-";
       document.getElementById("detailScore").textContent = m.score || "-";
