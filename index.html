@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAM Basket Montrichard</title>
-  <meta name="theme-color" content="#1f4e79">
+  <meta name="theme-color" content="#1f4e79" />
   <style>
     :root{
       --bg:#f4f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --line:#dbe3ee;
@@ -16,12 +16,12 @@
     header h1{margin:0;font-size:22px}
     header .sub{margin-top:6px;font-size:13px;opacity:.92}
     .top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    button{border:0;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer}
+    button{border:0;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer}
     .btn-light{background:#fff;color:var(--accent)}
     .btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45)}
-    main{padding:14px;max-width:860px;margin:0 auto}
+    main{padding:14px;max-width:900px;margin:0 auto}
     .screen{display:none}.screen.active{display:block}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
     .muted{color:var(--muted)}
     .list{display:grid;gap:10px}
     .item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer}
@@ -37,332 +37,315 @@
     .badge-home{background:#ecfdf5;color:var(--ok)}
     .badge-away{background:#fff7ed;color:var(--warn)}
     .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-    .search,.config input{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--line);font-size:15px;background:#fff}
+    .search{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--line);font-size:15px;background:#fff}
     .empty{text-align:center;color:var(--muted);padding:26px 14px;border:1px dashed var(--line);border-radius:14px;background:#fff}
-    .config label{display:block;font-weight:700;margin:12px 0 6px;font-size:14px}
-    .help{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.45}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-    a.link-btn{display:inline-block;text-decoration:none;background:var(--accent);color:#fff;padding:11px 14px;border-radius:12px;font-weight:700;font-size:14px}
     .back{margin-bottom:10px;background:#eaf1f8;color:var(--accent)}
+    .status{margin-top:12px;font-size:13px;opacity:.95}
+    .pill{display:inline-block;background:#eef4fb;color:var(--accent);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    a.link-btn{display:inline-block;text-decoration:none;background:var(--accent);color:#fff;padding:11px 14px;border-radius:12px;font-weight:700;font-size:14px}
   </style>
 </head>
 <body>
-<header>
-  <h1>CAM Basket Montrichard</h1>
-  <div class="sub">V1 — Équipes, joueurs, matchs domicile / extérieur</div>
-  <div class="top-actions">
-    <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
-    <button class="btn-outline" onclick="showScreen('configScreen')">Connexion Google Sheets</button>
-  </div>
-</header>
+  <header>
+    <h1>CAM Basket Montrichard</h1>
+    <div class="sub">V2 — filtrage automatique sur la saison active</div>
+    <div class="top-actions">
+      <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
+      <button class="btn-outline" onclick="reloadData()">Actualiser</button>
+    </div>
+    <div id="status" class="status">Chargement…</div>
+  </header>
 
-<main>
-  <section id="teamsScreen" class="screen active">
-    <div class="card">
-      <h2>Équipes</h2>
-      <div class="muted">Choisis une équipe pour voir ses joueurs et ses matchs.</div>
-    </div>
-    <div class="toolbar">
-      <input id="teamSearch" class="search" type="text" placeholder="Rechercher une équipe" oninput="renderTeams()">
-    </div>
-    <div id="teamsList" class="list"></div>
-  </section>
-
-  <section id="teamMenuScreen" class="screen">
-    <button class="back" onclick="showScreen('teamsScreen')">← Retour aux équipes</button>
-    <div class="card">
-      <h2 id="teamMenuTitle">Équipe</h2>
-      <div id="teamMenuSub" class="muted"></div>
-    </div>
-    <div class="grid-2">
-      <button class="menu-btn" onclick="openPlayers()">
-        <span class="big">👥 Joueurs</span>
-        <span class="small">Voir l’effectif de l’équipe</span>
-      </button>
-      <button class="menu-btn" onclick="openMatches()">
-        <span class="big">📅 Matchs</span>
-        <span class="small">Voir domicile / extérieur</span>
-      </button>
-    </div>
-  </section>
-
-  <section id="playersScreen" class="screen">
-    <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
-    <div class="card">
-      <h2 id="playersTitle">Joueurs</h2>
-      <div class="muted">Liste filtrée sur l’équipe sélectionnée.</div>
-    </div>
-    <div id="playersList" class="list"></div>
-  </section>
-
-  <section id="matchesScreen" class="screen">
-    <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
-    <div class="card">
-      <h2 id="matchesTitle">Matchs</h2>
-      <div class="muted">Clique sur un match pour voir le détail et ouvrir l’itinéraire.</div>
-    </div>
-    <div id="matchesList" class="list"></div>
-  </section>
-
-  <section id="matchDetailScreen" class="screen">
-    <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
-    <div class="card">
-      <h2 id="detailTitle">Détail match</h2>
-      <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
-      <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
-      <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
-      <div class="detail-row"><span class="detail-label">Type</span><span id="detailType"></span></div>
-      <div class="detail-row"><span class="detail-label">Lieu</span><span id="detailLieu"></span></div>
-      <div class="detail-row"><span class="detail-label">Adresse</span><span id="detailAddress"></span></div>
-      <div class="actions">
-        <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
+  <main>
+    <section id="teamsScreen" class="screen active">
+      <div class="card">
+        <h2>Équipes <span id="seasonBadge" class="pill"></span></h2>
+        <div class="muted">Affichage limité à la saison active définie dans PARAMETRES.</div>
       </div>
-    </div>
-  </section>
-
-  <section id="configScreen" class="screen">
-    <button class="back" onclick="showScreen('teamsScreen')">← Retour</button>
-    <div class="card config">
-      <h2>Connexion Google Sheets</h2>
-      <div class="muted">Colle les liens CSV publiés de tes feuilles Google Sheets.</div>
-
-      <label for="equipesUrl">URL CSV — feuille EQUIPES</label>
-      <input id="equipesUrl" type="text" placeholder="https://docs.google.com/...output=csv">
-
-      <label for="joueursUrl">URL CSV — feuille JOUEURS</label>
-      <input id="joueursUrl" type="text" placeholder="https://docs.google.com/...output=csv">
-
-      <label for="matchsUrl">URL CSV — feuille MATCHS</label>
-      <input id="matchsUrl" type="text" placeholder="https://docs.google.com/...output=csv">
-
-      <div class="actions">
-        <button class="btn-light" style="background:var(--accent);color:#fff" onclick="saveConfigAndLoad()">Enregistrer et charger</button>
-        <button class="btn-light" onclick="loadDemo()">Charger une démo</button>
+      <div class="toolbar">
+        <input id="teamSearch" class="search" type="text" placeholder="Rechercher une équipe" oninput="renderTeams()">
       </div>
+      <div id="teamsList" class="list"></div>
+    </section>
 
-      <div class="help">
-        <strong>Comment faire :</strong><br>
-        1. Dans Google Sheets, ouvre chaque onglet.<br>
-        2. Publie-le au format CSV.<br>
-        3. Colle les 3 liens ici.<br>
-        4. L’app chargera automatiquement les équipes, joueurs et matchs.
+    <section id="teamMenuScreen" class="screen">
+      <button class="back" onclick="showScreen('teamsScreen')">← Retour aux équipes</button>
+      <div class="card">
+        <h2 id="teamMenuTitle">Équipe</h2>
+        <div id="teamMenuSub" class="muted"></div>
       </div>
-    </div>
-  </section>
-</main>
+      <div class="grid-2">
+        <button class="menu-btn" onclick="openPlayers()">
+          <span class="big">👥 Joueurs</span>
+          <span class="small">Voir l’effectif de l’équipe</span>
+        </button>
+        <button class="menu-btn" onclick="openMatches()">
+          <span class="big">📅 Matchs</span>
+          <span class="small">Voir domicile / extérieur</span>
+        </button>
+      </div>
+    </section>
 
-<script>
-const demoData = {
-  equipes: [
-    { Saison: "2025/2026", "Équipe": "PRF", "Catégorie": "Senior F", Coach: "Coach PRF", Actif: "TRUE" },
-    { Saison: "2025/2026", "Équipe": "PRM", "Catégorie": "Senior M", Coach: "Coach PRM", Actif: "TRUE" },
-    { Saison: "2025/2026", "Équipe": "U18M", "Catégorie": "U18", Coach: "Coach U18M", Actif: "TRUE" }
-  ],
-  joueurs: [
-    { Saison: "2025/2026", "Équipe": "PRF", Joueur: "Martin Léa", "Numéro licence": "FFBB001", "Numéro": "7", Actif: "TRUE" },
-    { Saison: "2025/2026", "Équipe": "PRF", Joueur: "Dupont Sarah", "Numéro licence": "FFBB002", "Numéro": "10", Actif: "TRUE" },
-    { Saison: "2025/2026", "Équipe": "PRF", Joueur: "Lemoine Emma", "Numéro licence": "FFBB003", "Numéro": "12", Actif: "TRUE" },
-    { Saison: "2025/2026", "Équipe": "PRM", Joueur: "Petit Hugo", "Numéro licence": "FFBB101", "Numéro": "5", Actif: "TRUE" }
-  ],
-  matchs: [
-    { Saison: "2025/2026", "Équipe": "PRF", Date: "20/09/2025", Heure: "18:00", Adversaire: "Les Montils", Lieu: "Extérieur", "Domicile/Extérieur": "Extérieur", Adresse: "Espace Beauregard, route de Montrichard, Montou-sur-Bièvre" },
-    { Saison: "2025/2026", "Équipe": "PRF", Date: "04/10/2025", Heure: "20:00", Adversaire: "Cheverny", Lieu: "Domicile", "Domicile/Extérieur": "Domicile", Adresse: "Gymnase de Montrichard" },
-    { Saison: "2025/2026", "Équipe": "PRF", Date: "15/11/2025", Heure: "19:30", Adversaire: "Buzançais", Lieu: "Extérieur", "Domicile/Extérieur": "Extérieur", Adresse: "Gymnase des Sables, rue Bernard Louvet, Buzançais" }
-  ]
-};
+    <section id="playersScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
+      <div class="card">
+        <h2 id="playersTitle">Joueurs</h2>
+        <div class="muted">Liste filtrée sur l’équipe sélectionnée et la saison active.</div>
+      </div>
+      <div id="playersList" class="list"></div>
+    </section>
 
-let state = {equipes:[], joueurs:[], matchs:[], selectedTeam:null, selectedMatch:null, currentMatchRows:[]};
+    <section id="matchesScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
+      <div class="card">
+        <h2 id="matchesTitle">Matchs</h2>
+        <div class="muted">Clique sur un match pour voir le détail et ouvrir l’itinéraire.</div>
+      </div>
+      <div id="matchesList" class="list"></div>
+    </section>
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+    <section id="matchDetailScreen" class="screen">
+      <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
+      <div class="card">
+        <h2 id="detailTitle">Détail match</h2>
+        <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
+        <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
+        <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
+        <div class="detail-row"><span class="detail-label">Type</span><span id="detailType"></span></div>
+        <div class="detail-row"><span class="detail-label">Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
+        <div style="margin-top:14px">
+          <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
+        </div>
+      </div>
+    </section>
+  </main>
 
-function normalizeBool(value){
-  const v = String(value || '').trim().toLowerCase();
-  return v === 'true' || v === 'oui' || v === '1' || v === '';
-}
+  <script>
+    const SHEET_ID = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
+    const SHEETS = {
+      parametres: "PARAMETRES",
+      equipes: "EQUIPES",
+      joueurs: "JOUEURS",
+      matchs: "MATCHS"
+    };
 
-function csvToObjects(csv){
-  const lines = csv.replace(/\r/g, '').split('\n').filter(Boolean);
-  if (!lines.length) return [];
-  const headers = splitCsvLine(lines[0]).map(h => h.trim());
-  return lines.slice(1).map(line => {
-    const values = splitCsvLine(line);
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = (values[i] || '').trim());
-    return obj;
-  });
-}
+    let state = {
+      season: "",
+      equipes: [],
+      joueurs: [],
+      matchs: [],
+      selectedTeam: null,
+      currentMatchRows: []
+    };
 
-function splitCsvLine(line){
-  const out = [];
-  let current = '', inQuotes = false;
-  for(let i=0;i<line.length;i++){
-    const ch = line[i], next = line[i+1];
-    if(ch === '"' && inQuotes && next === '"'){ current += '"'; i++; }
-    else if(ch === '"'){ inQuotes = !inQuotes; }
-    else if(ch === ',' && !inQuotes){ out.push(current); current = ''; }
-    else { current += ch; }
-  }
-  out.push(current);
-  return out;
-}
+    function showScreen(id){
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
 
-async function fetchCsv(url){
-  const res = await fetch(url);
-  if(!res.ok) throw new Error('Impossible de charger ' + url);
-  const text = await res.text();
-  return csvToObjects(text);
-}
+    function setStatus(text){
+      document.getElementById('status').textContent = text;
+    }
 
-function saveConfigAndLoad(){
-  const config = {
-    equipesUrl: document.getElementById('equipesUrl').value.trim(),
-    joueursUrl: document.getElementById('joueursUrl').value.trim(),
-    matchsUrl: document.getElementById('matchsUrl').value.trim()
-  };
-  localStorage.setItem('camBasketConfig', JSON.stringify(config));
-  loadFromConfig();
-}
+    function normalizeHeader(str){
+      return String(str || "")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .trim().toLowerCase();
+    }
 
-async function loadFromConfig(){
-  const raw = localStorage.getItem('camBasketConfig');
-  if(!raw){ alert("Ajoute d'abord les liens CSV de Google Sheets."); return; }
-  const config = JSON.parse(raw);
-  try{
-    const [equipes, joueurs, matchs] = await Promise.all([
-      fetchCsv(config.equipesUrl),
-      fetchCsv(config.joueursUrl),
-      fetchCsv(config.matchsUrl)
-    ]);
-    state.equipes = equipes;
-    state.joueurs = joueurs;
-    state.matchs = matchs;
-    renderTeams();
-    showScreen('teamsScreen');
-  }catch(err){
-    alert("Chargement impossible. Vérifie les liens CSV publiés.\n\n" + err.message);
-  }
-}
+    function getValue(row, names){
+      const entries = Object.entries(row);
+      for(const [k, v] of entries){
+        const nk = normalizeHeader(k);
+        for(const name of names){
+          if(nk === normalizeHeader(name)) return v ?? "";
+        }
+      }
+      return "";
+    }
 
-function loadDemo(){
-  state.equipes = demoData.equipes;
-  state.joueurs = demoData.joueurs;
-  state.matchs = demoData.matchs;
-  renderTeams();
-  showScreen('teamsScreen');
-}
+    async function fetchSheet(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      const jsonText = txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1);
+      const data = JSON.parse(jsonText);
+      const cols = data.table.cols.map(c => c.label || c.id || "");
+      return (data.table.rows || []).map(r => {
+        const obj = {};
+        cols.forEach((col, i) => {
+          const cell = r.c[i];
+          obj[col] = cell ? (cell.f || cell.v || "") : "";
+        });
+        return obj;
+      });
+    }
 
-function renderTeams(){
-  const el = document.getElementById('teamsList');
-  const q = (document.getElementById('teamSearch').value || '').toLowerCase().trim();
-  let teams = state.equipes.filter(t => normalizeBool(t.Actif ?? t.actif ?? "TRUE"));
-  if(q){ teams = teams.filter(t => (t["Équipe"] || t.Equipe || '').toLowerCase().includes(q)); }
-  if(!teams.length){ el.innerHTML = '<div class="empty">Aucune équipe trouvée.</div>'; return; }
-  el.innerHTML = teams.map(t => {
-    const team = t["Équipe"] || t.Equipe || '';
-    const cat = t["Catégorie"] || t.Categorie || '';
-    const coach = t.Coach || '';
-    return `
-      <div class="item" data-team="${team}">
-        <div class="item-title">${team}</div>
-        <div class="item-sub">${cat || 'Catégorie non renseignée'} ${coach ? '• Coach : ' + coach : ''}</div>
-      </div>`;
-  }).join('');
-  el.querySelectorAll('.item').forEach(node => {
-    node.addEventListener('click', () => {
-      const team = node.dataset.team;
-      const t = teams.find(x => (x["Équipe"] || x.Equipe || '') === team) || {};
-      selectTeam(team, t["Catégorie"] || t.Categorie || '', t.Coach || '');
-    });
-  });
-}
+    function detectActiveSeason(paramRows){
+      for(const row of paramRows){
+        const key = getValue(row, ["Clé", "Cle", "Key"]);
+        const value = getValue(row, ["Valeur", "Value"]);
+        if(normalizeHeader(key) === normalizeHeader("Saison active")) return String(value).trim();
+      }
+      return "";
+    }
 
-function selectTeam(team, cat, coach){
-  state.selectedTeam = { team, cat, coach };
-  document.getElementById('teamMenuTitle').textContent = team;
-  document.getElementById('teamMenuSub').textContent = [cat, coach ? 'Coach : ' + coach : ''].filter(Boolean).join(' • ');
-  showScreen('teamMenuScreen');
-}
+    async function reloadData(){
+      try{
+        setStatus("Chargement des données…");
+        const [parametres, equipes, joueurs, matchs] = await Promise.all([
+          fetchSheet(SHEETS.parametres),
+          fetchSheet(SHEETS.equipes),
+          fetchSheet(SHEETS.joueurs),
+          fetchSheet(SHEETS.matchs)
+        ]);
 
-function openPlayers(){
-  const team = state.selectedTeam?.team;
-  document.getElementById('playersTitle').textContent = 'Joueurs — ' + team;
-  const rows = state.joueurs.filter(j =>
-    (j["Équipe"] || j.Equipe || '') === team &&
-    normalizeBool(j.Actif ?? "TRUE")
-  );
-  const el = document.getElementById('playersList');
-  if(!rows.length){ el.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette équipe.</div>'; }
-  else{
-    el.innerHTML = rows.map(j => {
-      const numero = j["Numéro"] || j.Numero || '';
-      const nom = j.Joueur || '';
-      const licence = j["Numéro licence"] || j["Numero licence"] || '';
-      return `
-        <div class="item">
-          <div class="item-title">${numero ? '#' + numero + ' — ' : ''}${nom}</div>
-          <div class="item-sub">${licence ? 'Licence : ' + licence : 'Licence non renseignée'}</div>
-        </div>`;
-    }).join('');
-  }
-  showScreen('playersScreen');
-}
+        state.season = detectActiveSeason(parametres);
+        state.equipes = equipes;
+        state.joueurs = joueurs;
+        state.matchs = matchs;
 
-function openMatches(){
-  const team = state.selectedTeam?.team;
-  document.getElementById('matchesTitle').textContent = 'Matchs — ' + team;
-  const rows = state.matchs.filter(m => (m["Équipe"] || m.Equipe || '') === team);
-  state.currentMatchRows = rows;
-  const el = document.getElementById('matchesList');
-  if(!rows.length){ el.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe.</div>'; }
-  else{
-    el.innerHTML = rows.map((m, idx) => {
-      const type = m["Domicile/Extérieur"] || m["Domicile / Extérieur"] || m.Lieu || '';
-      const home = String(type).toLowerCase().includes('dom');
-      const badge = home ? '<span class="badge-home">Domicile</span>' : '<span class="badge-away">Extérieur</span>';
-      return `
-        <div class="item" data-idx="${idx}">
-          <div class="item-title">${m.Date || ''} ${badge}</div>
-          <div class="item-sub">${m.Heure || ''} • ${m.Adversaire || ''}</div>
-          <div class="item-sub">${m.Adresse || ''}</div>
-        </div>`;
-    }).join('');
-    el.querySelectorAll('.item').forEach(node => {
-      node.addEventListener('click', () => openMatchDetail(Number(node.dataset.idx)));
-    });
-  }
-  showScreen('matchesScreen');
-}
+        document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
+        renderTeams();
+        setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
+      } catch(err){
+        console.error(err);
+        setStatus("Erreur de chargement");
+        document.getElementById("teamsList").innerHTML =
+          '<div class="empty">Impossible de charger les données. Vérifie que les feuilles s’appellent bien PARAMETRES, EQUIPES, JOUEURS et MATCHS et que le fichier est en accès lecteur.</div>';
+      }
+    }
 
-function openMatchDetail(idx){
-  const m = state.currentMatchRows[idx];
-  state.selectedMatch = m;
-  document.getElementById('detailTitle').textContent = (state.selectedTeam?.team || '') + ' vs ' + (m.Adversaire || '');
-  document.getElementById('detailDate').textContent = m.Date || '';
-  document.getElementById('detailTime').textContent = m.Heure || '';
-  document.getElementById('detailOpponent').textContent = m.Adversaire || '';
-  document.getElementById('detailType').textContent = m["Domicile/Extérieur"] || m["Domicile / Extérieur"] || m.Lieu || '';
-  document.getElementById('detailLieu').textContent = m.Lieu || '';
-  document.getElementById('detailAddress').textContent = m.Adresse || '';
-  document.getElementById('mapsLink').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(m.Adresse || m.Adversaire || '');
-  showScreen('matchDetailScreen');
-}
+    function renderTeams(){
+      const el = document.getElementById("teamsList");
+      const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
 
-function preloadConfigFields(){
-  const raw = localStorage.getItem('camBasketConfig');
-  if(!raw) return;
-  try{
-    const cfg = JSON.parse(raw);
-    document.getElementById('equipesUrl').value = cfg.equipesUrl || '';
-    document.getElementById('joueursUrl').value = cfg.joueursUrl || '';
-    document.getElementById('matchsUrl').value = cfg.matchsUrl || '';
-  }catch(e){}
-}
+      let teams = state.equipes.filter(t => {
+        const saison = String(getValue(t, ["Saison"])).trim();
+        return !state.season || saison === state.season;
+      });
 
-preloadConfigFields();
-loadDemo();
-</script>
+      if(q){
+        teams = teams.filter(t => String(getValue(t, ["Équipe", "Equipe"])).toLowerCase().includes(q));
+      }
+
+      if(!teams.length){
+        el.innerHTML = '<div class="empty">Aucune équipe trouvée pour la saison active.</div>';
+        return;
+      }
+
+      el.innerHTML = teams.map(t => {
+        const team = getValue(t, ["Équipe", "Equipe"]);
+        const cat = getValue(t, ["Catégorie", "Categorie"]);
+        const coach = getValue(t, ["Coach"]);
+        return `
+          <div class="item" data-team="${escapeHtml(team)}" data-cat="${escapeHtml(cat)}" data-coach="${escapeHtml(coach)}">
+            <div class="item-title">${escapeHtml(team)}</div>
+            <div class="item-sub">${escapeHtml(cat || "Catégorie non renseignée")} ${coach ? "• Coach : " + escapeHtml(coach) : ""}</div>
+          </div>`;
+      }).join("");
+
+      el.querySelectorAll(".item").forEach(node => {
+        node.addEventListener("click", () => {
+          selectTeam(node.dataset.team, node.dataset.cat, node.dataset.coach);
+        });
+      });
+    }
+
+    function selectTeam(team, cat, coach){
+      state.selectedTeam = {team, cat, coach};
+      document.getElementById("teamMenuTitle").textContent = team;
+      document.getElementById("teamMenuSub").textContent = [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
+      showScreen("teamMenuScreen");
+    }
+
+    function openPlayers(){
+      const team = state.selectedTeam?.team;
+      document.getElementById("playersTitle").textContent = "Joueurs — " + team;
+
+      const rows = state.joueurs.filter(j => {
+        const saison = String(getValue(j, ["Saison"])).trim();
+        const equipe = String(getValue(j, ["Équipe", "Equipe"])).trim();
+        return equipe === team && (!state.season || saison === state.season);
+      });
+
+      const el = document.getElementById("playersList");
+      if(!rows.length){
+        el.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette équipe et cette saison.</div>';
+      } else {
+        el.innerHTML = rows.map(j => {
+          const numero = getValue(j, ["Numéro", "Numero"]);
+          const nom = getValue(j, ["Joueur"]);
+          const licence = getValue(j, ["Numéro licence", "Numero licence"]);
+          return `
+            <div class="item">
+              <div class="item-title">${numero ? "#" + escapeHtml(numero) + " — " : ""}${escapeHtml(nom)}</div>
+              <div class="item-sub">${licence ? "Licence : " + escapeHtml(licence) : "Licence non renseignée"}</div>
+            </div>`;
+        }).join("");
+      }
+      showScreen("playersScreen");
+    }
+
+    function openMatches(){
+      const team = state.selectedTeam?.team;
+      document.getElementById("matchesTitle").textContent = "Matchs — " + team;
+
+      const rows = state.matchs.filter(m => {
+        const saison = String(getValue(m, ["Saison"])).trim();
+        const equipe = String(getValue(m, ["Équipe", "Equipe"])).trim();
+        return equipe === team && (!state.season || saison === state.season);
+      });
+
+      state.currentMatchRows = rows;
+      const el = document.getElementById("matchesList");
+
+      if(!rows.length){
+        el.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe et cette saison.</div>';
+      } else {
+        el.innerHTML = rows.map((m, idx) => {
+          const type = getValue(m, ["Lieu", "Domicile/Extérieur", "Domicile / Extérieur"]);
+          const home = String(type).toLowerCase().includes("dom");
+          const badge = home ? '<span class="badge-home">Domicile</span>' : '<span class="badge-away">Extérieur</span>';
+          return `
+            <div class="item" data-idx="${idx}">
+              <div class="item-title">${escapeHtml(getValue(m, ["Date"]))} ${badge}</div>
+              <div class="item-sub">${escapeHtml(getValue(m, ["Heure"]))} • ${escapeHtml(getValue(m, ["Adversaire"]))}</div>
+              <div class="item-sub">${escapeHtml(getValue(m, ["Adresse"]))}</div>
+            </div>`;
+        }).join("");
+
+        el.querySelectorAll(".item").forEach(node => {
+          node.addEventListener("click", () => openMatchDetail(Number(node.dataset.idx)));
+        });
+      }
+      showScreen("matchesScreen");
+    }
+
+    function openMatchDetail(idx){
+      const m = state.currentMatchRows[idx];
+      document.getElementById("detailTitle").textContent = (state.selectedTeam?.team || "") + " vs " + getValue(m, ["Adversaire"]);
+      document.getElementById("detailDate").textContent = getValue(m, ["Date"]);
+      document.getElementById("detailTime").textContent = getValue(m, ["Heure"]);
+      document.getElementById("detailOpponent").textContent = getValue(m, ["Adversaire"]);
+      document.getElementById("detailType").textContent = getValue(m, ["Lieu", "Domicile/Extérieur", "Domicile / Extérieur"]);
+      document.getElementById("detailAddress").textContent = getValue(m, ["Adresse"]);
+      document.getElementById("detailSeason").textContent = getValue(m, ["Saison"]);
+      document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(getValue(m, ["Adresse"]) || getValue(m, ["Adversaire"]));
+      showScreen("matchDetailScreen");
+    }
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    reloadData();
+  </script>
 </body>
 </html>
