@@ -7,8 +7,15 @@
   <meta name="theme-color" content="#1f4e79" />
   <style>
     :root{
-      --bg:#f4f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --line:#dbe3ee;
-      --accent:#1f4e79; --accent2:#2f6fab; --ok:#0f766e; --warn:#b45309;
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#dbe3ee;
+      --accent:#1f4e79;
+      --accent2:#2f6fab;
+      --ok:#0f766e;
+      --warn:#b45309;
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -48,7 +55,7 @@
 <body>
   <header>
     <h1>CAM Basket Montrichard</h1>
-    <div class="sub">V2 — filtrage automatique sur la saison active</div>
+    <div class="sub">Équipes • Joueurs • Matchs • Saison active</div>
     <div class="top-actions">
       <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
       <button class="btn-outline" onclick="reloadData()">Actualiser</button>
@@ -81,7 +88,7 @@
         </button>
         <button class="menu-btn" onclick="openMatches()">
           <span class="big">📅 Matchs</span>
-          <span class="small">Voir domicile / extérieur</span>
+          <span class="small">Voir les matchs de l’équipe</span>
         </button>
       </div>
     </section>
@@ -111,8 +118,12 @@
         <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
         <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
         <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
-        <div class="detail-row"><span class="detail-label">Type</span><span id="detailType"></span></div>
+        <div class="detail-row"><span class="detail-label">Domicile / Extérieur</span><span id="detailType"></span></div>
         <div class="detail-row"><span class="detail-label">Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">Compétition</span><span id="detailCompetition"></span></div>
+        <div class="detail-row"><span class="detail-label">Tour</span><span id="detailTour"></span></div>
+        <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
+        <div class="detail-row"><span class="detail-label">Statut</span><span id="detailStatus"></span></div>
         <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
         <div style="margin-top:14px">
           <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
@@ -140,53 +151,62 @@
     };
 
     function showScreen(id){
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
     }
 
     function setStatus(text){
-      document.getElementById('status').textContent = text;
+      document.getElementById("status").textContent = text;
     }
 
-    function normalizeHeader(str){
+    function escapeHtml(str){
       return String(str || "")
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .trim().toLowerCase();
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
-    function getValue(row, names){
-      const entries = Object.entries(row);
-      for(const [k, v] of entries){
-        const nk = normalizeHeader(k);
-        for(const name of names){
-          if(nk === normalizeHeader(name)) return v ?? "";
-        }
+    function normalize(str){
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .trim()
+        .toLowerCase();
+    }
+
+    function badgeForType(type){
+      const t = normalize(type);
+      const isHome = ["d","dom","domicile"].includes(t);
+      const isAway = ["e","ext","exterieur","extérieur"].includes(t);
+
+      if (isHome) {
+        return { label: "Domicile", badge: '<span class="badge-home">Domicile</span>' };
       }
-      return "";
+      if (isAway) {
+        return { label: "Extérieur", badge: '<span class="badge-away">Extérieur</span>' };
+      }
+      return { label: String(type || "-"), badge: "" };
     }
 
-    async function fetchSheet(sheetName){
+    async function fetchRows(sheetName){
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
       const res = await fetch(url);
       const txt = await res.text();
-      const jsonText = txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1);
-      const data = JSON.parse(jsonText);
-      const cols = data.table.cols.map(c => c.label || c.id || "");
-      return (data.table.rows || []).map(r => {
-        const obj = {};
-        cols.forEach((col, i) => {
-          const cell = r.c[i];
-          obj[col] = cell ? (cell.f || cell.v || "") : "";
-        });
-        return obj;
-      });
+      const json = JSON.parse(txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
+      const cols = json.table.cols.map(c => c.label || c.id || "");
+      return (json.table.rows || []).map(r => cols.map((col, i) => {
+        const cell = r.c[i];
+        return cell ? (cell.f || cell.v || "") : "";
+      }));
     }
 
-    function detectActiveSeason(paramRows){
-      for(const row of paramRows){
-        const key = getValue(row, ["Clé", "Cle", "Key"]);
-        const value = getValue(row, ["Valeur", "Value"]);
-        if(normalizeHeader(key) === normalizeHeader("Saison active")) return String(value).trim();
+    function findSeason(paramRows){
+      for (const row of paramRows) {
+        const left = normalize(row[0]);
+        const right = String(row[1] || "").trim();
+        if (left === "saison active") return right;
       }
       return "";
     }
@@ -194,17 +214,45 @@
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-        const [parametres, equipes, joueurs, matchs] = await Promise.all([
-          fetchSheet(SHEETS.parametres),
-          fetchSheet(SHEETS.equipes),
-          fetchSheet(SHEETS.joueurs),
-          fetchSheet(SHEETS.matchs)
+
+        const [paramRows, eqRows, jrRows, mtRows] = await Promise.all([
+          fetchRows(SHEETS.parametres),
+          fetchRows(SHEETS.equipes),
+          fetchRows(SHEETS.joueurs),
+          fetchRows(SHEETS.matchs)
         ]);
 
-        state.season = detectActiveSeason(parametres);
-        state.equipes = equipes;
-        state.joueurs = joueurs;
-        state.matchs = matchs;
+        state.season = findSeason(paramRows);
+
+        state.equipes = eqRows.slice(1).map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          categorie: String(r[2] || "").trim(),
+          coach: String(r[3] || "").trim()
+        })).filter(x => x.equipe);
+
+        state.joueurs = jrRows.slice(1).map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          joueur: String(r[2] || "").trim(),
+          licence: String(r[3] || "").trim(),
+          numero: String(r[4] || "").trim(),
+          poste: String(r[5] || "").trim()
+        })).filter(x => x.joueur);
+
+        state.matchs = mtRows.slice(1).map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          date: String(r[2] || "").trim(),
+          heure: String(r[3] || "").trim(),
+          adversaire: String(r[4] || "").trim(),
+          type: String(r[5] || "").trim(),
+          adresse: String(r[6] || "").trim(),
+          competition: String(r[7] || "").trim(),
+          tour: String(r[8] || "").trim(),
+          score: String(r[9] || "").trim(),
+          statut: String(r[10] || "").trim()
+        })).filter(x => x.equipe || x.date || x.adversaire);
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
@@ -213,7 +261,7 @@
         console.error(err);
         setStatus("Erreur de chargement");
         document.getElementById("teamsList").innerHTML =
-          '<div class="empty">Impossible de charger les données. Vérifie que les feuilles s’appellent bien PARAMETRES, EQUIPES, JOUEURS et MATCHS et que le fichier est en accès lecteur.</div>';
+          '<div class="empty">Impossible de charger les données. Vérifie les feuilles PARAMETRES, EQUIPES, JOUEURS, MATCHS.</div>';
       }
     }
 
@@ -221,13 +269,10 @@
       const el = document.getElementById("teamsList");
       const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
 
-      let teams = state.equipes.filter(t => {
-        const saison = String(getValue(t, ["Saison"])).trim();
-        return !state.season || saison === state.season;
-      });
+      let teams = state.equipes.filter(t => !state.season || t.saison === state.season);
 
       if(q){
-        teams = teams.filter(t => String(getValue(t, ["Équipe", "Equipe"])).toLowerCase().includes(q));
+        teams = teams.filter(t => t.equipe.toLowerCase().includes(q));
       }
 
       if(!teams.length){
@@ -235,16 +280,12 @@
         return;
       }
 
-      el.innerHTML = teams.map(t => {
-        const team = getValue(t, ["Équipe", "Equipe"]);
-        const cat = getValue(t, ["Catégorie", "Categorie"]);
-        const coach = getValue(t, ["Coach"]);
-        return `
-          <div class="item" data-team="${escapeHtml(team)}" data-cat="${escapeHtml(cat)}" data-coach="${escapeHtml(coach)}">
-            <div class="item-title">${escapeHtml(team)}</div>
-            <div class="item-sub">${escapeHtml(cat || "Catégorie non renseignée")} ${coach ? "• Coach : " + escapeHtml(coach) : ""}</div>
-          </div>`;
-      }).join("");
+      el.innerHTML = teams.map(t => `
+        <div class="item" data-team="${escapeHtml(t.equipe)}" data-cat="${escapeHtml(t.categorie)}" data-coach="${escapeHtml(t.coach)}">
+          <div class="item-title">${escapeHtml(t.equipe)}</div>
+          <div class="item-sub">${escapeHtml(t.categorie || "Catégorie non renseignée")} ${t.coach ? "• Coach : " + escapeHtml(t.coach) : ""}</div>
+        </div>
+      `).join("");
 
       el.querySelectorAll(".item").forEach(node => {
         node.addEventListener("click", () => {
@@ -254,95 +295,82 @@
     }
 
     function selectTeam(team, cat, coach){
-      state.selectedTeam = {team, cat, coach};
+      state.selectedTeam = { team, cat, coach };
       document.getElementById("teamMenuTitle").textContent = team;
-      document.getElementById("teamMenuSub").textContent = [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
+      document.getElementById("teamMenuSub").textContent =
+        [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
       showScreen("teamMenuScreen");
     }
 
     function openPlayers(){
-      const team = state.selectedTeam?.team;
+      const team = state.selectedTeam?.team || "";
       document.getElementById("playersTitle").textContent = "Joueurs — " + team;
 
-      const rows = state.joueurs.filter(j => {
-        const saison = String(getValue(j, ["Saison"])).trim();
-        const equipe = String(getValue(j, ["Équipe", "Equipe"])).trim();
-        return equipe === team && (!state.season || saison === state.season);
-      });
+      const rows = state.joueurs.filter(j => j.equipe === team && (!state.season || j.saison === state.season));
 
       const el = document.getElementById("playersList");
       if(!rows.length){
         el.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette équipe et cette saison.</div>';
       } else {
-        el.innerHTML = rows.map(j => {
-          const numero = getValue(j, ["Numéro", "Numero"]);
-          const nom = getValue(j, ["Joueur"]);
-          const licence = getValue(j, ["Numéro licence", "Numero licence"]);
-          return `
-            <div class="item">
-              <div class="item-title">${numero ? "#" + escapeHtml(numero) + " — " : ""}${escapeHtml(nom)}</div>
-              <div class="item-sub">${licence ? "Licence : " + escapeHtml(licence) : "Licence non renseignée"}</div>
-            </div>`;
-        }).join("");
+        el.innerHTML = rows.map(j => `
+          <div class="item">
+            <div class="item-title">${j.numero ? "#" + escapeHtml(j.numero) + " — " : ""}${escapeHtml(j.joueur)}</div>
+            <div class="item-sub">${j.licence ? "Licence : " + escapeHtml(j.licence) : "Licence non renseignée"}${j.poste ? " • Poste : " + escapeHtml(j.poste) : ""}</div>
+          </div>
+        `).join("");
       }
+
       showScreen("playersScreen");
     }
 
     function openMatches(){
-      const team = state.selectedTeam?.team;
+      const team = state.selectedTeam?.team || "";
       document.getElementById("matchesTitle").textContent = "Matchs — " + team;
 
-      const rows = state.matchs.filter(m => {
-        const saison = String(getValue(m, ["Saison"])).trim();
-        const equipe = String(getValue(m, ["Équipe", "Equipe"])).trim();
-        return equipe === team && (!state.season || saison === state.season);
-      });
-
+      const rows = state.matchs.filter(m => m.equipe === team && (!state.season || m.saison === state.season));
       state.currentMatchRows = rows;
-      const el = document.getElementById("matchesList");
 
+      const el = document.getElementById("matchesList");
       if(!rows.length){
         el.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe et cette saison.</div>';
       } else {
         el.innerHTML = rows.map((m, idx) => {
-          const type = getValue(m, ["Lieu", "Domicile/Extérieur", "Domicile / Extérieur"]);
-          const home = String(type).toLowerCase().includes("dom");
-          const badge = home ? '<span class="badge-home">Domicile</span>' : '<span class="badge-away">Extérieur</span>';
+          const typeInfo = badgeForType(m.type);
           return `
             <div class="item" data-idx="${idx}">
-              <div class="item-title">${escapeHtml(getValue(m, ["Date"]))} ${badge}</div>
-              <div class="item-sub">${escapeHtml(getValue(m, ["Heure"]))} • ${escapeHtml(getValue(m, ["Adversaire"]))}</div>
-              <div class="item-sub">${escapeHtml(getValue(m, ["Adresse"]))}</div>
-            </div>`;
+              <div class="item-title">${escapeHtml(m.date)} ${typeInfo.badge}</div>
+              <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(m.adversaire)}</div>
+              <div class="item-sub">${escapeHtml(m.adresse)}</div>
+            </div>
+          `;
         }).join("");
 
         el.querySelectorAll(".item").forEach(node => {
           node.addEventListener("click", () => openMatchDetail(Number(node.dataset.idx)));
         });
       }
+
       showScreen("matchesScreen");
     }
 
     function openMatchDetail(idx){
       const m = state.currentMatchRows[idx];
-      document.getElementById("detailTitle").textContent = (state.selectedTeam?.team || "") + " vs " + getValue(m, ["Adversaire"]);
-      document.getElementById("detailDate").textContent = getValue(m, ["Date"]);
-      document.getElementById("detailTime").textContent = getValue(m, ["Heure"]);
-      document.getElementById("detailOpponent").textContent = getValue(m, ["Adversaire"]);
-      document.getElementById("detailType").textContent = getValue(m, ["Lieu", "Domicile/Extérieur", "Domicile / Extérieur"]);
-      document.getElementById("detailAddress").textContent = getValue(m, ["Adresse"]);
-      document.getElementById("detailSeason").textContent = getValue(m, ["Saison"]);
-      document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(getValue(m, ["Adresse"]) || getValue(m, ["Adversaire"]));
-      showScreen("matchDetailScreen");
-    }
+      const typeInfo = badgeForType(m.type);
 
-    function escapeHtml(str){
-      return String(str || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+      document.getElementById("detailTitle").textContent = `${m.equipe} vs ${m.adversaire}`;
+      document.getElementById("detailDate").textContent = m.date || "-";
+      document.getElementById("detailTime").textContent = m.heure || "-";
+      document.getElementById("detailOpponent").textContent = m.adversaire || "-";
+      document.getElementById("detailType").textContent = typeInfo.label || "-";
+      document.getElementById("detailAddress").textContent = m.adresse || "-";
+      document.getElementById("detailCompetition").textContent = m.competition || "-";
+      document.getElementById("detailTour").textContent = m.tour || "-";
+      document.getElementById("detailScore").textContent = m.score || "-";
+      document.getElementById("detailStatus").textContent = m.statut || "-";
+      document.getElementById("detailSeason").textContent = m.saison || "-";
+      document.getElementById("mapsLink").href =
+        "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(m.adresse || m.adversaire || "");
+      showScreen("matchDetailScreen");
     }
 
     reloadData();
