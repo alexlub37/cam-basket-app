@@ -82,7 +82,7 @@
         <h1>CAM Basket Montrichard</h1>
         <div class="sub">Équipes • Joueurs • Matchs • Saison active</div>
       </div>
-      <div class="version-badge">Version V5</div>
+      <div class="version-badge">Version V6</div>
     </div>
     <div class="top-actions">
       <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
@@ -147,7 +147,10 @@
         <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
         <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
         <div class="detail-row"><span class="detail-label">Domicile / Extérieur</span><span id="detailType"></span></div>
+        <div class="detail-row"><span class="detail-label">Gymnase</span><span id="detailGym"></span></div>
         <div class="detail-row"><span class="detail-label">Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">Code postal</span><span id="detailPostal"></span></div>
+        <div class="detail-row"><span class="detail-label">Ville</span><span id="detailCity"></span></div>
         <div class="detail-row"><span class="detail-label">Compétition</span><span id="detailCompetition"></span></div>
         <div class="detail-row"><span class="detail-label">Tour</span><span id="detailTour"></span></div>
         <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
@@ -183,9 +186,7 @@
       document.getElementById(id).classList.add("active");
     }
 
-    function setStatus(text){
-      document.getElementById("status").textContent = text;
-    }
+    function setStatus(text){ document.getElementById("status").textContent = text; }
 
     function escapeHtml(str){
       return String(str || "")
@@ -208,7 +209,6 @@
       const t = normalize(type);
       const isHome = ["d","dom","domicile"].includes(t);
       const isAway = ["e","ext","exterieur","extérieur"].includes(t);
-
       if (isHome) return { label: "Domicile", badge: '<span class="badge-home">Domicile</span>' };
       if (isAway) return { label: "Extérieur", badge: '<span class="badge-away">Extérieur</span>' };
       return { label: String(type || "-"), badge: "" };
@@ -238,7 +238,6 @@
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-
         const [paramRows, eqRows, jrRows, mtRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
@@ -248,7 +247,6 @@
 
         state.season = findSeason(paramRows);
 
-        // Correction du bug : on ne saute plus la première ligne de données
         state.equipes = eqRows.map(r => ({
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
@@ -265,6 +263,9 @@
           poste: String(r[5] || "").trim()
         })).filter(x => x.joueur && normalize(x.saison) !== "saison");
 
+        // MATCHS attendu :
+        // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
+        // G Gymnase | H Adresse | I Code postal | J Ville | K Compétition | L Tour | M Score | N Statut
         state.matchs = mtRows.map(r => ({
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
@@ -272,11 +273,14 @@
           heure: String(r[3] || "").trim(),
           adversaire: String(r[4] || "").trim(),
           type: String(r[5] || "").trim(),
-          adresse: String(r[6] || "").trim(),
-          competition: String(r[7] || "").trim(),
-          tour: String(r[8] || "").trim(),
-          score: String(r[9] || "").trim(),
-          statut: String(r[10] || "").trim()
+          gymnase: String(r[6] || "").trim(),
+          adresse: String(r[7] || "").trim(),
+          codePostal: String(r[8] || "").trim(),
+          ville: String(r[9] || "").trim(),
+          competition: String(r[10] || "").trim(),
+          tour: String(r[11] || "").trim(),
+          score: String(r[12] || "").trim(),
+          statut: String(r[13] || "").trim()
         })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
@@ -295,10 +299,7 @@
       const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
 
       let teams = state.equipes.filter(t => !state.season || t.saison === state.season);
-
-      if(q){
-        teams = teams.filter(t => t.equipe.toLowerCase().includes(q));
-      }
+      if(q){ teams = teams.filter(t => t.equipe.toLowerCase().includes(q)); }
 
       if(!teams.length){
         el.innerHTML = '<div class="empty">Aucune équipe trouvée pour la saison active.</div>';
@@ -313,24 +314,20 @@
       `).join("");
 
       el.querySelectorAll(".item").forEach(node => {
-        node.addEventListener("click", () => {
-          selectTeam(node.dataset.team, node.dataset.cat, node.dataset.coach);
-        });
+        node.addEventListener("click", () => selectTeam(node.dataset.team, node.dataset.cat, node.dataset.coach));
       });
     }
 
     function selectTeam(team, cat, coach){
       state.selectedTeam = { team, cat, coach };
       document.getElementById("teamMenuTitle").textContent = team;
-      document.getElementById("teamMenuSub").textContent =
-        [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
+      document.getElementById("teamMenuSub").textContent = [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
       showScreen("teamMenuScreen");
     }
 
     function openPlayers(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("playersTitle").textContent = "Joueurs — " + team;
-
       const rows = state.joueurs.filter(j => j.equipe === team && (!state.season || j.saison === state.season));
 
       const el = document.getElementById("playersList");
@@ -344,14 +341,12 @@
           </div>
         `).join("");
       }
-
       showScreen("playersScreen");
     }
 
     function openMatches(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("matchesTitle").textContent = "Matchs — " + team;
-
       const rows = state.matchs.filter(m => m.equipe === team && (!state.season || m.saison === state.season));
       state.currentMatchRows = rows;
 
@@ -361,11 +356,12 @@
       } else {
         el.innerHTML = rows.map((m, idx) => {
           const typeInfo = badgeForType(m.type);
+          const lieuLigne = [m.gymnase, m.ville].filter(Boolean).join(" • ");
           return `
             <div class="item" data-idx="${idx}">
               <div class="item-title">${escapeHtml(m.date)} ${typeInfo.badge}</div>
               <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(m.adversaire)}</div>
-              <div class="item-sub">${escapeHtml(m.adresse)}</div>
+              <div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>
             </div>
           `;
         }).join("");
@@ -374,27 +370,29 @@
           node.addEventListener("click", () => openMatchDetail(Number(node.dataset.idx)));
         });
       }
-
       showScreen("matchesScreen");
     }
 
     function openMatchDetail(idx){
       const m = state.currentMatchRows[idx];
       const typeInfo = badgeForType(m.type);
+      const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
 
       document.getElementById("detailTitle").textContent = `${m.equipe} vs ${m.adversaire}`;
       document.getElementById("detailDate").textContent = m.date || "-";
       document.getElementById("detailTime").textContent = m.heure || "-";
       document.getElementById("detailOpponent").textContent = m.adversaire || "-";
       document.getElementById("detailType").textContent = typeInfo.label || "-";
+      document.getElementById("detailGym").textContent = m.gymnase || "-";
       document.getElementById("detailAddress").textContent = m.adresse || "-";
+      document.getElementById("detailPostal").textContent = m.codePostal || "-";
+      document.getElementById("detailCity").textContent = m.ville || "-";
       document.getElementById("detailCompetition").textContent = m.competition || "-";
       document.getElementById("detailTour").textContent = m.tour || "-";
       document.getElementById("detailScore").textContent = m.score || "-";
       document.getElementById("detailStatus").textContent = m.statut || "-";
       document.getElementById("detailSeason").textContent = m.saison || "-";
-      document.getElementById("mapsLink").href =
-        "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(m.adresse || m.adversaire || "");
+      document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
       showScreen("matchDetailScreen");
     }
 
