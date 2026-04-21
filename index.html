@@ -7,151 +7,199 @@
   <meta name="theme-color" content="#1f4e79" />
   <style>
     :root{
-      --bg:#0d0d0d;
-      --card:#171717;
-      --card2:#202020;
+      --bg:#050505;
+      --card:#121212;
+      --card2:#181818;
       --text:#ffffff;
-      --muted:#d7d7d7;
-      --line:#343434;
+      --muted:#cfcfcf;
+      --line:#2d2d2d;
       --accent:#ffd400;
       --ok:#1faa59;
       --warn:#ff9f1c;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
     header{
       background:#000;
       color:#fff;
-      padding:14px 14px 16px;
-      position:sticky;
-      top:0;
-      z-index:100;
-      border-bottom:1px solid #202020;
+      padding:18px 14px 16px;
+      border-bottom:1px solid #1f1f1f;
       box-shadow:0 4px 16px rgba(0,0,0,.35);
     }
-    .header-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
+    .hero{
+      max-width:900px;
+      margin:0 auto;
+      text-align:center;
     }
-    .brand{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      min-width:0;
-      width:100%;
-    }
-    .brand-logo{
-      width:60px;
-      height:auto;
-      display:block;
-    }
-    .brand-text{min-width:0;flex:1}
-    .logo-btn{
+    .hero-logo-btn{
       background:transparent;
       border:0;
       padding:0;
+      margin:0 0 10px 0;
       min-width:auto;
       min-height:auto;
       cursor:pointer;
-      flex:0 0 auto;
     }
-    header h1{margin:0;font-size:20px;line-height:1.05;color:#fff}
-    header .sub{margin-top:4px;font-size:12px;opacity:.96;color:var(--accent)}
-    .version-badge{
-      background:var(--accent);
-      border:1px solid rgba(0,0,0,.2);
-      color:#000;
-      padding:5px 8px;
-      border-radius:999px;
-      font-size:11px;
-      font-weight:800;
-      white-space:nowrap;
-      flex:0 0 auto;
+    .hero-logo{
+      width:120px;
+      height:auto;
+      display:block;
+      margin:0 auto;
+    }
+    .hero-title{
+      margin:0;
+      font-size:34px;
+      line-height:0.98;
+      color:#fff;
+      font-weight:900;
+    }
+    .hero-sub{
+      margin-top:10px;
+      font-size:14px;
+      color:var(--accent);
+      line-height:1.35;
     }
     .top-actions{
       display:grid;
-      grid-template-columns:repeat(2, 1fr);
-      gap:8px;
-      margin-top:12px;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:18px;
     }
     button{
-      border:1px solid var(--accent);
-      border-radius:12px;
-      padding:9px 6px;
-      font-size:13px;
-      font-weight:800;
+      border:2px solid var(--accent);
+      border-radius:18px;
+      padding:14px 10px;
+      font-size:15px;
+      font-weight:900;
       cursor:pointer;
       min-width:0;
+      background:#0b0b0b;
+      color:#fff;
     }
-    .btn-light{background:var(--accent);color:#000}
-    .btn-outline{background:#111;color:#fff;border:1px solid var(--accent)}
-    main{padding:14px;max-width:900px;margin:0 auto}
-    .screen{display:none}.screen.active{display:block}
+    .btn-light{
+      background:var(--accent);
+      color:#000;
+    }
+    .btn-outline{
+      background:#0b0b0b;
+      color:#fff;
+    }
+    main{
+      padding:16px 14px 28px;
+      max-width:900px;
+      margin:0 auto;
+    }
+    .screen{display:none}
+    .screen.active{display:block}
     .card{
-      background:var(--card);
+      background:linear-gradient(180deg,#151515,#121212);
       border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      margin-bottom:12px;
+      border-radius:24px;
+      padding:20px;
+      margin-bottom:14px;
       box-shadow:0 2px 10px rgba(0,0,0,.18);
     }
     .muted{color:var(--muted)}
-    .list{display:grid;gap:10px}
+    .list{display:grid;gap:12px}
     .item{
-      background:var(--card2);
+      background:linear-gradient(180deg,#1a1a1a,#171717);
       border:1px solid var(--line);
-      border-radius:16px;
-      padding:14px;
+      border-radius:20px;
+      padding:18px;
       cursor:pointer;
     }
-    .item-title{font-weight:800;font-size:18px;margin-bottom:6px;color:#fff}
-    .item-sub{color:var(--muted);font-size:14px;line-height:1.35}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .item-title{
+      font-weight:900;
+      font-size:22px;
+      margin-bottom:8px;
+      color:#fff;
+    }
+    .item-sub{
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.35;
+    }
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .menu-btn{
-      background:var(--card2);
+      background:linear-gradient(180deg,#1a1a1a,#171717);
       border:1px solid var(--line);
       color:var(--text);
       text-align:left;
-      padding:16px;
-      border-radius:16px;
+      padding:18px;
+      border-radius:20px;
       width:100%;
     }
-    .menu-btn .big{display:block;font-size:17px;font-weight:800;margin-bottom:4px;color:#fff}
-    .menu-btn .small{display:block;color:var(--muted);font-size:13px;font-weight:500}
-    .detail-row{margin:10px 0;font-size:15px}
+    .menu-btn .big{display:block;font-size:18px;font-weight:900;margin-bottom:6px;color:#fff}
+    .menu-btn .small{display:block;color:var(--muted);font-size:14px;font-weight:500}
+    .detail-row{margin:12px 0;font-size:16px}
     .detail-label{
       color:var(--accent);
       display:block;
       font-size:12px;
-      margin-bottom:2px;
+      margin-bottom:3px;
       text-transform:uppercase;
       letter-spacing:.04em;
-      font-weight:800;
+      font-weight:900;
     }
     .badge-home,.badge-away{
-      display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800;margin-left:8px
+      display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;margin-left:8px
     }
     .badge-home{background:#143f20;color:#9effb8;border:1px solid #1faa59}
     .badge-away{background:#4a2e00;color:#ffd08a;border:1px solid #ff9f1c}
-    .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
     .search{
       width:100%;
-      padding:12px 13px;
-      border-radius:12px;
+      padding:16px 16px;
+      border-radius:18px;
       border:1px solid var(--line);
-      font-size:15px;
-      background:#101010;
+      font-size:17px;
+      background:#0b0b0b;
       color:#fff;
     }
     .search::placeholder{color:#9f9f9f}
     .empty{
-      text-align:center;color:var(--muted);padding:26px 14px;border:1px dashed var(--line);border-radius:14px;background:var(--card)
+      text-align:center;color:var(--muted);padding:28px 14px;border:1px dashed var(--line);border-radius:18px;background:var(--card)
     }
-    .back{margin-bottom:10px;background:#111;color:var(--accent);border:1px solid var(--accent)}
-    .status{margin-top:10px;font-size:13px;opacity:.98;color:#fff}
+    .back{
+      margin-bottom:12px;
+      background:#0b0b0b;
+      color:var(--accent);
+      border:2px solid var(--accent);
+      border-radius:18px;
+      padding:12px 14px;
+      font-size:15px;
+      font-weight:900;
+    }
+    .status{
+      margin-top:14px;
+      font-size:16px;
+      color:#fff;
+    }
+    .pill{
+      display:inline-block;
+      background:rgba(255,212,0,.13);
+      color:var(--accent);
+      border:1px solid rgba(255,212,0,.35);
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900
+    }
+    a.link-btn{
+      display:inline-block;
+      text-decoration:none;
+      background:var(--accent);
+      color:#000;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:900;
+      font-size:15px
+    }
     .modal-overlay{
       position:fixed;
       inset:0;
@@ -184,7 +232,7 @@
     }
     .modal-label{
       color:#fff;
-      font-weight:800;
+      font-weight:900;
     }
     .modal-list{
       margin:10px 0 16px 18px;
@@ -199,38 +247,27 @@
       border:1px solid var(--accent);
       padding:12px 10px;
       border-radius:12px;
-      font-weight:800;
+      font-weight:900;
       font-size:14px;
-    }
-    .pill{
-      display:inline-block;background:rgba(255,212,0,.13);color:var(--accent);border:1px solid rgba(255,212,0,.35);
-      padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800
-    }
-    a.link-btn{
-      display:inline-block;text-decoration:none;background:var(--accent);color:#000;padding:11px 14px;border-radius:12px;font-weight:800;font-size:14px
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="header-top">
-      <div class="brand">
-        <div class="brand-text">
-          <h1>CAM Basket<br>Montrichard</h1>
-          <div class="sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
-        </div>
-        <button class="logo-btn" onclick="openInfoModal()" aria-label="Informations application">
-          <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="brand-logo">
-        </button>
+    <div class="hero">
+      <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
+        <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
+      </button>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>
+      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
+      <div class="top-actions">
+        <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
+        <button class="btn-outline" onclick="showScreen('bureauScreen')">Bureau</button>
+        <button class="btn-outline" onclick="showScreen('benevolesScreen')">Bénévoles</button>
+        <button class="btn-outline" onclick="reloadData()">Mettre à jour</button>
       </div>
-</div>
-    <div class="top-actions">
-      <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
-      <button class="btn-outline" onclick="showScreen('bureauScreen')">Bureau</button>
-      <button class="btn-outline" onclick="showScreen('benevolesScreen')">Bénévoles</button>
-      <button class="btn-outline" onclick="reloadData()">Mettre à jour</button>
+      <div id="status" class="status">Chargement…</div>
     </div>
-    <div id="status" class="status">Chargement…</div>
   </header>
 
   <main>
@@ -611,37 +648,7 @@
     }
 
 
-    function openInfoModal(){
-      document.getElementById('infoModal').classList.add('active');
-    }
-
-    function closeInfoModal(event){
-      if(!event || event.target.id === 'infoModal' || event.currentTarget?.id === 'infoModal'){
-        document.getElementById('infoModal').classList.remove('active');
-      }
-    }
-
     reloadData();
   </script>
-
-  <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V22</div>
-      <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
-      <div class="modal-line"><span class="modal-label">Créé par :</span> Alex</div>
-      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
-      <div class="modal-line"><span class="modal-label">Modifications :</span></div>
-      <ul class="modal-list">
-        <li>Design noir / jaune / blanc</li>
-        <li>Logo déplacé à droite</li>
-        <li>Logo cliquable avec fenêtre d'information</li>
-        <li>Boutons réorganisés en 2 x 2</li>
-        <li>Ajout Bureau et Bénévoles</li>
-      </ul>
-      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
-    </div>
-  </div>
-
 </body>
 </html>
