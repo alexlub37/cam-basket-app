@@ -60,7 +60,7 @@
     }
     .hero-sub{
       margin-top:10px;
-      font-size:14px;
+      font-size:13px;
       color:var(--accent);
       line-height:1.35;
     }
@@ -68,13 +68,13 @@
       display:grid;
       grid-template-columns:repeat(2, minmax(0, 170px));
       justify-content:center;
-      gap:10px;
+      gap:8px;
       margin-top:18px;
     }
     button{
       border:2px solid var(--accent);
       border-radius:18px;
-      padding:11px 10px;
+      padding:6px 10px;
       font-size:14px;
       font-weight:900;
       cursor:pointer;
@@ -270,7 +270,7 @@
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
-        <button id="btn-teams" class="btn-light" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
+        <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
         <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
         <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
         <button id="btn-update" class="btn-outline" onclick="setActiveButton(null); reloadData()">Mettre à jour</button>
@@ -659,23 +659,44 @@
 
 
     function setActiveButton(name){
-      const ids = ['btn-teams','btn-bureau','btn-benevoles'];
-      ids.forEach(id => {
+      const buttons = ['btn-teams','btn-bureau','btn-benevoles'];
+
+      buttons.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.classList.remove('active');
+        if(el){
+          el.classList.remove('active');
+          el.classList.remove('btn-light');
+          el.classList.add('btn-outline');
+        }
       });
-      if(name === 'teams') document.getElementById('btn-teams')?.classList.add('active');
-      if(name === 'bureau') document.getElementById('btn-bureau')?.classList.add('active');
-      if(name === 'benevoles') document.getElementById('btn-benevoles')?.classList.add('active');
+
+      if(name){
+        const active = document.getElementById('btn-' + name);
+        if(active){
+          active.classList.add('active');
+          active.classList.remove('btn-outline');
+          active.classList.add('btn-light');
+        }
+      }
     }
 
+
+function openInfoModal(){
+      document.getElementById('infoModal').classList.add('active');
+    }
+
+    function closeInfoModal(e){
+      if(!e || e.target.id === 'infoModal'){
+        document.getElementById('infoModal').classList.remove('active');
+      }
+    }
 
     reloadData();
   </script>
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V24</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V26</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
