@@ -19,9 +19,32 @@
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    header{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:18px 16px 20px;position:sticky;top:0;z-index:10}
+    header{
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#fff;
+      padding:18px 16px 20px;
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+    .header-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
     header h1{margin:0;font-size:22px}
     header .sub{margin-top:6px;font-size:13px;opacity:.92}
+    .version-badge{
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.35);
+      color:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+    }
     .top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
     button{border:0;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer}
     .btn-light{background:#fff;color:var(--accent)}
@@ -54,8 +77,13 @@
 </head>
 <body>
   <header>
-    <h1>CAM Basket Montrichard</h1>
-    <div class="sub">Équipes • Joueurs • Matchs • Saison active</div>
+    <div class="header-top">
+      <div>
+        <h1>CAM Basket Montrichard</h1>
+        <div class="sub">Équipes • Joueurs • Matchs • Saison active</div>
+      </div>
+      <div class="version-badge">Version V5</div>
+    </div>
     <div class="top-actions">
       <button class="btn-light" onclick="showScreen('teamsScreen')">Équipes</button>
       <button class="btn-outline" onclick="reloadData()">Actualiser</button>
@@ -181,12 +209,8 @@
       const isHome = ["d","dom","domicile"].includes(t);
       const isAway = ["e","ext","exterieur","extérieur"].includes(t);
 
-      if (isHome) {
-        return { label: "Domicile", badge: '<span class="badge-home">Domicile</span>' };
-      }
-      if (isAway) {
-        return { label: "Extérieur", badge: '<span class="badge-away">Extérieur</span>' };
-      }
+      if (isHome) return { label: "Domicile", badge: '<span class="badge-home">Domicile</span>' };
+      if (isAway) return { label: "Extérieur", badge: '<span class="badge-away">Extérieur</span>' };
       return { label: String(type || "-"), badge: "" };
     }
 
@@ -224,23 +248,24 @@
 
         state.season = findSeason(paramRows);
 
-        state.equipes = eqRows.slice(1).map(r => ({
+        // Correction du bug : on ne saute plus la première ligne de données
+        state.equipes = eqRows.map(r => ({
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
           categorie: String(r[2] || "").trim(),
           coach: String(r[3] || "").trim()
-        })).filter(x => x.equipe);
+        })).filter(x => x.equipe && normalize(x.saison) !== "saison");
 
-        state.joueurs = jrRows.slice(1).map(r => ({
+        state.joueurs = jrRows.map(r => ({
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
           joueur: String(r[2] || "").trim(),
           licence: String(r[3] || "").trim(),
           numero: String(r[4] || "").trim(),
           poste: String(r[5] || "").trim()
-        })).filter(x => x.joueur);
+        })).filter(x => x.joueur && normalize(x.saison) !== "saison");
 
-        state.matchs = mtRows.slice(1).map(r => ({
+        state.matchs = mtRows.map(r => ({
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
           date: String(r[2] || "").trim(),
@@ -252,7 +277,7 @@
           tour: String(r[8] || "").trim(),
           score: String(r[9] || "").trim(),
           statut: String(r[10] || "").trim()
-        })).filter(x => x.equipe || x.date || x.adversaire);
+        })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
