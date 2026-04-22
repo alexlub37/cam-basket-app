@@ -266,6 +266,26 @@
       font-size:11px;
     }
   </style>
+
+<style>
+/* Masquer champs inutiles */
+#detailPostal, #detailCity,
+#detailCompetition, #detailTour,
+#detailScore, #detailStatut {
+    display: none;
+}
+
+/* Masquer leurs labels */
+.detail-row:has(#detailPostal),
+.detail-row:has(#detailCity),
+.detail-row:has(#detailCompetition),
+.detail-row:has(#detailTour),
+.detail-row:has(#detailScore),
+.detail-row:has(#detailStatut) {
+    display: none;
+}
+</style>
+
 </head>
 <body>
   <header>
@@ -704,7 +724,7 @@ function openInfoModal(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V26</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V27</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
