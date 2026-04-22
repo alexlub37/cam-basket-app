@@ -286,6 +286,11 @@
 }
 </style>
 
+
+<style>
+#domicileOfficialsBlock{display:none}
+</style>
+
 </head>
 <body>
   <header>
@@ -370,6 +375,12 @@
         <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
         <div class="detail-row"><span class="detail-label">Statut</span><span id="detailStatus"></span></div>
         <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
+        <div id="domicileOfficialsBlock">
+          <div class="detail-row"><span class="detail-label">Arbitre 1</span><span id="detailArbitre1"></span></div>
+          <div class="detail-row"><span class="detail-label">Arbitre 2</span><span id="detailArbitre2"></span></div>
+          <div class="detail-row"><span class="detail-label">Chrono</span><span id="detailChrono"></span></div>
+          <div class="detail-row"><span class="detail-label">Table</span><span id="detailTable"></span></div>
+        </div>
         <div style="margin-top:14px">
           <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
         </div>
@@ -558,7 +569,7 @@
 
         // MATCHS attendu :
         // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
-        // G Gymnase | H Adresse | I Code postal | J Ville | K Compétition | L Tour | M Score | N Statut
+        // G Gymnase | H Adresse | I Code postal | J Ville | K Arbitre 1 | L Arbitre 2 | M Chrono | N Table
         state.matchs = mtRows.map(r => ({
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
@@ -570,10 +581,10 @@
           adresse: String(r[7] || "").trim(),
           codePostal: String(r[8] || "").trim(),
           ville: String(r[9] || "").trim(),
-          competition: String(r[10] || "").trim(),
-          tour: String(r[11] || "").trim(),
-          score: String(r[12] || "").trim(),
-          statut: String(r[13] || "").trim()
+          arbitre1: String(r[10] || "").trim(),
+          arbitre2: String(r[11] || "").trim(),
+          chrono: String(r[12] || "").trim(),
+          table: String(r[13] || "").trim()
         })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
 
         state.bureau = bureauRows.map(r => ({
@@ -707,6 +718,23 @@
       document.getElementById("detailScore").textContent = m.score || "-";
       document.getElementById("detailStatus").textContent = m.statut || "-";
       document.getElementById("detailSeason").textContent = m.saison || "-";
+
+      const isHome = ["d","dom","domicile"].includes(normalize(m.type));
+      const officialsBlock = document.getElementById("domicileOfficialsBlock");
+      if (isHome) {
+        officialsBlock.style.display = "block";
+        document.getElementById("detailArbitre1").textContent = m.arbitre1 || "-";
+        document.getElementById("detailArbitre2").textContent = m.arbitre2 || "-";
+        document.getElementById("detailChrono").textContent = m.chrono || "-";
+        document.getElementById("detailTable").textContent = m.table || "-";
+      } else {
+        officialsBlock.style.display = "none";
+        document.getElementById("detailArbitre1").textContent = "";
+        document.getElementById("detailArbitre2").textContent = "";
+        document.getElementById("detailChrono").textContent = "";
+        document.getElementById("detailTable").textContent = "";
+      }
+
       document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
       showScreen("matchDetailScreen");
     }
@@ -781,7 +809,7 @@ function openInfoModal(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V31</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V32</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -790,7 +818,7 @@ function openInfoModal(){
         <li>Header centré</li>
         <li>Boutons 2 x 2 plus lisibles</li>
         <li>Ajout Bureau et Bénévoles</li>
-        <li>Lecture JOUEURS en CSV brut + saison flexible</li>
+        <li>Ajout officiels domicile : arbitres, chrono, table</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
