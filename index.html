@@ -3,7 +3,7 @@
 <head>
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
-<link rel="icon" type="image/png" sizes="32x32" href="logo_32.png">
+<link rel="icon" href="logo.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
@@ -288,14 +288,77 @@
 
 
 <style>
-#domicileOfficialsBlock{display:none}
+.coach-tools{margin-top:16px;display:grid;gap:10px}
+.coach-btn{
+  width:100%;
+  border:2px solid var(--accent);
+  border-radius:18px;
+  padding:12px 14px;
+  font-size:15px;
+  font-weight:900;
+  background:#0b0b0b;
+  color:#fff;
+}
+.coach-panel{
+  margin-top:12px;
+  display:none;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  background:#0b0b0b;
+}
+.coach-panel.active{display:block}
+.coach-small{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.45;
+  margin-top:8px;
+}
+.coach-response-list{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+.coach-response-item{
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#151515;
+}
+.coach-row-title{
+  font-weight:900;
+  font-size:15px;
+}
+.coach-row-sub{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:4px;
+}
+.coach-code-wrap{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+.coach-input{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:#0b0b0b;
+  color:#fff;
+  font-size:16px;
+}
+.coach-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.coach-secondary{
+  background:#151515;
+  color:#fff;
+  border:1px solid var(--line);
+}
 </style>
-
-
-<link rel="icon" type="image/png" sizes="32x32" href="logo_32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="logo_192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="logo_180.png">
-<meta name="apple-mobile-web-app-title" content="CAM Basket">
 
 </head>
 <body>
@@ -381,11 +444,28 @@
         <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
         <div class="detail-row"><span class="detail-label">Statut</span><span id="detailStatus"></span></div>
         <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
-        <div id="domicileOfficialsBlock">
-          <div class="detail-row"><span class="detail-label">Arbitre 1</span><span id="detailArbitre1"></span></div>
-          <div class="detail-row"><span class="detail-label">Arbitre 2</span><span id="detailArbitre2"></span></div>
-          <div class="detail-row"><span class="detail-label">Chrono</span><span id="detailChrono"></span></div>
-          <div class="detail-row"><span class="detail-label">Table</span><span id="detailTable"></span></div>
+        <div class="coach-tools">
+          <button class="coach-btn" onclick="openCoachAccess()">🔒 Réponses coach (essai)</button>
+          <div id="coachPanel" class="coach-panel">
+            <div class="detail-label">Accès coach</div>
+            <div class="coach-small">Zone de test. Les parents ne doivent pas voir cette partie si tu ne leur donnes pas le code.</div>
+            <div id="coachCodeWrap" class="coach-code-wrap">
+              <input id="coachCodeInput" class="coach-input" type="password" placeholder="Entrer le code coach">
+              <div class="coach-actions">
+                <button class="coach-btn" onclick="unlockCoachPanel()">Valider</button>
+                <button class="coach-btn coach-secondary" onclick="closeCoachPanel()">Fermer</button>
+              </div>
+            </div>
+            <div id="coachContent" style="display:none">
+              <div class="detail-label" style="margin-top:16px">Disponibilités (maquette)</div>
+              <div class="coach-small">Ceci est une maquette visuelle pour voir le fonctionnement avant de brancher le vrai formulaire.</div>
+              <div id="coachResponsesList" class="coach-response-list"></div>
+              <div class="coach-actions" style="margin-top:12px">
+                <button class="coach-btn">📋 Convocation</button>
+                <button class="coach-btn coach-secondary" onclick="closeCoachPanel()">Fermer</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div style="margin-top:14px">
           <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
@@ -498,42 +578,6 @@
       }));
     }
 
-    function parseCsvLine(line){
-      const out = [];
-      let cur = "";
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') {
-          if (inQuotes && line[i + 1] === '"') {
-            cur += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (ch === "," && !inQuotes) {
-          out.push(cur);
-          cur = "";
-        } else {
-          cur += ch;
-        }
-      }
-      out.push(cur);
-      return out;
-    }
-
-    async function fetchRowsCsv(sheetName){
-      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-      const res = await fetch(url);
-      const txt = await res.text();
-      return txt
-        .replace(/^\uFEFF/, "")
-        .split(/\r?\n/)
-        .filter(line => line.trim() !== "")
-        .map(parseCsvLine)
-        .map(row => row.map(cell => String(cell || "").trim()));
-    }
-
     function findSeason(paramRows){
       for (const row of paramRows) {
         const left = normalize(row[0]);
@@ -549,7 +593,7 @@
         const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
-          fetchRowsCsv(SHEETS.joueurs),
+          fetchRows(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles)
@@ -575,7 +619,7 @@
 
         // MATCHS attendu :
         // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
-        // G Gymnase | H Adresse | I Code postal | J Ville | K Arbitre 1 | L Arbitre 2 | M Chrono | N Table
+        // G Gymnase | H Adresse | I Code postal | J Ville | K Compétition | L Tour | M Score | N Statut
         state.matchs = mtRows.map(r => ({
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
@@ -587,10 +631,10 @@
           adresse: String(r[7] || "").trim(),
           codePostal: String(r[8] || "").trim(),
           ville: String(r[9] || "").trim(),
-          arbitre1: String(r[10] || "").trim(),
-          arbitre2: String(r[11] || "").trim(),
-          chrono: String(r[12] || "").trim(),
-          table: String(r[13] || "").trim()
+          competition: String(r[10] || "").trim(),
+          tour: String(r[11] || "").trim(),
+          score: String(r[12] || "").trim(),
+          statut: String(r[13] || "").trim()
         })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
 
         state.bureau = bureauRows.map(r => ({
@@ -724,23 +768,6 @@
       document.getElementById("detailScore").textContent = m.score || "-";
       document.getElementById("detailStatus").textContent = m.statut || "-";
       document.getElementById("detailSeason").textContent = m.saison || "-";
-
-      const isHome = ["d","dom","domicile"].includes(normalize(m.type));
-      const officialsBlock = document.getElementById("domicileOfficialsBlock");
-      if (isHome) {
-        officialsBlock.style.display = "block";
-        document.getElementById("detailArbitre1").textContent = m.arbitre1 || "-";
-        document.getElementById("detailArbitre2").textContent = m.arbitre2 || "-";
-        document.getElementById("detailChrono").textContent = m.chrono || "-";
-        document.getElementById("detailTable").textContent = m.table || "-";
-      } else {
-        officialsBlock.style.display = "none";
-        document.getElementById("detailArbitre1").textContent = "";
-        document.getElementById("detailArbitre2").textContent = "";
-        document.getElementById("detailChrono").textContent = "";
-        document.getElementById("detailTable").textContent = "";
-      }
-
       document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
       showScreen("matchDetailScreen");
     }
@@ -810,12 +837,64 @@ function openInfoModal(){
       }
     }
 
+
+    const COACH_CODE = "CAM2026";
+
+    function getMockResponsesForSelectedTeam(){
+      const team = state.selectedTeam?.team || "";
+      const teamPlayers = state.joueurs.filter(j => j.equipe === team && (!state.season || sameSeason(j.saison, state.season)));
+      return teamPlayers.slice(0, 12).map((j, idx) => {
+        const statuses = ["Présent", "Absent", "Sans réponse"];
+        return {
+          name: j.joueur || "Joueur",
+          status: statuses[idx % 3],
+          who: idx % 3 === 2 ? "" : (idx % 2 === 0 ? "Maman" : "Papa")
+        };
+      });
+    }
+
+    function openCoachAccess(){
+      document.getElementById("coachPanel").classList.add("active");
+      document.getElementById("coachCodeWrap").style.display = "grid";
+      document.getElementById("coachContent").style.display = "none";
+      document.getElementById("coachCodeInput").value = "";
+    }
+
+    function closeCoachPanel(){
+      document.getElementById("coachPanel").classList.remove("active");
+      document.getElementById("coachCodeWrap").style.display = "grid";
+      document.getElementById("coachContent").style.display = "none";
+    }
+
+    function unlockCoachPanel(){
+      const code = (document.getElementById("coachCodeInput").value || "").trim();
+      if(code !== COACH_CODE){
+        alert("Code coach incorrect");
+        return;
+      }
+      document.getElementById("coachCodeWrap").style.display = "none";
+      document.getElementById("coachContent").style.display = "block";
+
+      const rows = getMockResponsesForSelectedTeam();
+      const el = document.getElementById("coachResponsesList");
+      if(!rows.length){
+        el.innerHTML = '<div class="coach-response-item"><div class="coach-row-title">Aucune donnée</div><div class="coach-row-sub">Ajoute d’abord des joueurs dans l’équipe.</div></div>';
+        return;
+      }
+      el.innerHTML = rows.map(r => `
+        <div class="coach-response-item">
+          <div class="coach-row-title">${escapeHtml(r.name)} — ${escapeHtml(r.status)}</div>
+          <div class="coach-row-sub">${r.who ? "Réponse par " + escapeHtml(r.who) : "Pas encore de réponse"}</div>
+        </div>
+      `).join("");
+    }
+
     reloadData();
   </script>
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V33</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V30</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -824,7 +903,7 @@ function openInfoModal(){
         <li>Header centré</li>
         <li>Boutons 2 x 2 plus lisibles</li>
         <li>Ajout Bureau et Bénévoles</li>
-        <li>Ajout officiels domicile : arbitres, chrono, table</li>
+        <li>Lecture licence texte sécurisée + saison flexible</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
