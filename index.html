@@ -442,6 +442,10 @@
         .toLowerCase();
     }
 
+    function sameSeason(a, b){
+      return normalize(String(a || "")) === normalize(String(b || ""));
+    }
+
     function badgeForType(type){
       const t = normalize(type);
       const isHome = ["d","dom","domicile"].includes(t);
@@ -553,7 +557,7 @@
       const el = document.getElementById("teamsList");
       const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
 
-      let teams = state.equipes.filter(t => !state.season || t.saison === state.season);
+      let teams = state.equipes.filter(t => !state.season || sameSeason(t.saison, state.season));
       if(q){ teams = teams.filter(t => t.equipe.toLowerCase().includes(q)); }
 
       if(!teams.length){
@@ -583,7 +587,7 @@
     function openPlayers(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("playersTitle").textContent = "Joueurs — " + team;
-      const rows = state.joueurs.filter(j => j.equipe === team && (!state.season || j.saison === state.season));
+      const rows = state.joueurs.filter(j => j.equipe === team && (!state.season || sameSeason(j.saison, state.season)));
 
       const el = document.getElementById("playersList");
       if(!rows.length){
@@ -592,7 +596,7 @@
         el.innerHTML = rows.map(j => `
           <div class="item">
             <div class="item-title">${j.numero ? "#" + escapeHtml(j.numero) + " — " : ""}${escapeHtml(j.joueur)}</div>
-            <div class="item-sub">${j.licence ? "Licence : " + escapeHtml(j.licence) : "Licence non renseignée"}</div>
+            <div class="item-sub">${(j.licence && String(j.licence).trim()) ? "Licence : " + escapeHtml(String(j.licence).trim()) : "Licence non renseignée"}</div>
             <div class="item-sub">${j.poste ? "Poste : " + escapeHtml(j.poste) : ""}</div>
           </div>
         `).join("");
@@ -603,7 +607,7 @@
     function openMatches(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("matchesTitle").textContent = "Matchs — " + team;
-      const rows = state.matchs.filter(m => m.equipe === team && (!state.season || m.saison === state.season));
+      const rows = state.matchs.filter(m => m.equipe === team && (!state.season || sameSeason(m.saison, state.season)));
       state.currentMatchRows = rows;
 
       const el = document.getElementById("matchesList");
@@ -724,7 +728,7 @@ function openInfoModal(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V27</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V28</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
