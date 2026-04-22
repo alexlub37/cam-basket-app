@@ -475,8 +475,8 @@
       return (json.table.rows || []).map(r => cols.map((col, i) => {
         const cell = r.c[i];
         if (!cell) return "";
+        if (cell.f !== null && cell.f !== undefined && String(cell.f).trim() !== "") return String(cell.f);
         if (cell.v !== null && cell.v !== undefined) return String(cell.v);
-        if (cell.f !== null && cell.f !== undefined) return String(cell.f);
         return "";
       }));
     }
@@ -610,7 +610,10 @@
         el.innerHTML = rows.map(j => `
           <div class="item">
             <div class="item-title">${j.numero ? "#" + escapeHtml(j.numero) + " — " : ""}${escapeHtml(j.joueur)}</div>
-            <div class="item-sub">${(j.licence !== undefined && j.licence !== null && String(j.licence).trim() !== "") ? "Licence : " + escapeHtml(String(j.licence).trim()) : "Licence non renseignée"}</div>
+            <div class="item-sub">${(() => {
+              const lic = String(j.licence ?? "").trim();
+              return lic !== "" ? "Licence : " + escapeHtml(lic) : "Licence non renseignée";
+            })()}</div>
             <div class="item-sub">${j.poste ? "Poste : " + escapeHtml(j.poste) : ""}</div>
           </div>
         `).join("");
@@ -742,7 +745,7 @@ function openInfoModal(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V29</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V30</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -751,7 +754,7 @@ function openInfoModal(){
         <li>Header centré</li>
         <li>Boutons 2 x 2 plus lisibles</li>
         <li>Ajout Bureau et Bénévoles</li>
-        <li>Lecture licence texte + saison flexible</li>
+        <li>Lecture licence texte sécurisée + saison flexible</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
