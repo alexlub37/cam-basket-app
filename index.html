@@ -620,9 +620,11 @@
       document.getElementById("detailOpponent").textContent = m.adversaire || "-";
       document.getElementById("detailType").textContent = typeInfo.label || "-";
       document.getElementById("detailGym").textContent = m.gymnase || "-";
-      document.getElementById("detailAddress").textContent = m.adresse || "-";
-      document.getElementById("detailPostal").textContent = m.codePostal || "-";
-      document.getElementById("detailCity").textContent = m.ville || "-";
+      document.getElementById("detailAddress").innerHTML =
+        (m.adresse ? m.adresse + "<br>" : "") +
+        ((m.codePostal || "") + " " + (m.ville || "")).trim();
+      document.getElementById("detailPostal").textContent = "";
+      document.getElementById("detailCity").textContent = "";
       document.getElementById("detailCompetition").textContent = m.competition || "-";
       document.getElementById("detailTour").textContent = m.tour || "-";
       document.getElementById("detailScore").textContent = m.score || "-";
