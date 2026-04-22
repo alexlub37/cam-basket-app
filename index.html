@@ -442,8 +442,43 @@
         .toLowerCase();
     }
 
+    function normalizeHeader(str){
+      return normalize(str).replace(/[^a-z0-9]/g, "");
+    }
+
+    function rowsToObjects(rows){
+      if (!rows || !rows.length) return [];
+      const headers = (rows[0] || []).map(h => String(h || "").trim());
+      return rows.slice(1).map(r => {
+        const obj = {};
+        headers.forEach((h, i) => {
+          obj[normalizeHeader(h)] = String(r[i] || "").trim();
+        });
+        return obj;
+      });
+    }
+
+    function pick(obj, aliases){
+      for (const alias of aliases) {
+        const key = normalizeHeader(alias);
+        if (obj[key] !== undefined && obj[key] !== null) return String(obj[key]).trim();
+      }
+      return "";
+    }
+
     function sameSeason(a, b){
-      return normalize(String(a || "")) === normalize(String(b || ""));
+      const sa = normalize(String(a || ""));
+      const sb = normalize(String(b || ""));
+      if (!sa || !sb) return sa === sb;
+      if (sa === sb) return true;
+
+      const aParts = sa.split("/").map(x => x.trim()).filter(Boolean);
+      const bParts = sb.split("/").map(x => x.trim()).filter(Boolean);
+
+      if (aParts.length > 1 && bParts.length === 1 && aParts.includes(sb)) return true;
+      if (bParts.length > 1 && aParts.length === 1 && bParts.includes(sa)) return true;
+
+      return false;
     }
 
     function badgeForType(type){
@@ -463,7 +498,10 @@
       const cols = json.table.cols.map(c => c.label || c.id || "");
       return (json.table.rows || []).map(r => cols.map((col, i) => {
         const cell = r.c[i];
-        return cell ? (cell.f || cell.v || "") : "";
+        if (!cell) return "";
+        if (cell.f !== null && cell.f !== undefined) return String(cell.f);
+        if (cell.v !== null && cell.v !== undefined) return String(cell.v);
+        return "";
       }));
     }
 
@@ -490,54 +528,57 @@
 
         state.season = findSeason(paramRows);
 
-        state.equipes = eqRows.map(r => ({
-          saison: String(r[0] || "").trim(),
-          equipe: String(r[1] || "").trim(),
-          categorie: String(r[2] || "").trim(),
-          coach: String(r[3] || "").trim()
+        const eqObjs = rowsToObjects(eqRows);
+        const jrObjs = rowsToObjects(jrRows);
+        const mtObjs = rowsToObjects(mtRows);
+        const bureauObjs = rowsToObjects(bureauRows);
+        const benevoleObjs = rowsToObjects(benevoleRows);
+
+        state.equipes = eqObjs.map(o => ({
+          saison: pick(o, ["Saison"]),
+          equipe: pick(o, ["Équipe", "Equipe"]),
+          categorie: pick(o, ["Catégorie", "Categorie"]),
+          coach: pick(o, ["Coach"])
         })).filter(x => x.equipe && normalize(x.saison) !== "saison");
 
-        state.joueurs = jrRows.map(r => ({
-          saison: String(r[0] || "").trim(),
-          equipe: String(r[1] || "").trim(),
-          joueur: String(r[2] || "").trim(),
-          licence: String(r[3] || "").trim(),
-          numero: String(r[4] || "").trim(),
-          poste: String(r[5] || "").trim()
+        state.joueurs = jrObjs.map(o => ({
+          saison: pick(o, ["Saison"]),
+          equipe: pick(o, ["Équipe", "Equipe"]),
+          joueur: pick(o, ["Joueur"]),
+          licence: pick(o, ["Numéro licence", "Numero licence", "Numéro li", "Numero li", "Licence"]),
+          numero: pick(o, ["Numéro maillot", "Numero maillot", "Numéro", "Numero"]),
+          poste: pick(o, ["Poste"])
         })).filter(x => x.joueur && normalize(x.saison) !== "saison");
 
-        // MATCHS attendu :
-        // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
-        // G Gymnase | H Adresse | I Code postal | J Ville | K Compétition | L Tour | M Score | N Statut
-        state.matchs = mtRows.map(r => ({
-          saison: String(r[0] || "").trim(),
-          equipe: String(r[1] || "").trim(),
-          date: String(r[2] || "").trim(),
-          heure: String(r[3] || "").trim(),
-          adversaire: String(r[4] || "").trim(),
-          type: String(r[5] || "").trim(),
-          gymnase: String(r[6] || "").trim(),
-          adresse: String(r[7] || "").trim(),
-          codePostal: String(r[8] || "").trim(),
-          ville: String(r[9] || "").trim(),
-          competition: String(r[10] || "").trim(),
-          tour: String(r[11] || "").trim(),
-          score: String(r[12] || "").trim(),
-          statut: String(r[13] || "").trim()
+        state.matchs = mtObjs.map(o => ({
+          saison: pick(o, ["Saison"]),
+          equipe: pick(o, ["Équipe", "Equipe"]),
+          date: pick(o, ["Date"]),
+          heure: pick(o, ["Heure"]),
+          adversaire: pick(o, ["Adversaire"]),
+          type: pick(o, ["Domicile/Extérieur", "Domicile / Extérieur", "Domicile/Exterieur", "Domicile / Exterieur", "Type"]),
+          gymnase: pick(o, ["Gymnase"]),
+          adresse: pick(o, ["Adresse"]),
+          codePostal: pick(o, ["Code postal", "Code Postal"]),
+          ville: pick(o, ["Ville"]),
+          competition: pick(o, ["Compétition", "Competition"]),
+          tour: pick(o, ["Tour"]),
+          score: pick(o, ["Score"]),
+          statut: pick(o, ["Statut"])
         })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
 
-        state.bureau = bureauRows.map(r => ({
-          nom: String(r[0] || "").trim(),
-          fonction: String(r[1] || "").trim(),
-          telephone: String(r[2] || "").trim(),
-          email: String(r[3] || "").trim()
+        state.bureau = bureauObjs.map(o => ({
+          nom: pick(o, ["Nom"]),
+          fonction: pick(o, ["Fonction", "Rôle", "Role"]),
+          telephone: pick(o, ["Téléphone", "Telephone", "Tél", "Tel"]),
+          email: pick(o, ["Email", "Mail"])
         })).filter(x => x.nom && normalize(x.nom) !== "nom");
 
-        state.benevoles = benevoleRows.map(r => ({
-          nom: String(r[0] || "").trim(),
-          role: String(r[1] || "").trim(),
-          telephone: String(r[2] || "").trim(),
-          email: String(r[3] || "").trim()
+        state.benevoles = benevoleObjs.map(o => ({
+          nom: pick(o, ["Nom"]),
+          role: pick(o, ["Rôle", "Role", "Fonction"]),
+          telephone: pick(o, ["Téléphone", "Telephone", "Tél", "Tel"]),
+          email: pick(o, ["Email", "Mail"])
         })).filter(x => x.nom && normalize(x.nom) !== "nom");
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
@@ -596,7 +637,7 @@
         el.innerHTML = rows.map(j => `
           <div class="item">
             <div class="item-title">${j.numero ? "#" + escapeHtml(j.numero) + " — " : ""}${escapeHtml(j.joueur)}</div>
-            <div class="item-sub">${(j.licence && String(j.licence).trim()) ? "Licence : " + escapeHtml(String(j.licence).trim()) : "Licence non renseignée"}</div>
+            <div class="item-sub">${(j.licence !== undefined && j.licence !== null && String(j.licence).trim() !== "") ? "Licence : " + escapeHtml(String(j.licence).trim()) : "Licence non renseignée"}</div>
             <div class="item-sub">${j.poste ? "Poste : " + escapeHtml(j.poste) : ""}</div>
           </div>
         `).join("");
@@ -737,7 +778,7 @@ function openInfoModal(){
         <li>Header centré</li>
         <li>Boutons 2 x 2 plus lisibles</li>
         <li>Ajout Bureau et Bénévoles</li>
-        <li>Affichage licence corrigé</li>
+        <li>Lecture colonnes et saisons plus robuste</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
