@@ -481,6 +481,42 @@
       }));
     }
 
+    function parseCsvLine(line){
+      const out = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === "," && !inQuotes) {
+          out.push(cur);
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      out.push(cur);
+      return out;
+    }
+
+    async function fetchRowsCsv(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      return txt
+        .replace(/^\uFEFF/, "")
+        .split(/\r?\n/)
+        .filter(line => line.trim() !== "")
+        .map(parseCsvLine)
+        .map(row => row.map(cell => String(cell || "").trim()));
+    }
+
     function findSeason(paramRows){
       for (const row of paramRows) {
         const left = normalize(row[0]);
@@ -496,7 +532,7 @@
         const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
-          fetchRows(SHEETS.joueurs),
+          fetchRowsCsv(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles)
@@ -745,7 +781,7 @@ function openInfoModal(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V30</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V31</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -754,7 +790,7 @@ function openInfoModal(){
         <li>Header centré</li>
         <li>Boutons 2 x 2 plus lisibles</li>
         <li>Ajout Bureau et Bénévoles</li>
-        <li>Lecture licence texte sécurisée + saison flexible</li>
+        <li>Lecture JOUEURS en CSV brut + saison flexible</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
