@@ -265,6 +265,52 @@
       color:#9f9f9f;
       font-size:11px;
     }
+
+    .action-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+    .coach-panel{
+      margin-top:14px;
+      padding:16px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:#0b0b0b;
+      display:none;
+    }
+    .coach-section{margin-top:12px}
+    .coach-title{
+      color:var(--accent);
+      font-size:13px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:8px;
+    }
+    .coach-line{
+      background:#151515;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      margin-top:8px;
+      line-height:1.35;
+    }
+    .coach-empty{
+      color:var(--muted);
+      border:1px dashed var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#111;
+    }
+    .pill-mini{
+      display:inline-block;
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:900;
+      margin-left:6px;
+      background:rgba(255,212,0,.13);
+      color:var(--accent);
+      border:1px solid rgba(255,212,0,.35);
+    }
+
   </style>
 
 <style>
@@ -387,8 +433,25 @@
           <div class="detail-row"><span class="detail-label">Chrono</span><span id="detailChrono"></span></div>
           <div class="detail-row"><span class="detail-label">Table</span><span id="detailTable"></span></div>
         </div>
-        <div style="margin-top:14px">
+        <div class="action-row">
           <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
+          <button id="btnReponseMatch" class="btn-light" type="button">Répondre au match</button>
+          <button id="btnCoachResponses" class="btn-outline" type="button">Réponses coach</button>
+        </div>
+
+        <div id="coachResponsesBlock" class="coach-panel">
+          <div class="coach-section">
+            <div class="coach-title">Présents</div>
+            <div id="coachPresents"></div>
+          </div>
+          <div class="coach-section">
+            <div class="coach-title">Absents</div>
+            <div id="coachAbsents"></div>
+          </div>
+          <div class="coach-section">
+            <div class="coach-title">Transport</div>
+            <div id="coachTransport"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -415,6 +478,7 @@
 
   <script>
     const SHEET_ID = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
+    const RESPONSES_SHEET_ID = "1-x97q6xToAv1ImQHVSnjGgMMQmDyDIGPrXWIXwMxecw";
     const SHEETS = {
       parametres: "PARAMETRES",
       equipes: "EQUIPES",
@@ -431,6 +495,7 @@
       matchs: [],
       bureau: [],
       benevoles: [],
+      reponses: [],
       selectedTeam: null,
       currentMatchRows: []
     };
@@ -483,8 +548,8 @@
       return { label: String(type || "-"), badge: "" };
     }
 
-    async function fetchRows(sheetName){
-      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+    async function fetchRows(sheetName, sheetId = SHEET_ID){
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
       const res = await fetch(url);
       const txt = await res.text();
       const json = JSON.parse(txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
@@ -546,13 +611,14 @@
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, repRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
-          fetchRows(SHEETS.benevoles)
+          fetchRows(SHEETS.benevoles),
+          fetchRows("REPONSES", RESPONSES_SHEET_ID)
         ]);
 
         state.season = findSeason(paramRows);
@@ -606,6 +672,17 @@
           telephone: String(r[2] || "").trim(),
           email: String(r[3] || "").trim()
         })).filter(x => x.nom && normalize(x.nom) !== "nom");
+
+        state.reponses = repRows.map(r => ({
+          date: String(r[0] || "").trim(),
+          match: String(r[1] || "").trim(),
+          equipe: String(r[2] || "").trim(),
+          prenom: String(r[3] || "").trim(),
+          presence: String(r[4] || "").trim(),
+          transport: String(r[5] || "").trim(),
+          places: String(r[6] || "").trim(),
+          commentaire: String(r[7] || "").trim()
+        })).filter(x => x.match && normalize(x.match) !== "match");
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
@@ -703,6 +780,54 @@
       showScreen("matchesScreen");
     }
 
+
+    function matchKey(matchObj){
+      return normalize(`${matchObj.equipe || ""} vs ${matchObj.adversaire || ""} ${matchObj.date || ""}`);
+    }
+
+    function ouvrirFormulaire(match, equipe){
+      const joueurs = state.joueurs
+        .filter(j => j.equipe === equipe && (!state.season || sameSeason(j.saison, state.season)))
+        .map(j => j.joueur);
+
+      const joueursString = encodeURIComponent(joueurs.join("|"));
+      const url = "formulaire.html?match=" + encodeURIComponent(match)
+                + "&equipe=" + encodeURIComponent(equipe)
+                + "&joueurs=" + joueursString;
+      window.open(url, "_blank");
+    }
+
+    function coachLine(text){
+      return `<div class="coach-line">${text}</div>`;
+    }
+
+    function renderCoachResponses(matchObj){
+      const key = matchKey(matchObj);
+      const rows = state.reponses.filter(r => normalize(r.match) === key);
+
+      const presents = rows.filter(r => normalize(r.presence) === "present");
+      const absents = rows.filter(r => normalize(r.presence) === "absent");
+      const transports = rows.filter(r => normalize(r.presence) === "present" && (r.transport || r.places || r.commentaire));
+
+      document.getElementById("coachPresents").innerHTML = presents.length
+        ? presents.map(r => coachLine(`<strong>${escapeHtml(r.prenom || "-")}</strong>${r.transport ? `<span class="pill-mini">${escapeHtml(r.transport)}</span>` : ""}${r.places ? ` • ${escapeHtml(r.places)} place(s)` : ""}${r.commentaire ? `<br><span class="muted">${escapeHtml(r.commentaire)}</span>` : ""}`)).join("")
+        : '<div class="coach-empty">Aucune réponse présente pour ce match.</div>';
+
+      document.getElementById("coachAbsents").innerHTML = absents.length
+        ? absents.map(r => coachLine(`<strong>${escapeHtml(r.prenom || "-")}</strong>${r.commentaire ? `<br><span class="muted">${escapeHtml(r.commentaire)}</span>` : ""}`)).join("")
+        : '<div class="coach-empty">Aucune absence signalée.</div>';
+
+      document.getElementById("coachTransport").innerHTML = transports.length
+        ? transports.map(r => {
+            let txt = `<strong>${escapeHtml(r.prenom || "-")}</strong>`;
+            if (r.transport) txt += ` • ${escapeHtml(r.transport)}`;
+            if (r.places) txt += ` • ${escapeHtml(r.places)} place(s)`;
+            if (r.commentaire) txt += `<br><span class="muted">${escapeHtml(r.commentaire)}</span>`;
+            return coachLine(txt);
+          }).join("")
+        : '<div class="coach-empty">Aucune information transport pour ce match.</div>';
+    }
+
     function openMatchDetail(idx){
       const m = state.currentMatchRows[idx];
       const typeInfo = badgeForType(m.type);
@@ -742,34 +867,21 @@
       }
 
       document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
-      
-let bouton = document.getElementById("btnReponseMatch");
 
-if(!bouton){
-  bouton = document.createElement("button");
-  bouton.id = "btnReponseMatch";
-  bouton.style.marginTop = "12px";
-  bouton.style.width = "100%";
-  bouton.style.padding = "14px";
-  bouton.style.fontWeight = "900";
-  bouton.style.borderRadius = "14px";
-  bouton.style.background = "#ffd400";
-  bouton.style.border = "none";
-  bouton.style.color = "#000";
-  bouton.innerText = "Répondre au match";
+      const coachBlock = document.getElementById("coachResponsesBlock");
+      coachBlock.style.display = "none";
 
-  document.querySelector("#matchDetailScreen .card").appendChild(bouton);
-}
+      const matchLabel = `${m.equipe} vs ${m.adversaire} ${m.date}`;
+      document.getElementById("btnReponseMatch").onclick = function(){
+        ouvrirFormulaire(matchLabel, m.equipe);
+      };
 
-bouton.onclick = function(){
-  ouvrirFormulaire(
-    m.equipe + " vs " + m.adversaire + " " + m.date,
-    m.equipe
-  );
-};
+      document.getElementById("btnCoachResponses").onclick = function(){
+        renderCoachResponses(m);
+        coachBlock.style.display = coachBlock.style.display === "block" ? "none" : "block";
+      };
 
-showScreen("matchDetailScreen");
-
+      showScreen("matchDetailScreen");
     }
 
 
@@ -837,38 +949,22 @@ function openInfoModal(){
       }
     }
 
-    
-
-function ouvrirFormulaire(match, equipe) {
-  const joueurs = state.joueurs
-    .filter(j => j.equipe === equipe)
-    .map(j => j.joueur);
-
-  const joueursString = encodeURIComponent(joueurs.join("|"));
-
-  const url = "formulaire.html?match=" + encodeURIComponent(match)
-            + "&equipe=" + encodeURIComponent(equipe)
-            + "&joueurs=" + joueursString;
-
-  window.open(url, "_blank");
-}
-
-
     reloadData();
   </script>
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V33</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V37</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
-      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 21/04/2026</div>
+      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Design noir / jaune / blanc</li>
-        <li>Header centré</li>
-        <li>Boutons 2 x 2 plus lisibles</li>
-        <li>Ajout Bureau et Bénévoles</li>
-        <li>Ajout officiels domicile : arbitres, chrono, table</li>
+        <li>Ajout du bouton “Répondre au match” dans le détail du match</li>
+        <li>Connexion du formulaire parent avec Google Sheets</li>
+        <li>Ajout de la liste déroulante automatique des joueurs par équipe</li>
+        <li>Amélioration UX du formulaire : boutons jaunes et retour automatique</li>
+        <li>Ajout du bouton “Réponses coach”</li>
+        <li>Lecture seule des réponses parents dans le détail du match : présents, absents, transport</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
