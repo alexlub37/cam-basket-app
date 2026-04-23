@@ -78,7 +78,7 @@ function envoyerFormulaire() {
     commentaire: document.getElementById("commentaire").value
   };
 
-  fetch("TON_URL_ICI", {
+  fetch("https://script.google.com/macros/s/AKfycbzQNFB_3WxXKDtwqoapiFU6QV-vobX9IZJptnh9oComst-DoqCD7zugQQfw6o8KEUgi/exec", {
     method: "POST",
     body: JSON.stringify(data)
   })
