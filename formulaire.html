@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V36</title>
+<title>Formulaire Match V38</title>
 
 <style>
 body{
@@ -152,9 +152,9 @@ function chargerJoueurs() {
 }
 
 window.onload = function() {
-  const match = getParam("match");
-  if (match) {
-    document.getElementById("titreMatch").innerText = "Réponse - " + match;
+  const display = getParam("display") || getParam("match");
+  if (display) {
+    document.getElementById("titreMatch").innerText = "Réponse - " + display;
   }
   chargerJoueurs();
 };
