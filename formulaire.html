@@ -3,77 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V35</title>
+<title>Formulaire Match V36</title>
 
 <style>
-body {background:#000;color:#fff;font-family:Arial;padding:20px;}
-h2 {color:gold;}
-label {display:block;margin-top:15px;font-weight:bold;}
-input, textarea {
-  width:100%;
-  padding:10px;
-  margin-top:5px;
-  border-radius:8px;
-  border:none;
+body{
+  background:#000;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  padding:20px;
+  margin:0;
 }
-button {
-  margin-top:20px;
+.wrap{
+  max-width:700px;
+  margin:0 auto;
+}
+h2{
+  color:#ffd400;
+  text-align:center;
+  margin-bottom:20px;
+}
+label{
+  display:block;
+  margin-top:16px;
+  font-weight:bold;
+}
+input, textarea, select{
   width:100%;
   padding:12px;
-  background:gold;
+  margin-top:6px;
+  border-radius:10px;
+  border:none;
+  box-sizing:border-box;
+  font-size:16px;
+}
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+.choice-group{
+  margin-top:10px;
+}
+.choice-btn{
+  display:block;
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:12px;
+  background:#222;
+  color:#fff;
+  border:2px solid #444;
+  text-align:left;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  box-sizing:border-box;
+}
+.choice-btn.active{
+  background:#ffd400;
+  color:#000;
+  border-color:#ffd400;
+}
+.send{
+  margin-top:24px;
+  width:100%;
+  padding:14px;
+  background:#ffd400;
+  color:#000;
   font-weight:bold;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
+  font-size:17px;
+  cursor:pointer;
+}
+.note{
+  margin-top:12px;
+  color:#cfcfcf;
+  text-align:center;
+  font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<h2 id="titreMatch">Réponse Match</h2>
+<div class="wrap">
 
-<label>Prénom du joueur</label>
-<select id="joueur"></select>
+  <h2 id="titreMatch">Réponse Match</h2>
 
-<label>Présence</label>
-<input type="radio" name="presence" value="Présent"> Présent
-<input type="radio" name="presence" value="Absent"> Absent
+  <label for="joueur">Prénom du joueur</label>
+  <select id="joueur">
+    <option value="">Choisir un joueur</option>
+  </select>
 
-<label>Transport</label>
-<input type="radio" name="transport" value="Direct"> Direct match
-<input type="radio" name="transport" value="Gymnase"> Départ gymnase
-<input type="radio" name="transport" value="Besoin"> Besoin transport
+  <label>Présence</label>
+  <div class="choice-group" id="presenceGroup">
+    <div class="choice-btn" onclick="selectPresence(this, 'Présent')">Présent</div>
+    <div class="choice-btn" onclick="selectPresence(this, 'Absent')">Absent</div>
+  </div>
 
-<label>Places disponibles</label>
-<input id="places">
+  <div id="transportBloc" style="display:none;">
+    <label>Transport</label>
+    <div class="choice-group" id="transportGroup">
+      <div class="choice-btn" onclick="selectTransport(this, 'Direct')">Je me rends directement au match</div>
+      <div class="choice-btn" onclick="selectTransport(this, 'Gymnase')">Je pars du gymnase</div>
+      <div class="choice-btn" onclick="selectTransport(this, 'Besoin')">J’ai besoin d’un transport</div>
+    </div>
 
-<label>Commentaire</label>
-<textarea id="commentaire"></textarea>
+    <label for="places">Places disponibles</label>
+    <input id="places" type="number" min="0" placeholder="Exemple : 2">
+  </div>
 
-<button onclick="envoyerFormulaire()">Envoyer la réponse</button>
+  <label for="commentaire">Commentaire</label>
+  <textarea id="commentaire" placeholder="Ajoute un commentaire si besoin"></textarea>
+
+  <button class="send" onclick="envoyerFormulaire()">Envoyer la réponse</button>
+
+  <div class="note">Après envoi, retour automatique à l’application.</div>
+
+</div>
 
 <script>
+let presenceValue = "";
+let transportValue = "";
 
 function getParam(param) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(param) || "";
 }
 
-window.onload = function() {
-  try{chargerJoueurs();}catch(e){}
-  const match = getParam("match");
-  if(match){
-    document.getElementById("titreMatch").innerText = "Réponse - " + match;
-  }
-};
-
-
 function chargerJoueurs() {
   const joueursParam = getParam("joueurs");
-  if (!joueursParam) return;
-  const liste = decodeURIComponent(joueursParam).split("|");
   const select = document.getElementById("joueur");
   select.innerHTML = "<option value=''>Choisir un joueur</option>";
+
+  if (!joueursParam) return;
+
+  const liste = decodeURIComponent(joueursParam)
+    .split("|")
+    .map(x => x.trim())
+    .filter(Boolean);
+
   liste.forEach(j => {
     const option = document.createElement("option");
     option.value = j;
@@ -82,16 +151,44 @@ function chargerJoueurs() {
   });
 }
 
+window.onload = function() {
+  const match = getParam("match");
+  if (match) {
+    document.getElementById("titreMatch").innerText = "Réponse - " + match;
+  }
+  chargerJoueurs();
+};
+
+function selectPresence(el, value) {
+  presenceValue = value;
+  document.querySelectorAll("#presenceGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
+  el.classList.add("active");
+
+  const transportBloc = document.getElementById("transportBloc");
+  if (value === "Présent") {
+    transportBloc.style.display = "block";
+  } else {
+    transportBloc.style.display = "none";
+    transportValue = "";
+    document.querySelectorAll("#transportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
+    document.getElementById("places").value = "";
+  }
+}
+
+function selectTransport(el, value) {
+  transportValue = value;
+  document.querySelectorAll("#transportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
+  el.classList.add("active");
+}
 
 function envoyerFormulaire() {
-
   const data = {
     match: getParam("match"),
     equipe: getParam("equipe"),
     prenom: document.getElementById("joueur").value,
-    presence: document.querySelector('input[name="presence"]:checked')?.value || "",
-    transport: document.querySelector('input[name="transport"]:checked')?.value || "",
-    places: document.getElementById("places").value,
+    presence: presenceValue,
+    transport: transportValue,
+    places: document.getElementById("places").value || "",
     commentaire: document.getElementById("commentaire").value
   };
 
@@ -100,10 +197,14 @@ function envoyerFormulaire() {
     body: JSON.stringify(data)
   })
   .then(() => {
-    document.body.innerHTML = "<h2 style='color:gold;text-align:center;margin-top:50px;'>Réponse envoyée 👍<br>Merci !</h2>";
+    document.body.innerHTML = "<h2 style='color:#ffd400;text-align:center;margin-top:50px;'>Réponse envoyée 👍<br>Retour...</h2>";
+    setTimeout(() => {
+      try { window.close(); } catch(e) {}
+      window.location.href = "https://alexlub37.github.io/";
+    }, 1200);
   })
   .catch(() => {
-    alert("Erreur ❌");
+    alert("Erreur d'envoi ❌");
   });
 }
 </script>
