@@ -265,6 +265,14 @@
       color:#9f9f9f;
       font-size:11px;
     }
+
+    .coach-card{display:none}
+    .coach-msg{color:var(--muted);margin-bottom:10px}
+    .coach-block{margin-top:14px}
+    .coach-title{color:var(--accent);display:block;font-size:12px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}
+    .coach-list{display:grid;gap:8px}
+    .coach-item{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#151515;color:#fff;font-size:15px}
+
   </style>
 
 <style>
@@ -390,27 +398,31 @@
         <div style="margin-top:14px">
           <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
         </div>
-        <div id="coachResponsesBlock" class="card" style="display:none; margin-top:14px; padding:16px;">
-          <h3 style="margin:0 0 12px 0; color:var(--accent); font-size:20px;">Réponses coach</h3>
-          <div id="coachResponsesStatus" class="muted">Aucune réponse chargée.</div>
-          <div style="margin-top:14px;">
-            <div class="detail-label">Présents</div>
-            <div id="coachPresents" class="muted">Aucun</div>
-          </div>
-          <div style="margin-top:14px;">
-            <div class="detail-label">Absents</div>
-            <div id="coachAbsents" class="muted">Aucun</div>
-          </div>
-          <div style="margin-top:14px;">
-            <div class="detail-label">Transport</div>
-            <div id="coachTransport" class="muted">Aucun</div>
-          </div>
+      </div>
+
+      <div id="coachResponsesCard" class="card coach-card">
+        <h2>Réponses coach</h2>
+        <div id="coachMsg" class="coach-msg">Aucune réponse chargée.</div>
+
+        <div class="coach-block">
+          <span class="coach-title">Présents</span>
+          <div id="coachPresents" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        <div class="coach-block">
+          <span class="coach-title">Absents</span>
+          <div id="coachAbsents" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        <div class="coach-block">
+          <span class="coach-title">Transport</span>
+          <div id="coachTransport" class="coach-list"><div class="muted">Aucun</div></div>
         </div>
       </div>
     </section>
 
 
-    <section id="bureauScreen" class="screen">
+    <section id="bureauScreen"  class="screen">
       <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
       <div class="card">
         <h2>Bureau</h2>
@@ -440,6 +452,9 @@
       benevoles: "BENEVOLES"
     };
 
+
+    const RESPONSE_SHEET_ID = "1-x97q6xToAv1ImQHVSnjGgMMQmDyDIGPrXWIXwMxecw";
+    const RESPONSE_SHEET_NAME = "REPONSES";
     let state = {
       season: "",
       equipes: [],
@@ -719,10 +734,8 @@
       showScreen("matchesScreen");
     }
 
-    
-function openMatchDetail(idx){
+    function openMatchDetail(idx){
       const m = state.currentMatchRows[idx];
-      state.currentDetailMatch = m;
       const typeInfo = badgeForType(m.type);
       const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
 
@@ -760,61 +773,130 @@ function openMatchDetail(idx){
       }
 
       document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
+      
+let bouton = document.getElementById("btnReponseMatch");
 
-      let bouton = document.getElementById("btnReponseMatch");
-      if(!bouton){
-        bouton = document.createElement("button");
-        bouton.id = "btnReponseMatch";
-        bouton.style.marginTop = "12px";
-        bouton.style.width = "100%";
-        bouton.style.padding = "14px";
-        bouton.style.fontWeight = "900";
-        bouton.style.borderRadius = "14px";
-        bouton.style.background = "#ffd400";
-        bouton.style.border = "none";
-        bouton.style.color = "#000";
-        bouton.innerText = "Répondre au match";
-        document.querySelector("#matchDetailScreen .card").appendChild(bouton);
-      }
+if(!bouton){
+  bouton = document.createElement("button");
+  bouton.id = "btnReponseMatch";
+  bouton.style.marginTop = "12px";
+  bouton.style.width = "100%";
+  bouton.style.padding = "14px";
+  bouton.style.fontWeight = "900";
+  bouton.style.borderRadius = "14px";
+  bouton.style.background = "#ffd400";
+  bouton.style.border = "none";
+  bouton.style.color = "#000";
+  bouton.innerText = "Répondre au match";
 
-      bouton.onclick = function(){
-        ouvrirFormulaire(
-          m.equipe + " vs " + m.adversaire + " " + m.date,
-          m.equipe
-        );
-      };
+  document.querySelector("#matchDetailScreen .card").appendChild(bouton);
+}
 
-      let boutonCoach = document.getElementById("btnCoachResponses");
-      if(!boutonCoach){
-        boutonCoach = document.createElement("button");
-        boutonCoach.id = "btnCoachResponses";
-        boutonCoach.style.marginTop = "10px";
-        boutonCoach.style.width = "100%";
-        boutonCoach.style.padding = "14px";
-        boutonCoach.style.fontWeight = "900";
-        boutonCoach.style.borderRadius = "14px";
-        boutonCoach.style.background = "#0b0b0b";
-        boutonCoach.style.border = "2px solid #ffd400";
-        boutonCoach.style.color = "#ffd400";
-        boutonCoach.innerText = "Réponses coach";
-        document.querySelector("#matchDetailScreen .card").appendChild(boutonCoach);
-      }
+bouton.onclick = function(){
+  ouvrirFormulaire(
+    m.equipe + " vs " + m.adversaire + " " + m.date,
+    m.equipe
+  );
+};
 
-      boutonCoach.onclick = function(){
-        voirReponsesCoach(m.equipe + " vs " + m.adversaire + " " + m.date);
-      };
+let boutonCoach = document.getElementById("btnCoachResponses");
 
-      document.getElementById("coachResponsesBlock").style.display = "none";
-      document.getElementById("coachResponsesStatus").textContent = "Aucune réponse chargée.";
-      document.getElementById("coachPresents").innerHTML = "Aucun";
-      document.getElementById("coachAbsents").innerHTML = "Aucun";
-      document.getElementById("coachTransport").innerHTML = "Aucun";
+if(!boutonCoach){
+  boutonCoach = document.createElement("button");
+  boutonCoach.id = "btnCoachResponses";
+  boutonCoach.style.marginTop = "12px";
+  boutonCoach.style.width = "100%";
+  boutonCoach.style.padding = "14px";
+  boutonCoach.style.fontWeight = "900";
+  boutonCoach.style.borderRadius = "14px";
+  boutonCoach.innerText = "Réponses coach";
+  document.querySelector("#matchDetailScreen .card").appendChild(boutonCoach);
+}
 
-      showScreen("matchDetailScreen");
+boutonCoach.onclick = function(){
+  loadCoachResponses(m.equipe + " vs " + m.adversaire + " " + m.date);
+};
+
+coachCardReset();
+showScreen("matchDetailScreen");
+
     }
 
 
-function renderBureau(){
+
+    function coachCardReset(){
+      document.getElementById("coachResponsesCard").style.display = "none";
+      document.getElementById("coachMsg").textContent = "Aucune réponse chargée.";
+      document.getElementById("coachPresents").innerHTML = '<div class="muted">Aucun</div>';
+      document.getElementById("coachAbsents").innerHTML = '<div class="muted">Aucun</div>';
+      document.getElementById("coachTransport").innerHTML = '<div class="muted">Aucun</div>';
+    }
+
+    function getRowValue(row, wanted){
+      const target = normalize(wanted);
+      for (const key in row){
+        if (normalize(key) === target) return String(row[key] || "").trim();
+      }
+      return "";
+    }
+
+    async function loadCoachResponses(matchText){
+      const card = document.getElementById("coachResponsesCard");
+      const msg = document.getElementById("coachMsg");
+      const presents = document.getElementById("coachPresents");
+      const absents = document.getElementById("coachAbsents");
+      const transport = document.getElementById("coachTransport");
+
+      card.style.display = "block";
+      msg.textContent = "Chargement des réponses coach…";
+      presents.innerHTML = '<div class="muted">Chargement…</div>';
+      absents.innerHTML = '<div class="muted">Chargement…</div>';
+      transport.innerHTML = '<div class="muted">Chargement…</div>';
+
+      try{
+        const url = `https://opensheet.elk.sh/${RESPONSE_SHEET_ID}/${encodeURIComponent(RESPONSE_SHEET_NAME)}`;
+        const res = await fetch(url);
+        const rows = await res.json();
+
+        const filtered = rows.filter(row => getRowValue(row, "Match") === matchText);
+
+        const presentItems = [];
+        const absentItems = [];
+        const transportItems = [];
+
+        filtered.forEach(row => {
+          const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+          const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
+          const mode = getRowValue(row, "Transport");
+          const places = getRowValue(row, "Places");
+          const commentaire = getRowValue(row, "Commentaire");
+
+          if (presence === "Présent") {
+            presentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${mode ? ` — ${escapeHtml(mode)}` : ""}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
+          } else if (presence === "Absent") {
+            absentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
+          }
+
+          if (mode) {
+            transportItems.push(`<div class="coach-item">${escapeHtml(prenom)} — ${escapeHtml(mode)}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}</div>`);
+          }
+        });
+
+        msg.textContent = filtered.length ? `${filtered.length} réponse(s) reçue(s) pour ce match.` : "Aucune réponse reçue pour ce match.";
+        presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
+        absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
+        transport.innerHTML = transportItems.length ? transportItems.join("") : '<div class="muted">Aucun</div>';
+      } catch(err){
+        console.error(err);
+        msg.textContent = "Impossible de charger les réponses coach.";
+        presents.innerHTML = '<div class="muted">Aucun</div>';
+        absents.innerHTML = '<div class="muted">Aucun</div>';
+        transport.innerHTML = '<div class="muted">Aucun</div>';
+      }
+    }
+
+
+    function renderBureau(){
       const el = document.getElementById("bureauList");
       if(!state.bureau.length){
         el.innerHTML = '<div class="empty">Aucun membre du bureau trouvé.</div>';
@@ -880,71 +962,6 @@ function openInfoModal(){
 
     
 
-
-    const RESPONSES_SHEET_ID = "1-x97q6xToAv1ImQHVSnjGgMMQmDyDIGPrXWIXwMxecw";
-    const RESPONSES_SHEET_NAME = "REPONSES";
-
-    function rowValue(row, targetLabel){
-      const target = normalize(targetLabel);
-      const key = Object.keys(row).find(k => normalize(k) === target);
-      return key ? String(row[key] || "").trim() : "";
-    }
-
-    async function voirReponsesCoach(matchLabel){
-      const block = document.getElementById("coachResponsesBlock");
-      const status = document.getElementById("coachResponsesStatus");
-      const presentsEl = document.getElementById("coachPresents");
-      const absentsEl = document.getElementById("coachAbsents");
-      const transportEl = document.getElementById("coachTransport");
-
-      block.style.display = "block";
-      status.textContent = "Chargement des réponses…";
-      presentsEl.innerHTML = "Aucun";
-      absentsEl.innerHTML = "Aucun";
-      transportEl.innerHTML = "Aucun";
-
-      try{
-        const url = `https://opensheet.elk.sh/${RESPONSES_SHEET_ID}/${encodeURIComponent(RESPONSES_SHEET_NAME)}`;
-        const res = await fetch(url);
-        const rows = await res.json();
-
-        const filtered = rows.filter(row => rowValue(row, "Match") === matchLabel);
-
-        const presents = [];
-        const absents = [];
-        const transport = [];
-
-        filtered.forEach(row => {
-          const prenom = rowValue(row, "Prénom") || rowValue(row, "Prenom");
-          const presence = rowValue(row, "Présence") || rowValue(row, "Presence");
-          const transportMode = rowValue(row, "Transport");
-          const places = rowValue(row, "Places");
-          const commentaire = rowValue(row, "Commentaire");
-
-          if (presence === "Présent") {
-            presents.push(`<div>${escapeHtml(prenom)}${transportMode ? ` <span class="muted">(${escapeHtml(transportMode)})</span>` : ""}${commentaire ? `<div class="muted">Commentaire : ${escapeHtml(commentaire)}</div>` : ""}</div>`);
-          } else if (presence === "Absent") {
-            absents.push(`<div>${escapeHtml(prenom)}${commentaire ? `<div class="muted">Commentaire : ${escapeHtml(commentaire)}</div>` : ""}</div>`);
-          }
-
-          if (transportMode) {
-            let line = `${escapeHtml(prenom)} → ${escapeHtml(transportMode)}`;
-            if (places) line += ` (${escapeHtml(places)} place${String(places) === "1" ? "" : "s"})`;
-            transport.push(`<div>${line}</div>`);
-          }
-        });
-
-        status.textContent = filtered.length ? `${filtered.length} réponse(s) trouvée(s).` : "Aucune réponse pour ce match.";
-        presentsEl.innerHTML = presents.length ? presents.join("") : "Aucun";
-        absentsEl.innerHTML = absents.length ? absents.join("") : "Aucun";
-        transportEl.innerHTML = transport.length ? transport.join("") : "Aucun";
-
-      } catch(err){
-        console.error(err);
-        status.textContent = "Impossible de charger les réponses coach.";
-      }
-    }
-
 function ouvrirFormulaire(match, equipe) {
   const joueurs = state.joueurs
     .filter(j => j.equipe === equipe)
@@ -975,10 +992,10 @@ function ouvrirFormulaire(match, equipe) {
         <li>Boutons 2 x 2 plus lisibles</li>
         <li>Ajout Bureau et Bénévoles</li>
         <li>Ajout officiels domicile : arbitres, chrono, table</li>
-        <li>Ajout bouton “Répondre au match” dans le détail du match</li>
-        <li>Connexion du formulaire avec liste déroulante joueurs par équipe</li>
-        <li>Ajout bouton “Réponses coach” dans le détail du match</li>
-        <li>Lecture des réponses parents depuis la feuille REPONSES</li>
+        <li>Ajout bouton "Répondre au match"</li>
+        <li>Ajout formulaire lié au match avec liste déroulante joueurs</li>
+        <li>Ajout bloc "Réponses coach" dans le détail du match</li>
+        <li>Lecture des réponses depuis la feuille REPONSES</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
