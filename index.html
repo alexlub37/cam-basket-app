@@ -838,10 +838,21 @@ function openInfoModal(){
     }
 
     
+
 function ouvrirFormulaire(match, equipe) {
-  const url = "formulaire.html?match=" + encodeURIComponent(match) + "&equipe=" + encodeURIComponent(equipe);
+  const joueurs = state.joueurs
+    .filter(j => j.equipe === equipe)
+    .map(j => j.joueur);
+
+  const joueursString = encodeURIComponent(joueurs.join("|"));
+
+  const url = "formulaire.html?match=" + encodeURIComponent(match)
+            + "&equipe=" + encodeURIComponent(equipe)
+            + "&joueurs=" + joueursString;
+
   window.open(url, "_blank");
 }
+
 
     reloadData();
   </script>

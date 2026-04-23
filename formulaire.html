@@ -33,7 +33,7 @@ button {
 <h2 id="titreMatch">Réponse Match</h2>
 
 <label>Prénom du joueur</label>
-<input id="joueur">
+<select id="joueur"></select>
 
 <label>Présence</label>
 <input type="radio" name="presence" value="Présent"> Présent
@@ -60,11 +60,28 @@ function getParam(param) {
 }
 
 window.onload = function() {
+  try{chargerJoueurs();}catch(e){}
   const match = getParam("match");
   if(match){
     document.getElementById("titreMatch").innerText = "Réponse - " + match;
   }
 };
+
+
+function chargerJoueurs() {
+  const joueursParam = getParam("joueurs");
+  if (!joueursParam) return;
+  const liste = decodeURIComponent(joueursParam).split("|");
+  const select = document.getElementById("joueur");
+  select.innerHTML = "<option value=''>Choisir un joueur</option>";
+  liste.forEach(j => {
+    const option = document.createElement("option");
+    option.value = j;
+    option.textContent = j;
+    select.appendChild(option);
+  });
+}
+
 
 function envoyerFormulaire() {
 
