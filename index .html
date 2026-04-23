@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+<link rel="icon" type="image/png" sizes="32x32" href="logo_32.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAM Basket Montrichard</title>
+  <meta name="theme-color" content="#1f4e79" />
+  <style>
+    :root{
+      --bg:#050505;
+      --card:#121212;
+      --card2:#181818;
+      --text:#ffffff;
+      --muted:#cfcfcf;
+      --line:#2d2d2d;
+      --accent:#ffd400;
+      --ok:#1faa59;
+      --warn:#ff9f1c;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    header{
+      background:#000;
+      color:#fff;
+      padding:18px 14px 16px;
+      border-bottom:1px solid #1f1f1f;
+      box-shadow:0 4px 16px rgba(0,0,0,.35);
+    }
+    .hero{
+      max-width:900px;
+      margin:0 auto;
+      text-align:center;
+    }
+    .hero-logo-btn{
+      background:transparent;
+      border:0;
+      padding:0;
+      margin:0 0 8px 0;
+      min-width:auto;
+      min-height:auto;
+      cursor:pointer;
+    }
+    .hero-logo{
+      width:126px;
+      height:auto;
+      display:block;
+      margin:0 auto;
+    }
+    .hero-title{
+      margin:0;
+      font-size:34px;
+      line-height:0.98;
+      color:#fff;
+      font-weight:900;
+    }
+    .hero-sub{
+      margin-top:10px;
+      font-size:13px;
+      color:var(--accent);
+      line-height:1.35;
+    }
+    .top-actions{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 170px));
+      justify-content:center;
+      gap:8px;
+      margin-top:18px;
+    }
+    button{
+      border:2px solid var(--accent);
+      border-radius:18px;
+      padding:6px 10px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+      min-width:0;
+      background:#0b0b0b;
+      color:#fff;
+    }
+    .btn-light,
+    .btn-outline.active{
+      background:var(--accent);
+      color:#000;
+    }
+    .btn-outline{
+      background:#0b0b0b;
+      color:#fff;
+    }
+    main{
+      padding:16px 14px 28px;
+      max-width:900px;
+      margin:0 auto;
+    }
+    .screen{display:none}
+    .screen.active{display:block}
+    .card{
+      background:linear-gradient(180deg,#151515,#121212);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:20px;
+      margin-bottom:14px;
+      box-shadow:0 2px 10px rgba(0,0,0,.18);
+    }
+    .muted{color:var(--muted)}
+    .list{display:grid;gap:12px}
+    .item{
+      background:linear-gradient(180deg,#1a1a1a,#171717);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+      cursor:pointer;
+    }
+    .item-title{
+      font-weight:900;
+      font-size:22px;
+      margin-bottom:8px;
+      color:#fff;
+    }
+    .item-sub{
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.35;
+      margin-top:4px;
+    }
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .menu-btn{
+      background:linear-gradient(180deg,#1a1a1a,#171717);
+      border:1px solid var(--line);
+      color:var(--text);
+      text-align:left;
+      padding:18px;
+      border-radius:20px;
+      width:100%;
+    }
+    .menu-btn .big{display:block;font-size:18px;font-weight:900;margin-bottom:6px;color:#fff}
+    .menu-btn .small{display:block;color:var(--muted);font-size:14px;font-weight:500}
+    .detail-row{margin:12px 0;font-size:16px}
+    .detail-label{
+      color:var(--accent);
+      display:block;
+      font-size:12px;
+      margin-bottom:3px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:900;
+    }
+    .badge-home,.badge-away{
+      display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;margin-left:8px
+    }
+    .badge-home{background:#143f20;color:#9effb8;border:1px solid #1faa59}
+    .badge-away{background:#4a2e00;color:#ffd08a;border:1px solid #ff9f1c}
+    .toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+    .search{
+      width:100%;
+      padding:16px 16px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      font-size:17px;
+      background:#0b0b0b;
+      color:#fff;
+    }
+    .search::placeholder{color:#9f9f9f}
+    .empty{
+      text-align:center;color:var(--muted);padding:28px 14px;border:1px dashed var(--line);border-radius:18px;background:var(--card)
+    }
+    .back{
+      margin-bottom:12px;
+      background:#0b0b0b;
+      color:var(--accent);
+      border:2px solid var(--accent);
+      border-radius:18px;
+      padding:12px 14px;
+      font-size:15px;
+      font-weight:900;
+    }
+    .status{
+      margin-top:14px;
+      font-size:16px;
+      color:#fff;
+    }
+    .pill{
+      display:inline-block;
+      background:rgba(255,212,0,.13);
+      color:var(--accent);
+      border:1px solid rgba(255,212,0,.35);
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900
+    }
+    a.link-btn{
+      display:inline-block;
+      text-decoration:none;
+      background:var(--accent);
+      color:#000;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:900;
+      font-size:15px
+    }
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.72);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:1000;
+    }
+    .modal-overlay.active{display:flex}
+    .modal-card{
+      width:min(100%, 420px);
+      background:#111;
+      color:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.45);
+    }
+    .modal-card h3{
+      margin:0 0 12px 0;
+      color:var(--accent);
+      font-size:20px;
+    }
+    .modal-line{
+      margin:8px 0;
+      color:var(--muted);
+      line-height:1.35;
+    }
+    .modal-label{
+      color:#fff;
+      font-weight:900;
+    }
+    .modal-list{
+      margin:10px 0 16px 18px;
+      padding:0;
+      color:var(--muted);
+    }
+    .modal-list li{margin:6px 0}
+    .modal-close{
+      width:100%;
+      background:var(--accent);
+      color:#000;
+      border:1px solid var(--accent);
+      padding:12px 10px;
+      border-radius:12px;
+      font-weight:900;
+      font-size:14px;
+    }
+    .modal-credit{
+      margin-top:10px;
+      text-align:center;
+      color:#9f9f9f;
+      font-size:11px;
+    }
+
+    .coach-card{display:none}
+    .coach-msg{color:var(--muted);margin-bottom:10px}
+    .coach-block{margin-top:14px}
+    .coach-title{color:var(--accent);display:block;font-size:12px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}
+    .coach-list{display:grid;gap:8px}
+    .coach-item{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#151515;color:#fff;font-size:15px}
+
+  </style>
+
+<style>
+/* Masquer champs inutiles */
+#detailPostal, #detailCity,
+#detailCompetition, #detailTour,
+#detailScore, #detailStatut {
+    display: none;
+}
+
+/* Masquer leurs labels */
+.detail-row:has(#detailPostal),
+.detail-row:has(#detailCity),
+.detail-row:has(#detailCompetition),
+.detail-row:has(#detailTour),
+.detail-row:has(#detailScore),
+.detail-row:has(#detailStatut) {
+    display: none;
+}
+</style>
+
+
+<style>
+#domicileOfficialsBlock{display:none}
+</style>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="logo_32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="logo_192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="logo_180.png">
+<meta name="apple-mobile-web-app-title" content="CAM Basket">
+
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
+        <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
+      </button>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>
+      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
+      <div class="top-actions">
+        <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
+        <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
+        <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
+        <button id="btn-update" class="btn-outline" onclick="setActiveButton(null); reloadData()">Mettre à jour</button>
+      </div>
+      <div id="status" class="status">Chargement…</div>
+    </div>
+  </header>
+
+  <main>
+    <section id="teamsScreen" class="screen active">
+      <div class="card">
+        <h2>Équipes <span id="seasonBadge" class="pill"></span></h2>
+        <div class="muted">Saison active uniquement.</div>
+      </div>
+      <div class="toolbar">
+        <input id="teamSearch" class="search" type="text" placeholder="Rechercher une équipe" oninput="renderTeams()">
+      </div>
+      <div id="teamsList" class="list"></div>
+    </section>
+
+    <section id="teamMenuScreen" class="screen">
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour aux équipes</button>
+      <div class="card">
+        <h2 id="teamMenuTitle">Équipe</h2>
+        <div id="teamMenuSub" class="muted"></div>
+      </div>
+      <div class="grid-2">
+        <button class="menu-btn" onclick="openPlayers()">
+          <span class="big">👥 Joueurs</span>
+          <span class="small">Voir l’effectif de l’équipe</span>
+        </button>
+        <button class="menu-btn" onclick="openMatches()">
+          <span class="big">📅 Matchs</span>
+          <span class="small">Voir les matchs de l’équipe</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="playersScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
+      <div class="card">
+        <h2 id="playersTitle">Joueurs</h2>
+        <div class="muted">Liste filtrée sur l’équipe sélectionnée et la saison active.</div>
+      </div>
+      <div id="playersList" class="list"></div>
+    </section>
+
+    <section id="matchesScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
+      <div class="card">
+        <h2 id="matchesTitle">Matchs</h2>
+        <div class="muted">Clique sur un match pour voir le détail et ouvrir l’itinéraire.</div>
+      </div>
+      <div id="matchesList" class="list"></div>
+    </section>
+
+    <section id="matchDetailScreen" class="screen">
+      <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
+      <div class="card">
+        <h2 id="detailTitle">Détail match</h2>
+        <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
+        <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
+        <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
+        <div class="detail-row"><span class="detail-label">Domicile / Extérieur</span><span id="detailType"></span></div>
+        <div class="detail-row"><span class="detail-label">Gymnase</span><span id="detailGym"></span></div>
+        <div class="detail-row"><span class="detail-label">Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">Code postal</span><span id="detailPostal"></span></div>
+        <div class="detail-row"><span class="detail-label">Ville</span><span id="detailCity"></span></div>
+        <div class="detail-row"><span class="detail-label">Compétition</span><span id="detailCompetition"></span></div>
+        <div class="detail-row"><span class="detail-label">Tour</span><span id="detailTour"></span></div>
+        <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
+        <div class="detail-row"><span class="detail-label">Statut</span><span id="detailStatus"></span></div>
+        <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
+        <div id="domicileOfficialsBlock">
+          <div class="detail-row"><span class="detail-label">Arbitre 1</span><span id="detailArbitre1"></span></div>
+          <div class="detail-row"><span class="detail-label">Arbitre 2</span><span id="detailArbitre2"></span></div>
+          <div class="detail-row"><span class="detail-label">Chrono</span><span id="detailChrono"></span></div>
+          <div class="detail-row"><span class="detail-label">Table</span><span id="detailTable"></span></div>
+        </div>
+        <div style="margin-top:14px">
+          <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
+        </div>
+      </div>
+
+      <div id="coachResponsesCard" class="card coach-card">
+        <h2>Réponses coach</h2>
+        <div id="coachMsg" class="coach-msg">Aucune réponse chargée.</div>
+
+        <div class="coach-block">
+          <span class="coach-title">Présents</span>
+          <div id="coachPresents" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        <div class="coach-block">
+          <span class="coach-title">Absents</span>
+          <div id="coachAbsents" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        <div class="coach-block">
+          <span class="coach-title">Transport</span>
+          <div id="coachTransport" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="bureauScreen"  class="screen">
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <div class="card">
+        <h2>Bureau</h2>
+        <div class="muted">Membres du bureau du club.</div>
+      </div>
+      <div id="bureauList" class="list"></div>
+    </section>
+
+    <section id="benevolesScreen" class="screen">
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <div class="card">
+        <h2>Bénévoles</h2>
+        <div class="muted">Bénévoles du club.</div>
+      </div>
+      <div id="benevolesList" class="list"></div>
+    </section>
+  </main>
+
+  <script>
+    const SHEET_ID = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
+    const SHEETS = {
+      parametres: "PARAMETRES",
+      equipes: "EQUIPES",
+      joueurs: "JOUEURS",
+      matchs: "MATCHS",
+      bureau: "BUREAU",
+      benevoles: "BENEVOLES"
+    };
+
+
+    const RESPONSE_SHEET_ID = "1-x97q6xToAv1ImQHVSnjGgMMQmDyDIGPrXWIXwMxecw";
+    const RESPONSE_SHEET_NAME = "REPONSES";
+    let state = {
+      season: "",
+      equipes: [],
+      joueurs: [],
+      matchs: [],
+      bureau: [],
+      benevoles: [],
+      selectedTeam: null,
+      currentMatchRows: []
+    };
+
+    function showScreen(id){
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function setStatus(text){ document.getElementById("status").textContent = text; }
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function normalize(str){
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .trim()
+        .toLowerCase();
+    }
+
+    function sameSeason(a, b){
+      const sa = normalize(String(a || ""));
+      const sb = normalize(String(b || ""));
+      if (!sa || !sb) return sa === sb;
+      if (sa === sb) return true;
+
+      const aParts = sa.split("/").map(x => x.trim()).filter(Boolean);
+      const bParts = sb.split("/").map(x => x.trim()).filter(Boolean);
+
+      if (aParts.length > 1 && bParts.length === 1 && aParts.includes(sb)) return true;
+      if (bParts.length > 1 && aParts.length === 1 && bParts.includes(sa)) return true;
+
+      return false;
+    }
+
+    function badgeForType(type){
+      const t = normalize(type);
+      const isHome = ["d","dom","domicile"].includes(t);
+      const isAway = ["e","ext","exterieur","extérieur"].includes(t);
+      if (isHome) return { label: "Domicile", badge: '<span class="badge-home">Domicile</span>' };
+      if (isAway) return { label: "Extérieur", badge: '<span class="badge-away">Extérieur</span>' };
+      return { label: String(type || "-"), badge: "" };
+    }
+
+    async function fetchRows(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      const json = JSON.parse(txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
+      const cols = json.table.cols.map(c => c.label || c.id || "");
+      return (json.table.rows || []).map(r => cols.map((col, i) => {
+        const cell = r.c[i];
+        if (!cell) return "";
+        if (cell.f !== null && cell.f !== undefined && String(cell.f).trim() !== "") return String(cell.f);
+        if (cell.v !== null && cell.v !== undefined) return String(cell.v);
+        return "";
+      }));
+    }
+
+    function parseCsvLine(line){
+      const out = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === "," && !inQuotes) {
+          out.push(cur);
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      out.push(cur);
+      return out;
+    }
+
+    async function fetchRowsCsv(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      return txt
+        .replace(/^\uFEFF/, "")
+        .split(/\r?\n/)
+        .filter(line => line.trim() !== "")
+        .map(parseCsvLine)
+        .map(row => row.map(cell => String(cell || "").trim()));
+    }
+
+    function findSeason(paramRows){
+      for (const row of paramRows) {
+        const left = normalize(row[0]);
+        const right = String(row[1] || "").trim();
+        if (left === "saison active") return right;
+      }
+      return "";
+    }
+
+    async function reloadData(){
+      try{
+        setStatus("Chargement des données…");
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows] = await Promise.all([
+          fetchRows(SHEETS.parametres),
+          fetchRows(SHEETS.equipes),
+          fetchRowsCsv(SHEETS.joueurs),
+          fetchRows(SHEETS.matchs),
+          fetchRows(SHEETS.bureau),
+          fetchRows(SHEETS.benevoles)
+        ]);
+
+        state.season = findSeason(paramRows);
+
+        state.equipes = eqRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          categorie: String(r[2] || "").trim(),
+          coach: String(r[3] || "").trim()
+        })).filter(x => x.equipe && normalize(x.saison) !== "saison");
+
+        state.joueurs = jrRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          joueur: String(r[2] || "").trim(),
+          licence: String(r[3] || "").trim(),
+          numero: String(r[4] || "").trim(),
+          poste: String(r[5] || "").trim()
+        })).filter(x => x.joueur && normalize(x.saison) !== "saison");
+
+        // MATCHS attendu :
+        // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
+        // G Gymnase | H Adresse | I Code postal | J Ville | K Arbitre 1 | L Arbitre 2 | M Chrono | N Table
+        state.matchs = mtRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          date: String(r[2] || "").trim(),
+          heure: String(r[3] || "").trim(),
+          adversaire: String(r[4] || "").trim(),
+          type: String(r[5] || "").trim(),
+          gymnase: String(r[6] || "").trim(),
+          adresse: String(r[7] || "").trim(),
+          codePostal: String(r[8] || "").trim(),
+          ville: String(r[9] || "").trim(),
+          arbitre1: String(r[10] || "").trim(),
+          arbitre2: String(r[11] || "").trim(),
+          chrono: String(r[12] || "").trim(),
+          table: String(r[13] || "").trim()
+        })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
+
+        state.bureau = bureauRows.map(r => ({
+          nom: String(r[0] || "").trim(),
+          fonction: String(r[1] || "").trim(),
+          telephone: String(r[2] || "").trim(),
+          email: String(r[3] || "").trim()
+        })).filter(x => x.nom && normalize(x.nom) !== "nom");
+
+        state.benevoles = benevoleRows.map(r => ({
+          nom: String(r[0] || "").trim(),
+          role: String(r[1] || "").trim(),
+          telephone: String(r[2] || "").trim(),
+          email: String(r[3] || "").trim()
+        })).filter(x => x.nom && normalize(x.nom) !== "nom");
+
+        document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
+        renderTeams();
+        renderBureau();
+        renderBenevoles();
+        setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
+      } catch(err){
+        console.error(err);
+        setStatus("Erreur de chargement");
+        document.getElementById("teamsList").innerHTML =
+          '<div class="empty">Impossible de charger les données. Vérifie les feuilles PARAMETRES, EQUIPES, JOUEURS, MATCHS.</div>';
+      }
+    }
+
+    function renderTeams(){
+      const el = document.getElementById("teamsList");
+      const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
+
+      let teams = state.equipes.filter(t => !state.season || sameSeason(t.saison, state.season));
+      if(q){ teams = teams.filter(t => t.equipe.toLowerCase().includes(q)); }
+
+      if(!teams.length){
+        el.innerHTML = '<div class="empty">Aucune équipe trouvée pour la saison active.</div>';
+        return;
+      }
+
+      el.innerHTML = teams.map(t => `
+        <div class="item" data-team="${escapeHtml(t.equipe)}" data-cat="${escapeHtml(t.categorie)}" data-coach="${escapeHtml(t.coach)}">
+          <div class="item-title">${escapeHtml(t.equipe)}</div>
+          <div class="item-sub">${escapeHtml(t.categorie || "Catégorie non renseignée")} ${t.coach ? "• Coach : " + escapeHtml(t.coach) : ""}</div>
+        </div>
+      `).join("");
+
+      el.querySelectorAll(".item").forEach(node => {
+        node.addEventListener("click", () => selectTeam(node.dataset.team, node.dataset.cat, node.dataset.coach));
+      });
+    }
+
+    function selectTeam(team, cat, coach){
+      state.selectedTeam = { team, cat, coach };
+      document.getElementById("teamMenuTitle").textContent = team;
+      document.getElementById("teamMenuSub").textContent = [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
+      showScreen("teamMenuScreen");
+    }
+
+    function openPlayers(){
+      const team = state.selectedTeam?.team || "";
+      document.getElementById("playersTitle").textContent = "Joueurs — " + team;
+      const rows = state.joueurs.filter(j => j.equipe === team && (!state.season || sameSeason(j.saison, state.season)));
+
+      const el = document.getElementById("playersList");
+      if(!rows.length){
+        el.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette équipe et cette saison.</div>';
+      } else {
+        el.innerHTML = rows.map(j => `
+          <div class="item">
+            <div class="item-title">${j.numero ? "#" + escapeHtml(j.numero) + " — " : ""}${escapeHtml(j.joueur)}</div>
+            <div class="item-sub">${(() => {
+              const lic = String(j.licence ?? "").trim();
+              return lic !== "" ? "Licence : " + escapeHtml(lic) : "Licence non renseignée";
+            })()}</div>
+            <div class="item-sub">${j.poste ? "Poste : " + escapeHtml(j.poste) : ""}</div>
+          </div>
+        `).join("");
+      }
+      showScreen("playersScreen");
+    }
+
+
+    function isHomeType(type){
+      return ["d","dom","domicile"].includes(normalize(type));
+    }
+
+    function buildMatchDisplay(m){
+      return isHomeType(m.type)
+        ? `Montrichard ${m.equipe} vs ${m.adversaire}`
+        : `${m.adversaire} vs Montrichard ${m.equipe}`;
+    }
+
+    function buildMatchId(m){
+      const typeCode = isHomeType(m.type) ? "D" : "E";
+      return `${m.equipe} | ${m.adversaire} | ${typeCode} | ${m.date} | ${m.heure}`;
+    }
+
+    function openMatches(){
+      const team = state.selectedTeam?.team || "";
+      document.getElementById("matchesTitle").textContent = "Matchs — " + team;
+      const rows = state.matchs.filter(m => m.equipe === team && (!state.season || sameSeason(m.saison, state.season)));
+      state.currentMatchRows = rows;
+
+      const el = document.getElementById("matchesList");
+      if(!rows.length){
+        el.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe et cette saison.</div>';
+      } else {
+        el.innerHTML = rows.map((m, idx) => {
+          const typeInfo = badgeForType(m.type);
+          const lieuLigne = [m.gymnase, m.ville].filter(Boolean).join(" • ");
+          const displayMatch = buildMatchDisplay(m);
+          return `
+            <div class="item" data-idx="${idx}">
+              <div class="item-title">${escapeHtml(m.date)} ${typeInfo.badge}</div>
+              <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(displayMatch)}</div>
+              <div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>
+            </div>
+          `;
+        }).join("");
+
+        el.querySelectorAll(".item").forEach(node => {
+          node.addEventListener("click", () => openMatchDetail(Number(node.dataset.idx)));
+        });
+      }
+      showScreen("matchesScreen");
+    }
+
+    function openMatchDetail(idx){
+      const m = state.currentMatchRows[idx];
+      const typeInfo = badgeForType(m.type);
+      const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
+
+      document.getElementById("detailTitle").textContent = buildMatchDisplay(m);
+      document.getElementById("detailDate").textContent = m.date || "-";
+      document.getElementById("detailTime").textContent = m.heure || "-";
+      document.getElementById("detailOpponent").textContent = m.adversaire || "-";
+      document.getElementById("detailType").textContent = typeInfo.label || "-";
+      document.getElementById("detailGym").textContent = m.gymnase || "-";
+      document.getElementById("detailAddress").innerHTML =
+        (m.adresse ? m.adresse + "<br>" : "") +
+        ((m.codePostal || "") + " " + (m.ville || "")).trim();
+      document.getElementById("detailPostal").textContent = "";
+      document.getElementById("detailCity").textContent = "";
+      document.getElementById("detailCompetition").textContent = m.competition || "-";
+      document.getElementById("detailTour").textContent = m.tour || "-";
+      document.getElementById("detailScore").textContent = m.score || "-";
+      document.getElementById("detailStatus").textContent = m.statut || "-";
+      document.getElementById("detailSeason").textContent = m.saison || "-";
+
+      const isHome = ["d","dom","domicile"].includes(normalize(m.type));
+      const officialsBlock = document.getElementById("domicileOfficialsBlock");
+      if (isHome) {
+        officialsBlock.style.display = "block";
+        document.getElementById("detailArbitre1").textContent = m.arbitre1 || "-";
+        document.getElementById("detailArbitre2").textContent = m.arbitre2 || "-";
+        document.getElementById("detailChrono").textContent = m.chrono || "-";
+        document.getElementById("detailTable").textContent = m.table || "-";
+      } else {
+        officialsBlock.style.display = "none";
+        document.getElementById("detailArbitre1").textContent = "";
+        document.getElementById("detailArbitre2").textContent = "";
+        document.getElementById("detailChrono").textContent = "";
+        document.getElementById("detailTable").textContent = "";
+      }
+
+      document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
+      
+let bouton = document.getElementById("btnReponseMatch");
+
+if(!bouton){
+  bouton = document.createElement("button");
+  bouton.id = "btnReponseMatch";
+  bouton.style.marginTop = "12px";
+  bouton.style.width = "100%";
+  bouton.style.padding = "14px";
+  bouton.style.fontWeight = "900";
+  bouton.style.borderRadius = "14px";
+  bouton.style.background = "#ffd400";
+  bouton.style.border = "none";
+  bouton.style.color = "#000";
+  bouton.innerText = "Répondre au match";
+
+  document.querySelector("#matchDetailScreen .card").appendChild(bouton);
+}
+
+bouton.onclick = function(){
+  ouvrirFormulaire(buildMatchId(m), m.equipe, buildMatchDisplay(m));
+};
+
+let boutonCoach = document.getElementById("btnCoachResponses");
+
+if(!boutonCoach){
+  boutonCoach = document.createElement("button");
+  boutonCoach.id = "btnCoachResponses";
+  boutonCoach.style.marginTop = "12px";
+  boutonCoach.style.width = "100%";
+  boutonCoach.style.padding = "14px";
+  boutonCoach.style.fontWeight = "900";
+  boutonCoach.style.borderRadius = "14px";
+  boutonCoach.innerText = "Réponses coach";
+  document.querySelector("#matchDetailScreen .card").appendChild(boutonCoach);
+}
+
+boutonCoach.onclick = function(){
+  loadCoachResponses(buildMatchId(m), m);
+};
+
+coachCardReset();
+showScreen("matchDetailScreen");
+
+    }
+
+
+
+    function coachCardReset(){
+      document.getElementById("coachResponsesCard").style.display = "none";
+      document.getElementById("coachMsg").textContent = "Aucune réponse chargée.";
+      document.getElementById("coachPresents").innerHTML = '<div class="muted">Aucun</div>';
+      document.getElementById("coachAbsents").innerHTML = '<div class="muted">Aucun</div>';
+      document.getElementById("coachTransport").innerHTML = '<div class="muted">Aucun</div>';
+    }
+
+    function getRowValue(row, wanted){
+      const target = normalize(wanted);
+      for (const key in row){
+        if (normalize(key) === target) return String(row[key] || "").trim();
+      }
+      return "";
+    }
+
+    async function loadCoachResponses(matchId, matchObj){
+      const card = document.getElementById("coachResponsesCard");
+      const msg = document.getElementById("coachMsg");
+      const presents = document.getElementById("coachPresents");
+      const absents = document.getElementById("coachAbsents");
+      const transport = document.getElementById("coachTransport");
+
+      card.style.display = "block";
+      msg.textContent = "Chargement des réponses coach…";
+      presents.innerHTML = '<div class="muted">Chargement…</div>';
+      absents.innerHTML = '<div class="muted">Chargement…</div>';
+      transport.innerHTML = '<div class="muted">Chargement…</div>';
+
+      try{
+        const url = `https://opensheet.elk.sh/${RESPONSE_SHEET_ID}/${encodeURIComponent(RESPONSE_SHEET_NAME)}`;
+        const res = await fetch(url);
+        const rows = await res.json();
+
+        const legacyText = `${matchObj.equipe} vs ${matchObj.adversaire} ${matchObj.date}`;
+        const filtered = rows.filter(row => {
+          const rowMatch = getRowValue(row, "Match");
+          return rowMatch === matchId || rowMatch === legacyText;
+        });
+
+        const latestByPlayer = new Map();
+        filtered.forEach((row, index) => {
+          const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+          if (!prenom) return;
+          latestByPlayer.set(prenom, { row, index });
+        });
+
+        const presentItems = [];
+        const absentItems = [];
+        const transportItems = [];
+
+        Array.from(latestByPlayer.values()).forEach(({row}) => {
+          const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+          const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
+          const mode = getRowValue(row, "Transport");
+          const places = getRowValue(row, "Places");
+          const commentaire = getRowValue(row, "Commentaire");
+
+          if (presence === "Présent") {
+            presentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${mode ? ` — ${escapeHtml(mode)}` : ""}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
+          } else if (presence === "Absent") {
+            absentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
+          }
+
+          if (mode) {
+            transportItems.push(`<div class="coach-item">${escapeHtml(prenom)} — ${escapeHtml(mode)}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}</div>`);
+          }
+        });
+
+        msg.textContent = latestByPlayer.size ? `${latestByPlayer.size} réponse(s) retenue(s) pour ce match.` : "Aucune réponse reçue pour ce match.";
+        presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
+        absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
+        transport.innerHTML = transportItems.length ? transportItems.join("") : '<div class="muted">Aucun</div>';
+      } catch(err){
+        console.error(err);
+        msg.textContent = "Impossible de charger les réponses coach.";
+        presents.innerHTML = '<div class="muted">Aucun</div>';
+        absents.innerHTML = '<div class="muted">Aucun</div>';
+        transport.innerHTML = '<div class="muted">Aucun</div>';
+      }
+    }
+
+
+    function renderBureau(){
+      const el = document.getElementById("bureauList");
+      if(!state.bureau.length){
+        el.innerHTML = '<div class="empty">Aucun membre du bureau trouvé.</div>';
+        return;
+      }
+      el.innerHTML = state.bureau.map(p => `
+        <div class="item">
+          <div class="item-title">${escapeHtml(p.nom)}</div>
+          <div class="item-sub">${escapeHtml(p.fonction || "-")}</div>
+          <div class="item-sub">${p.telephone ? "Tél : " + escapeHtml(p.telephone) : ""}${p.email ? (p.telephone ? " • " : "") + "Email : " + escapeHtml(p.email) : ""}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderBenevoles(){
+      const el = document.getElementById("benevolesList");
+      if(!state.benevoles.length){
+        el.innerHTML = '<div class="empty">Aucun bénévole trouvé.</div>';
+        return;
+      }
+      el.innerHTML = state.benevoles.map(p => `
+        <div class="item">
+          <div class="item-title">${escapeHtml(p.nom)}</div>
+          <div class="item-sub">${escapeHtml(p.role || "-")}</div>
+          <div class="item-sub">${p.telephone ? "Tél : " + escapeHtml(p.telephone) : ""}${p.email ? (p.telephone ? " • " : "") + "Email : " + escapeHtml(p.email) : ""}</div>
+        </div>
+      `).join("");
+    }
+
+
+    function setActiveButton(name){
+      const buttons = ['btn-teams','btn-bureau','btn-benevoles'];
+
+      buttons.forEach(id => {
+        const el = document.getElementById(id);
+        if(el){
+          el.classList.remove('active');
+          el.classList.remove('btn-light');
+          el.classList.add('btn-outline');
+        }
+      });
+
+      if(name){
+        const active = document.getElementById('btn-' + name);
+        if(active){
+          active.classList.add('active');
+          active.classList.remove('btn-outline');
+          active.classList.add('btn-light');
+        }
+      }
+    }
+
+
+function openInfoModal(){
+      document.getElementById('infoModal').classList.add('active');
+    }
+
+    function closeInfoModal(e){
+      if(!e || e.target.id === 'infoModal'){
+        document.getElementById('infoModal').classList.remove('active');
+      }
+    }
+
+    
+
+function ouvrirFormulaire(match, equipe, display) {
+  const joueurs = state.joueurs
+    .filter(j => j.equipe === equipe)
+    .map(j => j.joueur);
+
+  const joueursString = encodeURIComponent(joueurs.join("|"));
+
+  const url = "formulaire.html?match=" + encodeURIComponent(match)
+            + "&display=" + encodeURIComponent(display || match)
+            + "&equipe=" + encodeURIComponent(equipe)
+            + "&joueurs=" + joueursString;
+
+  window.open(url, "_blank");
+}
+
+
+    reloadData();
+  </script>
+<div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <h3>Application CAM Basket</h3>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38</div>
+      <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
+      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
+      <div class="modal-line"><span class="modal-label">Modifications :</span></div>
+      <ul class="modal-list">
+        <li>Design noir / jaune / blanc</li>
+        <li>Header centré</li>
+        <li>Boutons 2 x 2 plus lisibles</li>
+        <li>Ajout Bureau et Bénévoles</li>
+        <li>Ajout officiels domicile : arbitres, chrono, table</li>
+        <li>Ajout bouton "Répondre au match"</li>
+        <li>Ajout formulaire lié au match avec liste déroulante joueurs</li>
+        <li>Ajout bloc "Réponses coach" dans le détail du match</li>
+        <li>Lecture des réponses depuis la feuille REPONSES</li>
+        <li>Nom du match reconstruit selon domicile / extérieur</li>
+        <li>Identifiant match sécurisé : équipe, adversaire, type, date, heure</li>
+        <li>Vue coach : seule la dernière réponse par joueur est retenue</li>
+      </ul>
+      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
+      <div class="modal-credit">Créé par Alex</div>
+    </div>
+  </div>
+</body>
+</html>
