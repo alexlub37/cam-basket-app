@@ -810,7 +810,7 @@ if(!bouton){
 }
 
 bouton.onclick = function(){
-  ouvrirFormulaire(m);
+  ouvrirFormulaire(buildMatchId(m), m.equipe, buildMatchDisplay(m));
 };
 
 let boutonCoach = document.getElementById("btnCoachResponses");
@@ -828,7 +828,7 @@ if(!boutonCoach){
 }
 
 boutonCoach.onclick = function(){
-  loadCoachResponses(m);
+  loadCoachResponses(buildMatchId(m), m);
 };
 
 coachCardReset();
@@ -854,8 +854,7 @@ showScreen("matchDetailScreen");
       return "";
     }
 
-    
-    async function loadCoachResponses(matchObj){
+    async function loadCoachResponses(matchId, matchObj){
       const card = document.getElementById("coachResponsesCard");
       const msg = document.getElementById("coachMsg");
       const presents = document.getElementById("coachPresents");
@@ -873,12 +872,10 @@ showScreen("matchDetailScreen");
         const res = await fetch(url);
         const rows = await res.json();
 
-        const currentId = buildMatchId(matchObj);
         const legacyText = `${matchObj.equipe} vs ${matchObj.adversaire} ${matchObj.date}`;
-
         const filtered = rows.filter(row => {
           const rowMatch = getRowValue(row, "Match");
-          return rowMatch === currentId || rowMatch === legacyText;
+          return rowMatch === matchId || rowMatch === legacyText;
         });
 
         const latestByPlayer = new Map();
@@ -892,29 +889,25 @@ showScreen("matchDetailScreen");
         const absentItems = [];
         const transportItems = [];
 
-        Array.from(latestByPlayer.values())
-          .sort((a, b) => a.index - b.index)
-          .forEach(({row}) => {
-            const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
-            const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
-            const mode = getRowValue(row, "Transport");
-            const places = getRowValue(row, "Places");
-            const commentaire = getRowValue(row, "Commentaire");
+        Array.from(latestByPlayer.values()).forEach(({row}) => {
+          const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+          const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
+          const mode = getRowValue(row, "Transport");
+          const places = getRowValue(row, "Places");
+          const commentaire = getRowValue(row, "Commentaire");
 
-            if (presence === "Présent") {
-              presentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${mode ? ` — ${escapeHtml(mode)}` : ""}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
-            } else if (presence === "Absent") {
-              absentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
-            }
+          if (presence === "Présent") {
+            presentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${mode ? ` — ${escapeHtml(mode)}` : ""}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
+          } else if (presence === "Absent") {
+            absentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
+          }
 
-            if (mode) {
-              transportItems.push(`<div class="coach-item">${escapeHtml(prenom)} — ${escapeHtml(mode)}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}</div>`);
-            }
-          });
+          if (mode) {
+            transportItems.push(`<div class="coach-item">${escapeHtml(prenom)} — ${escapeHtml(mode)}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}</div>`);
+          }
+        });
 
-        msg.textContent = latestByPlayer.size
-          ? `${latestByPlayer.size} réponse(s) retenue(s) pour ce match.`
-          : "Aucune réponse reçue pour ce match.";
+        msg.textContent = latestByPlayer.size ? `${latestByPlayer.size} réponse(s) retenue(s) pour ce match.` : "Aucune réponse reçue pour ce match.";
         presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
         absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
         transport.innerHTML = transportItems.length ? transportItems.join("") : '<div class="muted">Aucun</div>';
@@ -927,24 +920,23 @@ showScreen("matchDetailScreen");
       }
     }
 
-    function ouvrirFormulaire(m){
-      const joueurs = state.joueurs
-        .filter(j => j.equipe === m.equipe)
-        .map(j => j.joueur);
+    function ouvrirFormulaire(match, equipe, display) {
+  const joueurs = state.joueurs
+    .filter(j => j.equipe === equipe)
+    .map(j => j.joueur);
 
-      const joueursString = encodeURIComponent(joueurs.join("|"));
-      const display = buildMatchDisplay(m);
-      const matchId = buildMatchId(m);
+  const joueursString = encodeURIComponent(joueurs.join("|"));
 
-      const url = "formulaire.html?match=" + encodeURIComponent(matchId)
-                + "&display=" + encodeURIComponent(display)
-                + "&equipe=" + encodeURIComponent(m.equipe)
-                + "&joueurs=" + joueursString;
+  const url = "formulaire.html?match=" + encodeURIComponent(match)
+            + "&display=" + encodeURIComponent(display || match)
+            + "&equipe=" + encodeURIComponent(equipe)
+            + "&joueurs=" + joueursString;
 
-      window.open(url, "_blank");
-    }
+  window.open(url, "_blank");
+}
 
-        reloadData();
+
+    reloadData();
   </script>
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
