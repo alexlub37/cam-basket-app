@@ -279,6 +279,41 @@
     .convoc-result{display:none;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#101010;color:#fff}
     .convoc-title{color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;margin-bottom:8px;display:block}
     .convoc-action{margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#ffd400;color:#000;border:none}
+    .match-convoc-card{
+      display:none;
+      margin-top:16px;
+      background:linear-gradient(180deg,#171717,#111);
+      border:2px solid var(--accent);
+      border-radius:22px;
+      padding:18px;
+      box-shadow:0 4px 18px rgba(255,212,0,.10);
+    }
+    .match-convoc-card h2{
+      margin:0 0 10px;
+      color:var(--accent);
+      font-size:24px;
+      line-height:1.1;
+    }
+    .match-convoc-sub{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:12px;
+    }
+    .match-convoc-list{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:8px;
+    }
+    .match-convoc-player{
+      background:#0d0d0d;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      font-size:18px;
+      font-weight:800;
+      color:#fff;
+      text-align:center;
+    }
 
   </style>
 
@@ -406,9 +441,10 @@
         </div>
       </div>
 
-      <div id="matchConvocationCard" class="card" style="display:none;">
+      <div id="matchConvocationCard" class="match-convoc-card">
         <h2>Convocation du match</h2>
-        <div id="matchConvocationList" class="list"></div>
+        <div id="matchConvocationSub" class="match-convoc-sub"></div>
+        <div id="matchConvocationList" class="match-convoc-list"></div>
       </div>
 
       <div id="coachResponsesCard" class="card coach-card">
@@ -1094,20 +1130,21 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
     function afficherConvocationDansMatch(joueurs){
       const card = document.getElementById("matchConvocationCard");
       const list = document.getElementById("matchConvocationList");
+      const sub = document.getElementById("matchConvocationSub");
 
       if (!card || !list) return;
 
       if (!joueurs || !joueurs.length) {
         card.style.display = "none";
         list.innerHTML = "";
+        if (sub) sub.textContent = "";
         return;
       }
 
       card.style.display = "block";
+      if (sub) sub.textContent = joueurs.length + " joueur(s) convoqué(s)";
       list.innerHTML = joueurs.map(n => `
-        <div class="item">
-          <div class="item-title">${escapeHtml(n)}</div>
-        </div>
+        <div class="match-convoc-player">${escapeHtml(n)}</div>
       `).join("");
     }
 
@@ -1130,6 +1167,12 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
         checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
 
       afficherConvocationDansMatch(checked);
+
+      const coachCard = document.getElementById("coachResponsesCard");
+      if (coachCard) coachCard.style.display = "none";
+
+      const matchCard = document.getElementById("matchConvocationCard");
+      if (matchCard) matchCard.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     reloadData();
@@ -1137,14 +1180,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V38.1 SAFE</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38.2</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>Design convocation amélioré dans le détail du match</li>
+        <li>Fermeture automatique de "Réponses coach" après validation</li>
         <li>Convocation affichée dans le détail du match</li>
-        <li>Convocation : sélection des joueurs présents</li>
-        <li>Formulaire : transport extérieur uniquement</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
