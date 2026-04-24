@@ -1054,12 +1054,20 @@ showScreen("matchDetailScreen");
 
         const filtered = rows.filter(row => responseMatchesCurrentMatch(getRowValue(row, "Match"), state.currentOpenMatch));
 
+        // Anti-doublons : on garde uniquement la dernière réponse par joueur
+        const uniqueByPlayer = {};
+        filtered.forEach(row => {
+          const prenomKey = normalize(getRowValue(row, "Prénom") || getRowValue(row, "Prenom"));
+          if (prenomKey) uniqueByPlayer[prenomKey] = row;
+        });
+        const cleanRows = Object.values(uniqueByPlayer);
+
         const presentItems = [];
         const absentItems = [];
         const transportItems = [];
         lastCoachPresentPlayers = [];
 
-        filtered.forEach(row => {
+        cleanRows.forEach(row => {
           const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
           const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
           const mode = getRowValue(row, "Transport");
@@ -1085,7 +1093,9 @@ showScreen("matchDetailScreen");
           }
         });
 
-        msg.textContent = filtered.length ? `${filtered.length} réponse(s) reçue(s) pour ce match.` : "Aucune réponse reçue pour ce match.";
+        msg.textContent = filtered.length
+          ? `${filtered.length} réponse(s) reçue(s) — ${cleanRows.length} joueur(s) unique(s)`
+          : "Aucune réponse reçue pour ce match.";
         presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
         absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
         transport.innerHTML = transportItems.length ? transportItems.join("") : '<div class="muted">Aucun</div>';
@@ -1276,14 +1286,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V39.2</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V39.3 SAFE</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction lecture REPONSES depuis le classeur principal</li>
-        <li>Lecture réponses coach sans opensheet</li>
-        <li>Compatibilité ancien et nouveau format match</li>
+        <li>Anti-doublons réponses coach ajouté sur base V39.2</li>
+        <li>Dernière réponse conservée par joueur</li>
+        <li>Lecture réponses V39.2 conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
