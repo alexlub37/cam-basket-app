@@ -305,6 +305,10 @@
       gap:8px;
     }
     .match-convoc-player{
+  font-size:14px;
+  padding:6px 8px;
+  border-radius:10px;
+
       background:#0d0d0d;
       border:1px solid var(--line);
       border-radius:14px;
@@ -441,7 +445,8 @@
         </div>
       </div>
 
-      <div id="matchConvocationCard" class="match-convoc-card">
+      <!-- MOVED CONVOCATION BLOCK -->
+<div id="matchConvocationCard" class="match-convoc-card">
         <h2>Convocation du match</h2>
         <div id="matchConvocationSub" class="match-convoc-sub"></div>
         <div id="matchConvocationList" class="match-convoc-list"></div>
@@ -1180,7 +1185,7 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V38.3 SAFE</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38.4</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
