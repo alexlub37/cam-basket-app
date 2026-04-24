@@ -408,6 +408,10 @@
           <div id="coachPresents" class="coach-list"><div class="muted">Aucun</div></div>
         </div>
 
+        <button id="btnFaireConvocationCoach" style="display:none;margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#0b0b0b;color:#fff;border:2px solid #ffd400;">
+          Faire la convocation
+        </button>
+
         <div class="coach-block">
           <span class="coach-title">Absents</span>
           <div id="coachAbsents" class="coach-list"><div class="muted">Aucun</div></div>
@@ -418,11 +422,8 @@
           <div id="coachTransport" class="coach-list"><div class="muted">Aucun</div></div>
         </div>
 
-        <button id="btnFaireConvocation" style="margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;">
-          Faire la convocation
-        </button>
-
-      </div>
+        
+</div>
     </section>
 
 
@@ -835,7 +836,7 @@ boutonCoach.onclick = function(){
 
 
 document.addEventListener("click", function(e){
-  if(e.target && e.target.id === "btnFaireConvocation"){
+  if(e.target && e.target.id === "btnFaireConvocationCoach"){
     alert("Convocation coach : prochaine étape");
   }
 });
@@ -853,6 +854,8 @@ showScreen("matchDetailScreen");
       document.getElementById("coachPresents").innerHTML = '<div class="muted">Aucun</div>';
       document.getElementById("coachAbsents").innerHTML = '<div class="muted">Aucun</div>';
       document.getElementById("coachTransport").innerHTML = '<div class="muted">Aucun</div>';
+      const btnConvoc = document.getElementById("btnFaireConvocationCoach");
+      if (btnConvoc) btnConvoc.style.display = "none";
     }
 
     function getRowValue(row, wanted){
@@ -909,6 +912,9 @@ showScreen("matchDetailScreen");
         presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
         absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
         transport.innerHTML = transportItems.length ? transportItems.join("") : '<div class="muted">Aucun</div>';
+
+        const btnConvoc = document.getElementById("btnFaireConvocationCoach");
+        if (btnConvoc) btnConvoc.style.display = "block";
       } catch(err){
         console.error(err);
         msg.textContent = "Impossible de charger les réponses coach.";
@@ -1006,12 +1012,12 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V37.7.6.5</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V37.8.6.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Convocation déplacée dans "Réponses coach"</li>
+        <li>Convocation affichée uniquement après "Réponses coach"</li>
         <li>Formulaire : transport extérieur uniquement</li>
         <li>Suppression du champ Statut</li>
       </ul>
