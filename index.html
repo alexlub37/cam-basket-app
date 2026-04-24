@@ -515,7 +515,7 @@
     };
 
 
-    const RESPONSE_SHEET_ID = "1-x97q6xToAv1ImQHVSnjGgMMQmDyDIGPrXWIXwMxecw";
+    const RESPONSE_SHEET_ID = SHEET_ID;
     const RESPONSE_SHEET_NAME = "REPONSES";
     let lastCoachPresentPlayers = [];
 
@@ -527,7 +527,8 @@
       bureau: [],
       benevoles: [],
       selectedTeam: null,
-      currentMatchRows: []
+      currentMatchRows: [],
+      currentOpenMatch: null
     };
 
     function showScreen(id){
@@ -780,6 +781,88 @@
         : `${m.adversaire} vs Montrichard ${m.equipe}`;
     }
 
+
+    function buildMatchKey(m){
+      return [
+        m.equipe || "",
+        m.adversaire || "",
+        badgeForType(m.type).label || "",
+        m.date || "",
+        m.heure || ""
+      ].map(x => normalize(x)).join("|");
+    }
+
+    function rowArrayToObject(headers, row){
+      const obj = {};
+      headers.forEach((h, i) => obj[String(h || "").trim()] = String(row[i] || "").trim());
+      return obj;
+    }
+
+    function buildResponseMatchKeyFromText(matchText){
+      let txt = String(matchText || "").replace(/\s+/g, " ").trim();
+
+      const type = /\bdomicile\b/i.test(txt) ? "domicile" : (/\bextérieur\b|\bexterieur\b/i.test(txt) ? "extérieur" : "");
+      const dateMatch = txt.match(/\b\d{1,2}\/\d{1,2}\/\d{4}\b/);
+      const heureMatch = txt.match(/\b\d{1,2}h\d{2}\b/);
+
+      let date = dateMatch ? dateMatch[0] : "";
+      let heure = heureMatch ? heureMatch[0] : "";
+      let equipe = "";
+      let adversaire = "";
+
+      const pipeParts = txt.split("|").map(x => x.trim());
+      if (pipeParts.length >= 5) {
+        equipe = pipeParts[0] || "";
+        adversaire = pipeParts[1] || "";
+        const t = pipeParts[2] || "";
+        date = pipeParts[3] || date;
+        heure = pipeParts[4] || heure;
+        return [equipe, adversaire, badgeForType(t).label, date, heure].map(x => normalize(x)).join("|");
+      }
+
+      const dashParts = txt.split(" - ").map(x => x.trim());
+      const title = dashParts[0] || txt;
+
+      if (dashParts.length >= 4) {
+        date = dashParts[1] || date;
+        heure = dashParts[2] || heure;
+      }
+
+      if (title.includes(" vs ")) {
+        const parts = title.split(" vs ").map(x => x.trim());
+        const left = parts[0] || "";
+        const right = parts[1] || "";
+
+        if (normalize(left).startsWith("montrichard ")) {
+          equipe = left.replace(/^Montrichard\s+/i, "").trim();
+          adversaire = right;
+        } else if (normalize(right).startsWith("montrichard ")) {
+          adversaire = left;
+          equipe = right.replace(/^Montrichard\s+/i, "").trim();
+        } else {
+          equipe = left;
+          adversaire = right;
+        }
+      }
+
+      return [equipe, adversaire, type, date, heure].map(x => normalize(x)).join("|");
+    }
+
+    function responseMatchesCurrentMatch(responseMatchText, currentMatch){
+      if (!currentMatch) return false;
+
+      const responseKey = buildResponseMatchKeyFromText(responseMatchText);
+      const currentKey = buildMatchKey(currentMatch);
+      if (responseKey === currentKey) return true;
+
+      // Compatibilité ancien format : "U18M-1 vs Montils 24/05/2026"
+      const txt = normalize(responseMatchText);
+      return txt.includes(normalize(currentMatch.equipe))
+        && txt.includes(normalize(currentMatch.adversaire))
+        && txt.includes(normalize(currentMatch.date));
+    }
+
+
     function openMatches(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("matchesTitle").textContent = "Matchs — " + team;
@@ -811,6 +894,7 @@
 
     function openMatchDetail(idx){
       const m = state.currentMatchRows[idx];
+      state.currentOpenMatch = m;
       const typeInfo = badgeForType(m.type);
       const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
 
@@ -955,26 +1039,27 @@ showScreen("matchDetailScreen");
       transport.innerHTML = '<div class="muted">Chargement…</div>';
 
       try{
-        const url = `https://opensheet.elk.sh/${RESPONSE_SHEET_ID}/${encodeURIComponent(RESPONSE_SHEET_NAME)}`;
-        const res = await fetch(url);
-        const rows = await res.json();
+        const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
 
-        const filtered = rows.filter(row => getRowValue(row, "Match") === matchText);
+        if (!csvRows || csvRows.length < 2) {
+          msg.textContent = "Aucune réponse reçue pour ce match.";
+          presents.innerHTML = '<div class="muted">Aucun</div>';
+          absents.innerHTML = '<div class="muted">Aucun</div>';
+          transport.innerHTML = '<div class="muted">Aucun</div>';
+          return;
+        }
 
-        // Anti-doublons : on garde uniquement la dernière réponse par joueur
-        const uniqueByPlayer = {};
-        filtered.forEach(row => {
-          const prenomKey = normalize(getRowValue(row, "Prénom") || getRowValue(row, "Prenom"));
-          if (prenomKey) uniqueByPlayer[prenomKey] = row;
-        });
-        const cleanRows = Object.values(uniqueByPlayer);
+        const headers = csvRows[0];
+        const rows = csvRows.slice(1).map(r => rowArrayToObject(headers, r));
+
+        const filtered = rows.filter(row => responseMatchesCurrentMatch(getRowValue(row, "Match"), state.currentOpenMatch));
 
         const presentItems = [];
         const absentItems = [];
         const transportItems = [];
         lastCoachPresentPlayers = [];
 
-        cleanRows.forEach(row => {
+        filtered.forEach(row => {
           const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
           const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
           const mode = getRowValue(row, "Transport");
@@ -1000,15 +1085,13 @@ showScreen("matchDetailScreen");
           }
         });
 
-        msg.textContent = filtered.length
-          ? `${filtered.length} réponse(s) reçue(s) — ${cleanRows.length} joueur(s) unique(s)`
-          : "Aucune réponse reçue pour ce match.";
+        msg.textContent = filtered.length ? `${filtered.length} réponse(s) reçue(s) pour ce match.` : "Aucune réponse reçue pour ce match.";
         presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
         absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
         transport.innerHTML = transportItems.length ? transportItems.join("") : '<div class="muted">Aucun</div>';
 
         const btnConvoc = document.getElementById("btnFaireConvocationCoach");
-        if (btnConvoc) btnConvoc.style.display = "block";
+        if (btnConvoc) btnConvoc.style.display = presentItems.length ? "block" : "none";
       } catch(err){
         console.error(err);
         msg.textContent = "Impossible de charger les réponses coach.";
@@ -1193,14 +1276,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V39.3</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V39.2</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Anti-doublons : dernière réponse conservée par joueur</li>
-        <li>Compteur réponses reçues / joueurs uniques</li>
-        <li>Convocation fiabilisée avec joueurs uniques</li>
+        <li>Correction lecture REPONSES depuis le classeur principal</li>
+        <li>Lecture réponses coach sans opensheet</li>
+        <li>Compatibilité ancien et nouveau format match</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
