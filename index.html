@@ -301,19 +301,16 @@
     }
     .match-convoc-list{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      grid-template-columns:1fr 1fr;
       gap:8px;
+      margin-top:10px;
     }
     .match-convoc-player{
-  font-size:14px;
-  padding:6px 8px;
-  border-radius:10px;
-
-      background:#0d0d0d;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px 12px;
-      font-size:18px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,212,0,.75);
+      border-radius:10px;
+      padding:8px 6px;
+      font-size:16px;
       font-weight:800;
       color:#fff;
       text-align:center;
@@ -1187,14 +1184,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V38.5</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38.6</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>Convocation : cartes joueurs plus compactes</li>
         <li>Convocation déplacée en haut du détail du match</li>
         <li>Design convocation compact conservé</li>
-        <li>Fermeture automatique de "Réponses coach" après validation</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
