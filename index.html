@@ -280,14 +280,11 @@
     .convoc-title{color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;margin-bottom:8px;display:block}
     .convoc-action{margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#ffd400;color:#000;border:none}
     .match-convoc-card{
-      display:none;
-      margin-top:16px;
-      background:linear-gradient(180deg,#171717,#111);
-      border:2px solid var(--accent);
-      border-radius:22px;
-      padding:18px;
-      box-shadow:0 4px 18px rgba(255,212,0,.10);
-    }
+  border:1.5px solid rgba(255,212,0,0.6);
+  border-radius:16px;
+  padding:10px;
+  background:rgba(255,212,0,0.04);
+}
     .match-convoc-card h2{
       margin:0 0 10px;
       color:var(--accent);
@@ -300,21 +297,21 @@
       margin-bottom:12px;
     }
     .match-convoc-list{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:10px;
-    }
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:8px;
+}
     .match-convoc-player{
-      background:rgba(255,255,255,0.03);
-      border:1px solid rgba(255,212,0,.75);
-      border-radius:10px;
-      padding:8px 6px;
-      font-size:16px;
-      font-weight:800;
-      color:#fff;
-      text-align:center;
-    }
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,212,0,0.4);
+  border-radius:8px;
+  padding:6px 8px;
+  font-size:15px;
+  font-weight:600;
+  color:#fff;
+  text-align:center;
+}
 
   </style>
 
@@ -1184,7 +1181,7 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V38.6</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38.7</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
