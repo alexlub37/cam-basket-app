@@ -804,7 +804,8 @@ if(!bouton){
 bouton.onclick = function(){
   ouvrirFormulaire(
     m.equipe + " vs " + m.adversaire + " " + m.date,
-    m.equipe
+    m.equipe,
+    m.type
   );
 };
 
@@ -971,7 +972,7 @@ function openInfoModal(){
 
     
 
-function ouvrirFormulaire(match, equipe) {
+function ouvrirFormulaire(match, equipe, typeMatch) {
   const joueurs = state.joueurs
     .filter(j => j.equipe === equipe)
     .map(j => j.joueur);
@@ -980,6 +981,7 @@ function ouvrirFormulaire(match, equipe) {
 
   const url = "formulaire.html?match=" + encodeURIComponent(match)
             + "&equipe=" + encodeURIComponent(equipe)
+            + "&type=" + encodeURIComponent(typeMatch || "")
             + "&joueurs=" + joueursString;
 
   window.open(url, "_blank");
@@ -991,14 +993,14 @@ function ouvrirFormulaire(match, equipe) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V37.4</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V37.5.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>Formulaire : transport affiché uniquement pour les matchs extérieurs</li>
         <li>Suppression du champ Statut dans le détail du match</li>
         <li>Affichage match domicile / extérieur amélioré</li>
-        <li>Lecture des réponses depuis la feuille REPONSES</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>

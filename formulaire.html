@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V36</title>
+<title>Formulaire Match V37.5</title>
 
 <style>
 body{
@@ -101,6 +101,10 @@ textarea{
     <div class="choice-btn" onclick="selectPresence(this, 'Absent')">Absent</div>
   </div>
 
+  <div id="domicileNote" class="note" style="display:none;text-align:left;">
+    Match à domicile : aucun transport à renseigner.
+  </div>
+
   <div id="transportBloc" style="display:none;">
     <label>Transport</label>
     <div class="choice-group" id="transportGroup">
@@ -125,6 +129,22 @@ textarea{
 <script>
 let presenceValue = "";
 let transportValue = "";
+
+function isAwayMatch() {
+  const type = getParam("type")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+
+  return ["e", "ext", "exterieur", "extérieur"].includes(type);
+}
+
+function resetTransport() {
+  transportValue = "";
+  document.querySelectorAll("#transportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
+  document.getElementById("places").value = "";
+}
 
 function getParam(param) {
   const urlParams = new URLSearchParams(window.location.search);
@@ -156,6 +176,11 @@ window.onload = function() {
   if (display) {
     document.getElementById("titreMatch").innerText = "Réponse - " + display;
   }
+
+  if (!isAwayMatch()) {
+    document.getElementById("domicileNote").style.display = "block";
+  }
+
   chargerJoueurs();
 };
 
@@ -165,13 +190,12 @@ function selectPresence(el, value) {
   el.classList.add("active");
 
   const transportBloc = document.getElementById("transportBloc");
-  if (value === "Présent") {
+
+  if (value === "Présent" && isAwayMatch()) {
     transportBloc.style.display = "block";
   } else {
     transportBloc.style.display = "none";
-    transportValue = "";
-    document.querySelectorAll("#transportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
-    document.getElementById("places").value = "";
+    resetTransport();
   }
 }
 
