@@ -417,6 +417,11 @@
           <span class="coach-title">Transport</span>
           <div id="coachTransport" class="coach-list"><div class="muted">Aucun</div></div>
         </div>
+
+        <button id="btnFaireConvocation" style="margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;">
+          Faire la convocation
+        </button>
+
       </div>
     </section>
 
@@ -827,23 +832,13 @@ boutonCoach.onclick = function(){
   loadCoachResponses(m.equipe + " vs " + m.adversaire + " " + m.date);
 };
 
-let boutonConvoc = document.getElementById("btnFaireConvocation");
 
-if(!boutonConvoc){
-  boutonConvoc = document.createElement("button");
-  boutonConvoc.id = "btnFaireConvocation";
-  boutonConvoc.style.marginTop = "12px";
-  boutonConvoc.style.width = "100%";
-  boutonConvoc.style.padding = "14px";
-  boutonConvoc.style.fontWeight = "900";
-  boutonConvoc.style.borderRadius = "14px";
-  boutonConvoc.innerText = "Faire la convocation";
-  document.querySelector("#matchDetailScreen .card").appendChild(boutonConvoc);
-}
 
-boutonConvoc.onclick = function(){
-  alert("Convocation coach : prochaine étape");
-};
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "btnFaireConvocation"){
+    alert("Convocation coach : prochaine étape");
+  }
+});
 
 coachCardReset();
 showScreen("matchDetailScreen");
@@ -1011,14 +1006,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V37.6.6.5</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V37.7.6.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Ajout bouton "Faire la convocation"</li>
-        <li>Formulaire : transport affiché uniquement pour les matchs extérieurs</li>
-        <li>Suppression du champ Statut dans le détail du match</li>
+        <li>Convocation déplacée dans "Réponses coach"</li>
+        <li>Formulaire : transport extérieur uniquement</li>
+        <li>Suppression du champ Statut</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
