@@ -272,6 +272,13 @@
     .coach-title{color:var(--accent);display:block;font-size:12px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}
     .coach-list{display:grid;gap:8px}
     .coach-item{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#151515;color:#fff;font-size:15px}
+    .convoc-card{display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:18px;background:#151515}
+    .convoc-list{display:grid;gap:8px;margin-top:10px}
+    .convoc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#101010;color:#fff;font-size:15px}
+    .convoc-item input{transform:scale(1.25)}
+    .convoc-result{display:none;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#101010;color:#fff}
+    .convoc-title{color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;margin-bottom:8px;display:block}
+    .convoc-action{margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#ffd400;color:#000;border:none}
 
   </style>
 
@@ -412,6 +419,14 @@
           Faire la convocation
         </button>
 
+        <div id="convocationSelectionCard" class="convoc-card">
+          <span class="convoc-title">Sélection des joueurs convoqués</span>
+          <div class="muted">Les joueurs présents sont pré-cochés. Tu peux ajuster.</div>
+          <div id="convocationList" class="convoc-list"></div>
+          <button id="btnGenererConvocation" class="convoc-action">Générer la convocation</button>
+          <div id="convocationResult" class="convoc-result"></div>
+        </div>
+
         <div class="coach-block">
           <span class="coach-title">Absents</span>
           <div id="coachAbsents" class="coach-list"><div class="muted">Aucun</div></div>
@@ -460,6 +475,8 @@
 
     const RESPONSE_SHEET_ID = "1-x97q6xToAv1ImQHVSnjGgMMQmDyDIGPrXWIXwMxecw";
     const RESPONSE_SHEET_NAME = "REPONSES";
+    let lastCoachPresentPlayers = [];
+
     let state = {
       season: "",
       equipes: [],
@@ -836,10 +853,13 @@ boutonCoach.onclick = function(){
 
 
 document.addEventListener("click", function(e){
-  if(e.target && e.target.id === "btnFaireConvocationCoach"){
-    alert("Convocation coach : prochaine étape");
-  }
-});
+      if(e.target && e.target.id === "btnFaireConvocationCoach"){
+        ouvrirSelectionConvocation();
+      }
+      if(e.target && e.target.id === "btnGenererConvocation"){
+        genererConvocation();
+      }
+    });
 
 coachCardReset();
 showScreen("matchDetailScreen");
@@ -856,6 +876,16 @@ showScreen("matchDetailScreen");
       document.getElementById("coachTransport").innerHTML = '<div class="muted">Aucun</div>';
       const btnConvoc = document.getElementById("btnFaireConvocationCoach");
       if (btnConvoc) btnConvoc.style.display = "none";
+      const convocCard = document.getElementById("convocationSelectionCard");
+      if (convocCard) convocCard.style.display = "none";
+      const convocList = document.getElementById("convocationList");
+      if (convocList) convocList.innerHTML = "";
+      const convocResult = document.getElementById("convocationResult");
+      if (convocResult) {
+        convocResult.style.display = "none";
+        convocResult.innerHTML = "";
+      }
+      lastCoachPresentPlayers = [];
     }
 
     function getRowValue(row, wanted){
@@ -889,6 +919,7 @@ showScreen("matchDetailScreen");
         const presentItems = [];
         const absentItems = [];
         const transportItems = [];
+        lastCoachPresentPlayers = [];
 
         filtered.forEach(row => {
           const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
@@ -898,6 +929,14 @@ showScreen("matchDetailScreen");
           const commentaire = getRowValue(row, "Commentaire");
 
           if (presence === "Présent") {
+            if (prenom) {
+              lastCoachPresentPlayers.push({
+                prenom,
+                transport: mode || "",
+                places: places || "",
+                commentaire: commentaire || ""
+              });
+            }
             presentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${mode ? ` — ${escapeHtml(mode)}` : ""}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
           } else if (presence === "Absent") {
             absentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
@@ -1007,19 +1046,77 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 }
 
 
+
+    function ouvrirSelectionConvocation(){
+      const card = document.getElementById("convocationSelectionCard");
+      const list = document.getElementById("convocationList");
+      const result = document.getElementById("convocationResult");
+
+      if (!card || !list) return;
+
+      card.style.display = "block";
+      if (result) {
+        result.style.display = "none";
+        result.innerHTML = "";
+      }
+
+      const uniques = [];
+      const seen = new Set();
+      lastCoachPresentPlayers.forEach(p => {
+        const key = normalize(p.prenom);
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        uniques.push(p);
+      });
+
+      if (!uniques.length) {
+        list.innerHTML = '<div class="muted">Aucun joueur présent à convoquer.</div>';
+        return;
+      }
+
+      list.innerHTML = uniques.map((p, idx) => {
+        const detail = [p.transport, p.places ? p.places + " place(s)" : ""].filter(Boolean).join(" • ");
+        return `
+          <label class="convoc-item">
+            <input type="checkbox" checked data-prenom="${escapeHtml(p.prenom)}">
+            <span>${escapeHtml(p.prenom)}${detail ? " — " + escapeHtml(detail) : ""}</span>
+          </label>
+        `;
+      }).join("");
+    }
+
+    function genererConvocation(){
+      const result = document.getElementById("convocationResult");
+      const checked = Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked"))
+        .map(input => input.dataset.prenom)
+        .filter(Boolean);
+
+      if (!result) return;
+
+      result.style.display = "block";
+
+      if (!checked.length) {
+        result.innerHTML = '<span class="convoc-title">Convocation</span><div class="muted">Aucun joueur sélectionné.</div>';
+        return;
+      }
+
+      result.innerHTML = '<span class="convoc-title">Convocation prête</span>' +
+        checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
+    }
+
     reloadData();
   </script>
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V37.8.6.5</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38.0.6.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Convocation affichée uniquement après "Réponses coach"</li>
+        <li>Convocation : sélection des joueurs présents</li>
+        <li>Convocation déplacée sous "Présents"</li>
         <li>Formulaire : transport extérieur uniquement</li>
-        <li>Suppression du champ Statut</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
