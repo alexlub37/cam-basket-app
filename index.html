@@ -868,7 +868,7 @@ if(!bouton){
 
 bouton.onclick = function(){
   ouvrirFormulaire(
-    m.equipe + " vs " + m.adversaire + " " + m.date,
+    buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label,
     m.equipe,
     m.type
   );
@@ -889,7 +889,9 @@ if(!boutonCoach){
 }
 
 boutonCoach.onclick = function(){
-  loadCoachResponses(m.equipe + " vs " + m.adversaire + " " + m.date);
+  loadCoachResponses(
+    buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+  );
 };
 
 
@@ -1181,14 +1183,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V38.7</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V39.0</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
-      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
+      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Convocation : cartes joueurs plus compactes</li>
-        <li>Convocation déplacée en haut du détail du match</li>
-        <li>Design convocation compact conservé</li>
+        <li>Format match complet : équipe / adversaire / date / heure / domicile ou extérieur</li>
+        <li>Correction regroupement des réponses coach</li>
+        <li>Retour ouverture formulaire local stable</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
