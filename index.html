@@ -481,7 +481,6 @@
     const RESPONSE_SHEET_ID = "1-x97q6xToAv1ImQHVSnjGgMMQmDyDIGPrXWIXwMxecw";
     const RESPONSE_SHEET_NAME = "REPONSES";
     let lastCoachPresentPlayers = [];
-    let lastConvocation = [];
 
     let state = {
       season: "",
@@ -867,6 +866,7 @@ document.addEventListener("click", function(e){
       }
     });
 
+afficherConvocationDansMatch([]);
 coachCardReset();
 showScreen("matchDetailScreen");
 
@@ -1091,6 +1091,26 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
       }).join("");
     }
 
+    function afficherConvocationDansMatch(joueurs){
+      const card = document.getElementById("matchConvocationCard");
+      const list = document.getElementById("matchConvocationList");
+
+      if (!card || !list) return;
+
+      if (!joueurs || !joueurs.length) {
+        card.style.display = "none";
+        list.innerHTML = "";
+        return;
+      }
+
+      card.style.display = "block";
+      list.innerHTML = joueurs.map(n => `
+        <div class="item">
+          <div class="item-title">${escapeHtml(n)}</div>
+        </div>
+      `).join("");
+    }
+
     function genererConvocation(){
       const result = document.getElementById("convocationResult");
       const checked = Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked"))
@@ -1106,33 +1126,10 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
         return;
       }
 
-      lastConvocation = checked;
-
       result.innerHTML = '<span class="convoc-title">Convocation prête</span>' +
         checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
 
-      const matchCard = document.getElementById("matchConvocationCard");
-      const matchList = document.getElementById("matchConvocationList");
-      if (matchCard && matchList) {
-        matchCard.style.display = "block";
-        matchList.innerHTML = checked.map(n => `
-          <div class="item">
-            <div class="item-title">${escapeHtml(n)}</div>
-          </div>
-        `).join("");
-      }
-
-      const matchCard = document.getElementById("matchConvocationCard");
-      const matchList = document.getElementById("matchConvocationList");
-
-      if (matchCard && matchList) {
-        matchCard.style.display = "block";
-        matchList.innerHTML = checked.map(n => `
-          <div class="item">
-            <div class="item-title">${escapeHtml(n)}</div>
-          </div>
-        `).join("");
-      }
+      afficherConvocationDansMatch(checked);
     }
 
     reloadData();
@@ -1140,7 +1137,7 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V38.1</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38.1 SAFE</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
