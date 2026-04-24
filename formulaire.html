@@ -122,6 +122,8 @@ textarea{
 
   <button class="send" onclick="envoyerFormulaire()">Envoyer la réponse</button>
 
+  <button class="send" style="background:#333;color:#fff;border:2px solid #555;margin-top:10px;" onclick="annulerFormulaire()">Annuler</button>
+
   <div class="note">Après envoi, retour automatique à l’application.</div>
 
 </div>
@@ -246,6 +248,11 @@ function envoyerFormulaire() {
     }
     alert("Erreur d'envoi ❌");
   });
+}
+
+function annulerFormulaire(){
+  try { window.close(); } catch(e) {}
+  window.location.href = "https://alexlub37.github.io/";
 }
 </script>
 
