@@ -1080,7 +1080,8 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 
   const joueursString = encodeURIComponent(joueurs.join("|"));
 
-  const url = "formulaire.html?match=" + encodeURIComponent(match)
+  const url = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec"
+            + "?match=" + encodeURIComponent(match)
             + "&equipe=" + encodeURIComponent(equipe)
             + "&type=" + encodeURIComponent(typeMatch || "")
             + "&joueurs=" + joueursString;
