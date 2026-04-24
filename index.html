@@ -312,6 +312,21 @@
   color:#fff;
   text-align:center;
 }
+    .match-convoc-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:8px;
+    }
+    .match-convoc-comment{
+      color:var(--accent);
+      font-size:13px;
+      line-height:1.25;
+      text-align:right;
+      max-width:55%;
+      font-weight:700;
+    }
 
   </style>
 
@@ -465,6 +480,12 @@
           <span class="convoc-title">Sélection des joueurs convoqués</span>
           <div class="muted">Les joueurs présents sont pré-cochés. Tu peux ajuster.</div>
           <div id="convocationList" class="convoc-list"></div>
+
+          <label for="convocationCommentaire" style="display:block;margin-top:12px;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;">
+            Commentaire coach
+          </label>
+          <textarea id="convocationCommentaire" placeholder="Ex : RDV 13h30, pensez à la gourde..." style="width:100%;min-height:70px;margin-top:6px;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0b0b0b;color:#fff;font-size:15px;box-sizing:border-box;"></textarea>
+
           <button id="btnGenererConvocation" class="convoc-action">Générer la convocation</button>
           <div id="convocationResult" class="convoc-result"></div>
         </div>
@@ -1014,6 +1035,8 @@ showScreen("matchDetailScreen");
         convocResult.style.display = "none";
         convocResult.innerHTML = "";
       }
+      const commentaireConvoc = document.getElementById("convocationCommentaire");
+      if (commentaireConvoc) commentaireConvoc.value = "";
       lastCoachPresentPlayers = [];
     }
 
@@ -1052,7 +1075,19 @@ showScreen("matchDetailScreen");
         const headers = csvRows[0];
         const rows = csvRows.slice(1).map(r => rowArrayToObject(headers, r));
 
-        const filtered = rows.filter(row => responseMatchesCurrentMatch(getRowValue(row, "Match"), state.currentOpenMatch));
+        const filtered = rows.filter(row => {
+          const matchText = getRowValue(row, "Match");
+          const txt = normalize(matchText);
+
+          const equipeOk = txt.includes(normalize(state.currentOpenMatch.equipe));
+          const adversaireOk = txt.includes(normalize(state.currentOpenMatch.adversaire));
+          const dateOk = txt.includes(normalize(state.currentOpenMatch.date));
+
+          const heureMatch = normalize(state.currentOpenMatch.heure);
+          const heureOk = !heureMatch || txt.includes(heureMatch);
+
+          return equipeOk && adversaireOk && dateOk && heureOk;
+        });
 
         // Anti-doublons : on garde uniquement la dernière réponse par joueur
         const uniqueByPlayer = {};
@@ -1233,7 +1268,7 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
       }).join("");
     }
 
-    function afficherConvocationDansMatch(joueurs){
+    function afficherConvocationDansMatch(joueurs, commentaire = ""){
       const card = document.getElementById("matchConvocationCard");
       const list = document.getElementById("matchConvocationList");
       const sub = document.getElementById("matchConvocationSub");
@@ -1248,7 +1283,15 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
       }
 
       card.style.display = "block";
-      if (sub) sub.textContent = joueurs.length + " joueur(s) convoqué(s)";
+      if (sub) {
+        sub.innerHTML = `
+          <div class="match-convoc-head">
+            <span>${joueurs.length} joueur(s) convoqué(s)</span>
+            ${commentaire ? `<span class="match-convoc-comment">${escapeHtml(commentaire)}</span>` : ""}
+          </div>
+        `;
+      }
+
       list.innerHTML = joueurs.map(n => `
         <div class="match-convoc-player">${escapeHtml(n)}</div>
       `).join("");
@@ -1259,6 +1302,10 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
       const checked = Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked"))
         .map(input => input.dataset.prenom)
         .filter(Boolean);
+
+      const commentaireCoach = document.getElementById("convocationCommentaire")
+        ? document.getElementById("convocationCommentaire").value.trim()
+        : "";
 
       if (!result) return;
 
@@ -1272,7 +1319,7 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
       result.innerHTML = '<span class="convoc-title">Convocation prête</span>' +
         checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
 
-      afficherConvocationDansMatch(checked);
+      afficherConvocationDansMatch(checked, commentaireCoach);
 
       const coachCard = document.getElementById("coachResponsesCard");
       if (coachCard) coachCard.style.display = "none";
@@ -1286,14 +1333,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V39.3 SAFE</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V39.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Anti-doublons réponses coach ajouté sur base V39.2</li>
-        <li>Dernière réponse conservée par joueur</li>
-        <li>Lecture réponses V39.2 conservée</li>
+        <li>Correction réponses coach : distinction des matchs par heure</li>
+        <li>Anti-doublons : dernière réponse conservée par joueur</li>
+        <li>Commentaire coach sur convocation conservé</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
