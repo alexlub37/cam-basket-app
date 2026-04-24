@@ -406,6 +406,11 @@
         </div>
       </div>
 
+      <div id="matchConvocationCard" class="card" style="display:none;">
+        <h2>Convocation du match</h2>
+        <div id="matchConvocationList" class="list"></div>
+      </div>
+
       <div id="coachResponsesCard" class="card coach-card">
         <h2>Réponses coach</h2>
         <div id="coachMsg" class="coach-msg">Aucune réponse chargée.</div>
@@ -1108,10 +1113,25 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 
       const matchCard = document.getElementById("matchConvocationCard");
       const matchList = document.getElementById("matchConvocationList");
+      if (matchCard && matchList) {
+        matchCard.style.display = "block";
+        matchList.innerHTML = checked.map(n => `
+          <div class="item">
+            <div class="item-title">${escapeHtml(n)}</div>
+          </div>
+        `).join("");
+      }
+
+      const matchCard = document.getElementById("matchConvocationCard");
+      const matchList = document.getElementById("matchConvocationList");
 
       if (matchCard && matchList) {
         matchCard.style.display = "block";
-        matchList.innerHTML = checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
+        matchList.innerHTML = checked.map(n => `
+          <div class="item">
+            <div class="item-title">${escapeHtml(n)}</div>
+          </div>
+        `).join("");
       }
     }
 
@@ -1120,13 +1140,13 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V38.1.6.5</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38.1</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>Convocation affichée dans le détail du match</li>
         <li>Convocation : sélection des joueurs présents</li>
-        <li>Convocation déplacée sous "Présents"</li>
         <li>Formulaire : transport extérieur uniquement</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
