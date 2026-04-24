@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V37.5</title>
+<title>Formulaire Match V37.8</title>
 
 <style>
 body{
@@ -211,6 +211,24 @@ let sending = false;
 
 function envoyerFormulaire() {
   if (sending) return;
+
+  const joueur = document.getElementById("joueur").value;
+
+  if (!joueur) {
+    alert("Choisis le prénom du joueur avant d'envoyer.");
+    return;
+  }
+
+  if (!presenceValue) {
+    alert("Choisis Présent ou Absent avant d'envoyer.");
+    return;
+  }
+
+  if (presenceValue === "Présent" && isAwayMatch() && !transportValue) {
+    alert("Choisis le moyen de transport avant d'envoyer.");
+    return;
+  }
+
   sending = true;
 
   const btn = document.querySelector(".send");
@@ -221,7 +239,7 @@ function envoyerFormulaire() {
   const data = {
     match: getParam("match"),
     equipe: getParam("equipe"),
-    prenom: document.getElementById("joueur").value,
+    prenom: joueur,
     presence: presenceValue,
     transport: transportValue,
     places: document.getElementById("places").value || "",
