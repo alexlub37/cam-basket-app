@@ -422,6 +422,14 @@
       <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
       <div class="card">
         <h2 id="detailTitle">Détail match</h2>
+
+<div id="matchConvocationCard" class="match-convoc-card">
+        <h2>Convocation du match</h2>
+        <div id="matchConvocationSub" class="match-convoc-sub"></div>
+        <div id="matchConvocationList" class="match-convoc-list"></div>
+      </div>
+
+      
         <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
         <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
         <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
@@ -446,13 +454,7 @@
       </div>
 
       <!-- MOVED CONVOCATION BLOCK -->
-<div id="matchConvocationCard" class="match-convoc-card">
-        <h2>Convocation du match</h2>
-        <div id="matchConvocationSub" class="match-convoc-sub"></div>
-        <div id="matchConvocationList" class="match-convoc-list"></div>
-      </div>
-
-      <div id="coachResponsesCard" class="card coach-card">
+<div id="coachResponsesCard" class="card coach-card">
         <h2>Réponses coach</h2>
         <div id="coachMsg" class="coach-msg">Aucune réponse chargée.</div>
 
@@ -1185,13 +1187,13 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V38.4</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V38.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 23/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Retour base stable après test design</li>
-        <li>Design convocation amélioré dans le détail du match</li>
+        <li>Convocation déplacée en haut du détail du match</li>
+        <li>Design convocation compact conservé</li>
         <li>Fermeture automatique de "Réponses coach" après validation</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
