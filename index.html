@@ -431,6 +431,23 @@
 #mapsBlock {
   margin-top:16px !important;
 }
+
+.match-team-inline{
+  color:var(--accent);
+  font-size:17px;
+  font-weight:900;
+  text-align:right;
+}
+
+.match-detail-title{
+  text-align:center;
+}
+
+.match-season-top{
+  font-size:10px;
+  color:#bdbdbd;
+}
+
 </style>
 
 <style>
@@ -546,8 +563,8 @@
         <div class="match-detail-header">
           <div class="match-top-line">
             <div id="detailSeasonTop" class="match-season-top">SAISON</div>
-            <div id="detailTeamTop" class="match-team-top"></div>
             <div></div>
+            <div id="detailTeamInline" class="match-team-inline"></div>
           </div>
           <h2 id="detailTitle" class="match-detail-title">Détail match</h2>
           <div class="match-date-time-row">
@@ -1114,7 +1131,7 @@
 
       document.getElementById("detailTitle").innerHTML = buildMatchTitleHtml(m);
       document.getElementById("detailSeasonTop").textContent = m.saison ? "SAISON " + m.saison : "SAISON";
-      document.getElementById("detailTeamTop").textContent = m.equipe || "";
+      document.getElementById("detailTeamInline").textContent = m.equipe || "";
       document.getElementById("detailDateTop").textContent = m.date || "-";
       document.getElementById("detailTimeTop").textContent = m.heure || "-";
       document.getElementById("detailTypeTop").textContent = badgeForType(m.type).label || "-";
@@ -1550,7 +1567,7 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.0</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.1</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
