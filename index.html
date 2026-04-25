@@ -508,6 +508,20 @@
   font-weight:600 !important;
 }
 
+
+/* Convocation titre discret forcé */
+#matchConvocationCard h3,
+#matchConvocationCard .match-convoc-title,
+.match-convoc-card h3,
+.match-convoc-title{
+  font-size:14px !important;
+  font-weight:600 !important;
+  color:#999 !important;
+  line-height:1.2 !important;
+  margin:0 0 4px 0 !important;
+  white-space:nowrap !important;
+}
+
 </style>
 
 <style>
@@ -635,7 +649,7 @@
         </div>
 
 <div id="matchConvocationCard" class="match-convoc-card">
-        <h2>Convocation du match</h2>
+        <h2>Convocation</h2>
         <div id="matchConvocationSub" class="match-convoc-sub"></div>
         <div id="matchConvocationList" class="match-convoc-list"></div>
       </div>
@@ -1647,14 +1661,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.3.1</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.3.2</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Convocation compacte SAFE</li>
-        <li>Liste numérotée sans grosses cartes</li>
-        <li>Base V40.2 corrigée conservée</li>
+        <li>Titre convocation forcé en discret</li>
+        <li>Texte raccourci : Convocation</li>
+        <li>Base V40.3.1 conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
