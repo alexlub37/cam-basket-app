@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel */
+/* Layout domicile officiel V40.2 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -1207,15 +1207,23 @@
       const officialsBlock = document.getElementById("domicileOfficialsBlock");
       if (isHome) {
         officialsBlock.style.display = "block";
-        const arbitres = [m.arbitre1, m.arbitre2].filter(Boolean).join("<br>");
+
+        const arbitres = [m.arbitre1, m.arbitre2]
+          .map(x => String(x || "").trim())
+          .filter(Boolean)
+          .join("<br>");
+
+        const chrono = String(m.chrono || "").trim();
+        const table = String(m.table || "").trim();
+
         document.getElementById("detailArbitres").innerHTML = arbitres || "-";
-        document.getElementById("detailChrono").textContent = m.chrono || "-";
-        document.getElementById("detailTable").innerHTML = String(m.table || "-").replace(/[,;]/g, "<br>");
+        document.getElementById("detailChrono").textContent = chrono || "-";
+        document.getElementById("detailTable").innerHTML = table ? table.replace(/[,;]/g, "<br>") : "-";
       } else {
         officialsBlock.style.display = "none";
         document.getElementById("detailArbitres").innerHTML = "";
         document.getElementById("detailChrono").textContent = "";
-        document.getElementById("detailTable").textContent = "";
+        document.getElementById("detailTable").innerHTML = "";
       }
 
       document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
@@ -1610,14 +1618,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.2 SAFE</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.2 corrigée</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Layout domicile SAFE : arbitres centrés</li>
+        <li>Correction affichage arbitres / chrono / table</li>
+        <li>Arbitres centrés</li>
         <li>Chrono et table alignés en deux colonnes</li>
-        <li>Base V40.1 conservée pour éviter le blocage chargement</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
