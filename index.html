@@ -154,6 +154,52 @@
       font-size:11px;
       font-weight:900;
     }
+    .match-detail-header{
+      margin-bottom:14px;
+      padding-bottom:14px;
+      border-bottom:1px solid var(--line);
+    }
+    .match-season-top{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:8px;
+    }
+    .match-detail-title{
+      margin:0 0 12px 0;
+      color:#fff;
+      font-size:25px;
+      line-height:1.12;
+      font-weight:900;
+    }
+    .match-date-time-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:10px;
+      color:#fff;
+      font-size:17px;
+      font-weight:900;
+    }
+    .match-date-time-row span:last-child{
+      color:var(--accent);
+      text-align:right;
+    }
+    .match-type-top{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,212,0,.12);
+      border:1px solid rgba(255,212,0,.45);
+      color:var(--accent);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .menu-btn{
       background:linear-gradient(180deg,#1a1a1a,#171717);
@@ -368,6 +414,15 @@
 .detail-row:has(#detailStatut) {
     display: none;
 }
+
+/* Nouveau header détail match : on masque les anciennes lignes dupliquées */
+.detail-row:has(#detailDate),
+.detail-row:has(#detailTime),
+.detail-row:has(#detailType),
+.detail-row:has(#detailSeason) {
+    display: none;
+}
+
 </style>
 
 
@@ -451,7 +506,15 @@
     <section id="matchDetailScreen" class="screen">
       <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
       <div class="card">
-        <h2 id="detailTitle">Détail match</h2>
+        <div class="match-detail-header">
+          <div id="detailSeasonTop" class="match-season-top">SAISON</div>
+          <h2 id="detailTitle" class="match-detail-title">Détail match</h2>
+          <div class="match-date-time-row">
+            <span id="detailDateTop"></span>
+            <span id="detailTimeTop"></span>
+          </div>
+          <div id="detailTypeTop" class="match-type-top"></div>
+        </div>
 
 <div id="matchConvocationCard" class="match-convoc-card">
         <h2>Convocation du match</h2>
@@ -465,8 +528,8 @@
         <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
         <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
         <div class="detail-row"><span class="detail-label">Domicile / Extérieur</span><span id="detailType"></span></div>
-        <div class="detail-row"><span class="detail-label">Gymnase</span><span id="detailGym"></span></div>
-        <div class="detail-row"><span class="detail-label">Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">📍 Gymnase</span><span id="detailGym"></span></div>
+        <div class="detail-row"><span class="detail-label">📬 Adresse</span><span id="detailAddress"></span></div>
         <div class="detail-row"><span class="detail-label">Code postal</span><span id="detailPostal"></span></div>
         <div class="detail-row"><span class="detail-label">Ville</span><span id="detailCity"></span></div>
         <div class="detail-row"><span class="detail-label">Compétition</span><span id="detailCompetition"></span></div>
@@ -474,10 +537,10 @@
         <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
                 <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
         <div id="domicileOfficialsBlock">
-          <div class="detail-row"><span class="detail-label">Arbitre 1</span><span id="detailArbitre1"></span></div>
-          <div class="detail-row"><span class="detail-label">Arbitre 2</span><span id="detailArbitre2"></span></div>
-          <div class="detail-row"><span class="detail-label">Chrono</span><span id="detailChrono"></span></div>
-          <div class="detail-row"><span class="detail-label">Table</span><span id="detailTable"></span></div>
+          <div class="detail-row"><span class="detail-label">👨‍⚖️ Arbitre 1</span><span id="detailArbitre1"></span></div>
+          <div class="detail-row"><span class="detail-label">👨‍⚖️ Arbitre 2</span><span id="detailArbitre2"></span></div>
+          <div class="detail-row"><span class="detail-label">⏱️ Chrono</span><span id="detailChrono"></span></div>
+          <div class="detail-row"><span class="detail-label">📋 Table</span><span id="detailTable"></span></div>
         </div>
         <div id="mapsBlock" style="margin-top:14px">
           <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
@@ -997,6 +1060,10 @@
       const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
 
       document.getElementById("detailTitle").textContent = buildMatchDisplay(m);
+      document.getElementById("detailSeasonTop").textContent = m.saison ? "SAISON " + m.saison : "SAISON";
+      document.getElementById("detailDateTop").textContent = m.date || "-";
+      document.getElementById("detailTimeTop").textContent = m.heure || "-";
+      document.getElementById("detailTypeTop").textContent = badgeForType(m.type).label || "-";
       const pastNotice = document.getElementById("pastMatchNotice");
       if (pastNotice) pastNotice.style.display = matchPast ? "block" : "none";
       document.getElementById("detailDate").textContent = m.date || "-";
@@ -1429,14 +1496,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V39.8</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V39.9</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>Design détail match : saison, match, date et heure réorganisés</li>
+        <li>Infos match structurées selon domicile / extérieur</li>
         <li>Domicile : adresse et itinéraire masqués</li>
-        <li>Matchs passés affichés en bas et verrouillés</li>
-        <li>Tri automatique des matchs par date et heure</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
