@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V37.9</title>
+<title>Formulaire Match V37.10</title>
 
 <style>
 body{
@@ -237,9 +237,7 @@ function selectTransport(el, value) {
 }
 
 function selectApport(el, value) {
-  apportValue = value;
-  document.querySelectorAll("#apportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
-  el.classList.add("active");
+  el.classList.toggle("active");
 }
 
 let sending = false;
