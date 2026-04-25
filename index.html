@@ -479,22 +479,6 @@
   text-align:center;
 }
 
-
-/* Convocation compacte */
-.convocation-title{
-  font-size:16px;
-  font-weight:700;
-  margin-bottom:8px;
-  color:var(--accent);
-}
-.convocation-list{
-  font-size:16px;
-  line-height:1.5;
-}
-.convocation-item{
-  margin-bottom:4px;
-}
-
 </style>
 
 <style>
@@ -622,10 +606,12 @@
         </div>
 
 <div id="matchConvocationCard" class="match-convoc-card">
-        <h2>Convocation du match</h2>
-        <div id="matchConvocationSub" class="match-convoc-sub"></div>
-        <div id="matchConvocationList" class="match-convoc-list"></div>
-      </div>
+        <h2>
+<div class="convocation-block">
+  <div id="convocationTitle" class="convocation-title"></div>
+  <div id="convocationList" class="convocation-list"></div>
+</div>
+
 
       
         <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
@@ -1634,7 +1620,7 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.3</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.3 CLEAN</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
