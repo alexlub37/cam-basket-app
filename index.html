@@ -449,11 +449,35 @@
 }
 
 
-.domicile-block { margin-top:20px; }
-.arbitres-block { text-align:center; margin:24px 0 18px; }
-.table-row { display:flex; justify-content:space-between; gap:20px; }
-.col { flex:1; }
-.label { color:var(--accent); font-weight:900; margin-bottom:6px; }
+/* Layout domicile officiel */
+.domicile-officials-pro{
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+.officials-arbitres{
+  text-align:center;
+  margin-bottom:18px;
+}
+.officials-label{
+  color:var(--accent);
+  font-size:13px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:8px;
+}
+.officials-names{
+  color:#fff;
+  font-size:18px;
+  line-height:1.35;
+}
+.officials-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  text-align:center;
+}
 
 </style>
 
@@ -589,8 +613,314 @@
 
       
         <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
+        <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
+        <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
+        <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
+        <div class="detail-row"><span class="detail-label">Domicile / Extérieur</span><span id="detailType"></span></div>
+        <div class="detail-row"><span class="detail-label">📍 Gymnase</span><span id="detailGym"></span></div>
+        <div class="detail-row"><span class="detail-label">📬 Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">Code postal</span><span id="detailPostal"></span></div>
+        <div class="detail-row"><span class="detail-label">Ville</span><span id="detailCity"></span></div>
+        <div class="detail-row"><span class="detail-label">Compétition</span><span id="detailCompetition"></span></div>
+        <div class="detail-row"><span class="detail-label">Tour</span><span id="detailTour"></span></div>
+        <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
+                <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
+        <div id="domicileOfficialsBlock">
+          <div class="domicile-officials-pro">
+            <div class="officials-arbitres">
+              <div class="officials-label">👨‍⚖️ Arbitres</div>
+              <div id="detailArbitres" class="officials-names">-</div>
+            </div>
+
+            <div class="officials-grid">
+              <div>
+                <div class="officials-label">⏱️ Chrono</div>
+                <div id="detailChrono" class="officials-names">-</div>
+              </div>
+              <div>
+                <div class="officials-label">📋 Table</div>
+                <div id="detailTable" class="officials-names">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="mapsBlock" style="margin-top:14px">
+          <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
+        </div>
+      </div>
+
+      <!-- MOVED CONVOCATION BLOCK -->
+<div id="coachResponsesCard" class="card coach-card">
+        <h2>Réponses coach</h2>
+        <div id="coachMsg" class="coach-msg">Aucune réponse chargée.</div>
+
+        <div class="coach-block">
+          <span class="coach-title">Présents</span>
+          <div id="coachPresents" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        <button id="btnFaireConvocationCoach" style="display:none;margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#0b0b0b;color:#fff;border:2px solid #ffd400;">
+          Faire la convocation
+        </button>
+
+        <div id="convocationSelectionCard" class="convoc-card">
+          <span class="convoc-title">Sélection des joueurs convoqués</span>
+          <div class="muted">Les joueurs présents sont pré-cochés. Tu peux ajuster.</div>
+          <div id="convocationList" class="convoc-list"></div>
+
+          <label for="convocationCommentaire" style="display:block;margin-top:12px;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;">
+            Commentaire coach
+          </label>
+          <textarea id="convocationCommentaire" placeholder="Ex : RDV 13h30, pensez à la gourde..." style="width:100%;min-height:70px;margin-top:6px;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0b0b0b;color:#fff;font-size:15px;box-sizing:border-box;"></textarea>
+
+          <button id="btnGenererConvocation" class="convoc-action">Générer la convocation</button>
+          <div id="convocationResult" class="convoc-result"></div>
+        </div>
+
+        <div class="coach-block">
+          <span class="coach-title">Absents</span>
+          <div id="coachAbsents" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        <div class="coach-block">
+          <span class="coach-title">Transport</span>
+          <div id="coachTransport" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
         
-          ';
+</div>
+    </section>
+
+
+    <section id="bureauScreen"  class="screen">
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <div class="card">
+        <h2>Bureau</h2>
+        <div class="muted">Membres du bureau du club.</div>
+      </div>
+      <div id="bureauList" class="list"></div>
+    </section>
+
+    <section id="benevolesScreen" class="screen">
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <div class="card">
+        <h2>Bénévoles</h2>
+        <div class="muted">Bénévoles du club.</div>
+      </div>
+      <div id="benevolesList" class="list"></div>
+    </section>
+  </main>
+
+  <script>
+    const SHEET_ID = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
+    const SHEETS = {
+      parametres: "PARAMETRES",
+      equipes: "EQUIPES",
+      joueurs: "JOUEURS",
+      matchs: "MATCHS",
+      bureau: "BUREAU",
+      benevoles: "BENEVOLES"
+    };
+
+
+    const RESPONSE_SHEET_ID = SHEET_ID;
+    const RESPONSE_SHEET_NAME = "REPONSES";
+    let lastCoachPresentPlayers = [];
+
+    let state = {
+      season: "",
+      equipes: [],
+      joueurs: [],
+      matchs: [],
+      bureau: [],
+      benevoles: [],
+      selectedTeam: null,
+      currentMatchRows: [],
+      currentOpenMatch: null
+    };
+
+    function showScreen(id){
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function setStatus(text){ document.getElementById("status").textContent = text; }
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function normalize(str){
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .trim()
+        .toLowerCase();
+    }
+
+    function sameSeason(a, b){
+      const sa = normalize(String(a || ""));
+      const sb = normalize(String(b || ""));
+      if (!sa || !sb) return sa === sb;
+      if (sa === sb) return true;
+
+      const aParts = sa.split("/").map(x => x.trim()).filter(Boolean);
+      const bParts = sb.split("/").map(x => x.trim()).filter(Boolean);
+
+      if (aParts.length > 1 && bParts.length === 1 && aParts.includes(sb)) return true;
+      if (bParts.length > 1 && aParts.length === 1 && bParts.includes(sa)) return true;
+
+      return false;
+    }
+
+    function badgeForType(type){
+      const t = normalize(type);
+      const isHome = ["d","dom","domicile"].includes(t);
+      const isAway = ["e","ext","exterieur","extérieur"].includes(t);
+      if (isHome) return { label: "Domicile", badge: '<span class="badge-home">Domicile</span>' };
+      if (isAway) return { label: "Extérieur", badge: '<span class="badge-away">Extérieur</span>' };
+      return { label: String(type || "-"), badge: "" };
+    }
+
+    async function fetchRows(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      const json = JSON.parse(txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
+      const cols = json.table.cols.map(c => c.label || c.id || "");
+      return (json.table.rows || []).map(r => cols.map((col, i) => {
+        const cell = r.c[i];
+        if (!cell) return "";
+        if (cell.f !== null && cell.f !== undefined && String(cell.f).trim() !== "") return String(cell.f);
+        if (cell.v !== null && cell.v !== undefined) return String(cell.v);
+        return "";
+      }));
+    }
+
+    function parseCsvLine(line){
+      const out = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === "," && !inQuotes) {
+          out.push(cur);
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      out.push(cur);
+      return out;
+    }
+
+    async function fetchRowsCsv(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      return txt
+        .replace(/^\uFEFF/, "")
+        .split(/\r?\n/)
+        .filter(line => line.trim() !== "")
+        .map(parseCsvLine)
+        .map(row => row.map(cell => String(cell || "").trim()));
+    }
+
+    function findSeason(paramRows){
+      for (const row of paramRows) {
+        const left = normalize(row[0]);
+        const right = String(row[1] || "").trim();
+        if (left === "saison active") return right;
+      }
+      return "";
+    }
+
+    async function reloadData(){
+      try{
+        setStatus("Chargement des données…");
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows] = await Promise.all([
+          fetchRows(SHEETS.parametres),
+          fetchRows(SHEETS.equipes),
+          fetchRowsCsv(SHEETS.joueurs),
+          fetchRows(SHEETS.matchs),
+          fetchRows(SHEETS.bureau),
+          fetchRows(SHEETS.benevoles)
+        ]);
+
+        state.season = findSeason(paramRows);
+
+        state.equipes = eqRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          categorie: String(r[2] || "").trim(),
+          coach: String(r[3] || "").trim()
+        })).filter(x => x.equipe && normalize(x.saison) !== "saison");
+
+        state.joueurs = jrRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          joueur: String(r[2] || "").trim(),
+          licence: String(r[3] || "").trim(),
+          numero: String(r[4] || "").trim(),
+          poste: String(r[5] || "").trim()
+        })).filter(x => x.joueur && normalize(x.saison) !== "saison");
+
+        // MATCHS attendu :
+        // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
+        // G Gymnase | H Adresse | I Code postal | J Ville | K Arbitre 1 | L Arbitre 2 | M Chrono | N Table
+        state.matchs = mtRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          date: String(r[2] || "").trim(),
+          heure: String(r[3] || "").trim(),
+          adversaire: String(r[4] || "").trim(),
+          type: String(r[5] || "").trim(),
+          gymnase: String(r[6] || "").trim(),
+          adresse: String(r[7] || "").trim(),
+          codePostal: String(r[8] || "").trim(),
+          ville: String(r[9] || "").trim(),
+          arbitre1: String(r[10] || "").trim(),
+          arbitre2: String(r[11] || "").trim(),
+          chrono: String(r[12] || "").trim(),
+          table: String(r[13] || "").trim()
+        })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
+
+        state.bureau = bureauRows.map(r => ({
+          nom: String(r[0] || "").trim(),
+          fonction: String(r[1] || "").trim(),
+          telephone: String(r[2] || "").trim(),
+          email: String(r[3] || "").trim()
+        })).filter(x => x.nom && normalize(x.nom) !== "nom");
+
+        state.benevoles = benevoleRows.map(r => ({
+          nom: String(r[0] || "").trim(),
+          role: String(r[1] || "").trim(),
+          telephone: String(r[2] || "").trim(),
+          email: String(r[3] || "").trim()
+        })).filter(x => x.nom && normalize(x.nom) !== "nom");
+
+        document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
+        renderTeams();
+        renderBureau();
+        renderBenevoles();
+        setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
+      } catch(err){
+        console.error(err);
+        setStatus("Erreur de chargement");
+        document.getElementById("teamsList").innerHTML =
+          '<div class="empty">Impossible de charger les données. Vérifie les feuilles PARAMETRES, EQUIPES, JOUEURS, MATCHS.</div>';
       }
     }
 
@@ -877,17 +1207,13 @@
       const officialsBlock = document.getElementById("domicileOfficialsBlock");
       if (isHome) {
         officialsBlock.style.display = "block";
-        document.getElementById("detailArbitre1").textContent = m.arbitre1 || "-";
-        document.getElementById("detailArbitre2").textContent = m.arbitre2 || "-";
+        const arbitres = [m.arbitre1, m.arbitre2].filter(Boolean).join("<br>");
+        document.getElementById("detailArbitres").innerHTML = arbitres || "-";
         document.getElementById("detailChrono").textContent = m.chrono || "-";
-      document.getElementById("detailTable").innerHTML = (m.table || "").replace(/,/g,"<br>") || "-";
-      const arbitres = [m.arbitre1, m.arbitre2].filter(Boolean).join("<br>");
-      document.getElementById("detailArbitres").innerHTML = arbitres || "-";
-        document.getElementById("detailTable").textContent = m.table || "-";
+        document.getElementById("detailTable").innerHTML = String(m.table || "-").replace(/[,;]/g, "<br>");
       } else {
         officialsBlock.style.display = "none";
-        document.getElementById("detailArbitre1").textContent = "";
-        document.getElementById("detailArbitre2").textContent = "";
+        document.getElementById("detailArbitres").innerHTML = "";
         document.getElementById("detailChrono").textContent = "";
         document.getElementById("detailTable").textContent = "";
       }
@@ -1284,14 +1610,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.2</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.2 SAFE</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Détail match : équipe centrée avec saison en haut</li>
-        <li>Nom du match clarifié sur plusieurs lignes</li>
-        <li>Adversaire dupliqué supprimé et espacement amélioré</li>
+        <li>Layout domicile SAFE : arbitres centrés</li>
+        <li>Chrono et table alignés en deux colonnes</li>
+        <li>Base V40.1 conservée pour éviter le blocage chargement</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
