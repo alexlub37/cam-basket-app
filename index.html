@@ -918,8 +918,11 @@
     function openMatches(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("matchesTitle").textContent = "Matchs — " + team;
+      const now = new Date();
+
       const rows = state.matchs
         .filter(m => m.equipe === team && (!state.season || sameSeason(m.saison, state.season)))
+        .filter(m => parseMatchDateTime(m) >= now)
         .sort((a, b) => parseMatchDateTime(a) - parseMatchDateTime(b));
 
       state.currentMatchRows = rows;
@@ -1367,14 +1370,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V39.6</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V39.7</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>Masquage automatique des matchs passés</li>
         <li>Tri automatique des matchs par date et heure</li>
-        <li>Correction réponses coach : distinction des matchs par heure</li>
-        <li>Anti-doublons : dernière réponse conservée par joueur</li>
+        <li>Correction réponses coach par heure</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
