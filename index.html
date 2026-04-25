@@ -479,7 +479,7 @@
           <div class="detail-row"><span class="detail-label">Chrono</span><span id="detailChrono"></span></div>
           <div class="detail-row"><span class="detail-label">Table</span><span id="detailTable"></span></div>
         </div>
-        <div style="margin-top:14px">
+        <div id="mapsBlock" style="margin-top:14px">
           <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
         </div>
       </div>
@@ -971,7 +971,7 @@
                 <div class="item ${past ? "match-past" : ""}" data-idx="${realIdx}">
                   <div class="item-title">${escapeHtml(m.date)} ${typeInfo.badge}${pastBadge}</div>
                   <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(buildMatchDisplay(m))}</div>
-                  <div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>
+                  ${!isHomeType(m.type) ? `<div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>` : ""}
                 </div>
               `;
             }).join("")}
@@ -1015,6 +1015,13 @@
       document.getElementById("detailSeason").textContent = m.saison || "-";
 
       const isHome = ["d","dom","domicile"].includes(normalize(m.type));
+
+      const addressRow = document.getElementById("detailAddress")?.closest(".detail-row");
+      const mapsBlock = document.getElementById("mapsBlock");
+
+      if (addressRow) addressRow.style.display = isHome ? "none" : "block";
+      if (mapsBlock) mapsBlock.style.display = isHome ? "none" : "block";
+
       const officialsBlock = document.getElementById("domicileOfficialsBlock");
       if (isHome) {
         officialsBlock.style.display = "block";
@@ -1422,13 +1429,13 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V39.7</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V39.8</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>Domicile : adresse et itinéraire masqués</li>
         <li>Matchs passés affichés en bas et verrouillés</li>
-        <li>Réponses et convocations bloquées pour les matchs passés</li>
         <li>Tri automatique des matchs par date et heure</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
