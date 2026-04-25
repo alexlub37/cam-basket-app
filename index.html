@@ -133,6 +133,27 @@
       line-height:1.35;
       margin-top:4px;
     }
+    .match-section-title{
+      margin:14px 0 8px;
+      color:var(--accent);
+      font-size:13px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .match-past{
+      opacity:.55;
+    }
+    .match-lock{
+      display:inline-block;
+      margin-left:8px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,212,0,.45);
+      color:var(--accent);
+      font-size:11px;
+      font-weight:900;
+    }
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .menu-btn{
       background:linear-gradient(180deg,#1a1a1a,#171717);
@@ -439,6 +460,7 @@
       </div>
 
       
+        <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
         <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
         <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
         <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
@@ -915,33 +937,50 @@
       return new Date(year, month - 1, day, hour, minute);
     }
 
+    function isPastMatch(m){
+      return parseMatchDateTime(m) < new Date();
+    }
+
     function openMatches(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("matchesTitle").textContent = "Matchs — " + team;
-      const now = new Date();
 
-      const rows = state.matchs
+      const allRows = state.matchs
         .filter(m => m.equipe === team && (!state.season || sameSeason(m.saison, state.season)))
-        .filter(m => parseMatchDateTime(m) >= now)
         .sort((a, b) => parseMatchDateTime(a) - parseMatchDateTime(b));
 
-      state.currentMatchRows = rows;
+      const futurs = allRows.filter(m => !isPastMatch(m));
+      const passes = allRows.filter(m => isPastMatch(m));
+
+      state.currentMatchRows = [...futurs, ...passes];
 
       const el = document.getElementById("matchesList");
-      if(!rows.length){
+      if(!state.currentMatchRows.length){
         el.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe et cette saison.</div>';
       } else {
-        el.innerHTML = rows.map((m, idx) => {
-          const typeInfo = badgeForType(m.type);
-          const lieuLigne = [m.gymnase, m.ville].filter(Boolean).join(" • ");
+        function renderGroup(title, rows, startIndex, past){
+          if (!rows.length) return "";
           return `
-            <div class="item" data-idx="${idx}">
-              <div class="item-title">${escapeHtml(m.date)} ${typeInfo.badge}</div>
-              <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(buildMatchDisplay(m))}</div>
-              <div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>
-            </div>
+            <div class="match-section-title">${title}</div>
+            ${rows.map((m, idx) => {
+              const realIdx = startIndex + idx;
+              const typeInfo = badgeForType(m.type);
+              const lieuLigne = [m.gymnase, m.ville].filter(Boolean).join(" • ");
+              const pastBadge = past ? '<span class="match-lock">PASSÉ 🔒</span>' : "";
+              return `
+                <div class="item ${past ? "match-past" : ""}" data-idx="${realIdx}">
+                  <div class="item-title">${escapeHtml(m.date)} ${typeInfo.badge}${pastBadge}</div>
+                  <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(buildMatchDisplay(m))}</div>
+                  <div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>
+                </div>
+              `;
+            }).join("")}
           `;
-        }).join("");
+        }
+
+        el.innerHTML =
+          renderGroup("Matchs à venir", futurs, 0, false) +
+          renderGroup("Matchs passés", passes, futurs.length, true);
 
         el.querySelectorAll(".item").forEach(node => {
           node.addEventListener("click", () => openMatchDetail(Number(node.dataset.idx)));
@@ -953,10 +992,13 @@
     function openMatchDetail(idx){
       const m = state.currentMatchRows[idx];
       state.currentOpenMatch = m;
+      const matchPast = isPastMatch(m);
       const typeInfo = badgeForType(m.type);
       const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
 
       document.getElementById("detailTitle").textContent = buildMatchDisplay(m);
+      const pastNotice = document.getElementById("pastMatchNotice");
+      if (pastNotice) pastNotice.style.display = matchPast ? "block" : "none";
       document.getElementById("detailDate").textContent = m.date || "-";
       document.getElementById("detailTime").textContent = m.heure || "-";
       document.getElementById("detailOpponent").textContent = m.adversaire || "-";
@@ -1008,13 +1050,18 @@ if(!bouton){
   document.querySelector("#matchDetailScreen .card").appendChild(bouton);
 }
 
-bouton.onclick = function(){
-  ouvrirFormulaire(
-    buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label,
-    m.equipe,
-    m.type
-  );
-};
+if (matchPast) {
+  bouton.style.display = "none";
+} else {
+  bouton.style.display = "block";
+  bouton.onclick = function(){
+    ouvrirFormulaire(
+      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label,
+      m.equipe,
+      m.type
+    );
+  };
+}
 
 let boutonCoach = document.getElementById("btnCoachResponses");
 
@@ -1030,11 +1077,16 @@ if(!boutonCoach){
   document.querySelector("#matchDetailScreen .card").appendChild(boutonCoach);
 }
 
-boutonCoach.onclick = function(){
-  loadCoachResponses(
-    buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
-  );
-};
+if (matchPast) {
+  boutonCoach.style.display = "none";
+} else {
+  boutonCoach.style.display = "block";
+  boutonCoach.onclick = function(){
+    loadCoachResponses(
+      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+    );
+  };
+}
 
 
 
@@ -1375,9 +1427,9 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Masquage automatique des matchs passés</li>
+        <li>Matchs passés affichés en bas et verrouillés</li>
+        <li>Réponses et convocations bloquées pour les matchs passés</li>
         <li>Tri automatique des matchs par date et heure</li>
-        <li>Correction réponses coach par heure</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
