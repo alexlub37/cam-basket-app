@@ -159,20 +159,50 @@
       padding-bottom:14px;
       border-bottom:1px solid var(--line);
     }
+    .match-top-line{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      margin-bottom:10px;
+      gap:8px;
+    }
     .match-season-top{
-      color:var(--muted);
+      color:#bdbdbd;
+      font-size:10px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.10em;
+      opacity:.85;
+      text-align:left;
+    }
+    .match-team-top{
+      color:var(--accent);
       font-size:12px;
       font-weight:900;
       text-transform:uppercase;
-      letter-spacing:.08em;
-      margin-bottom:8px;
+      letter-spacing:.06em;
+      text-align:center;
+      white-space:nowrap;
     }
     .match-detail-title{
-      margin:0 0 12px 0;
+      margin:0 0 14px 0;
       color:#fff;
       font-size:25px;
-      line-height:1.12;
+      line-height:1.08;
       font-weight:900;
+      word-break:normal;
+    }
+    .match-detail-title .vs-line{
+      display:block;
+      color:#fff;
+    }
+    .match-detail-title .vs-small{
+      display:block;
+      color:var(--accent);
+      font-size:.62em;
+      line-height:1.15;
+      margin:2px 0;
+      text-transform:lowercase;
     }
     .match-date-time-row{
       display:flex;
@@ -395,7 +425,13 @@
       font-weight:700;
     }
 
-  </style>
+  /* Espacement boutons détail match */
+#btnReponseMatch,
+#btnCoachResponses,
+#mapsBlock {
+  margin-top:16px !important;
+}
+</style>
 
 <style>
 /* Masquer champs inutiles */
@@ -419,7 +455,8 @@
 .detail-row:has(#detailDate),
 .detail-row:has(#detailTime),
 .detail-row:has(#detailType),
-.detail-row:has(#detailSeason) {
+.detail-row:has(#detailSeason),
+.detail-row:has(#detailOpponent) {
     display: none;
 }
 
@@ -507,7 +544,11 @@
       <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
       <div class="card">
         <div class="match-detail-header">
-          <div id="detailSeasonTop" class="match-season-top">SAISON</div>
+          <div class="match-top-line">
+            <div id="detailSeasonTop" class="match-season-top">SAISON</div>
+            <div id="detailTeamTop" class="match-team-top"></div>
+            <div></div>
+          </div>
           <h2 id="detailTitle" class="match-detail-title">Détail match</h2>
           <div class="match-date-time-row">
             <span id="detailDateTop"></span>
@@ -887,6 +928,18 @@
         : `${m.adversaire} vs Montrichard ${m.equipe}`;
     }
 
+    function buildMatchTitleHtml(m){
+      const homeClub = "Montrichard";
+      const adversaire = escapeHtml(m.adversaire || "-");
+
+      if (isHomeType(m.type)) {
+        return `<span class="vs-line">${homeClub}</span><span class="vs-small">vs</span><span class="vs-line">${adversaire}</span>`;
+      }
+
+      return `<span class="vs-line">${adversaire}</span><span class="vs-small">vs</span><span class="vs-line">${homeClub}</span>`;
+    }
+
+
 
     function buildMatchKey(m){
       return [
@@ -1059,8 +1112,9 @@
       const typeInfo = badgeForType(m.type);
       const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
 
-      document.getElementById("detailTitle").textContent = buildMatchDisplay(m);
+      document.getElementById("detailTitle").innerHTML = buildMatchTitleHtml(m);
       document.getElementById("detailSeasonTop").textContent = m.saison ? "SAISON " + m.saison : "SAISON";
+      document.getElementById("detailTeamTop").textContent = m.equipe || "";
       document.getElementById("detailDateTop").textContent = m.date || "-";
       document.getElementById("detailTimeTop").textContent = m.heure || "-";
       document.getElementById("detailTypeTop").textContent = badgeForType(m.type).label || "-";
@@ -1496,14 +1550,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V39.9</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.0</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Design détail match : saison, match, date et heure réorganisés</li>
-        <li>Infos match structurées selon domicile / extérieur</li>
-        <li>Domicile : adresse et itinéraire masqués</li>
+        <li>Détail match : équipe centrée avec saison en haut</li>
+        <li>Nom du match clarifié sur plusieurs lignes</li>
+        <li>Adversaire dupliqué supprimé et espacement amélioré</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
