@@ -479,6 +479,34 @@
   text-align:center;
 }
 
+
+/* Convocation compacte SAFE */
+.match-convoc-card{
+  padding:18px !important;
+}
+.match-convoc-card h3{
+  font-size:22px !important;
+  line-height:1.1 !important;
+  margin:0 0 8px 0 !important;
+  white-space:nowrap;
+}
+.match-convoc-sub{
+  font-size:15px !important;
+  margin-bottom:8px !important;
+}
+.match-convoc-list{
+  display:block !important;
+  gap:0 !important;
+}
+.match-convoc-player{
+  background:transparent !important;
+  border:none !important;
+  padding:2px 0 !important;
+  text-align:left !important;
+  font-size:16px !important;
+  font-weight:600 !important;
+}
+
 </style>
 
 <style>
@@ -606,12 +634,10 @@
         </div>
 
 <div id="matchConvocationCard" class="match-convoc-card">
-        <h2>
-<div class="convocation-block">
-  <div id="convocationTitle" class="convocation-title"></div>
-  <div id="convocationList" class="convocation-list"></div>
-</div>
-
+        <h2>Convocation du match</h2>
+        <div id="matchConvocationSub" class="match-convoc-sub"></div>
+        <div id="matchConvocationList" class="match-convoc-list"></div>
+      </div>
 
       
         <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
@@ -1579,8 +1605,8 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
         `;
       }
 
-      list.innerHTML = joueurs.map(n => `
-        <div class="match-convoc-player">${escapeHtml(n)}</div>
+      list.innerHTML = joueurs.map((n, i) => `
+        <div class="match-convoc-player">${i + 1}. ${escapeHtml(n)}</div>
       `).join("");
     }
 
@@ -1620,14 +1646,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.3 CLEAN</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.3 SAFE</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction affichage arbitres / chrono / table</li>
-        <li>Arbitres centrés</li>
-        <li>Chrono et table alignés en deux colonnes</li>
+        <li>Convocation compacte SAFE</li>
+        <li>Liste numérotée sans grosses cartes</li>
+        <li>Base V40.2 corrigée conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
