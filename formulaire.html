@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V37.8</title>
+<title>Formulaire Match V37.9</title>
 
 <style>
 body{
@@ -81,6 +81,12 @@ textarea{
   text-align:center;
   font-size:14px;
 }
+
+.apport-note{
+  margin-top:6px;
+  color:#cfcfcf;
+  font-size:14px;
+}
 </style>
 </head>
 
@@ -117,6 +123,15 @@ textarea{
     <input id="places" type="number" min="0" placeholder="Exemple : 2">
   </div>
 
+  <div id="apportBloc" style="display:none;">
+    <label>Tu apportes quelque chose ?</label>
+    <div class="apport-note">Optionnel — objectif : 3 boissons et 3 nourritures.</div>
+    <div class="choice-group" id="apportGroup">
+      <div class="choice-btn" onclick="selectApport(this, 'Boisson')">Boisson</div>
+      <div class="choice-btn" onclick="selectApport(this, 'Nourriture')">Nourriture</div>
+    </div>
+  </div>
+
   <label for="commentaire">Commentaire</label>
   <textarea id="commentaire" placeholder="Ajoute un commentaire si besoin"></textarea>
 
@@ -131,6 +146,7 @@ textarea{
 <script>
 let presenceValue = "";
 let transportValue = "";
+let apportValue = "";
 
 function isAwayMatch() {
   const type = getParam("type")
@@ -146,6 +162,11 @@ function resetTransport() {
   transportValue = "";
   document.querySelectorAll("#transportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
   document.getElementById("places").value = "";
+}
+
+function resetApport() {
+  apportValue = "";
+  document.querySelectorAll("#apportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
 }
 
 function getParam(param) {
@@ -192,6 +213,7 @@ function selectPresence(el, value) {
   el.classList.add("active");
 
   const transportBloc = document.getElementById("transportBloc");
+  const apportBloc = document.getElementById("apportBloc");
 
   if (value === "Présent" && isAwayMatch()) {
     transportBloc.style.display = "block";
@@ -199,11 +221,24 @@ function selectPresence(el, value) {
     transportBloc.style.display = "none";
     resetTransport();
   }
+
+  if (value === "Présent" && !isAwayMatch()) {
+    apportBloc.style.display = "block";
+  } else {
+    apportBloc.style.display = "none";
+    resetApport();
+  }
 }
 
 function selectTransport(el, value) {
   transportValue = value;
   document.querySelectorAll("#transportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function selectApport(el, value) {
+  apportValue = value;
+  document.querySelectorAll("#apportGroup .choice-btn").forEach(btn => btn.classList.remove("active"));
   el.classList.add("active");
 }
 
@@ -243,6 +278,7 @@ function envoyerFormulaire() {
     presence: presenceValue,
     transport: transportValue,
     places: document.getElementById("places").value || "",
+    apport: apportValue,
     commentaire: document.getElementById("commentaire").value
   };
 

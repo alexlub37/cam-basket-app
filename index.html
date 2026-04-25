@@ -522,6 +522,44 @@
   white-space:nowrap !important;
 }
 
+
+/* Apports publics domicile */
+.apports-card{
+  display:none;
+  margin-top:14px;
+  border:1px solid rgba(255,212,0,.45);
+  border-radius:16px;
+  padding:14px;
+  background:rgba(255,212,0,.04);
+}
+.apports-title{
+  color:var(--accent);
+  font-size:14px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  margin-bottom:10px;
+}
+.apports-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.apports-kind{
+  color:#fff;
+  font-size:15px;
+  font-weight:900;
+  margin-bottom:6px;
+}
+.apports-list{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.45;
+}
+.apports-empty{
+  color:#777;
+}
+
 </style>
 
 <style>
@@ -656,6 +694,19 @@
 
       
         <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
+        <div id="matchApportsCard" class="apports-card">
+        <div class="apports-title">Apports domicile</div>
+        <div class="apports-grid">
+          <div>
+            <div id="apportsBoissonTitle" class="apports-kind">Boisson 0 / 3</div>
+            <div id="apportsBoissonList" class="apports-list"><span class="apports-empty">Aucun</span></div>
+          </div>
+          <div>
+            <div id="apportsNourritureTitle" class="apports-kind">Nourriture 0 / 3</div>
+            <div id="apportsNourritureList" class="apports-list"><span class="apports-empty">Aucun</span></div>
+          </div>
+        </div>
+      </div>
         <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
         <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
         <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
@@ -1340,6 +1391,11 @@ document.addEventListener("click", function(e){
 
 afficherConvocationDansMatch([]);
 coachCardReset();
+if (isHome) {
+  loadApportsDomicile();
+} else {
+  resetApportsDomicile();
+}
 showScreen("matchDetailScreen");
 
     }
@@ -1471,6 +1527,83 @@ showScreen("matchDetailScreen");
         presents.innerHTML = '<div class="muted">Aucun</div>';
         absents.innerHTML = '<div class="muted">Aucun</div>';
         transport.innerHTML = '<div class="muted">Aucun</div>';
+      }
+    }
+
+
+
+    function resetApportsDomicile(){
+      const card = document.getElementById("matchApportsCard");
+      if (card) card.style.display = "none";
+      const bTitle = document.getElementById("apportsBoissonTitle");
+      const nTitle = document.getElementById("apportsNourritureTitle");
+      const bList = document.getElementById("apportsBoissonList");
+      const nList = document.getElementById("apportsNourritureList");
+      if (bTitle) bTitle.textContent = "Boisson 0 / 3";
+      if (nTitle) nTitle.textContent = "Nourriture 0 / 3";
+      if (bList) bList.innerHTML = '<span class="apports-empty">Aucun</span>';
+      if (nList) nList.innerHTML = '<span class="apports-empty">Aucun</span>';
+    }
+
+    async function loadApportsDomicile(){
+      const m = state.currentOpenMatch;
+      const card = document.getElementById("matchApportsCard");
+      if (!card || !m || !isHomeType(m.type)) {
+        resetApportsDomicile();
+        return;
+      }
+
+      card.style.display = "block";
+
+      try{
+        const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
+        if (!csvRows || csvRows.length < 2) {
+          resetApportsDomicile();
+          card.style.display = "block";
+          return;
+        }
+
+        const headers = csvRows[0];
+        const rows = csvRows.slice(1).map(r => rowArrayToObject(headers, r));
+        const filtered = rows.filter(row => responseMatchesCurrentMatch(getRowValue(row, "Match"), m));
+
+        // Dernière réponse par joueur uniquement
+        const uniqueByPlayer = {};
+        filtered.forEach(row => {
+          const prenomKey = normalize(getRowValue(row, "Prénom") || getRowValue(row, "Prenom"));
+          if (prenomKey) uniqueByPlayer[prenomKey] = row;
+        });
+        const cleanRows = Object.values(uniqueByPlayer);
+
+        const boissons = [];
+        const nourritures = [];
+
+        cleanRows.forEach(row => {
+          const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+          const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
+          const apport = getRowValue(row, "Apport");
+
+          if (presence !== "Présent") return;
+
+          if (normalize(apport) === "boisson") boissons.push(prenom);
+          if (normalize(apport) === "nourriture") nourritures.push(prenom);
+        });
+
+        document.getElementById("apportsBoissonTitle").textContent = `Boisson ${boissons.length} / 3`;
+        document.getElementById("apportsNourritureTitle").textContent = `Nourriture ${nourritures.length} / 3`;
+
+        document.getElementById("apportsBoissonList").innerHTML = boissons.length
+          ? boissons.map(n => `<div>- ${escapeHtml(n)}</div>`).join("")
+          : '<span class="apports-empty">Aucun</span>';
+
+        document.getElementById("apportsNourritureList").innerHTML = nourritures.length
+          ? nourritures.map(n => `<div>- ${escapeHtml(n)}</div>`).join("")
+          : '<span class="apports-empty">Aucun</span>';
+
+      } catch(err){
+        console.error(err);
+        resetApportsDomicile();
+        if (card) card.style.display = "block";
       }
     }
 
@@ -1661,14 +1794,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.3.2</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.4</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Titre convocation forcé en discret</li>
-        <li>Texte raccourci : Convocation</li>
-        <li>Base V40.3.1 conservée</li>
+        <li>Apports domicile : boisson / nourriture dans le formulaire</li>
+        <li>Décompte public Boisson et Nourriture visible dans le match</li>
+        <li>Apports non obligatoires et uniquement à domicile</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
