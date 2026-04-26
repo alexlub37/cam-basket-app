@@ -1572,6 +1572,16 @@ if (matchPast) {
 
 document.addEventListener("click", function(e){
       if(e.target && e.target.id === "btnFaireConvocationCoach"){
+
+        const codeCoach = state.codeCoach;
+
+        if (!codeCoach){
+          alert("Code requis");
+          return;
+        }
+
+        state.codeCoach = codeCoach;
+
         ouvrirSelectionConvocation();
       }
       if(e.target && e.target.id === "btnGenererConvocation"){
