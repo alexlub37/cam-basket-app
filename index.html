@@ -994,6 +994,7 @@
 
     const RESPONSE_SHEET_ID = SHEET_ID;
     const RESPONSE_SHEET_NAME = "REPONSES";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
     let lastCoachPresentPlayers = [];
 
     let state = {
@@ -1980,7 +1981,45 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
       `).join("");
     }
 
-    function genererConvocation(){
+    
+async function enregistrerConvocationSheet(joueurs, commentaire){
+  const m = state.currentOpenMatch;
+  if (!m) {
+    alert("Aucun match ouvert.");
+    return false;
+  }
+
+  const data = {
+    action: "saveConvocation",
+    match: buildMatchKey(m),
+    equipe: m.equipe || "",
+    joueurs: joueurs || [],
+    commentaire: commentaire || "",
+    codeCoach: ""
+  };
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
+
+    const txt = await res.text();
+
+    if (txt !== "OK") {
+      alert("Erreur enregistrement convocation : " + txt);
+      return false;
+    }
+
+    return true;
+  } catch(e) {
+    alert("Erreur enregistrement convocation : " + (e.message || e));
+    return false;
+  }
+}
+
+
+    async function genererConvocation(){
       const result = document.getElementById("convocationResult");
       const checked = Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked"))
         .map(input => input.dataset.prenom)
@@ -1999,7 +2038,10 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
         return;
       }
 
-      result.innerHTML = '<span class="convoc-title">Convocation prête</span>' +
+      const okSave = await enregistrerConvocationSheet(checked, commentaireCoach);
+      if (!okSave) return;
+
+      result.innerHTML = '<span class="convoc-title">Convocation enregistrée ✅</span>' +
         checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
 
       afficherConvocationDansMatch(checked, commentaireCoach);
@@ -2016,14 +2058,14 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.16</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.17</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Titre organisation remplacé par : 🏀 Merci à vous</li>
-        <li>Base V40.15 conservée</li>
-        <li>Anti-flash organisation conservé</li>
+        <li>Enregistrement des convocations dans Google Sheets</li>
+        <li>Feuille CONVOCATIONS prévue automatiquement par le script</li>
+        <li>Base V40.16 conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
