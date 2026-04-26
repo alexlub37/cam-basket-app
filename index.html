@@ -570,6 +570,32 @@
   color:#777;
 }
 
+
+/* Titre apports plus naturel */
+.apports-title{
+  color:var(--accent) !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  margin-bottom:3px !important;
+}
+.apports-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.25;
+  margin-bottom:12px;
+}
+.apport-box{
+  padding:11px !important;
+}
+.apports-kind{
+  font-size:14px !important;
+}
+.apports-list{
+  font-size:14px !important;
+}
+
 </style>
 
 <style>
@@ -705,7 +731,8 @@
       
         <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
         <div id="matchApportsCard" class="apports-card">
-        <div class="apports-title">Apports domicile</div>
+        <div class="apports-title">Qui apporte quoi ?</div>
+        <div class="apports-subtitle">Objectif : 3 boissons / 3 nourritures</div>
         <div class="apports-grid">
           <div class="apport-box">
             <div id="apportsBoissonTitle" class="apports-kind">Boisson <span class="apports-count">0 / 3</span></div>
@@ -1804,14 +1831,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.4.1</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.4.2</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction multi-choix Boisson + Nourriture</li>
-        <li>Mise en page apports domicile plus harmonieuse</li>
-        <li>Décompte public conservé pour les parents</li>
+        <li>Titre apports renommé : Qui apporte quoi ?</li>
+        <li>Ajout objectif 3 boissons / 3 nourritures</li>
+        <li>Design apports plus harmonieux</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
