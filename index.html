@@ -1138,7 +1138,8 @@
           joueur: String(r[2] || "").trim(),
           licence: String(r[3] || "").trim(),
           numero: String(r[4] || "").trim(),
-          poste: String(r[5] || "").trim()
+          poste: String(r[5] || "").trim(),
+          code: String(r[6] || "").trim()
         })).filter(x => x.joueur && normalize(x.saison) !== "saison");
 
         // MATCHS attendu :
@@ -1888,7 +1889,11 @@ function openInfoModal(){
 function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
   const joueurs = state.joueurs
     .filter(j => j.equipe === equipe)
-    .map(j => j.joueur);
+    .map(j => {
+      const nom = String(j.joueur || "").trim();
+      const code = String(j.code || "").trim();
+      return nom + "§" + code;
+    });
 
   const joueursString = encodeURIComponent(joueurs.join("|"));
 
@@ -2006,14 +2011,14 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.12</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.13</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Bloc organisation affiché uniquement s’il y a une réponse</li>
-        <li>Valable pour boisson, nourriture ou maillots</li>
-        <li>Domicile et extérieur gérés</li>
+        <li>Code accès joueur transmis au formulaire</li>
+        <li>Base actuelle conservée</li>
+        <li>Préparation anti-doublon avec Apps Script</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
