@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V37.10</title>
+<title>Formulaire Match V37.11</title>
 
 <style>
 body{
@@ -125,10 +125,11 @@ textarea{
 
   <div id="apportBloc" style="display:none;">
     <label>Tu apportes quelque chose ?</label>
-    <div class="apport-note">Optionnel — objectif : 3 boissons et 3 nourritures.</div>
+    <div class="apport-note">Optionnel — objectif : 3 boissons, 3 nourritures et 1 personne pour les maillots.</div>
     <div class="choice-group" id="apportGroup">
       <div class="choice-btn" onclick="selectApport(this, 'Boisson')">Boisson</div>
       <div class="choice-btn" onclick="selectApport(this, 'Nourriture')">Nourriture</div>
+      <div class="choice-btn" onclick="selectApport(this, 'Maillots')">Maillots</div>
     </div>
   </div>
 
@@ -222,7 +223,7 @@ function selectPresence(el, value) {
     resetTransport();
   }
 
-  if (value === "Présent" && !isAwayMatch()) {
+  if (value === "Présent") {
     apportBloc.style.display = "block";
   } else {
     apportBloc.style.display = "none";
@@ -276,7 +277,7 @@ function envoyerFormulaire() {
     presence: presenceValue,
     transport: transportValue,
     places: document.getElementById("places").value || "",
-    apport: apportValue,
+    apport: Array.from(document.querySelectorAll("#apportGroup .choice-btn.active")).map(btn => btn.textContent.trim()).join(", "),
     commentaire: document.getElementById("commentaire").value
   };
 
