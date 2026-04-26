@@ -1741,10 +1741,6 @@ showScreen("matchDetailScreen");
         const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
         if (!csvRows || csvRows.length < 2) {
           resetApportsDomicile();
-          card.style.display = "block";
-          if (boissonSection) boissonSection.style.display = isHome ? "block" : "none";
-          if (nourritureSection) nourritureSection.style.display = isHome ? "block" : "none";
-          if (subtitle) subtitle.textContent = isHome ? "Objectif : 2 boissons / 2 nourritures" : "Qui prend les maillots ?";
           return;
         }
 
@@ -1775,6 +1771,18 @@ showScreen("matchDetailScreen");
           if (normalize(apport).includes("nourriture")) nourritures.push(prenom);
           if (normalize(apport).includes("maillot")) maillots.push(prenom);
         });
+
+        const hasAnyOrganisation =
+          boissons.length > 0 ||
+          nourritures.length > 0 ||
+          maillots.length > 0;
+
+        if (!hasAnyOrganisation) {
+          resetApportsDomicile();
+          return;
+        }
+
+        card.style.display = "block";
 
         document.getElementById("apportsBoissonTitle").innerHTML =
           boissons.length >= 2
@@ -1998,14 +2006,14 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.10</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.12</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction filtrage strict des réponses par match</li>
-        <li>Clé unique : équipe + adversaire + date + heure + domicile/extérieur</li>
-        <li>Base V40.9 conservée</li>
+        <li>Bloc organisation affiché uniquement s’il y a une réponse</li>
+        <li>Valable pour boisson, nourriture ou maillots</li>
+        <li>Domicile et extérieur gérés</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
