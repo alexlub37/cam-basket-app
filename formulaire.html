@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V37.14 Code joueur</title>
+<title>Formulaire Match V37.16 Extérieur Maillots</title>
 
 <style>
 body{
@@ -226,7 +226,7 @@ function resetValidationCodeJoueur(){
 }
 
 function codeValideFormat(code){
-  return String(code || "").trim().length >= 3;
+  return /^\d{4}$/.test(String(code || "").trim());
 }
 
 async function verifierCodeJoueur(){
@@ -266,7 +266,7 @@ async function verifierCodeJoueur(){
   const code1 = String(nouveauCode).trim();
 
   if (!codeValideFormat(code1)) {
-    alert("Le code doit contenir au moins 3 caractères.");
+    alert("Le code doit contenir exactement 4 chiffres.");
     select.value = "";
     return;
   }
@@ -283,7 +283,13 @@ async function verifierCodeJoueur(){
     return;
   }
 
-  await enregistrerCodeJoueur(prenom, code1);
+  try {
+    await enregistrerCodeJoueur(prenom, code1);
+  } catch(e) {
+    alert("Erreur création code : " + (e.message || e));
+    select.value = "";
+    return;
+  }
 
   option.dataset.code = code1;
   playerCodeValidated = true;
@@ -299,10 +305,36 @@ async function enregistrerCodeJoueur(prenom, code){
     code: code
   };
 
-  await fetch(APPS_SCRIPT_URL, {
+  const res = await fetch(APPS_SCRIPT_URL, {
     method: "POST",
     body: JSON.stringify(data)
   });
+
+  const txt = await res.text();
+  if (txt !== "OK") {
+    throw new Error(txt);
+  }
+}
+
+
+function afficherOptionsOrganisation(){
+  const isAway = isAwayMatch();
+  document.querySelectorAll("#apportGroup .choice-btn").forEach(btn => {
+    const txt = normalizeQuota(btn.textContent);
+    if (isAway && (txt.includes("boisson") || txt.includes("nourriture"))) {
+      btn.style.display = "none";
+      btn.classList.remove("active");
+    } else {
+      btn.style.display = "block";
+    }
+  });
+
+  const note = document.querySelector(".apport-note");
+  if (note) {
+    note.textContent = isAway
+      ? "Optionnel — 1 personne pour les maillots."
+      : "Optionnel — objectif : 2 boissons, 2 nourritures et 1 personne pour les maillots.";
+  }
 }
 
 window.onload = function() {
@@ -316,6 +348,7 @@ window.onload = function() {
   }
 
   chargerJoueurs();
+  afficherOptionsOrganisation();
 };
 
 function selectPresence(el, value) {
@@ -335,6 +368,7 @@ function selectPresence(el, value) {
 
   if (value === "Présent") {
     apportBloc.style.display = "block";
+    afficherOptionsOrganisation();
     chargerQuotasOrganisation();
   } else {
     apportBloc.style.display = "none";
@@ -351,6 +385,19 @@ function selectTransport(el, value) {
 function selectApport(el, value) {
   if (el.classList.contains("disabled")) return;
   el.classList.toggle("active");
+}
+
+
+function getApportFinal(){
+  const selected = Array.from(document.querySelectorAll("#apportGroup .choice-btn.active"))
+    .filter(btn => btn.style.display !== "none")
+    .map(btn => btn.textContent.trim());
+
+  if (isAwayMatch()) {
+    return selected.filter(v => normalizeQuota(v).includes("maillot")).join(", ");
+  }
+
+  return selected.join(", ");
 }
 
 let sending = false;
@@ -394,7 +441,7 @@ function envoyerFormulaire() {
     presence: presenceValue,
     transport: transportValue,
     places: document.getElementById("places").value || "",
-    apport: Array.from(document.querySelectorAll("#apportGroup .choice-btn.active")).map(btn => btn.textContent.trim()).join(", "),
+    apport: getApportFinal(),
     commentaire: document.getElementById("commentaire").value,
     code: playerCodeValue
   };
@@ -403,21 +450,23 @@ function envoyerFormulaire() {
     method: "POST",
     body: JSON.stringify(data)
   })
-  .then(() => {
+  .then(res => res.text())
+  .then(txt => {
+    if (txt !== "OK") throw new Error(txt);
     document.body.innerHTML = "<h2 style='color:#ffd400;text-align:center;margin-top:50px;'>Réponse envoyée 👍<br>Retour...</h2>";
     setTimeout(() => {
       try { window.close(); } catch(e) {}
       window.location.href = "https://alexlub37.github.io/";
     }, 1200);
   })
-  .catch(() => {
+  .catch((err) => {
     sending = false;
     const btn = document.querySelector(".send");
     if (btn) {
       btn.disabled = false;
       btn.innerText = "Envoyer la réponse";
     }
-    alert("Erreur d'envoi ❌");
+    alert("Erreur d'envoi ❌ : " + (err.message || err));
   });
 }
 

@@ -720,6 +720,11 @@
   text-align:center;
   margin-bottom:16px;
 }
+
+/* V40.15 anti flash organisation */
+.apports-card{
+  display:none;
+}
 </style>
 
 <style>
@@ -1733,7 +1738,7 @@ showScreen("matchDetailScreen");
       const nourritureSection = document.getElementById("apportsNourritureSection");
       const subtitle = document.getElementById("apportsSubtitle");
 
-      card.style.display = "block";
+      card.style.display = "none";
       if (boissonSection) boissonSection.style.display = isHome ? "block" : "none";
       if (nourritureSection) nourritureSection.style.display = isHome ? "block" : "none";
       if (subtitle) subtitle.textContent = isHome ? "Objectif : 2 boissons / 2 nourritures" : "Qui prend les maillots ?";
@@ -2011,14 +2016,14 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.14</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.15</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Code joueur transmis au formulaire</li>
-        <li>Création / vérification du code joueur</li>
-        <li>Anti-doublon prêt avec Apps Script</li>
+        <li>Correction flash du bloc Merci à tous</li>
+        <li>Bloc organisation affiché uniquement avec un apport réel</li>
+        <li>Base code joueur conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
