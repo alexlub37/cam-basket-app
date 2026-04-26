@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V37.13</title>
+<title>Formulaire Match V37.12 SAFE</title>
 
 <style>
 body{
@@ -341,7 +341,9 @@ function parseCsvLineQuota(line){
       else inQuotes = !inQuotes;
     } else if (ch === "," && !inQuotes) {
       out.push(cur); cur = "";
-    } else cur += ch;
+    } else {
+      cur += ch;
+    }
   }
   out.push(cur);
   return out;
@@ -382,9 +384,11 @@ async function chargerQuotasOrganisation(){
     });
 
     let boisson = 0, nourriture = 0, maillots = 0;
+
     Object.values(byPlayer).forEach(row => {
       const presence = getRowQuota(row, "Présence") || getRowQuota(row, "Presence");
       if (presence !== "Présent") return;
+
       const apport = normalizeQuota(getRowQuota(row, "Apport"));
       if (apport.includes("boisson")) boisson++;
       if (apport.includes("nourriture")) nourriture++;
