@@ -596,6 +596,64 @@
   font-size:14px !important;
 }
 
+
+/* Masquage badge type header V40.5 */
+#detailTypeTop{
+  display:none !important;
+}
+
+/* Apports V40.5 clean */
+.apports-card{
+  display:none;
+  margin-top:14px;
+  border:1px solid rgba(255,212,0,.42);
+  border-radius:18px;
+  padding:14px;
+  background:rgba(255,212,0,.035);
+}
+.apports-title{
+  color:var(--accent) !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  margin:0 0 3px 0 !important;
+}
+.apports-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.25;
+  margin-bottom:12px;
+}
+.apports-grid{
+  display:block !important;
+}
+.apport-box{
+  border:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  margin:0 0 12px 0 !important;
+}
+.apports-kind{
+  color:#fff !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  margin-bottom:4px !important;
+  white-space:nowrap;
+}
+.apports-count{
+  color:var(--accent);
+}
+.apports-list{
+  color:#d9d9d9 !important;
+  font-size:14px !important;
+  line-height:1.35 !important;
+}
+.apports-empty{
+  color:#777 !important;
+}
+
 </style>
 
 <style>
@@ -733,17 +791,20 @@
         <div id="matchApportsCard" class="apports-card">
         <div class="apports-title">Qui apporte quoi ?</div>
         <div class="apports-subtitle">Objectif : 3 boissons / 3 nourritures</div>
+
         <div class="apports-grid">
           <div class="apport-box">
             <div id="apportsBoissonTitle" class="apports-kind">Boisson <span class="apports-count">0 / 3</span></div>
             <div id="apportsBoissonList" class="apports-list"><span class="apports-empty">Aucun</span></div>
           </div>
+
           <div class="apport-box">
             <div id="apportsNourritureTitle" class="apports-kind">Nourriture <span class="apports-count">0 / 3</span></div>
             <div id="apportsNourritureList" class="apports-list"><span class="apports-empty">Aucun</span></div>
           </div>
         </div>
       </div>
+
         <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
         <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
         <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
@@ -1305,7 +1366,7 @@
       const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
 
       document.getElementById("detailTitle").innerHTML = buildMatchTitleHtml(m);
-      document.getElementById("detailSeasonTop").textContent = m.saison ? "SAISON " + m.saison : "SAISON";
+      document.getElementById("detailSeasonTop").textContent = badgeForType(m.type).label || "-";
       document.getElementById("detailTeamInline").textContent = m.equipe || "";
       document.getElementById("detailDateTop").textContent = m.date || "-";
       document.getElementById("detailTimeTop").textContent = m.heure || "-";
@@ -1831,14 +1892,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.4.2</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Titre apports renommé : Qui apporte quoi ?</li>
-        <li>Ajout objectif 3 boissons / 3 nourritures</li>
-        <li>Design apports plus harmonieux</li>
+        <li>Haut du match : Domicile / Extérieur à la place de Saison</li>
+        <li>Apports : design clean sans sous-cadres</li>
+        <li>Correction multi-choix Boisson + Nourriture</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
