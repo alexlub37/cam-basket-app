@@ -1286,30 +1286,32 @@
       let txt = String(matchText || "").replace(/\s+/g, " ").trim();
 
       const type = /\bdomicile\b/i.test(txt) ? "domicile" : (/\bextérieur\b|\bexterieur\b/i.test(txt) ? "extérieur" : "");
-      const dateMatch = txt.match(/\b\d{1,2}\/\d{1,2}\/\d{4}\b/);
-      const heureMatch = txt.match(/\b\d{1,2}h\d{2}\b/);
+      const dateMatch = txt.match(/\b\d{1,2}\/\d{1,2}\/\d{4}\b|\b\d{4}-\d{2}-\d{2}\b/);
+      const heureMatch = txt.match(/\b\d{1,2}h\d{2}\b|\b\d{1,2}:\d{2}\b/);
 
       let date = dateMatch ? dateMatch[0] : "";
-      let heure = heureMatch ? heureMatch[0] : "";
+      let heure = heureMatch ? heureMatch[0].replace(":", "h") : "";
       let equipe = "";
       let adversaire = "";
 
+      // Nouveau format clé stricte : equipe|adversaire|type|date|heure
       const pipeParts = txt.split("|").map(x => x.trim());
       if (pipeParts.length >= 5) {
         equipe = pipeParts[0] || "";
         adversaire = pipeParts[1] || "";
         const t = pipeParts[2] || "";
         date = pipeParts[3] || date;
-        heure = pipeParts[4] || heure;
+        heure = (pipeParts[4] || heure).replace(":", "h");
         return [equipe, adversaire, badgeForType(t).label, date, heure].map(x => normalize(x)).join("|");
       }
 
+      // Format actuel formulaire : "Montrichard U18M-1 vs Montils - 18/05/2026 - 20h00 - Domicile"
       const dashParts = txt.split(" - ").map(x => x.trim());
       const title = dashParts[0] || txt;
 
       if (dashParts.length >= 4) {
         date = dashParts[1] || date;
-        heure = dashParts[2] || heure;
+        heure = (dashParts[2] || heure).replace(":", "h");
       }
 
       if (title.includes(" vs ")) {
@@ -1337,13 +1339,10 @@
 
       const responseKey = buildResponseMatchKeyFromText(responseMatchText);
       const currentKey = buildMatchKey(currentMatch);
-      if (responseKey === currentKey) return true;
 
-      // Compatibilité ancien format : "U18M-1 vs Montils 24/05/2026"
-      const txt = normalize(responseMatchText);
-      return txt.includes(normalize(currentMatch.equipe))
-        && txt.includes(normalize(currentMatch.adversaire))
-        && txt.includes(normalize(currentMatch.date));
+      // Match strict obligatoire : équipe + adversaire + type + date + heure.
+      // Évite qu'une réponse d'un match à 14h00 soit reprise sur le match à 20h00.
+      return responseKey === currentKey;
     }
 
 
@@ -1516,9 +1515,10 @@ if (matchPast) {
   bouton.style.display = "block";
   bouton.onclick = function(){
     ouvrirFormulaire(
-      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label,
+      buildMatchKey(m),
       m.equipe,
-      m.type
+      m.type,
+      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
     );
   };
 }
@@ -1877,7 +1877,7 @@ function openInfoModal(){
 
     
 
-function ouvrirFormulaire(match, equipe, typeMatch) {
+function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
   const joueurs = state.joueurs
     .filter(j => j.equipe === equipe)
     .map(j => j.joueur);
@@ -1885,6 +1885,7 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
   const joueursString = encodeURIComponent(joueurs.join("|"));
 
   const url = "formulaire.html?match=" + encodeURIComponent(match)
+            + "&display=" + encodeURIComponent(displayMatch || match)
             + "&equipe=" + encodeURIComponent(equipe)
             + "&type=" + encodeURIComponent(typeMatch || "")
             + "&joueurs=" + joueursString;
@@ -1997,15 +1998,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.9</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.10</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Base V40.7 conservée</li>
-        <li>Bloc organisation renommé : Merci à tous</li>
-        <li>Remerciement ajouté aux officiels</li>
-        <li>Objectif 2 boissons / 2 nourritures avec coche verte</li>
+        <li>Correction filtrage strict des réponses par match</li>
+        <li>Clé unique : équipe + adversaire + date + heure + domicile/extérieur</li>
+        <li>Base V40.9 conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
