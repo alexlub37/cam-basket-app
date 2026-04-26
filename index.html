@@ -523,38 +523,48 @@
 }
 
 
-/* Apports publics domicile */
+/* Apports publics domicile - mise en page compacte */
 .apports-card{
   display:none;
   margin-top:14px;
   border:1px solid rgba(255,212,0,.45);
-  border-radius:16px;
+  border-radius:18px;
   padding:14px;
-  background:rgba(255,212,0,.04);
+  background:rgba(255,212,0,.035);
 }
 .apports-title{
   color:var(--accent);
-  font-size:14px;
+  font-size:13px;
   font-weight:900;
   text-transform:uppercase;
-  letter-spacing:.05em;
-  margin-bottom:10px;
+  letter-spacing:.06em;
+  margin-bottom:12px;
 }
 .apports-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:12px;
+  gap:10px;
+}
+.apport-box{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(0,0,0,.18);
 }
 .apports-kind{
   color:#fff;
   font-size:15px;
   font-weight:900;
   margin-bottom:6px;
+  white-space:nowrap;
+}
+.apports-count{
+  color:var(--accent);
 }
 .apports-list{
-  color:var(--muted);
-  font-size:15px;
-  line-height:1.45;
+  color:#d9d9d9;
+  font-size:14px;
+  line-height:1.35;
 }
 .apports-empty{
   color:#777;
@@ -697,12 +707,12 @@
         <div id="matchApportsCard" class="apports-card">
         <div class="apports-title">Apports domicile</div>
         <div class="apports-grid">
-          <div>
-            <div id="apportsBoissonTitle" class="apports-kind">Boisson 0 / 3</div>
+          <div class="apport-box">
+            <div id="apportsBoissonTitle" class="apports-kind">Boisson <span class="apports-count">0 / 3</span></div>
             <div id="apportsBoissonList" class="apports-list"><span class="apports-empty">Aucun</span></div>
           </div>
-          <div>
-            <div id="apportsNourritureTitle" class="apports-kind">Nourriture 0 / 3</div>
+          <div class="apport-box">
+            <div id="apportsNourritureTitle" class="apports-kind">Nourriture <span class="apports-count">0 / 3</span></div>
             <div id="apportsNourritureList" class="apports-list"><span class="apports-empty">Aucun</span></div>
           </div>
         </div>
@@ -1539,8 +1549,8 @@ showScreen("matchDetailScreen");
       const nTitle = document.getElementById("apportsNourritureTitle");
       const bList = document.getElementById("apportsBoissonList");
       const nList = document.getElementById("apportsNourritureList");
-      if (bTitle) bTitle.textContent = "Boisson 0 / 3";
-      if (nTitle) nTitle.textContent = "Nourriture 0 / 3";
+      if (bTitle) bTitle.innerHTML = 'Boisson <span class="apports-count">0 / 3</span>';
+      if (nTitle) nTitle.innerHTML = 'Nourriture <span class="apports-count">0 / 3</span>';
       if (bList) bList.innerHTML = '<span class="apports-empty">Aucun</span>';
       if (nList) nList.innerHTML = '<span class="apports-empty">Aucun</span>';
     }
@@ -1585,12 +1595,12 @@ showScreen("matchDetailScreen");
 
           if (presence !== "Présent") return;
 
-          if (normalize(apport) === "boisson") boissons.push(prenom);
-          if (normalize(apport) === "nourriture") nourritures.push(prenom);
+          if (normalize(apport).includes("boisson")) boissons.push(prenom);
+          if (normalize(apport).includes("nourriture")) nourritures.push(prenom);
         });
 
-        document.getElementById("apportsBoissonTitle").textContent = `Boisson ${boissons.length} / 3`;
-        document.getElementById("apportsNourritureTitle").textContent = `Nourriture ${nourritures.length} / 3`;
+        document.getElementById("apportsBoissonTitle").innerHTML = `Boisson <span class="apports-count">${boissons.length} / 3</span>`;
+        document.getElementById("apportsNourritureTitle").innerHTML = `Nourriture <span class="apports-count">${nourritures.length} / 3</span>`;
 
         document.getElementById("apportsBoissonList").innerHTML = boissons.length
           ? boissons.map(n => `<div>- ${escapeHtml(n)}</div>`).join("")
@@ -1794,14 +1804,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.4</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.4.1</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Apports domicile : boisson / nourriture dans le formulaire</li>
-        <li>Décompte public Boisson et Nourriture visible dans le match</li>
-        <li>Apports non obligatoires et uniquement à domicile</li>
+        <li>Correction multi-choix Boisson + Nourriture</li>
+        <li>Mise en page apports domicile plus harmonieuse</li>
+        <li>Décompte public conservé pour les parents</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
