@@ -1987,7 +1987,8 @@ function uniqueNamesClean(names){
       return out;
     }
 
-function chargerConvocationEnregistree(m){
+
+    function chargerConvocationEnregistree(m){
       const card = document.getElementById("matchConvocationCard");
       const sub = document.getElementById("matchConvocationSub");
       const list = document.getElementById("matchConvocationList");
@@ -1997,17 +1998,43 @@ function chargerConvocationEnregistree(m){
       const key = buildMatchKey(m);
 
       const rows = (state.convocations || []).filter(c =>
-        String(c.match || "").trim() === key &&
+        c.match === key &&
         cleanCompare(c.equipe) === cleanCompare(m.equipe || "")
       );
 
-      const joueurs = uniqueNamesClean(rows.map(r => r.joueur));
-      const commentaire = rows.find(r => String(r.commentaire || "").trim())?.commentaire || "";
-
-      if (!joueurs.length) {
+      if (!rows.length) {
         card.style.display = "none";
         sub.textContent = "";
         list.innerHTML = "";
+        return;
+      }
+
+      const joueurs = rows.map(r => r.joueur).filter(Boolean);
+      const commentaire = rows.find(r => r.commentaire)?.commentaire || "";
+
+      card.style.display = "block";
+      sub.textContent = joueurs.length + " joueur(s) convoqué(s)";
+      list.innerHTML = joueurs.map((j, idx) =>
+        `<div class="match-convoc-player">${idx + 1}. ${escapeHtml(j)}</div>`
+      ).join("");
+
+      if (commentaire) {
+        sub.innerHTML = `${joueurs.length} joueur(s) convoqué(s)<br><span style="color:var(--accent);font-weight:700;">${escapeHtml(commentaire)}</span>`;
+      }
+    }
+
+
+    function afficherConvocationDansMatch(joueurs, commentaire = ""){
+      const card = document.getElementById("matchConvocationCard");
+      const list = document.getElementById("matchConvocationList");
+      const sub = document.getElementById("matchConvocationSub");
+
+      if (!card || !list) return;
+
+      if (!joueurs || !joueurs.length) {
+        card.style.display = "none";
+        list.innerHTML = "";
+        if (sub) sub.textContent = "";
         return;
       }
 
@@ -2021,60 +2048,26 @@ function chargerConvocationEnregistree(m){
         `;
       }
 
-      list.innerHTML = joueurs.map((j, idx) =>
-        `<div class="match-convoc-player">${idx + 1}. ${escapeHtml(j)}</div>`
-      ).join("");
-    }
-
-
-function afficherConvocationDansMatch(joueurs, commentaire = ""){
-      const card = document.getElementById("matchConvocationCard");
-      const list = document.getElementById("matchConvocationList");
-      const sub = document.getElementById("matchConvocationSub");
-
-      if (!card || !list) return;
-
-      const cleanJoueurs = uniqueNamesClean(joueurs);
-
-      if (!cleanJoueurs.length) {
-        card.style.display = "none";
-        list.innerHTML = "";
-        if (sub) sub.textContent = "";
-        return;
-      }
-
-      card.style.display = "block";
-      if (sub) {
-        sub.innerHTML = `
-          <div class="match-convoc-head">
-            <span>${cleanJoueurs.length} joueur(s) convoqué(s)</span>
-            ${commentaire ? `<span class="match-convoc-comment">${escapeHtml(commentaire)}</span>` : ""}
-          </div>
-        `;
-      }
-
-      list.innerHTML = cleanJoueurs.map((n, i) => `
+      list.innerHTML = joueurs.map((n, i) => `
         <div class="match-convoc-player">${i + 1}. ${escapeHtml(n)}</div>
       `).join("");
     }
 
-
-async function enregistrerConvocationSheet(joueurs, commentaire){
+    
+async function enregistrerConvocationSheet(joueurs, commentaire, codeCoach){
   const m = state.currentOpenMatch;
   if (!m) {
     alert("Aucun match ouvert.");
     return false;
   }
 
-  const joueursClean = uniqueNamesClean(joueurs);
-
   const data = {
     action: "saveConvocation",
     match: buildMatchKey(m),
     equipe: m.equipe || "",
-    joueurs: joueursClean,
+    joueurs: uniqueNamesClean(joueurs || []),
     commentaire: commentaire || "",
-    codeCoach: ""
+    codeCoach: codeCoach || ""
   };
 
   try {
@@ -2089,23 +2082,6 @@ async function enregistrerConvocationSheet(joueurs, commentaire){
       alert("Erreur enregistrement convocation : " + txt);
       return false;
     }
-
-    const key = buildMatchKey(m);
-    state.convocations = (state.convocations || []).filter(c =>
-      !(String(c.match || "").trim() === key && cleanCompare(c.equipe) === cleanCompare(m.equipe || ""))
-    );
-
-    joueursClean.forEach(j => {
-      state.convocations.push({
-        date: new Date().toISOString(),
-        match: key,
-        equipe: m.equipe || "",
-        joueur: j,
-        statut: "Convoqué",
-        commentaire: commentaire || "",
-        codeCoach: ""
-      });
-    });
 
     return true;
   } catch(e) {
@@ -2136,9 +2112,13 @@ async function enregistrerConvocationSheet(joueurs, commentaire){
         return;
       }
 
-      result.innerHTML = '<span class="convoc-title">Enregistrement...</span>';
+      const codeCoach = prompt("Code coach pour valider la convocation :");
+      if (!codeCoach) {
+        result.innerHTML = '<span class="convoc-title">Convocation</span><div class="muted">Code coach requis.</div>';
+        return;
+      }
 
-      const okSave = await enregistrerConvocationSheet(checked, commentaireCoach);
+      const okSave = await enregistrerConvocationSheet(checked, commentaireCoach, codeCoach.trim());
       if (!okSave) return;
 
       result.innerHTML = '<span class="convoc-title">Convocation enregistrée ✅</span>' +
@@ -2158,14 +2138,14 @@ async function enregistrerConvocationSheet(joueurs, commentaire){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.20</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.21</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction bouton Générer la convocation</li>
-        <li>Suppression des doublons dans l’affichage</li>
-        <li>Convocation persistante filtrée par match et équipe</li>
+        <li>Convocation protégée par code coach</li>
+        <li>Vérification dans EQUIPES colonne E</li>
+        <li>Base convocation persistante conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
