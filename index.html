@@ -988,7 +988,8 @@
       joueurs: "JOUEURS",
       matchs: "MATCHS",
       bureau: "BUREAU",
-      benevoles: "BENEVOLES"
+      benevoles: "BENEVOLES",
+      convocations: "CONVOCATIONS"
     };
 
 
@@ -1004,6 +1005,7 @@
       matchs: [],
       bureau: [],
       benevoles: [],
+      convocations: [],
       selectedTeam: null,
       currentMatchRows: [],
       currentOpenMatch: null
@@ -1120,13 +1122,14 @@
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
-          fetchRows(SHEETS.benevoles)
+          fetchRows(SHEETS.benevoles),
+          fetchRowsCsv(SHEETS.convocations)
         ]);
 
         state.season = findSeason(paramRows);
@@ -1181,6 +1184,16 @@
           telephone: String(r[2] || "").trim(),
           email: String(r[3] || "").trim()
         })).filter(x => x.nom && normalize(x.nom) !== "nom");
+
+        state.convocations = (convocationRows || []).map(r => ({
+          date: String(r[0] || "").trim(),
+          match: String(r[1] || "").trim(),
+          equipe: String(r[2] || "").trim(),
+          joueur: String(r[3] || "").trim(),
+          statut: String(r[4] || "").trim(),
+          commentaire: String(r[5] || "").trim(),
+          codeCoach: String(r[6] || "").trim()
+        })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
@@ -1568,7 +1581,8 @@ document.addEventListener("click", function(e){
 
 afficherConvocationDansMatch([]);
 coachCardReset();
-loadApportsDomicile();
+chargerConvocationEnregistree(m);
+      loadApportsDomicile();
 showScreen("matchDetailScreen");
 
     }
@@ -1952,6 +1966,47 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
       }).join("");
     }
 
+    
+function cleanCompare(v){
+      return normalize(v).replace(/[^a-z0-9]/g, "");
+    }
+
+function chargerConvocationEnregistree(m){
+      const card = document.getElementById("matchConvocationCard");
+      const sub = document.getElementById("matchConvocationSub");
+      const list = document.getElementById("matchConvocationList");
+
+      if (!card || !sub || !list || !m) return;
+
+      const key = buildMatchKey(m);
+
+      const rows = (state.convocations || []).filter(c =>
+        c.match === key &&
+        cleanCompare(c.equipe) === cleanCompare(m.equipe || "")
+      );
+
+      if (!rows.length) {
+        card.style.display = "none";
+        sub.textContent = "";
+        list.innerHTML = "";
+        return;
+      }
+
+      const joueurs = rows.map(r => r.joueur).filter(Boolean);
+      const commentaire = rows.find(r => r.commentaire)?.commentaire || "";
+
+      card.style.display = "block";
+      sub.textContent = joueurs.length + " joueur(s) convoqué(s)";
+      list.innerHTML = joueurs.map((j, idx) =>
+        `<div class="match-convoc-player">${idx + 1}. ${escapeHtml(j)}</div>`
+      ).join("");
+
+      if (commentaire) {
+        sub.innerHTML = `${joueurs.length} joueur(s) convoqué(s)<br><span style="color:var(--accent);font-weight:700;">${escapeHtml(commentaire)}</span>`;
+      }
+    }
+
+
     function afficherConvocationDansMatch(joueurs, commentaire = ""){
       const card = document.getElementById("matchConvocationCard");
       const list = document.getElementById("matchConvocationList");
@@ -2058,14 +2113,14 @@ async function enregistrerConvocationSheet(joueurs, commentaire){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.17</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.18</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Enregistrement des convocations dans Google Sheets</li>
-        <li>Feuille CONVOCATIONS prévue automatiquement par le script</li>
-        <li>Base V40.16 conservée</li>
+        <li>Lecture des convocations enregistrées</li>
+        <li>La convocation reste visible dans le détail du match</li>
+        <li>Base V40.17 conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
