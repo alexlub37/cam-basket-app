@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulaire Match V37.13 SAFE</title>
+<title>Formulaire Match V37.14 Code joueur</title>
 
 <style>
 body{
@@ -162,6 +162,9 @@ textarea{
 let presenceValue = "";
 let transportValue = "";
 let apportValue = "";
+let playerCodeValidated = false;
+let playerCodeValue = "";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
 
 function isAwayMatch() {
   const type = getParam("type")
@@ -202,10 +205,103 @@ function chargerJoueurs() {
     .filter(Boolean);
 
   liste.forEach(j => {
+    const [prenomRaw, codeRaw] = j.split("§");
+    const prenom = String(prenomRaw || "").trim();
+    const code = String(codeRaw || "").trim();
+
     const option = document.createElement("option");
-    option.value = j;
-    option.textContent = j;
+    option.value = prenom;
+    option.textContent = prenom;
+    option.dataset.code = code;
     select.appendChild(option);
+  });
+
+  select.onchange = verifierCodeJoueur;
+}
+
+function resetValidationCodeJoueur(){
+  playerCodeValidated = false;
+  playerCodeValue = "";
+  resetApport();
+}
+
+function codeValideFormat(code){
+  return String(code || "").trim().length >= 3;
+}
+
+async function verifierCodeJoueur(){
+  const select = document.getElementById("joueur");
+  const option = select.options[select.selectedIndex];
+  const prenom = option ? option.value : "";
+  const codeExistant = option ? String(option.dataset.code || "").trim() : "";
+
+  resetValidationCodeJoueur();
+
+  if (!prenom) return;
+
+  if (codeExistant) {
+    const saisie = prompt("Entre ton code d'accès pour " + prenom + " :");
+    if (saisie === null) {
+      select.value = "";
+      return;
+    }
+
+    if (String(saisie).trim() !== codeExistant) {
+      alert("Code incorrect ❌");
+      select.value = "";
+      return;
+    }
+
+    playerCodeValidated = true;
+    playerCodeValue = codeExistant;
+    return;
+  }
+
+  const nouveauCode = prompt("Première connexion pour " + prenom + ". Crée ton code d'accès :");
+  if (nouveauCode === null) {
+    select.value = "";
+    return;
+  }
+
+  const code1 = String(nouveauCode).trim();
+
+  if (!codeValideFormat(code1)) {
+    alert("Le code doit contenir au moins 3 caractères.");
+    select.value = "";
+    return;
+  }
+
+  const confirmation = prompt("Confirme ton code d'accès :");
+  if (confirmation === null) {
+    select.value = "";
+    return;
+  }
+
+  if (String(confirmation).trim() !== code1) {
+    alert("Les deux codes ne correspondent pas ❌");
+    select.value = "";
+    return;
+  }
+
+  await enregistrerCodeJoueur(prenom, code1);
+
+  option.dataset.code = code1;
+  playerCodeValidated = true;
+  playerCodeValue = code1;
+  alert("Code enregistré ✅");
+}
+
+async function enregistrerCodeJoueur(prenom, code){
+  const data = {
+    action: "setCode",
+    equipe: getParam("equipe"),
+    prenom: prenom,
+    code: code
+  };
+
+  await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
   });
 }
 
@@ -269,6 +365,11 @@ function envoyerFormulaire() {
     return;
   }
 
+  if (!playerCodeValidated || !playerCodeValue) {
+    alert("Valide ton code d'accès avant d'envoyer.");
+    return;
+  }
+
   if (!presenceValue) {
     alert("Choisis Présent ou Absent avant d'envoyer.");
     return;
@@ -294,10 +395,11 @@ function envoyerFormulaire() {
     transport: transportValue,
     places: document.getElementById("places").value || "",
     apport: Array.from(document.querySelectorAll("#apportGroup .choice-btn.active")).map(btn => btn.textContent.trim()).join(", "),
-    commentaire: document.getElementById("commentaire").value
+    commentaire: document.getElementById("commentaire").value,
+    code: playerCodeValue
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec", {
+  fetch(APPS_SCRIPT_URL, {
     method: "POST",
     body: JSON.stringify(data)
   })
@@ -382,7 +484,9 @@ async function chargerQuotasOrganisation(){
     data.forEach(row => {
       const m = normalizeQuota(getRowQuota(row, "Match"));
       const prenom = normalizeQuota(getRowQuota(row, "Prénom") || getRowQuota(row, "Prenom"));
-      if (m === matchActuel && prenom) byPlayer[prenom] = row;
+      const code = normalizeQuota(getRowQuota(row, "Code accès") || getRowQuota(row, "Code"));
+      const key = code || prenom;
+      if (m === matchActuel && key) byPlayer[key] = row;
     });
 
     let boisson = 0, nourriture = 0, maillots = 0;
