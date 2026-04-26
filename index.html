@@ -654,6 +654,59 @@
   color:#777 !important;
 }
 
+
+/* Organisation match V40.6 */
+.apports-card{
+  display:none;
+  margin-top:14px;
+  border:1px solid rgba(255,212,0,.42);
+  border-radius:18px;
+  padding:14px;
+  background:rgba(255,212,0,.02) !important;
+}
+.apports-title{
+  color:var(--accent) !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  margin:0 0 3px 0 !important;
+}
+.apports-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.25;
+  margin-bottom:12px;
+}
+.apports-grid{
+  display:block !important;
+}
+.apport-box{
+  border:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  margin:0 0 12px 0 !important;
+}
+.apports-kind{
+  color:var(--accent) !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  margin-bottom:4px !important;
+  white-space:nowrap;
+}
+.apports-count{
+  color:var(--accent);
+}
+.apports-list{
+  color:#fff !important;
+  font-size:14px !important;
+  line-height:1.45 !important;
+}
+.apports-empty{
+  color:#777 !important;
+}
+
 </style>
 
 <style>
@@ -790,17 +843,22 @@
         <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
         <div id="matchApportsCard" class="apports-card">
         <div class="apports-title">Qui apporte quoi ?</div>
-        <div class="apports-subtitle">Objectif : 3 boissons / 3 nourritures</div>
+        <div id="apportsSubtitle" class="apports-subtitle">Objectif : 3 boissons / 3 nourritures</div>
 
         <div class="apports-grid">
-          <div class="apport-box">
+          <div id="apportsBoissonSection" class="apport-box">
             <div id="apportsBoissonTitle" class="apports-kind">Boisson <span class="apports-count">0 / 3</span></div>
             <div id="apportsBoissonList" class="apports-list"><span class="apports-empty">Aucun</span></div>
           </div>
 
-          <div class="apport-box">
+          <div id="apportsNourritureSection" class="apport-box">
             <div id="apportsNourritureTitle" class="apports-kind">Nourriture <span class="apports-count">0 / 3</span></div>
             <div id="apportsNourritureList" class="apports-list"><span class="apports-empty">Aucun</span></div>
+          </div>
+
+          <div id="apportsMaillotsSection" class="apport-box">
+            <div id="apportsMaillotsTitle" class="apports-kind">Maillots</div>
+            <div id="apportsMaillotsList" class="apports-list"><span class="apports-empty">Aucun</span></div>
           </div>
         </div>
       </div>
@@ -1489,11 +1547,7 @@ document.addEventListener("click", function(e){
 
 afficherConvocationDansMatch([]);
 coachCardReset();
-if (isHome) {
-  loadApportsDomicile();
-} else {
-  resetApportsDomicile();
-}
+loadApportsDomicile();
 showScreen("matchDetailScreen");
 
     }
@@ -1633,31 +1687,50 @@ showScreen("matchDetailScreen");
     function resetApportsDomicile(){
       const card = document.getElementById("matchApportsCard");
       if (card) card.style.display = "none";
+
       const bTitle = document.getElementById("apportsBoissonTitle");
       const nTitle = document.getElementById("apportsNourritureTitle");
+      const mTitle = document.getElementById("apportsMaillotsTitle");
       const bList = document.getElementById("apportsBoissonList");
       const nList = document.getElementById("apportsNourritureList");
+      const mList = document.getElementById("apportsMaillotsList");
+      const subtitle = document.getElementById("apportsSubtitle");
+
       if (bTitle) bTitle.innerHTML = 'Boisson <span class="apports-count">0 / 3</span>';
       if (nTitle) nTitle.innerHTML = 'Nourriture <span class="apports-count">0 / 3</span>';
+      if (mTitle) mTitle.textContent = "Maillots";
       if (bList) bList.innerHTML = '<span class="apports-empty">Aucun</span>';
       if (nList) nList.innerHTML = '<span class="apports-empty">Aucun</span>';
+      if (mList) mList.innerHTML = '<span class="apports-empty">Aucun</span>';
+      if (subtitle) subtitle.textContent = "Objectif : 3 boissons / 3 nourritures";
     }
 
     async function loadApportsDomicile(){
       const m = state.currentOpenMatch;
       const card = document.getElementById("matchApportsCard");
-      if (!card || !m || !isHomeType(m.type)) {
+      if (!card || !m) {
         resetApportsDomicile();
         return;
       }
 
+      const isHome = isHomeType(m.type);
+      const boissonSection = document.getElementById("apportsBoissonSection");
+      const nourritureSection = document.getElementById("apportsNourritureSection");
+      const subtitle = document.getElementById("apportsSubtitle");
+
       card.style.display = "block";
+      if (boissonSection) boissonSection.style.display = isHome ? "block" : "none";
+      if (nourritureSection) nourritureSection.style.display = isHome ? "block" : "none";
+      if (subtitle) subtitle.textContent = isHome ? "Objectif : 3 boissons / 3 nourritures" : "Qui prend les maillots ?";
 
       try{
         const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
         if (!csvRows || csvRows.length < 2) {
           resetApportsDomicile();
           card.style.display = "block";
+          if (boissonSection) boissonSection.style.display = isHome ? "block" : "none";
+          if (nourritureSection) nourritureSection.style.display = isHome ? "block" : "none";
+          if (subtitle) subtitle.textContent = isHome ? "Objectif : 3 boissons / 3 nourritures" : "Qui prend les maillots ?";
           return;
         }
 
@@ -1675,6 +1748,7 @@ showScreen("matchDetailScreen");
 
         const boissons = [];
         const nourritures = [];
+        const maillots = [];
 
         cleanRows.forEach(row => {
           const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
@@ -1685,17 +1759,23 @@ showScreen("matchDetailScreen");
 
           if (normalize(apport).includes("boisson")) boissons.push(prenom);
           if (normalize(apport).includes("nourriture")) nourritures.push(prenom);
+          if (normalize(apport).includes("maillot")) maillots.push(prenom);
         });
 
         document.getElementById("apportsBoissonTitle").innerHTML = `Boisson <span class="apports-count">${boissons.length} / 3</span>`;
         document.getElementById("apportsNourritureTitle").innerHTML = `Nourriture <span class="apports-count">${nourritures.length} / 3</span>`;
+        document.getElementById("apportsMaillotsTitle").textContent = "Maillots";
 
         document.getElementById("apportsBoissonList").innerHTML = boissons.length
-          ? boissons.map(n => `<div>- ${escapeHtml(n)}</div>`).join("")
+          ? boissons.map(n => `<div>• ${escapeHtml(n)}</div>`).join("")
           : '<span class="apports-empty">Aucun</span>';
 
         document.getElementById("apportsNourritureList").innerHTML = nourritures.length
-          ? nourritures.map(n => `<div>- ${escapeHtml(n)}</div>`).join("")
+          ? nourritures.map(n => `<div>• ${escapeHtml(n)}</div>`).join("")
+          : '<span class="apports-empty">Aucun</span>';
+
+        document.getElementById("apportsMaillotsList").innerHTML = maillots.length
+          ? maillots.map(n => `<div>• ${escapeHtml(n)}</div>`).join("")
           : '<span class="apports-empty">Aucun</span>';
 
       } catch(err){
@@ -1892,14 +1972,14 @@ function ouvrirFormulaire(match, equipe, typeMatch) {
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.5</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.6</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Haut du match : Domicile / Extérieur à la place de Saison</li>
-        <li>Apports : design clean sans sous-cadres</li>
-        <li>Correction multi-choix Boisson + Nourriture</li>
+        <li>Organisation match : Boisson, Nourriture et Maillots</li>
+        <li>Maillots visibles à domicile et à l’extérieur</li>
+        <li>Design validé : catégories jaunes, prénoms blancs</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
