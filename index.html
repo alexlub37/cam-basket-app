@@ -774,7 +774,7 @@
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.26</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -1573,14 +1573,14 @@ if (matchPast) {
 document.addEventListener("click", function(e){
       if(e.target && e.target.id === "btnFaireConvocationCoach"){
 
-        const codeCoach = state.codeCoach;
+        const codeCoach = prompt("Code coach ?");
 
-        if (!codeCoach){
+        if (!codeCoach || !codeCoach.trim()){
           alert("Code requis");
           return;
         }
 
-        state.codeCoach = codeCoach;
+        state.codeCoach = codeCoach.trim();
 
         ouvrirSelectionConvocation();
       }
@@ -2034,14 +2034,58 @@ function uniqueNamesClean(names){
     }
 
 
+    
+function cleanCompare(v){
+      return normalize(v).replace(/[^a-z0-9]/g, "");
+    }
+
+    function uniqueNamesClean(names){
+      const seen = new Set();
+      const out = [];
+      (names || []).forEach(name => {
+        const cleanName = String(name || "").trim();
+        const key = cleanCompare(cleanName);
+        if (!cleanName || seen.has(key)) return;
+        seen.add(key);
+        out.push(cleanName);
+      });
+      return out;
+    }
+
+    function chargerConvocationEnregistree(m){
+      const card = document.getElementById("matchConvocationCard");
+      const list = document.getElementById("matchConvocationList");
+      const sub = document.getElementById("matchConvocationSub");
+      if (!card || !list || !m) return;
+
+      const key = buildMatchKey(m);
+      const rows = (state.convocations || []).filter(c =>
+        String(c.match || "").trim() === key &&
+        cleanCompare(c.equipe) === cleanCompare(m.equipe || "")
+      );
+
+      const joueurs = uniqueNamesClean(rows.map(r => r.joueur));
+      const commentaire = rows.find(r => String(r.commentaire || "").trim())?.commentaire || "";
+
+      if (!joueurs.length) {
+        card.style.display = "none";
+        list.innerHTML = "";
+        if (sub) sub.textContent = "";
+        return;
+      }
+
+      afficherConvocationDansMatch(joueurs, commentaire);
+    }
+
     function afficherConvocationDansMatch(joueurs, commentaire = ""){
       const card = document.getElementById("matchConvocationCard");
       const list = document.getElementById("matchConvocationList");
       const sub = document.getElementById("matchConvocationSub");
-
       if (!card || !list) return;
 
-      if (!joueurs || !joueurs.length) {
+      const cleanJoueurs = uniqueNamesClean(joueurs);
+
+      if (!cleanJoueurs.length) {
         card.style.display = "none";
         list.innerHTML = "";
         if (sub) sub.textContent = "";
@@ -2050,83 +2094,97 @@ function uniqueNamesClean(names){
 
       card.style.display = "block";
       if (sub) {
-        sub.innerHTML = `
-          <div class="match-convoc-head">
-            <span>${joueurs.length} joueur(s) convoqué(s)</span>
-            ${commentaire ? `<span class="match-convoc-comment">${escapeHtml(commentaire)}</span>` : ""}
-          </div>
-        `;
+        sub.innerHTML = `<div class="match-convoc-head"><span>${cleanJoueurs.length} joueur(s) convoqué(s)</span>${commentaire ? `<span class="match-convoc-comment">${escapeHtml(commentaire)}</span>` : ""}</div>`;
       }
 
-      list.innerHTML = joueurs.map((n, i) => `
-        <div class="match-convoc-player">${i + 1}. ${escapeHtml(n)}</div>
-      `).join("");
+      list.innerHTML = cleanJoueurs.map((n, i) => `<div class="match-convoc-player">${i + 1}. ${escapeHtml(n)}</div>`).join("");
+    }
+
+    async function enregistrerConvocationSheet(joueurs, commentaire){
+      const m = state.currentOpenMatch;
+      if (!m) {
+        alert("Aucun match ouvert.");
+        return false;
+      }
+      if (!state.codeCoach) {
+        alert("Code coach requis.");
+        return false;
+      }
+
+      const joueursClean = uniqueNamesClean(joueurs);
+
+      const data = {
+        action: "saveConvocation",
+        match: buildMatchKey(m),
+        equipe: m.equipe || "",
+        joueurs: joueursClean,
+        commentaire: commentaire || "",
+        codeCoach: state.codeCoach
+      };
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(data)
+        });
+
+        const txt = await res.text();
+
+        if (txt !== "OK") {
+          alert("Erreur sauvegarde convocation : " + txt);
+          return false;
+        }
+
+        const key = buildMatchKey(m);
+        state.convocations = (state.convocations || []).filter(c =>
+          !(String(c.match || "").trim() === key && cleanCompare(c.equipe) === cleanCompare(m.equipe || ""))
+        );
+
+        joueursClean.forEach(j => {
+          state.convocations.push({
+            date: new Date().toISOString(),
+            match: key,
+            equipe: m.equipe || "",
+            joueur: j,
+            statut: "Convoqué",
+            commentaire: commentaire || "",
+            codeCoach: state.codeCoach
+          });
+        });
+
+        state.codeCoach = null;
+        return true;
+      } catch(e) {
+        alert("Erreur réseau convocation : " + (e.message || e));
+        return false;
+      }
     }
 
     
-async function enregistrerConvocationSheet(joueurs, commentaire, codeCoach){
-  const m = state.currentOpenMatch;
-  if (!m) {
-    alert("Aucun match ouvert.");
-    return false;
-  }
+    function partagerWhatsappConvocation(joueurs, commentaireCoach){
+      const m = state.currentOpenMatch;
+      if (!m || !joueurs || !joueurs.length) return;
 
-  const data = {
-    action: "saveConvocation",
-    match: buildMatchKey(m),
-    equipe: m.equipe || "",
-    joueurs: uniqueNamesClean(joueurs || []),
-    commentaire: commentaire || "",
-    codeCoach: codeCoach || ""
-  };
+      const message =
+`🏀 Convocation CAM Basket Montrichard
 
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify(data)
-    });
-
-    const txt = await res.text();
-
-    if (txt !== "OK") {
-      alert("Erreur enregistrement convocation : " + txt);
-      return false;
-    }
-
-    return true;
-  } catch(e) {
-    alert("Erreur enregistrement convocation : " + (e.message || e));
-    return false;
-  }
-}
-
-
-    async 
-function partagerWhatsapp(joueurs, commentaire){
-  const m = state.currentOpenMatch;
-  if(!m) return;
-
-  const message =
-`🏀 Convocation
-
-${m.equipe} vs ${m.adversaire || ""}
+${buildMatchDisplay(m)}
 ${m.date || ""} ${m.heure || ""}
 
-Joueurs :
-${joueurs.map(j => "- " + j).join("\n")}
+Équipe : ${m.equipe || ""}
 
-${commentaire ? "Note : " + commentaire : ""}`;
+Joueurs convoqués :
+${joueurs.map(j => "• " + j).join("\n")}
 
-  window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
-}
+${commentaireCoach ? "Note : " + commentaireCoach : ""}`;
 
-function genererConvocation(){
+      const url = "https://wa.me/?text=" + encodeURIComponent(message);
+      window.open(url, "_blank");
+    }
+
+async function genererConvocation(){
       const result = document.getElementById("convocationResult");
-      const checked = uniqueNamesClean(
-        Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked"))
-          .map(input => input.dataset.prenom)
-          .filter(Boolean)
-      );
+      const checked = uniqueNamesClean(Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked")).map(input => input.dataset.prenom).filter(Boolean));
 
       const commentaireCoach = document.getElementById("convocationCommentaire")
         ? document.getElementById("convocationCommentaire").value.trim()
@@ -2141,17 +2199,27 @@ function genererConvocation(){
         return;
       }
 
-      const codeCoach = prompt("Code coach pour valider la convocation :");
-      if (!codeCoach) {
-        result.innerHTML = '<span class="convoc-title">Convocation</span><div class="muted">Code coach requis.</div>';
-        return;
-      }
+      result.innerHTML = '<span class="convoc-title">Enregistrement...</span>';
 
-      const okSave = await enregistrerConvocationSheet(checked, commentaireCoach, codeCoach.trim());
+      const okSave = await enregistrerConvocationSheet(checked, commentaireCoach);
       if (!okSave) return;
 
-      result.innerHTML = '<span class="convoc-title">Convocation enregistrée ✅\n<button onclick="partagerWhatsapp(checked, commentaireCoach)" style="margin-top:10px;background:#25D366;color:#000;border:none;padding:10px;border-radius:10px;width:100%;">Partager WhatsApp</button> ✅</span>' +
-        checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
+      result.innerHTML =
+        '<span class="convoc-title">Convocation enregistrée ✅</span>' +
+        checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("") +
+        `<div style="margin-top:15px;padding-top:10px;border-top:1px solid #333;">
+          <div style="margin-bottom:8px;font-weight:900;color:#ffd400;">Partager la convocation</div>
+          <button id="btnShareWhatsappConvocation" class="convoc-action" style="background:#25D366;color:#000;border:none;">
+            Envoyer via WhatsApp
+          </button>
+        </div>`;
+
+      const btnShareWhatsappConvocation = document.getElementById("btnShareWhatsappConvocation");
+      if (btnShareWhatsappConvocation) {
+        btnShareWhatsappConvocation.onclick = function(){
+          partagerWhatsappConvocation(checked, commentaireCoach);
+        };
+      }
 
       afficherConvocationDansMatch(checked, commentaireCoach);
 
@@ -2167,14 +2235,14 @@ function genererConvocation(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.21</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.26</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Convocation protégée par code coach</li>
-        <li>Vérification dans EQUIPES colonne E</li>
-        <li>Base convocation persistante conservée</li>
+        <li>Correction partage WhatsApp propre</li>
+        <li>Bouton WhatsApp affiché après sauvegarde de la convocation</li>
+        <li>Base V40.24 stable conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
