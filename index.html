@@ -774,7 +774,7 @@
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.24</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.25</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2160,7 +2160,31 @@ function cleanCompare(v){
       }
     }
 
-    async function genererConvocation(){
+    
+    function ouvrirWhatsappConvocation(joueurs, commentaireCoach){
+      const m = state.currentOpenMatch;
+      if (!m || !joueurs || !joueurs.length) return;
+
+      const titreMatch = buildMatchDisplay(m) + " - " + (m.date || "") + " - " + (m.heure || "");
+      const joueursTxt = joueurs.map(j => "• " + j).join("\n");
+
+      const message =
+`🏀 Convocation CAM Basket Montrichard
+
+${titreMatch}
+
+Équipe : ${m.equipe || ""}
+
+Joueurs convoqués :
+${joueursTxt}
+
+${commentaireCoach ? "Commentaire coach : " + commentaireCoach : ""}`;
+
+      const url = "https://wa.me/?text=" + encodeURIComponent(message);
+      window.open(url, "_blank");
+    }
+
+async function genererConvocation(){
       const result = document.getElementById("convocationResult");
       const checked = uniqueNamesClean(Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked")).map(input => input.dataset.prenom).filter(Boolean));
 
@@ -2184,6 +2208,14 @@ function cleanCompare(v){
 
       result.innerHTML = '<span class="convoc-title">Convocation enregistrée ✅</span>' + checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
 
+      result.innerHTML += '<button id="btnWhatsappConvocation" class="convoc-action" style="margin-top:12px;background:#25D366;color:#000;border:none;">Envoyer sur WhatsApp</button>';
+      const btnWhatsapp = document.getElementById("btnWhatsappConvocation");
+      if (btnWhatsapp) {
+        btnWhatsapp.onclick = function(){
+          ouvrirWhatsappConvocation(checked, commentaireCoach);
+        };
+      }
+
       afficherConvocationDansMatch(checked, commentaireCoach);
 
       const coachCard = document.getElementById("coachResponsesCard");
@@ -2198,14 +2230,14 @@ function cleanCompare(v){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.24</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.25</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction sauvegarde des convocations dans Google Sheets</li>
-        <li>Relecture automatique des convocations au retour dans le détail match</li>
-        <li>Code coach demandé au clic sur “Faire la convocation”</li>
+        <li>Ajout bouton WhatsApp après génération de la convocation</li>
+        <li>Message WhatsApp prérempli avec match, équipe et joueurs convoqués</li>
+        <li>Sauvegarde convocation conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
