@@ -720,11 +720,6 @@
   text-align:center;
   margin-bottom:16px;
 }
-
-/* V40.15 anti flash organisation */
-.apports-card{
-  display:none;
-}
 </style>
 
 <style>
@@ -776,14 +771,7 @@
       </button>
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>
 <div style="margin-top:6px;text-align:center;">
-  <span style="
-    background:#ffd400;
-    color:#000;
-    padding:4px 10px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:900;
-  ">
+  <span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">
     Version V40.23
   </span>
 </div>
@@ -873,7 +861,7 @@
       
         <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
         <div id="matchApportsCard" class="apports-card">
-        <div class="apports-title">🏀 🏀 Merci à vous</div>
+        <div class="apports-title">🙏 Merci à tous</div>
         <div id="apportsSubtitle" class="apports-subtitle">Objectif : 2 boissons / 2 nourritures</div>
 
         <div class="apports-grid">
@@ -1001,14 +989,12 @@
       joueurs: "JOUEURS",
       matchs: "MATCHS",
       bureau: "BUREAU",
-      benevoles: "BENEVOLES",
-      convocations: "CONVOCATIONS"
+      benevoles: "BENEVOLES"
     };
 
 
     const RESPONSE_SHEET_ID = SHEET_ID;
     const RESPONSE_SHEET_NAME = "REPONSES";
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
     let lastCoachPresentPlayers = [];
 
     let state = {
@@ -1018,10 +1004,10 @@
       matchs: [],
       bureau: [],
       benevoles: [],
-      convocations: [],
       selectedTeam: null,
       currentMatchRows: [],
-      currentOpenMatch: null
+      currentOpenMatch: null,
+      codeCoach: null
     };
 
     function showScreen(id){
@@ -1135,14 +1121,13 @@
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
-          fetchRows(SHEETS.benevoles),
-          fetchRowsCsv(SHEETS.convocations)
+          fetchRows(SHEETS.benevoles)
         ]);
 
         state.season = findSeason(paramRows);
@@ -1160,8 +1145,7 @@
           joueur: String(r[2] || "").trim(),
           licence: String(r[3] || "").trim(),
           numero: String(r[4] || "").trim(),
-          poste: String(r[5] || "").trim(),
-          code: String(r[6] || "").trim()
+          poste: String(r[5] || "").trim()
         })).filter(x => x.joueur && normalize(x.saison) !== "saison");
 
         // MATCHS attendu :
@@ -1197,16 +1181,6 @@
           telephone: String(r[2] || "").trim(),
           email: String(r[3] || "").trim()
         })).filter(x => x.nom && normalize(x.nom) !== "nom");
-
-        state.convocations = (convocationRows || []).map(r => ({
-          date: String(r[0] || "").trim(),
-          match: String(r[1] || "").trim(),
-          equipe: String(r[2] || "").trim(),
-          joueur: String(r[3] || "").trim(),
-          statut: String(r[4] || "").trim(),
-          commentaire: String(r[5] || "").trim(),
-          codeCoach: String(r[6] || "").trim()
-        })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
@@ -1585,6 +1559,16 @@ if (matchPast) {
 
 document.addEventListener("click", function(e){
       if(e.target && e.target.id === "btnFaireConvocationCoach"){
+
+        const codeCoach = prompt("Code coach ?");
+
+        if (!codeCoach || !codeCoach.trim()){
+          alert("Code requis");
+          return;
+        }
+
+        state.codeCoach = codeCoach.trim();
+
         ouvrirSelectionConvocation();
       }
       if(e.target && e.target.id === "btnGenererConvocation"){
@@ -1594,8 +1578,7 @@ document.addEventListener("click", function(e){
 
 afficherConvocationDansMatch([]);
 coachCardReset();
-chargerConvocationEnregistree(m);
-      loadApportsDomicile();
+loadApportsDomicile();
 showScreen("matchDetailScreen");
 
     }
@@ -1766,7 +1749,7 @@ showScreen("matchDetailScreen");
       const nourritureSection = document.getElementById("apportsNourritureSection");
       const subtitle = document.getElementById("apportsSubtitle");
 
-      card.style.display = "none";
+      card.style.display = "block";
       if (boissonSection) boissonSection.style.display = isHome ? "block" : "none";
       if (nourritureSection) nourritureSection.style.display = isHome ? "block" : "none";
       if (subtitle) subtitle.textContent = isHome ? "Objectif : 2 boissons / 2 nourritures" : "Qui prend les maillots ?";
@@ -1922,11 +1905,7 @@ function openInfoModal(){
 function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
   const joueurs = state.joueurs
     .filter(j => j.equipe === equipe)
-    .map(j => {
-      const nom = String(j.joueur || "").trim();
-      const code = String(j.code || "").trim();
-      return nom + "§" + code;
-    });
+    .map(j => j.joueur);
 
   const joueursString = encodeURIComponent(joueurs.join("|"));
 
@@ -1979,64 +1958,6 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
       }).join("");
     }
 
-    
-function cleanCompare(v){
-      return normalize(v).replace(/[^a-z0-9]/g, "");
-    }
-
-
-function uniqueNamesClean(names){
-      const seen = new Set();
-      const out = [];
-
-      (names || []).forEach(name => {
-        const cleanName = String(name || "").trim();
-        const key = cleanCompare(cleanName);
-        if (!cleanName || seen.has(key)) return;
-        seen.add(key);
-        out.push(cleanName);
-      });
-
-      return out;
-    }
-
-
-    function chargerConvocationEnregistree(m){
-      const card = document.getElementById("matchConvocationCard");
-      const sub = document.getElementById("matchConvocationSub");
-      const list = document.getElementById("matchConvocationList");
-
-      if (!card || !sub || !list || !m) return;
-
-      const key = buildMatchKey(m);
-
-      const rows = (state.convocations || []).filter(c =>
-        c.match === key &&
-        cleanCompare(c.equipe) === cleanCompare(m.equipe || "")
-      );
-
-      if (!rows.length) {
-        card.style.display = "none";
-        sub.textContent = "";
-        list.innerHTML = "";
-        return;
-      }
-
-      const joueurs = rows.map(r => r.joueur).filter(Boolean);
-      const commentaire = rows.find(r => r.commentaire)?.commentaire || "";
-
-      card.style.display = "block";
-      sub.textContent = joueurs.length + " joueur(s) convoqué(s)";
-      list.innerHTML = joueurs.map((j, idx) =>
-        `<div class="match-convoc-player">${idx + 1}. ${escapeHtml(j)}</div>`
-      ).join("");
-
-      if (commentaire) {
-        sub.innerHTML = `${joueurs.length} joueur(s) convoqué(s)<br><span style="color:var(--accent);font-weight:700;">${escapeHtml(commentaire)}</span>`;
-      }
-    }
-
-
     function afficherConvocationDansMatch(joueurs, commentaire = ""){
       const card = document.getElementById("matchConvocationCard");
       const list = document.getElementById("matchConvocationList");
@@ -2066,51 +1987,11 @@ function uniqueNamesClean(names){
       `).join("");
     }
 
-    
-async function enregistrerConvocationSheet(joueurs, commentaire, codeCoach){
-  const m = state.currentOpenMatch;
-  if (!m) {
-    alert("Aucun match ouvert.");
-    return false;
-  }
-
-  const data = {
-    action: "saveConvocation",
-    match: buildMatchKey(m),
-    equipe: m.equipe || "",
-    joueurs: uniqueNamesClean(joueurs || []),
-    commentaire: commentaire || "",
-    codeCoach: codeCoach || ""
-  };
-
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify(data)
-    });
-
-    const txt = await res.text();
-
-    if (txt !== "OK") {
-      alert("Erreur enregistrement convocation : " + txt);
-      return false;
-    }
-
-    return true;
-  } catch(e) {
-    alert("Erreur enregistrement convocation : " + (e.message || e));
-    return false;
-  }
-}
-
-
-    async function genererConvocation(){
+    function genererConvocation(){
       const result = document.getElementById("convocationResult");
-      const checked = uniqueNamesClean(
-        Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked"))
-          .map(input => input.dataset.prenom)
-          .filter(Boolean)
-      );
+      const checked = Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked"))
+        .map(input => input.dataset.prenom)
+        .filter(Boolean);
 
       const commentaireCoach = document.getElementById("convocationCommentaire")
         ? document.getElementById("convocationCommentaire").value.trim()
@@ -2125,16 +2006,7 @@ async function enregistrerConvocationSheet(joueurs, commentaire, codeCoach){
         return;
       }
 
-      const codeCoach = prompt("Code coach pour valider la convocation :");
-      if (!codeCoach) {
-        result.innerHTML = '<span class="convoc-title">Convocation</span><div class="muted">Code coach requis.</div>';
-        return;
-      }
-
-      const okSave = await enregistrerConvocationSheet(checked, commentaireCoach, codeCoach.trim());
-      if (!okSave) return;
-
-      result.innerHTML = '<span class="convoc-title">Convocation enregistrée ✅</span>' +
+      result.innerHTML = '<span class="convoc-title">Convocation prête</span>' +
         checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("");
 
       afficherConvocationDansMatch(checked, commentaireCoach);
@@ -2156,9 +2028,9 @@ async function enregistrerConvocationSheet(joueurs, commentaire, codeCoach){
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Convocation protégée par code coach</li>
-        <li>Vérification dans EQUIPES colonne E</li>
-        <li>Base convocation persistante conservée</li>
+        <li>Bloc organisation affiché uniquement s’il y a une réponse</li>
+        <li>Valable pour boisson, nourriture ou maillots</li>
+        <li>Domicile et extérieur gérés</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
