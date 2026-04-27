@@ -10,6 +10,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAM Basket Montrichard</title>
+<!-- V40.23 - Code coach demandé au clic sur Faire la convocation -->
   <meta name="theme-color" content="#1f4e79" />
   <style>
     :root{
@@ -775,6 +776,19 @@
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>
+<div style="margin-top:6px;text-align:center;">
+  <span style="
+    background:#ffd400;
+    color:#000;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:900;
+  ">
+    Version V40.23
+  </span>
+</div>
+
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -1575,12 +1589,12 @@ document.addEventListener("click", function(e){
 
         const codeCoach = state.codeCoach;
 
-        if (!codeCoach){
+        if (!codeCoach || !codeCoach.trim()){
           alert("Code requis");
           return;
         }
 
-        state.codeCoach = codeCoach;
+        state.codeCoach = codeCoach.trim();
 
         ouvrirSelectionConvocation();
       }
@@ -2148,7 +2162,7 @@ async function enregistrerConvocationSheet(joueurs, commentaire, codeCoach){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.21</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.23</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
