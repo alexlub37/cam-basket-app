@@ -774,7 +774,7 @@
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.26</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.27</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2081,6 +2081,7 @@ function cleanCompare(v){
       const card = document.getElementById("matchConvocationCard");
       const list = document.getElementById("matchConvocationList");
       const sub = document.getElementById("matchConvocationSub");
+
       if (!card || !list) return;
 
       const cleanJoueurs = uniqueNamesClean(joueurs);
@@ -2093,11 +2094,33 @@ function cleanCompare(v){
       }
 
       card.style.display = "block";
+
       if (sub) {
-        sub.innerHTML = `<div class="match-convoc-head"><span>${cleanJoueurs.length} joueur(s) convoqué(s)</span>${commentaire ? `<span class="match-convoc-comment">${escapeHtml(commentaire)}</span>` : ""}</div>`;
+        sub.innerHTML = `
+          <div class="match-convoc-head">
+            <span>${cleanJoueurs.length} joueur(s) convoqué(s)</span>
+            ${commentaire ? `<span class="match-convoc-comment">${escapeHtml(commentaire)}</span>` : ""}
+          </div>
+        `;
       }
 
-      list.innerHTML = cleanJoueurs.map((n, i) => `<div class="match-convoc-player">${i + 1}. ${escapeHtml(n)}</div>`).join("");
+      list.innerHTML = cleanJoueurs.map((n, i) => `
+        <div class="match-convoc-player">${i + 1}. ${escapeHtml(n)}</div>
+      `).join("") + `
+        <div style="margin-top:15px;">
+          <button id="btnWhatsappConvocationDetail" style="
+            background:#25D366;
+            color:#000;
+            border:none;
+            padding:12px;
+            border-radius:12px;
+            width:100%;
+            font-weight:900;
+          ">
+            📲 Envoyer sur WhatsApp
+          </button>
+        </div>
+      `;
     }
 
     async function enregistrerConvocationSheet(joueurs, commentaire){
@@ -2159,29 +2182,6 @@ function cleanCompare(v){
         return false;
       }
     }
-
-    
-    function partagerWhatsappConvocation(joueurs, commentaireCoach){
-      const m = state.currentOpenMatch;
-      if (!m || !joueurs || !joueurs.length) return;
-
-      const message =
-`🏀 Convocation CAM Basket Montrichard
-
-${buildMatchDisplay(m)}
-${m.date || ""} ${m.heure || ""}
-
-Équipe : ${m.equipe || ""}
-
-Joueurs convoqués :
-${joueurs.map(j => "• " + j).join("\n")}
-
-${commentaireCoach ? "Note : " + commentaireCoach : ""}`;
-
-      const url = "https://wa.me/?text=" + encodeURIComponent(message);
-      window.open(url, "_blank");
-    }
-
 async function genererConvocation(){
       const result = document.getElementById("convocationResult");
       const checked = uniqueNamesClean(Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked")).map(input => input.dataset.prenom).filter(Boolean));
@@ -2230,19 +2230,48 @@ async function genererConvocation(){
       if (matchCard) matchCard.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
+
+    document.addEventListener("click", function(e){
+      if(e.target && e.target.id === "btnWhatsappConvocationDetail"){
+        const m = state.currentOpenMatch;
+        if(!m) return;
+
+        const joueurs = Array.from(document.querySelectorAll("#matchConvocationList .match-convoc-player"))
+          .map(el => el.textContent.replace(/^\d+\.\s*/, "").trim())
+          .filter(Boolean);
+
+        if(!joueurs.length) return;
+
+        const titreMatch = buildMatchDisplay(m);
+        const message =
+`🏀 Convocation CAM Basket Montrichard
+
+${titreMatch}
+${m.date || ""} ${m.heure || ""}
+
+Équipe : ${m.equipe || ""}
+
+Joueurs convoqués :
+${joueurs.map(j => "• " + j).join("\n")}`;
+
+        window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
+      }
+    });
+
+
     reloadData();
   </script>
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.26</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.27</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction partage WhatsApp propre</li>
-        <li>Bouton WhatsApp affiché après sauvegarde de la convocation</li>
-        <li>Base V40.24 stable conservée</li>
+        <li>Bouton WhatsApp fixe sous la convocation</li>
+        <li>Partage possible même après retour dans le détail match</li>
+        <li>Base sauvegarde convocation conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
