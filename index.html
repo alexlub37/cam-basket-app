@@ -778,44 +778,48 @@
 
 
 /* =========================================================
-   V40.43 - Fond visible partout + popup version centrée
+   V40.44 - Fond plein écran + rendu app plus propre
    ========================================================= */
-html, body{
-  min-height:100%;
-  background:#000 !important;
-}
-body::before, body::after{
-  content:none !important;
-  display:none !important;
-}
+
 #camFixedBackground{
-  position:fixed;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  width:100% !important;
+  height:100% !important;
+  z-index:0 !important;
+  pointer-events:none !important;
   background:
-    linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.52)),
-    url("fond-cam.jpg") center top no-repeat;
-  background-size:100% auto;
+    linear-gradient(rgba(0,0,0,.20), rgba(0,0,0,.62)),
+    url("fond-cam.jpg") top center no-repeat !important;
+  background-size:cover !important;
 }
+
 body > *:not(#camFixedBackground){
   position:relative;
   z-index:1;
 }
+
 header, main, section, .screen, .container, .app, .wrapper, .page, .hero, .top, .app-header, .content, #home, #homeScreen, .home, .home-screen{
   background:transparent !important;
 }
+
 .card, .item, .match-card, .bureau-member-card, .convocation-card, .response-card, .menu-btn{
-  background:rgba(0,0,0,.46) !important;
-  border:1px solid rgba(255,212,0,.30) !important;
-  box-shadow:0 12px 28px rgba(0,0,0,.42);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
+  background:rgba(0,0,0,.50) !important;
+  border:1px solid rgba(255,212,0,.32) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.44);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
 }
-hr, .separator{
-  border-color:rgba(255,212,0,.18) !important;
-  background:transparent !important;
+
+button, .menu-btn, .back{
+  transition:transform .12s ease, opacity .12s ease, box-shadow .12s ease;
 }
+
+button:active, .menu-btn:active, .back:active{
+  transform:scale(.97);
+}
+
 .modal, #infoModal, .version-modal, .changelog-modal{
   position:fixed !important;
   inset:0 !important;
@@ -827,11 +831,13 @@ hr, .separator{
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
 }
+
 .modal.open, #infoModal.open, .version-modal.open, .changelog-modal.open,
 .modal[style*="display: block"], #infoModal[style*="display: block"],
 .version-modal[style*="display: block"], .changelog-modal[style*="display: block"]{
   display:flex !important;
 }
+
 .modal-content, .modal-box, .info-modal-content, #infoModal .card, #infoModal > div, .version-modal > div, .changelog-modal > div{
   position:relative !important;
   margin:0 auto !important;
@@ -843,11 +849,6 @@ hr, .separator{
   border:1px solid rgba(255,212,0,.38) !important;
   border-radius:22px !important;
   box-shadow:0 20px 60px rgba(0,0,0,.75) !important;
-}
-input, textarea, select{
-  background:rgba(0,0,0,.72) !important;
-  border:1px solid rgba(255,212,0,.24) !important;
-  color:#fff !important;
 }
 
 </style>
@@ -918,7 +919,7 @@ input, textarea, select{
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.43</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.44</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2454,38 +2455,19 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.43</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.44</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Fond rendu visible dans toute l’application</li>
-        <li>Cartes rendues plus transparentes</li>
-        <li>Popup logo/version recentrée au milieu de l’écran</li>
+        <li>Fond plein écran corrigé</li>
+        <li>Le fond reste visible pendant le scroll</li>
+        <li>Popup version conservée au centre</li>
+        <li>Boutons avec effet app au clic</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
     </div>
   </div>
-
-<script>
-(function(){
-  window.camCenterModals = function(){
-    document.querySelectorAll('.modal, #infoModal, .version-modal, .changelog-modal').forEach(function(m){
-      if(m && (m.style.display === 'block' || m.classList.contains('open'))){
-        m.classList.add('open');
-      }
-    });
-  };
-  var oldOpenInfoModal = window.openInfoModal;
-  if(typeof oldOpenInfoModal === "function"){
-    window.openInfoModal = function(){
-      oldOpenInfoModal();
-      setTimeout(window.camCenterModals, 0);
-    };
-  }
-})();
-</script>
-
 </body>
 </html>
