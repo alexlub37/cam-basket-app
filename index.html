@@ -777,52 +777,86 @@
 }
 
 
-/* V40.39 - Test accueil pro / bouton équipes connecté */
-:root{--cam-yellow:#ffd400;--cam-border:rgba(255,212,0,.35);}
-body{background:#020202 !important;color:#fff;}
+/* =========================================================
+   V40.40 - Fond fixe propre, ancienne structure conservée
+   ========================================================= */
+
+html{
+  min-height:100%;
+  background:#000;
+}
+
+body{
+  background:#000 !important;
+  color:#fff;
+  min-height:100%;
+}
+
 body::before{
   content:"";
   position:fixed;
   inset:0;
   background:
-    linear-gradient(rgba(0,0,0,.20), rgba(0,0,0,.50)),
-    url("fond-cam.jpg") center top no-repeat;
-  background-size:100% auto;
+    linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.72)),
+    url("fond-cam.jpg") center center / cover no-repeat;
   z-index:-2;
   pointer-events:none;
 }
+
 body::after{
   content:"";
   position:fixed;
   inset:0;
-  background:linear-gradient(rgba(0,0,0,.05), rgba(0,0,0,.35));
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255,212,0,.08), transparent 36%),
+    linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.45));
   z-index:-1;
   pointer-events:none;
 }
-.cam-pro-header{background:transparent !important;border:0 !important;padding:0 !important;}
-.cam-pro-wrap{min-height:100vh;padding:32px 18px 48px;box-sizing:border-box;text-align:center;}
-.cam-logo-btn{background:transparent !important;border:0 !important;box-shadow:none !important;padding:0 !important;}
-.cam-pro-logo{width:92px !important;height:auto !important;max-height:none !important;filter:drop-shadow(0 8px 18px rgba(0,0,0,.75));margin-bottom:8px;}
-.cam-pro-title{color:var(--cam-yellow);font-weight:1000;letter-spacing:.11em;font-size:36px;line-height:.95;text-shadow:0 6px 20px rgba(0,0,0,.9);}
-.cam-pro-subtitle{color:#fff;letter-spacing:.25em;font-weight:900;font-size:15px;margin-top:10px;}
-.cam-pro-city{color:var(--cam-yellow);letter-spacing:.16em;font-weight:900;font-size:14px;margin-top:9px;}
-.cam-pro-version{display:inline-block;margin:18px auto 22px;padding:7px 18px;border-radius:999px;background:linear-gradient(135deg,var(--cam-yellow),#c9a500);color:#000;font-weight:1000;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.45);}
-.hero-sub{display:none !important;}
-.cam-pro-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:590px;margin:0 auto;}
-.cam-pro-card{min-height:96px;border:1px solid var(--cam-border);border-radius:16px;background:linear-gradient(180deg,rgba(10,10,10,.84),rgba(0,0,0,.76));box-shadow:0 16px 22px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,255,255,.035),0 0 13px rgba(255,212,0,.07);color:#fff;display:grid;grid-template-columns:34px 1fr 16px;gap:10px;align-items:center;text-align:left;padding:13px 10px;cursor:pointer;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);}
-.cam-pro-card.active,.cam-pro-card:active{border-color:rgba(255,212,0,.75);box-shadow:0 0 18px rgba(255,212,0,.18),0 16px 22px rgba(0,0,0,.60);}
-.cam-pro-icon{width:34px;font-size:30px;display:grid;place-items:center;color:var(--cam-yellow);}
-.cam-pro-text{display:flex;flex-direction:column;min-width:0;}
-.cam-pro-text b{font-size:14px;font-weight:1000;color:#fff;text-transform:uppercase;}
-.cam-pro-text small{color:rgba(255,255,255,.72);font-size:11px;font-weight:700;line-height:1.35;margin-top:8px;}
-.cam-pro-arrow{color:var(--cam-yellow);font-size:30px;line-height:1;font-weight:900;}
-.cam-pro-motto{color:var(--cam-yellow);font-weight:900;letter-spacing:.20em;margin:28px 0 12px;font-size:14px;text-shadow:0 2px 10px rgba(0,0,0,.8);}
-.cam-pro-status{background:rgba(0,0,0,.42);border:1px solid rgba(255,212,0,.18);display:inline-block;padding:7px 12px;border-radius:999px;color:rgba(255,255,255,.78) !important;margin-top:0 !important;}
-main{margin-top:0 !important;padding-bottom:60px !important;}
-.screen{background:transparent !important;}
-.card,.item,.match-card,.bureau-member-card,.convocation-card,.response-card,.menu-btn{background:rgba(0,0,0,.68) !important;border:1px solid rgba(255,212,0,.22) !important;box-shadow:0 12px 28px rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
-.back{background:rgba(0,0,0,.72) !important;border:2px solid var(--cam-yellow) !important;color:var(--cam-yellow) !important;border-radius:18px !important;}
-input,textarea,select{background:rgba(0,0,0,.72) !important;border:1px solid rgba(255,212,0,.24) !important;color:#fff !important;}
+
+/* Le fond reste visible dans toutes les pages */
+main,
+.screen,
+header,
+.app,
+.container{
+  background:transparent !important;
+}
+
+/* Cartes plus lisibles sur le fond */
+.card,
+.item,
+.match-card,
+.bureau-member-card,
+.convocation-card,
+.response-card,
+.menu-btn{
+  background:rgba(0,0,0,.70) !important;
+  border:1px solid rgba(255,212,0,.24) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.45);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+
+input, textarea, select{
+  background:rgba(0,0,0,.72) !important;
+  border:1px solid rgba(255,212,0,.24) !important;
+  color:#fff !important;
+}
+
+.back{
+  background:rgba(0,0,0,.72) !important;
+  border:2px solid var(--accent, #ffd400) !important;
+  color:var(--accent, #ffd400) !important;
+}
+
+/* iPhone : le pseudo élément fixed garde le fond pendant le scroll */
+@supports (-webkit-touch-callout: none){
+  body::before{
+    background-position:center center;
+    background-size:cover;
+  }
+}
 
 </style>
 
@@ -886,49 +920,22 @@ input,textarea,select{background:rgba(0,0,0,.72) !important;border:1px solid rgb
 
 </head>
 <body>
-  
-<header class="cam-pro-header">
-  <div class="cam-pro-wrap">
-    <button class="cam-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
-      <img src="Image PNG.png" alt="CAM Basket Montrichard" class="cam-pro-logo">
-    </button>
-
-    <div class="cam-pro-title">CAM</div>
-    <div class="cam-pro-subtitle">BASKET-BALL</div>
-    <div class="cam-pro-city">MONTRICHARD</div>
-    <div class="cam-pro-version">Version V40.39</div>
-
-    <div class="cam-pro-grid">
-      <button class="cam-pro-card" onclick="alert('Planning : on le reliera après')">
-        <span class="cam-pro-icon">📅</span>
-        <span class="cam-pro-text"><b>PLANNING</b><small>Matchs & entraînements</small></span>
-        <span class="cam-pro-arrow">›</span>
+  <header>
+    <div class="hero">
+      <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
+        <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-
-      <button id="btn-teams" class="cam-pro-card active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">
-        <span class="cam-pro-icon">👥</span>
-        <span class="cam-pro-text"><b>ÉQUIPES</b><small>Joueurs, coachs</small></span>
-        <span class="cam-pro-arrow">›</span>
-      </button>
-
-      <button class="cam-pro-card" onclick="alert('Bureau : on le reliera après')">
-        <span class="cam-pro-icon">👤</span>
-        <span class="cam-pro-text"><b>BUREAU</b><small>Membres du bureau</small></span>
-        <span class="cam-pro-arrow">›</span>
-      </button>
-
-      <button class="cam-pro-card" onclick="alert('Bénévoles : on le reliera après')">
-        <span class="cam-pro-icon">🤝</span>
-        <span class="cam-pro-text"><b>BÉNÉVOLES</b><small>Les bénévoles du club</small></span>
-        <span class="cam-pro-arrow">›</span>
-      </button>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.40</span></div>
+      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
+      <div class="top-actions">
+        <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
+        <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
+        <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
+        <button id="btn-update" class="btn-outline" onclick="setActiveButton(null); reloadData()">Mettre à jour</button>
+      </div>
+      <div id="status" class="status">Chargement…</div>
     </div>
-
-    <div class="cam-pro-motto">TOUS EN JAUNE !!</div>
-    <div id="status" class="status cam-pro-status">Chargement…</div>
-  </div>
-</header>
-
+  </header>
 
   <main>
     <section id="teamsScreen" class="screen active">
@@ -2454,14 +2461,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.39</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.40</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Fond adapté à l’écran</li>
-        <li>Accueil design pro avec 4 boutons</li>
-        <li>Bouton Équipes connecté à l’ancien système</li>
+        <li>Retour à la structure connectée stable</li>
+        <li>Fond CAM fixe sur toute l’application</li>
+        <li>Le fond reste visible pendant le scroll</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
