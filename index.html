@@ -777,102 +777,74 @@
 }
 
 
-
-
-
-
 /* =========================================================
-   V40.42 - Fond réel visible derrière l'application
+   V40.43 - Fond visible partout + popup version centrée
    ========================================================= */
-
-html,
-body{
+html, body{
   min-height:100%;
   background:#000 !important;
 }
-
-/* On désactive les anciens pseudo-fonds qui passaient derrière les blocs */
-body::before,
-body::after{
+body::before, body::after{
   content:none !important;
   display:none !important;
 }
-
-/* VRAI CALQUE DE FOND */
 #camFixedBackground{
   position:fixed;
   inset:0;
   z-index:0;
   pointer-events:none;
   background:
-    linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.58)),
+    linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.52)),
     url("fond-cam.jpg") center top no-repeat;
   background-size:100% auto;
 }
-
-/* Tout le contenu passe au-dessus du fond */
 body > *:not(#camFixedBackground){
   position:relative;
   z-index:1;
 }
-
-/* On rend transparents les grands conteneurs qui masquaient le fond */
-header,
-main,
-section,
-.screen,
-.container,
-.app,
-.wrapper,
-.page,
-.hero,
-.top,
-.app-header,
-.content{
+header, main, section, .screen, .container, .app, .wrapper, .page, .hero, .top, .app-header, .content, #home, #homeScreen, .home, .home-screen{
   background:transparent !important;
 }
-
-/* Si un bloc haut avait un fond noir plein, on le rend transparent */
-body > header,
-body > main{
+.card, .item, .match-card, .bureau-member-card, .convocation-card, .response-card, .menu-btn{
+  background:rgba(0,0,0,.46) !important;
+  border:1px solid rgba(255,212,0,.30) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.42);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+hr, .separator{
+  border-color:rgba(255,212,0,.18) !important;
   background:transparent !important;
 }
-
-/* Les cartes gardent un fond seulement semi-transparent */
-.card,
-.item,
-.match-card,
-.bureau-member-card,
-.convocation-card,
-.response-card,
-.menu-btn{
-  background:rgba(0,0,0,.62) !important;
-  border:1px solid rgba(255,212,0,.24) !important;
-  box-shadow:0 12px 28px rgba(0,0,0,.45);
-  backdrop-filter:blur(7px);
-  -webkit-backdrop-filter:blur(7px);
+.modal, #infoModal, .version-modal, .changelog-modal{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:99999 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:18px !important;
+  background:rgba(0,0,0,.65) !important;
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
 }
-
-/* Le haut d'accueil ne doit plus créer un grand rectangle noir */
-.hero,
-.hero-card,
-.home,
-.home-screen,
-#home,
-#homeScreen{
-  background:transparent !important;
+.modal.open, #infoModal.open, .version-modal.open, .changelog-modal.open,
+.modal[style*="display: block"], #infoModal[style*="display: block"],
+.version-modal[style*="display: block"], .changelog-modal[style*="display: block"]{
+  display:flex !important;
 }
-
-/* Trait séparateur plus discret */
-hr,
-.separator{
-  border-color:rgba(255,212,0,.16) !important;
-  background:transparent !important;
+.modal-content, .modal-box, .info-modal-content, #infoModal .card, #infoModal > div, .version-modal > div, .changelog-modal > div{
+  position:relative !important;
+  margin:0 auto !important;
+  max-width:420px !important;
+  width:min(92vw,420px) !important;
+  max-height:80vh !important;
+  overflow:auto !important;
+  background:rgba(10,10,10,.94) !important;
+  border:1px solid rgba(255,212,0,.38) !important;
+  border-radius:22px !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.75) !important;
 }
-
-input,
-textarea,
-select{
+input, textarea, select{
   background:rgba(0,0,0,.72) !important;
   border:1px solid rgba(255,212,0,.24) !important;
   color:#fff !important;
@@ -946,7 +918,7 @@ select{
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.42</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.43</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2482,18 +2454,38 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.42</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.43</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Fond placé en vrai calque visible</li>
-        <li>Suppression des blocs noirs qui masquaient le fond</li>
-        <li>Connexions existantes conservées</li>
+        <li>Fond rendu visible dans toute l’application</li>
+        <li>Cartes rendues plus transparentes</li>
+        <li>Popup logo/version recentrée au milieu de l’écran</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
     </div>
   </div>
+
+<script>
+(function(){
+  window.camCenterModals = function(){
+    document.querySelectorAll('.modal, #infoModal, .version-modal, .changelog-modal').forEach(function(m){
+      if(m && (m.style.display === 'block' || m.classList.contains('open'))){
+        m.classList.add('open');
+      }
+    });
+  };
+  var oldOpenInfoModal = window.openInfoModal;
+  if(typeof oldOpenInfoModal === "function"){
+    window.openInfoModal = function(){
+      oldOpenInfoModal();
+      setTimeout(window.camCenterModals, 0);
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
