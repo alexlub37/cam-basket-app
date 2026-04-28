@@ -843,7 +843,7 @@
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.33</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.34</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -1245,7 +1245,15 @@
           fonction: String(r[1] || "").trim(),
           telephone: String(r[2] || "").trim(),
           email: String(r[3] || "").trim()
-        })).filter(x => x.nom && normalize(x.nom) !== "nom");
+        })).filter(x => {
+          const n = normalize(x.nom);
+          return x.nom &&
+            n !== "nom" &&
+            n !== "cle" &&
+            n !== "clé" &&
+            n !== "saison active" &&
+            n !== "club";
+        });
 
         state.benevoles = benevoleRows.map(r => ({
           nom: String(r[0] || "").trim(),
@@ -1921,6 +1929,7 @@ showScreen("matchDetailScreen");
 
     
 
+
 function renderBureau(){
       const el = document.getElementById("bureauList");
       if (!el) return;
@@ -1941,7 +1950,7 @@ function renderBureau(){
       });
 
       if (!rows.length) {
-        el.innerHTML = '<div class="empty">Aucun membre du bureau renseigné.</div>';
+        el.innerHTML = '<div class="empty">Aucun membre du bureau renseigné.<br><br>Vérifie l’onglet BUREAU : ligne 1 = Nom | Rôle | Téléphone | Email.</div>';
         return;
       }
 
@@ -2370,14 +2379,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.33</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.34</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction du blocage chargement</li>
-        <li>Page Bureau : affichage uniquement des membres</li>
-        <li>Accueil et écran Équipes conservés</li>
+        <li>Correction lecture de l’onglet BUREAU</li>
+        <li>Colonnes attendues : Nom, Rôle, Téléphone, Email</li>
+        <li>Affichage direct des membres du bureau</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
