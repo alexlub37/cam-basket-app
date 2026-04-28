@@ -734,6 +734,48 @@
   text-decoration:none;
   font-weight:bold;
 }
+
+/* Bureau V40.29 */
+.bureau-member-card{
+  background:linear-gradient(180deg,#1a1a1a,#171717);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:18px;
+  margin-bottom:12px;
+}
+.bureau-member-name{
+  font-size:22px;
+  font-weight:900;
+  color:#fff;
+  margin-bottom:6px;
+}
+.bureau-member-role{
+  font-size:16px;
+  color:var(--accent);
+  font-weight:900;
+  margin-bottom:12px;
+}
+.bureau-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.bureau-action-btn{
+  display:inline-block;
+  text-decoration:none;
+  background:var(--accent);
+  color:#000;
+  padding:10px 13px;
+  border-radius:12px;
+  font-weight:900;
+  font-size:14px;
+}
+.bureau-info-muted{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.35;
+}
+
 </style>
 
 <style>
@@ -801,7 +843,7 @@
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.28</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.29</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -992,7 +1034,7 @@
       <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
       <div class="card">
         <h2>Bureau</h2>
-        <div class="muted">Membres du bureau du club.</div>
+        <div class="muted">Président, trésorier, secrétaire et contacts de l’association.</div>
       </div>
       <div id="bureauList" class="list"></div>
     </section>
@@ -1877,20 +1919,53 @@ showScreen("matchDetailScreen");
     }
 
 
-    function renderBureau(){
+    
+function renderBureau(){
       const el = document.getElementById("bureauList");
-      if(!state.bureau.length){
-        el.innerHTML = '<div class="empty">Aucun membre du bureau trouvé.</div>';
+      const rows = (state.bureau || []).filter(m => {
+        const nom = String(m.nom || "").trim();
+        return nom && normalize(nom) !== "nom" && normalize(nom) !== "cle" && normalize(nom) !== "clé";
+      });
+
+      if (!el) return;
+
+      if (!rows.length) {
+        el.innerHTML = '<div class="empty">Aucun membre du bureau renseigné.</div>';
         return;
       }
-      el.innerHTML = state.bureau.map(p => `
-        <div class="item">
-          <div class="item-title">${escapeHtml(p.nom)}</div>
-          <div class="item-sub">${escapeHtml(p.fonction || "-")}</div>
-          <div class="item-sub">${p.telephone ? "Tél : " + escapeHtml(p.telephone) : ""}${p.email ? (p.telephone ? " • " : "") + "Email : " + escapeHtml(p.email) : ""}</div>
-        </div>
-      `).join("");
+
+      el.innerHTML = rows.map(m => {
+        const nom = String(m.nom || "").trim();
+        const role = String(m.fonction || m.role || "").trim();
+        const telephone = String(m.telephone || "").replace(/\s+/g, "").trim();
+        const email = String(m.email || "").trim();
+
+        const telBtn = telephone
+          ? `<a class="bureau-action-btn" href="tel:${escapeHtml(telephone)}">📞 Appeler</a>`
+          : "";
+
+        const mailBtn = email && email.includes("@")
+          ? `<a class="bureau-action-btn" href="mailto:${escapeHtml(email)}">✉️ Mail</a>`
+          : "";
+
+        const contactLine = (!telBtn && !mailBtn)
+          ? `<div class="bureau-info-muted">Contact non renseigné</div>`
+          : "";
+
+        return `
+          <div class="bureau-member-card">
+            <div class="bureau-member-name">${escapeHtml(nom)}</div>
+            <div class="bureau-member-role">${escapeHtml(role || "Membre du bureau")}</div>
+            <div class="bureau-actions">
+              ${telBtn}
+              ${mailBtn}
+            </div>
+            ${contactLine}
+          </div>
+        `;
+      }).join("");
     }
+
 
     function renderBenevoles(){
       const el = document.getElementById("benevolesList");
@@ -2291,14 +2366,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.27</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.29</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Bouton WhatsApp fixe sous la convocation</li>
-        <li>Partage possible même après retour dans le détail match</li>
-        <li>Base sauvegarde convocation conservée</li>
+        <li>Page Bureau simplifiée</li>
+        <li>Affichage direct des membres du bureau</li>
+        <li>Suppression des éléments parasites type paramètres</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
