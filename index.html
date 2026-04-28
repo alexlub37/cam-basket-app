@@ -780,49 +780,65 @@
 
 
 
+
 /* =========================================================
-   V40.41 - Fond visible derrière le premier écran
+   V40.42 - Fond réel visible derrière l'application
    ========================================================= */
 
-/* Fond global fixe, visible partout */
 html,
 body{
-  background:#000 !important;
   min-height:100%;
+  background:#000 !important;
 }
 
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:url("fond-cam.jpg") center top no-repeat;
-  background-size:100% auto;
-  z-index:-2;
-  pointer-events:none;
-}
-
+/* On désactive les anciens pseudo-fonds qui passaient derrière les blocs */
+body::before,
 body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.55));
-  z-index:-1;
-  pointer-events:none;
+  content:none !important;
+  display:none !important;
 }
 
-/* On enlève les blocs noirs qui masquaient le fond */
+/* VRAI CALQUE DE FOND */
+#camFixedBackground{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.58)),
+    url("fond-cam.jpg") center top no-repeat;
+  background-size:100% auto;
+}
+
+/* Tout le contenu passe au-dessus du fond */
+body > *:not(#camFixedBackground){
+  position:relative;
+  z-index:1;
+}
+
+/* On rend transparents les grands conteneurs qui masquaient le fond */
 header,
 main,
+section,
 .screen,
 .container,
 .app,
+.wrapper,
+.page,
 .hero,
 .top,
-.app-header{
+.app-header,
+.content{
   background:transparent !important;
 }
 
-/* Le premier formulaire ne cache plus complètement le fond */
+/* Si un bloc haut avait un fond noir plein, on le rend transparent */
+body > header,
+body > main{
+  background:transparent !important;
+}
+
+/* Les cartes gardent un fond seulement semi-transparent */
 .card,
 .item,
 .match-card,
@@ -830,21 +846,30 @@ main,
 .convocation-card,
 .response-card,
 .menu-btn{
-  background:rgba(0,0,0,.66) !important;
+  background:rgba(0,0,0,.62) !important;
   border:1px solid rgba(255,212,0,.24) !important;
   box-shadow:0 12px 28px rgba(0,0,0,.45);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
 }
 
-/* Séparation moins dure entre accueil et contenu */
-hr,
-.separator{
-  border-color:rgba(255,212,0,.18) !important;
+/* Le haut d'accueil ne doit plus créer un grand rectangle noir */
+.hero,
+.hero-card,
+.home,
+.home-screen,
+#home,
+#homeScreen{
   background:transparent !important;
 }
 
-/* Inputs lisibles sur fond */
+/* Trait séparateur plus discret */
+hr,
+.separator{
+  border-color:rgba(255,212,0,.16) !important;
+  background:transparent !important;
+}
+
 input,
 textarea,
 select{
@@ -915,12 +940,13 @@ select{
 
 </head>
 <body>
+<div id="camFixedBackground"></div>
   <header>
     <div class="hero">
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.41</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.42</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2456,13 +2482,13 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.41</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.42</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Fond rendu visible derrière le premier écran</li>
-        <li>Suppression des blocs noirs qui masquaient l’image</li>
+        <li>Fond placé en vrai calque visible</li>
+        <li>Suppression des blocs noirs qui masquaient le fond</li>
         <li>Connexions existantes conservées</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
