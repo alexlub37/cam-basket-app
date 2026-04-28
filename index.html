@@ -777,18 +777,17 @@
 }
 
 
+
+
+
 /* =========================================================
-   V40.40 - Fond fixe propre, ancienne structure conservée
+   V40.41 - Fond visible derrière le premier écran
    ========================================================= */
 
-html{
-  min-height:100%;
-  background:#000;
-}
-
+/* Fond global fixe, visible partout */
+html,
 body{
   background:#000 !important;
-  color:#fff;
   min-height:100%;
 }
 
@@ -796,9 +795,8 @@ body::before{
   content:"";
   position:fixed;
   inset:0;
-  background:
-    linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.72)),
-    url("fond-cam.jpg") center center / cover no-repeat;
+  background:url("fond-cam.jpg") center top no-repeat;
+  background-size:100% auto;
   z-index:-2;
   pointer-events:none;
 }
@@ -807,23 +805,24 @@ body::after{
   content:"";
   position:fixed;
   inset:0;
-  background:
-    radial-gradient(circle at 50% 20%, rgba(255,212,0,.08), transparent 36%),
-    linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.45));
+  background:linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.55));
   z-index:-1;
   pointer-events:none;
 }
 
-/* Le fond reste visible dans toutes les pages */
+/* On enlève les blocs noirs qui masquaient le fond */
+header,
 main,
 .screen,
-header,
+.container,
 .app,
-.container{
+.hero,
+.top,
+.app-header{
   background:transparent !important;
 }
 
-/* Cartes plus lisibles sur le fond */
+/* Le premier formulaire ne cache plus complètement le fond */
 .card,
 .item,
 .match-card,
@@ -831,31 +830,27 @@ header,
 .convocation-card,
 .response-card,
 .menu-btn{
-  background:rgba(0,0,0,.70) !important;
+  background:rgba(0,0,0,.66) !important;
   border:1px solid rgba(255,212,0,.24) !important;
   box-shadow:0 12px 28px rgba(0,0,0,.45);
   backdrop-filter:blur(8px);
   -webkit-backdrop-filter:blur(8px);
 }
 
-input, textarea, select{
+/* Séparation moins dure entre accueil et contenu */
+hr,
+.separator{
+  border-color:rgba(255,212,0,.18) !important;
+  background:transparent !important;
+}
+
+/* Inputs lisibles sur fond */
+input,
+textarea,
+select{
   background:rgba(0,0,0,.72) !important;
   border:1px solid rgba(255,212,0,.24) !important;
   color:#fff !important;
-}
-
-.back{
-  background:rgba(0,0,0,.72) !important;
-  border:2px solid var(--accent, #ffd400) !important;
-  color:var(--accent, #ffd400) !important;
-}
-
-/* iPhone : le pseudo élément fixed garde le fond pendant le scroll */
-@supports (-webkit-touch-callout: none){
-  body::before{
-    background-position:center center;
-    background-size:cover;
-  }
 }
 
 </style>
@@ -925,7 +920,7 @@ input, textarea, select{
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.40</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.41</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2461,14 +2456,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.40</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.41</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Retour à la structure connectée stable</li>
-        <li>Fond CAM fixe sur toute l’application</li>
-        <li>Le fond reste visible pendant le scroll</li>
+        <li>Fond rendu visible derrière le premier écran</li>
+        <li>Suppression des blocs noirs qui masquaient l’image</li>
+        <li>Connexions existantes conservées</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
