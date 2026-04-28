@@ -776,6 +776,341 @@
   line-height:1.35;
 }
 
+
+/* =========================================================
+   V40.38 - ACCUEIL PRO AVEC TON FOND
+   ========================================================= */
+
+:root{
+  --cam-yellow:#ffd400;
+  --cam-card:rgba(0,0,0,.74);
+  --cam-border:rgba(255,212,0,.30);
+}
+
+html, body{
+  min-height:100%;
+}
+
+body{
+  background:#020202 !important;
+  color:#fff;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    linear-gradient(rgba(0,0,0,.12), rgba(0,0,0,.35)),
+    url("fond-cam.jpg") center top / cover no-repeat;
+  z-index:-2;
+  pointer-events:none;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:linear-gradient(rgba(0,0,0,.05), rgba(0,0,0,.36));
+  z-index:-1;
+  pointer-events:none;
+}
+
+.cam-pro-header{
+  background:transparent !important;
+  border:0 !important;
+  padding:0 !important;
+}
+
+.cam-pro-wrap{
+  min-height:100vh;
+  padding:36px 20px 92px;
+  box-sizing:border-box;
+  text-align:center;
+}
+
+.cam-logo-btn{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+
+.cam-pro-logo{
+  width:112px !important;
+  height:auto !important;
+  max-height:none !important;
+  filter:drop-shadow(0 8px 18px rgba(0,0,0,.75));
+  margin-bottom:8px;
+}
+
+.cam-pro-title{
+  color:var(--cam-yellow);
+  font-weight:1000;
+  letter-spacing:.11em;
+  font-size:42px;
+  line-height:.95;
+  text-shadow:0 6px 20px rgba(0,0,0,.9);
+}
+
+.cam-pro-subtitle{
+  color:#fff;
+  letter-spacing:.28em;
+  font-weight:900;
+  font-size:18px;
+  margin-top:10px;
+}
+
+.cam-pro-city{
+  color:var(--cam-yellow);
+  letter-spacing:.18em;
+  font-weight:900;
+  font-size:17px;
+  margin-top:9px;
+}
+
+.cam-pro-version{
+  display:inline-block;
+  margin:18px auto 22px;
+  padding:7px 18px;
+  border-radius:999px;
+  background:linear-gradient(135deg,var(--cam-yellow),#c9a500);
+  color:#000;
+  font-weight:1000;
+  font-size:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.45);
+}
+
+.hero-sub{
+  display:none !important;
+}
+
+.cam-pro-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:13px;
+  max-width:590px;
+  margin:0 auto;
+}
+
+.cam-pro-card{
+  min-height:102px;
+  border:1px solid var(--cam-border);
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(10,10,10,.82),rgba(0,0,0,.74));
+  box-shadow:
+    0 16px 22px rgba(0,0,0,.58),
+    inset 0 0 0 1px rgba(255,255,255,.035),
+    0 0 13px rgba(255,212,0,.07);
+  color:#fff;
+  display:grid;
+  grid-template-columns:42px 1fr 18px;
+  gap:12px;
+  align-items:center;
+  text-align:left;
+  padding:14px 12px;
+  cursor:pointer;
+  backdrop-filter:blur(9px);
+  -webkit-backdrop-filter:blur(9px);
+}
+
+.cam-pro-card.active,
+.cam-pro-card:active{
+  border-color:rgba(255,212,0,.70);
+  box-shadow:
+    0 16px 22px rgba(0,0,0,.60),
+    0 0 18px rgba(255,212,0,.18);
+}
+
+.cam-pro-icon{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  color:var(--cam-yellow);
+}
+
+.cam-pro-icon svg{
+  width:38px;
+  height:38px;
+  fill:currentColor;
+}
+
+.cam-pro-text{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+
+.cam-pro-text b{
+  font-size:15px;
+  font-weight:1000;
+  letter-spacing:.01em;
+  line-height:1.1;
+  color:#fff;
+  text-transform:uppercase;
+}
+
+.cam-pro-text small{
+  color:rgba(255,255,255,.72);
+  font-size:12px;
+  font-weight:700;
+  line-height:1.35;
+  margin-top:8px;
+}
+
+.cam-pro-arrow{
+  color:var(--cam-yellow);
+  font-size:32px;
+  line-height:1;
+  font-weight:900;
+}
+
+.cam-pro-motto{
+  color:var(--cam-yellow);
+  font-weight:900;
+  letter-spacing:.20em;
+  margin:28px 0 12px;
+  font-size:14px;
+  text-shadow:0 2px 10px rgba(0,0,0,.8);
+}
+
+.cam-pro-status{
+  background:rgba(0,0,0,.42);
+  border:1px solid rgba(255,212,0,.18);
+  display:inline-block;
+  padding:7px 12px;
+  border-radius:999px;
+  color:rgba(255,255,255,.78) !important;
+  margin-top:0 !important;
+}
+
+.cam-pro-bottom{
+  position:fixed;
+  left:18px;
+  right:18px;
+  bottom:12px;
+  height:64px;
+  border-radius:28px;
+  background:rgba(0,0,0,.84);
+  border:1px solid rgba(255,212,0,.18);
+  box-shadow:0 12px 32px rgba(0,0,0,.65);
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  align-items:center;
+  z-index:80;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+.cam-pro-bottom button{
+  border:0;
+  background:transparent;
+  color:rgba(255,255,255,.66);
+  font-size:20px;
+  font-weight:900;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+}
+
+.cam-pro-bottom button span{
+  font-size:10px;
+  font-weight:800;
+}
+
+.cam-pro-bottom button.active{
+  color:var(--cam-yellow);
+}
+
+/* Pages internes : connexions conservées */
+main{
+  margin-top:0 !important;
+  padding-bottom:88px !important;
+}
+
+.screen{
+  background:transparent !important;
+}
+
+.card,
+.item,
+.match-card,
+.bureau-member-card,
+.convocation-card,
+.response-card,
+.menu-btn{
+  background:rgba(0,0,0,.68) !important;
+  border:1px solid rgba(255,212,0,.22) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.45);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+
+.back{
+  background:rgba(0,0,0,.72) !important;
+  border:2px solid var(--cam-yellow) !important;
+  color:var(--cam-yellow) !important;
+  border-radius:18px !important;
+}
+
+input, textarea, select{
+  background:rgba(0,0,0,.72) !important;
+  border:1px solid rgba(255,212,0,.24) !important;
+  color:#fff !important;
+}
+
+@media(max-width:430px){
+  .cam-pro-wrap{
+    padding:24px 16px 90px;
+  }
+
+  .cam-pro-logo{
+    width:92px !important;
+  }
+
+  .cam-pro-title{
+    font-size:36px;
+  }
+
+  .cam-pro-subtitle{
+    font-size:15px;
+  }
+
+  .cam-pro-city{
+    font-size:14px;
+  }
+
+  .cam-pro-grid{
+    gap:11px;
+  }
+
+  .cam-pro-card{
+    min-height:94px;
+    grid-template-columns:34px 1fr 13px;
+    gap:10px;
+    padding:13px 10px;
+  }
+
+  .cam-pro-icon svg{
+    width:32px;
+    height:32px;
+  }
+
+  .cam-pro-text b{
+    font-size:13px;
+  }
+
+  .cam-pro-text small{
+    font-size:11px;
+  }
+
+  .cam-pro-arrow{
+    font-size:28px;
+  }
+}
+
 </style>
 
 <style>
@@ -838,22 +1173,118 @@
 
 </head>
 <body>
-  <header>
-    <div class="hero">
-      <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
-        <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
+  
+<header class="cam-pro-header">
+  <div class="cam-pro-wrap">
+
+    <button class="cam-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
+      <img src="Image PNG.png" alt="CAM Basket Montrichard" class="cam-pro-logo">
+    </button>
+
+    <div class="cam-pro-title">CAM</div>
+    <div class="cam-pro-subtitle">BASKET-BALL</div>
+    <div class="cam-pro-city">MONTRICHARD</div>
+
+    <div class="cam-pro-version">Version V40.38</div>
+
+    <div class="cam-pro-grid">
+
+      <button class="cam-pro-card" onclick="setActiveButton('teams'); showScreen('teamsScreen')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7Zm12 8H5V8h14v2ZM5 12h4v3H5v-3Zm6 0h4v3h-4v-3Zm6 0h2v3h-2v-3ZM5 17h4v2H5v-2Zm6 0h4v2h-4v-2Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>PLANNING</b><small>Matchs & entraînements</small></span>
+        <span class="cam-pro-arrow">›</span>
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.34</span></div>
-      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
-      <div class="top-actions">
-        <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
-        <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
-        <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
-        <button id="btn-update" class="btn-outline" onclick="setActiveButton(null); reloadData()">Mettre à jour</button>
-      </div>
-      <div id="status" class="status">Chargement…</div>
+
+      <button id="btn-teams" class="cam-pro-card active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3ZM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>ÉQUIPES</b><small>Joueurs, coachs</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
+      <button id="btn-bureau" class="cam-pro-card" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>BUREAU</b><small>Membres du bureau</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
+      <button id="btn-benevoles" class="cam-pro-card" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>BÉNÉVOLES</b><small>Les bénévoles du club</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
+      <button class="cam-pro-card" onclick="alert('Actualités : à connecter plus tard')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4Zm2 2v12h12V6H6Zm2 2h8v2H8V8Zm0 4h8v2H8v-2Zm0 4h5v1H8v-1Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>ACTUALITÉS</b><small>Toutes les news</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
+      <button class="cam-pro-card" onclick="alert('Photos : à connecter plus tard')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2ZM8.5 11.5l2.5 3.01L14.5 10l4.5 6H5l3.5-4.5Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>PHOTOS</b><small>Galerie du club</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
+      <button class="cam-pro-card" onclick="alert('Documents : à connecter plus tard')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6Zm-1 7V3.5L18.5 9H13ZM8 13h8v2H8v-2Zm0 4h8v2H8v-2Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>DOCUMENTS</b><small>Docs utiles</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
+      <button class="cam-pro-card" onclick="alert('Événements : à connecter plus tard')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M7 2v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-2V2h-2v2H9V2H7Zm12 18H5V9h14v11Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>ÉVÉNEMENTS</b><small>Événements à venir</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
+      <button class="cam-pro-card" onclick="alert('Sponsors : à connecter plus tard')">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 11v2h4l5 5V6L7 11H3Zm13.5 1c0-1.77-1-3.29-2.5-4.03v8.05c1.5-.73 2.5-2.25 2.5-4.02ZM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>SPONSORS</b><small>Nos partenaires</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
+      <button id="btn-update" class="cam-pro-card" onclick="setActiveButton(null); reloadData()">
+        <span class="cam-pro-icon">
+          <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.3 7.3 0 0 0-1.69-.98L14.5 2.42A.49.49 0 0 0 14 2h-4c-.25 0-.46.18-.5.42L9.12 5.07c-.61.23-1.18.55-1.69.98l-2.49-1a.49.49 0 0 0-.6.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.08.65-.08.98s.03.66.08.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.23 1.18-.55 1.69-.98l2.49 1c.23.08.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z"/></svg>
+        </span>
+        <span class="cam-pro-text"><b>PARAMÈTRES</b><small>Mettre à jour</small></span>
+        <span class="cam-pro-arrow">›</span>
+      </button>
+
     </div>
-  </header>
+
+    <div class="cam-pro-motto">TOUS EN JAUNE !!</div>
+    <div id="status" class="status cam-pro-status">Chargement…</div>
+
+    <nav class="cam-pro-bottom">
+      <button onclick="setActiveButton('teams'); showScreen('teamsScreen')" class="active">⌂<span>Accueil</span></button>
+      <button onclick="alert('Notifications : à connecter plus tard')">◌<span>Notifications</span></button>
+      <button onclick="document.getElementById('teamSearch')?.focus()">⌕<span>Recherche</span></button>
+      <button onclick="setActiveButton('bureau'); showScreen('bureauScreen')">☎<span>Contacts</span></button>
+      <button onclick="openInfoModal()">☰<span>Menu</span></button>
+    </nav>
+
+  </div>
+</header>
+
 
   <main>
     <section id="teamsScreen" class="screen active">
@@ -2379,14 +2810,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.34</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.38</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction lecture de l’onglet BUREAU</li>
-        <li>Colonnes attendues : Nom, Rôle, Téléphone, Email</li>
-        <li>Affichage direct des membres du bureau</li>
+        <li>Accueil refait avec rendu type app mobile</li>
+        <li>Ton image fond-cam.jpg est utilisée comme fond</li>
+        <li>Connexions existantes conservées : équipes, matchs, réponses, convocations, bureau, bénévoles</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
