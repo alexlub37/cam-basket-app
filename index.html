@@ -776,145 +776,6 @@
   line-height:1.35;
 }
 
-
-/* ==============================
-   V40.35 - Design accueil CAM
-   ============================== */
-
-:root{
-  --cam-yellow:#ffd400;
-  --cam-black:#050505;
-  --glass-bg:rgba(5,5,5,.66);
-  --glass-border:rgba(255,212,0,.32);
-}
-
-body{
-  background:
-    linear-gradient(rgba(0,0,0,.42), rgba(0,0,0,.76)),
-    url("fond-cam.jpg") center top / cover fixed no-repeat !important;
-}
-
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  background:
-    radial-gradient(circle at center, rgba(0,0,0,.05), rgba(0,0,0,.52) 70%),
-    rgba(0,0,0,.25);
-  z-index:-1;
-}
-
-main, .screen{
-  background:transparent !important;
-}
-
-.hero, header, .top, .app-header{
-  background:transparent !important;
-}
-
-.hero-title{
-  text-shadow:0 4px 18px rgba(0,0,0,.85);
-}
-
-.card,
-.item,
-.match-card,
-.bureau-member-card,
-.convocation-card,
-.response-card{
-  background:rgba(10,10,10,.72) !important;
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  border:1px solid rgba(255,212,0,.25) !important;
-  box-shadow:0 10px 30px rgba(0,0,0,.42);
-}
-
-.home-actions,
-.nav-grid,
-.menu-grid,
-.quick-actions{
-  display:grid !important;
-  grid-template-columns:1fr 1fr;
-  gap:14px !important;
-}
-
-.home-actions button,
-.nav-grid button,
-.menu-grid button,
-.quick-actions button,
-button[data-screen],
-.home-btn{
-  min-height:72px;
-  border-radius:18px !important;
-  background:rgba(5,5,5,.72) !important;
-  border:2px solid rgba(255,212,0,.75) !important;
-  color:#fff !important;
-  box-shadow:0 8px 20px rgba(0,0,0,.35);
-  font-weight:900 !important;
-}
-
-.home-actions button.active,
-.nav-grid button.active,
-.menu-grid button.active,
-.quick-actions button.active,
-button.active{
-  background:linear-gradient(135deg, var(--cam-yellow), #caa400) !important;
-  color:#000 !important;
-}
-
-.back{
-  background:rgba(5,5,5,.72) !important;
-  border:2px solid var(--cam-yellow) !important;
-  color:var(--cam-yellow) !important;
-  border-radius:18px !important;
-  backdrop-filter:blur(8px);
-}
-
-input, textarea, select{
-  background:rgba(0,0,0,.72) !important;
-  border:1px solid rgba(255,212,0,.28) !important;
-  color:#fff !important;
-}
-
-#seasonBadge, .season-badge{
-  background:rgba(0,0,0,.55);
-  border:1px solid rgba(255,212,0,.22);
-  border-radius:16px;
-  padding:8px 12px;
-}
-
-body::after{
-  content:"Accueil   •   Contacts   •   Menu";
-  position:fixed;
-  left:14px;
-  right:14px;
-  bottom:10px;
-  padding:12px 18px;
-  border-radius:26px;
-  background:rgba(0,0,0,.70);
-  border:1px solid rgba(255,212,0,.22);
-  color:rgba(255,255,255,.72);
-  font-weight:800;
-  font-size:13px;
-  text-align:center;
-  pointer-events:none;
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-}
-
-@media(max-width:430px){
-  body{
-    background-attachment:scroll !important;
-  }
-  .home-actions,
-  .nav-grid,
-  .menu-grid,
-  .quick-actions{
-    gap:10px !important;
-  }
-}
-
 </style>
 
 <style>
@@ -982,7 +843,7 @@ body::after{
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.35</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.34</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2518,14 +2379,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V40.35</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.34</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Design sportif noir/jaune intégré</li>
-        <li>Image CAM utilisée en fond de l’application</li>
-        <li>Scripts matchs, réponses, convocations, bureau et WhatsApp conservés</li>
+        <li>Correction lecture de l’onglet BUREAU</li>
+        <li>Colonnes attendues : Nom, Rôle, Téléphone, Email</li>
+        <li>Affichage direct des membres du bureau</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
