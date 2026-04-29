@@ -817,6 +817,46 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   border:1px solid rgba(255,212,0,.40)!important;border-radius:22px!important;box-shadow:0 20px 60px rgba(0,0,0,.75)!important;
 }
 
+
+/* =========================================================
+   V40.53 - CONFIG dynamique sans casser la mise en page
+   ========================================================= */
+:root{
+  --theme-accent: var(--accent, #ffd400);
+}
+
+/* Tous les éléments importants suivent la couleur CONFIG */
+.btn-light,
+.btn-outline.active,
+a.link-btn,
+.modal-close,
+.convoc-action,
+.bureau-action-btn,
+.version-badge,
+.pill.active{
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+  color:#000 !important;
+}
+
+button,
+.btn-outline,
+.back,
+.card,
+.item,
+.menu-btn,
+.bureau-member-card,
+.match-convoc-card,
+.apports-card,
+.search,
+input,
+textarea,
+select{
+  border-color:rgba(255,212,0,.34);
+}
+
+/* la couleur exacte sera appliquée aussi en JS pour éviter les anciens styles inline */
+
 </style>
 
 <style>
@@ -915,7 +955,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.51</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.53</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2456,14 +2496,131 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Fond remplacé par un SVG HTML homogène</li>
-        <li>Plus de problème de largeur ou de hauteur d’image</li>
-        <li>Cartes transparentes sans flou sur toute l’application</li>
-        <li>Connexions existantes conservées</li>
+        <li>Reprise de ta version envoyée</li>
+        <li>Mise en page conservée</li>
+        <li>URL Apps Script intégrée</li>
+        <li>Lecture de l’onglet CONFIG ajoutée</li>
+        <li>Couleur principale dynamique</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
     </div>
   </div>
+
+<script>
+/* =========================================================
+   V40.53 - Lecture onglet CONFIG
+   ========================================================= */
+(function(){
+  const CONFIG_SHEET_NAME = "CONFIG";
+
+  function normalizeKey(v){
+    return String(v || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  async function fetchConfigRows(){
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(CONFIG_SHEET_NAME)}&tqx=out:json&t=${Date.now()}`;
+    const res = await fetch(url);
+    const txt = await res.text();
+    const json = JSON.parse(txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
+    const cols = json.table.cols.map(c => c.label || c.id || "");
+    return (json.table.rows || []).map(r => {
+      const obj = {};
+      cols.forEach((col, i) => {
+        const cell = r.c[i];
+        obj[col] = cell ? String(cell.f || cell.v || "").trim() : "";
+      });
+      return obj;
+    });
+  }
+
+  function rowsToConfig(rows){
+    const cfg = {};
+    rows.forEach(row => {
+      const key = normalizeKey(row["Clé"] || row["Cle"] || row["clé"] || row["cle"] || row["Key"] || row["key"]);
+      const val = String(row["Valeur"] || row["valeur"] || row["Value"] || row["value"] || "").trim();
+      if(key) cfg[key] = val;
+    });
+    return cfg;
+  }
+
+  function applyThemeColor(color){
+    if(!color) return;
+
+    document.documentElement.style.setProperty("--accent", color);
+    document.documentElement.style.setProperty("--theme-accent", color);
+
+    // SVG du fond
+    document.querySelectorAll('#camSvgBackground [fill="#ffd400"]').forEach(el => el.setAttribute("fill", color));
+    document.querySelectorAll('#camSvgBackground [stroke="#ffd400"]').forEach(el => el.setAttribute("stroke", color));
+
+    // Boutons / contours / cartes
+    document.querySelectorAll("button, .btn-outline, .back, .card, .item, .menu-btn, .bureau-member-card, .match-convoc-card, .apports-card, .search, input, textarea, select").forEach(el => {
+      el.style.borderColor = color;
+    });
+
+    // Éléments pleins
+    document.querySelectorAll(".btn-light, .btn-outline.active, a.link-btn, .modal-close, .convoc-action, .bureau-action-btn, #seasonBadge").forEach(el => {
+      el.style.backgroundColor = color;
+      el.style.borderColor = color;
+      el.style.color = "#000";
+    });
+
+    // Badge version qui est en style inline dans cette version
+    document.querySelectorAll("span").forEach(el => {
+      if((el.textContent || "").includes("Version V40.")){
+        el.style.backgroundColor = color;
+        el.style.color = "#000";
+      }
+    });
+
+    // Textes accent
+    document.querySelectorAll(".hero-sub, .match-section-title, .detail-label, .modal-card h3, .coach-title, .convoc-title, .apports-title, .apports-kind").forEach(el => {
+      el.style.color = color;
+    });
+  }
+
+  function applyConfig(cfg){
+    window.CAM_CONFIG = cfg;
+
+    applyThemeColor(cfg.couleur_principale);
+
+    const btnBureau = document.getElementById("btn-bureau");
+    if(btnBureau && cfg.activer_bureau && cfg.activer_bureau.toLowerCase() !== "oui"){
+      btnBureau.style.display = "none";
+    }
+
+    const btnBenevoles = document.getElementById("btn-benevoles");
+    if(btnBenevoles && cfg.activer_benevoles && cfg.activer_benevoles.toLowerCase() !== "oui"){
+      btnBenevoles.style.display = "none";
+    }
+  }
+
+  async function loadConfig(){
+    try{
+      const rows = await fetchConfigRows();
+      applyConfig(rowsToConfig(rows));
+    }catch(e){
+      console.warn("CONFIG non chargée", e);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadConfig);
+
+  // recharge aussi après reloadData si la page remet certains styles
+  const oldReloadData = window.reloadData;
+  if(typeof oldReloadData === "function"){
+    window.reloadData = async function(){
+      await oldReloadData.apply(this, arguments);
+      await loadConfig();
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
