@@ -819,26 +819,46 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
 
 /* =========================================================
-   V40.53 - CONFIG dynamique sans casser la mise en page
+   V40.54 - Correctif CONFIG + message à côté du logo
    ========================================================= */
-:root{
-  --theme-accent: var(--accent, #ffd400);
+.hero-logo-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+}
+.message-accueil-logo{
+  display:inline-block;
+  color:var(--accent);
+  border:1px solid var(--accent);
+  background:rgba(0,0,0,.42);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  max-width:145px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@media(max-width:420px){
+  .hero-logo{width:104px !important;}
+  .message-accueil-logo{font-size:11px;max-width:130px;padding:5px 8px;}
 }
 
-/* Tous les éléments importants suivent la couleur CONFIG */
+/* Éléments pilotés par la couleur principale */
 .btn-light,
 .btn-outline.active,
 a.link-btn,
 .modal-close,
 .convoc-action,
 .bureau-action-btn,
-.version-badge,
-.pill.active{
+#seasonBadge{
   background:var(--accent) !important;
   border-color:var(--accent) !important;
   color:#000 !important;
 }
-
 button,
 .btn-outline,
 .back,
@@ -852,10 +872,40 @@ button,
 input,
 textarea,
 select{
-  border-color:rgba(255,212,0,.34);
+  border-color:var(--accent) !important;
+}
+.hero-sub,
+.match-section-title,
+.detail-label,
+.modal-card h3,
+.coach-title,
+.convoc-title,
+.apports-title,
+.apports-kind,
+.message-accueil-logo{
+  color:var(--accent) !important;
+}
+.message-accueil-logo{
+  border-color:var(--accent) !important;
 }
 
-/* la couleur exacte sera appliquée aussi en JS pour éviter les anciens styles inline */
+
+/* =========================================================
+   V40.55 - Bouton Répondre au match restauré
+   ========================================================= */
+#btnReponseMatch,
+.btn-reponse-match{
+  display:block !important;
+  margin-top:16px !important;
+  width:100% !important;
+  padding:14px !important;
+  font-weight:900 !important;
+  border-radius:14px !important;
+  background:var(--accent, #ffd400) !important;
+  border:2px solid var(--accent, #ffd400) !important;
+  color:#000 !important;
+  font-size:16px !important;
+}
 
 </style>
 
@@ -954,8 +1004,9 @@ select{
     <div class="hero">
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
+        <span id="messageAccueilLogo" class="message-accueil-logo">Tous en jaune !!</span>
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.53</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.55</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -1705,32 +1756,31 @@ let bouton = document.getElementById("btnReponseMatch");
 if(!bouton){
   bouton = document.createElement("button");
   bouton.id = "btnReponseMatch";
-  bouton.style.marginTop = "12px";
-  bouton.style.width = "100%";
-  bouton.style.padding = "14px";
-  bouton.style.fontWeight = "900";
-  bouton.style.borderRadius = "14px";
-  bouton.style.background = "#ffd400";
-  bouton.style.border = "none";
-  bouton.style.color = "#000";
+  bouton.className = "btn-reponse-match";
+  bouton.type = "button";
   bouton.innerText = "Répondre au match";
 
-  document.querySelector("#matchDetailScreen .card").appendChild(bouton);
+  const card = document.querySelector("#matchDetailScreen .card");
+  const mapsBlock = document.getElementById("mapsBlock");
+
+  if(card && mapsBlock && mapsBlock.parentNode === card){
+    card.insertBefore(bouton, mapsBlock.nextSibling);
+  }else if(card){
+    card.appendChild(bouton);
+  }
 }
 
-if (matchPast) {
-  bouton.style.display = "none";
-} else {
-  bouton.style.display = "block";
-  bouton.onclick = function(){
-    ouvrirFormulaire(
-      buildMatchKey(m),
-      m.equipe,
-      m.type,
-      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
-    );
-  };
-}
+/* V40.55 : le bouton reste accessible même si le match est détecté passé.
+   On évite de le masquer à tort à cause d'un format de date mal interprété. */
+bouton.style.display = "block";
+bouton.onclick = function(){
+  ouvrirFormulaire(
+    buildMatchKey(m),
+    m.equipe,
+    m.type,
+    buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+  );
+};
 
 let boutonCoach = document.getElementById("btnCoachResponses");
 
@@ -2154,13 +2204,14 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
 
   const joueursString = encodeURIComponent(joueurs.join("|"));
 
-  const url = "formulaire.html?match=" + encodeURIComponent(match)
+  const formBase = new URL("formulaire.html", window.location.href).href;
+  const url = formBase + "?match=" + encodeURIComponent(match)
             + "&display=" + encodeURIComponent(displayMatch || match)
             + "&equipe=" + encodeURIComponent(equipe)
             + "&type=" + encodeURIComponent(typeMatch || "")
             + "&joueurs=" + joueursString;
 
-  window.open(url, "_blank");
+  window.location.href = url;
 }
 
 
@@ -2496,11 +2547,10 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Reprise de ta version envoyée</li>
-        <li>Mise en page conservée</li>
-        <li>URL Apps Script intégrée</li>
-        <li>Lecture de l’onglet CONFIG ajoutée</li>
-        <li>Couleur principale dynamique</li>
+        <li>Bouton Répondre au match restauré</li>
+        <li>Bouton rendu visible même si la date est mal interprétée</li>
+        <li>Formulaire de réponse conservé</li>
+        <li>Mise en page existante conservée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -2509,12 +2559,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V40.53 - Lecture onglet CONFIG
+   V40.54 - Lecture CONFIG Google Sheets
    ========================================================= */
 (function(){
   const CONFIG_SHEET_NAME = "CONFIG";
 
-  function normalizeKey(v){
+  function normalizeConfigKey(v){
     return String(v || "")
       .trim()
       .toLowerCase()
@@ -2541,36 +2591,31 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
   function rowsToConfig(rows){
     const cfg = {};
     rows.forEach(row => {
-      const key = normalizeKey(row["Clé"] || row["Cle"] || row["clé"] || row["cle"] || row["Key"] || row["key"]);
+      const key = normalizeConfigKey(row["Clé"] || row["Cle"] || row["clé"] || row["cle"] || row["Key"] || row["key"]);
       const val = String(row["Valeur"] || row["valeur"] || row["Value"] || row["value"] || "").trim();
       if(key) cfg[key] = val;
     });
     return cfg;
   }
 
-  function applyThemeColor(color){
+  function applyAccent(color){
     if(!color) return;
 
     document.documentElement.style.setProperty("--accent", color);
-    document.documentElement.style.setProperty("--theme-accent", color);
 
-    // SVG du fond
     document.querySelectorAll('#camSvgBackground [fill="#ffd400"]').forEach(el => el.setAttribute("fill", color));
     document.querySelectorAll('#camSvgBackground [stroke="#ffd400"]').forEach(el => el.setAttribute("stroke", color));
 
-    // Boutons / contours / cartes
     document.querySelectorAll("button, .btn-outline, .back, .card, .item, .menu-btn, .bureau-member-card, .match-convoc-card, .apports-card, .search, input, textarea, select").forEach(el => {
       el.style.borderColor = color;
     });
 
-    // Éléments pleins
     document.querySelectorAll(".btn-light, .btn-outline.active, a.link-btn, .modal-close, .convoc-action, .bureau-action-btn, #seasonBadge").forEach(el => {
       el.style.backgroundColor = color;
       el.style.borderColor = color;
       el.style.color = "#000";
     });
 
-    // Badge version qui est en style inline dans cette version
     document.querySelectorAll("span").forEach(el => {
       if((el.textContent || "").includes("Version V40.")){
         el.style.backgroundColor = color;
@@ -2578,16 +2623,24 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       }
     });
 
-    // Textes accent
-    document.querySelectorAll(".hero-sub, .match-section-title, .detail-label, .modal-card h3, .coach-title, .convoc-title, .apports-title, .apports-kind").forEach(el => {
+    document.querySelectorAll(".hero-sub, .match-section-title, .detail-label, .modal-card h3, .coach-title, .convoc-title, .apports-title, .apports-kind, .message-accueil-logo").forEach(el => {
       el.style.color = color;
+    });
+    document.querySelectorAll(".message-accueil-logo").forEach(el => {
+      el.style.borderColor = color;
     });
   }
 
   function applyConfig(cfg){
-    window.CAM_CONFIG = cfg;
+    window.CAM_CONFIG = cfg || {};
 
-    applyThemeColor(cfg.couleur_principale);
+    const color = cfg.couleur_principale || "#ffd400";
+    applyAccent(color);
+
+    if(cfg.message_accueil){
+      const logoMsg = document.getElementById("messageAccueilLogo");
+      if(logoMsg) logoMsg.textContent = cfg.message_accueil;
+    }
 
     const btnBureau = document.getElementById("btn-bureau");
     if(btnBureau && cfg.activer_bureau && cfg.activer_bureau.toLowerCase() !== "oui"){
@@ -2611,7 +2664,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
   document.addEventListener("DOMContentLoaded", loadConfig);
 
-  // recharge aussi après reloadData si la page remet certains styles
+  // réapplique après les boutons et la saison, car reloadData réécrit certains styles
   const oldReloadData = window.reloadData;
   if(typeof oldReloadData === "function"){
     window.reloadData = async function(){
