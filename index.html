@@ -915,7 +915,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.56</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.57</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -1719,25 +1719,6 @@ if (matchPast) {
 
 
 
-document.addEventListener("click", function(e){
-      if(e.target && e.target.id === "btnFaireConvocationCoach"){
-
-        const codeCoach = prompt("Code coach ?");
-
-        if (!codeCoach || !codeCoach.trim()){
-          alert("Code requis");
-          return;
-        }
-
-        state.codeCoach = codeCoach.trim();
-
-        ouvrirSelectionConvocation();
-      }
-      if(e.target && e.target.id === "btnGenererConvocation"){
-        genererConvocation();
-      }
-    });
-
 afficherConvocationDansMatch([]);
 coachCardReset();
 chargerConvocationEnregistree(m);
@@ -2456,15 +2437,58 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Retour à la version stable avant CONFIG</li>
-        <li>Mise en page restaurée</li>
-        <li>Formulaire restauré avec bouton Annuler</li>
-        <li>Code joueur conservé et masqué dans la liste</li>
-        <li>Réponses match et convocation conservées</li>
+        <li>Bug code coach corrigé</li>
+        <li>Suppression des doubles demandes de code</li>
+        <li>Annuler n’ouvre plus la sélection de convocation</li>
+        <li>Process convocation conservé</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
     </div>
   </div>
+
+<script>
+/* =========================================================
+   V40.57 - Correctif code coach convocation
+   Un seul gestionnaire, pas de double demande de code
+   ========================================================= */
+(function(){
+  if (window.__camCoachConvocationHandlerV4057) return;
+  window.__camCoachConvocationHandlerV4057 = true;
+
+  document.addEventListener("click", function(e){
+    const btnConvoc = e.target && e.target.closest ? e.target.closest("#btnFaireConvocationCoach") : null;
+    if(btnConvoc){
+      e.preventDefault();
+      e.stopPropagation();
+
+      const codeCoach = prompt("Code coach ?");
+
+      if (!codeCoach || !String(codeCoach).trim()){
+        // Annuler = on ne fait rien, on ne doit pas ouvrir la sélection
+        return;
+      }
+
+      state.codeCoach = String(codeCoach).trim();
+
+      if (typeof ouvrirSelectionConvocation === "function") {
+        ouvrirSelectionConvocation();
+      }
+      return;
+    }
+
+    const btnGenerer = e.target && e.target.closest ? e.target.closest("#btnGenererConvocation") : null;
+    if(btnGenerer){
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (typeof genererConvocation === "function") {
+        genererConvocation();
+      }
+    }
+  }, true);
+})();
+</script>
+
 </body>
 </html>
