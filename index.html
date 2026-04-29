@@ -915,7 +915,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.58</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.59</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2457,10 +2457,10 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction filtrage réponses coach par match</li>
-        <li>Anciennes réponses effacées avant chaque chargement</li>
-        <li>La convocation ne reprend plus des joueurs d’un autre match</li>
-        <li>Conservation du formulaire et du bouton Annuler</li>
+        <li>Correction retour après réponse joueur</li>
+        <li>Plus de redirection vers la racine GitHub 404</li>
+        <li>Retour vers cam-basket-app après envoi ou annulation</li>
+        <li>Corrections réponses coach V40.58 conservées</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
