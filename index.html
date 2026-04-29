@@ -1,100 +1,2469 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAM Basket Montrichard</title>
-<style>
-:root { --couleur-principale: #ffd400; }
-body { margin:0; font-family: Arial; color:white; background:black; }
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+<link rel="icon" type="image/png" sizes="32x32" href="logo_32.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-body::before {
-  content:"";
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:url("fond-cam.jpg") center center no-repeat;
-  background-size:contain;
-  background-color:black;
-  z-index:-1;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAM Basket Montrichard</title>
+  <meta name="theme-color" content="#1f4e79" />
+  <style>
+    :root{
+      --bg:#050505;
+      --card:#121212;
+      --card2:#181818;
+      --text:#ffffff;
+      --muted:#cfcfcf;
+      --line:#2d2d2d;
+      --accent:#ffd400;
+      --ok:#1faa59;
+      --warn:#ff9f1c;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    header{
+      background:#000;
+      color:#fff;
+      padding:18px 14px 16px;
+      border-bottom:1px solid #1f1f1f;
+      box-shadow:0 4px 16px rgba(0,0,0,.35);
+    }
+    .hero{
+      max-width:900px;
+      margin:0 auto;
+      text-align:center;
+    }
+    .hero-logo-btn{
+      background:transparent;
+      border:0;
+      padding:0;
+      margin:0 0 8px 0;
+      min-width:auto;
+      min-height:auto;
+      cursor:pointer;
+    }
+    .hero-logo{
+      width:126px;
+      height:auto;
+      display:block;
+      margin:0 auto;
+    }
+    .hero-title{
+      margin:0;
+      font-size:34px;
+      line-height:0.98;
+      color:#fff;
+      font-weight:900;
+    }
+    .hero-sub{
+      margin-top:10px;
+      font-size:13px;
+      color:var(--accent);
+      line-height:1.35;
+    }
+    .top-actions{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 170px));
+      justify-content:center;
+      gap:8px;
+      margin-top:18px;
+    }
+    button{
+      border:2px solid var(--accent);
+      border-radius:18px;
+      padding:6px 10px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+      min-width:0;
+      background:#0b0b0b;
+      color:#fff;
+    }
+    .btn-light,
+    .btn-outline.active{
+      background:var(--accent);
+      color:#000;
+    }
+    .btn-outline{
+      background:#0b0b0b;
+      color:#fff;
+    }
+    main{
+      padding:16px 14px 28px;
+      max-width:900px;
+      margin:0 auto;
+    }
+    .screen{display:none}
+    .screen.active{display:block}
+    .card{
+      background:linear-gradient(180deg,#151515,#121212);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:20px;
+      margin-bottom:14px;
+      box-shadow:0 2px 10px rgba(0,0,0,.18);
+    }
+    .muted{color:var(--muted)}
+    .list{display:grid;gap:12px}
+    .item{
+      background:linear-gradient(180deg,#1a1a1a,#171717);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+      cursor:pointer;
+    }
+    .item-title{
+      font-weight:900;
+      font-size:22px;
+      margin-bottom:8px;
+      color:#fff;
+    }
+    .item-sub{
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.35;
+      margin-top:4px;
+    }
+    .match-section-title{
+      margin:14px 0 8px;
+      color:var(--accent);
+      font-size:13px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .match-past{
+      opacity:.55;
+    }
+    .match-lock{
+      display:inline-block;
+      margin-left:8px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,212,0,.45);
+      color:var(--accent);
+      font-size:11px;
+      font-weight:900;
+    }
+    .match-detail-header{
+      margin-bottom:14px;
+      padding-bottom:14px;
+      border-bottom:1px solid var(--line);
+    }
+    .match-top-line{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      margin-bottom:10px;
+      gap:8px;
+    }
+    .match-season-top{
+      color:#bdbdbd;
+      font-size:10px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.10em;
+      opacity:.85;
+      text-align:left;
+    }
+    .match-team-top{
+      color:var(--accent);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      text-align:center;
+      white-space:nowrap;
+    }
+    .match-detail-title{
+      margin:0 0 14px 0;
+      color:#fff;
+      font-size:25px;
+      line-height:1.08;
+      font-weight:900;
+      word-break:normal;
+    }
+    .match-detail-title .vs-line{
+      display:block;
+      color:#fff;
+    }
+    .match-detail-title .vs-small{
+      display:block;
+      color:var(--accent);
+      font-size:.62em;
+      line-height:1.15;
+      margin:2px 0;
+      text-transform:lowercase;
+    }
+    .match-date-time-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:10px;
+      color:#fff;
+      font-size:17px;
+      font-weight:900;
+    }
+    .match-date-time-row span:last-child{
+      color:var(--accent);
+      text-align:right;
+    }
+    .match-type-top{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,212,0,.12);
+      border:1px solid rgba(255,212,0,.45);
+      color:var(--accent);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .menu-btn{
+      background:linear-gradient(180deg,#1a1a1a,#171717);
+      border:1px solid var(--line);
+      color:var(--text);
+      text-align:left;
+      padding:18px;
+      border-radius:20px;
+      width:100%;
+    }
+    .menu-btn .big{display:block;font-size:18px;font-weight:900;margin-bottom:6px;color:#fff}
+    .menu-btn .small{display:block;color:var(--muted);font-size:14px;font-weight:500}
+    .detail-row{margin:12px 0;font-size:16px}
+    .detail-label{
+      color:var(--accent);
+      display:block;
+      font-size:12px;
+      margin-bottom:3px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:900;
+    }
+    .badge-home,.badge-away{
+      display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;margin-left:8px
+    }
+    .badge-home{background:#143f20;color:#9effb8;border:1px solid #1faa59}
+    .badge-away{background:#4a2e00;color:#ffd08a;border:1px solid #ff9f1c}
+    .toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+    .search{
+      width:100%;
+      padding:16px 16px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      font-size:17px;
+      background:#0b0b0b;
+      color:#fff;
+    }
+    .search::placeholder{color:#9f9f9f}
+    .empty{
+      text-align:center;color:var(--muted);padding:28px 14px;border:1px dashed var(--line);border-radius:18px;background:var(--card)
+    }
+    .back{
+      margin-bottom:12px;
+      background:#0b0b0b;
+      color:var(--accent);
+      border:2px solid var(--accent);
+      border-radius:18px;
+      padding:12px 14px;
+      font-size:15px;
+      font-weight:900;
+    }
+    .status{
+      margin-top:14px;
+      font-size:16px;
+      color:#fff;
+    }
+    .pill{
+      display:inline-block;
+      background:rgba(255,212,0,.13);
+      color:var(--accent);
+      border:1px solid rgba(255,212,0,.35);
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900
+    }
+    a.link-btn{
+      display:inline-block;
+      text-decoration:none;
+      background:var(--accent);
+      color:#000;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:900;
+      font-size:15px
+    }
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.72);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:1000;
+    }
+    .modal-overlay.active{display:flex}
+    .modal-card{
+      width:min(100%, 420px);
+      background:#111;
+      color:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.45);
+    }
+    .modal-card h3{
+      margin:0 0 12px 0;
+      color:var(--accent);
+      font-size:20px;
+    }
+    .modal-line{
+      margin:8px 0;
+      color:var(--muted);
+      line-height:1.35;
+    }
+    .modal-label{
+      color:#fff;
+      font-weight:900;
+    }
+    .modal-list{
+      margin:10px 0 16px 18px;
+      padding:0;
+      color:var(--muted);
+    }
+    .modal-list li{margin:6px 0}
+    .modal-close{
+      width:100%;
+      background:var(--accent);
+      color:#000;
+      border:1px solid var(--accent);
+      padding:12px 10px;
+      border-radius:12px;
+      font-weight:900;
+      font-size:14px;
+    }
+    .modal-credit{
+      margin-top:10px;
+      text-align:center;
+      color:#9f9f9f;
+      font-size:11px;
+    }
+
+    .coach-card{display:none}
+    .coach-msg{color:var(--muted);margin-bottom:10px}
+    .coach-block{margin-top:14px}
+    .coach-title{color:var(--accent);display:block;font-size:12px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;font-weight:900}
+    .coach-list{display:grid;gap:8px}
+    .coach-item{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#151515;color:#fff;font-size:15px}
+    .convoc-card{display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:18px;background:#151515}
+    .convoc-list{display:grid;gap:8px;margin-top:10px}
+    .convoc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#101010;color:#fff;font-size:15px}
+    .convoc-item input{transform:scale(1.25)}
+    .convoc-result{display:none;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#101010;color:#fff}
+    .convoc-title{color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;margin-bottom:8px;display:block}
+    .convoc-action{margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#ffd400;color:#000;border:none}
+    .match-convoc-card{
+  border:1.5px solid rgba(255,212,0,0.6);
+  border-radius:16px;
+  padding:10px;
+  background:rgba(255,212,0,0.04);
 }
-
-.container { padding:20px; text-align:center; }
-.logo { width:130px; margin-top:20px; }
-
-h1 { font-size:28px; margin:10px 0; }
-
-.version {
-  background:var(--couleur-principale);
-  color:black;
-  padding:10px 20px;
-  border-radius:20px;
-  display:inline-block;
-  margin:10px;
-  font-weight:bold;
-}
-
-.menu {
+    .match-convoc-card h2{
+      margin:0 0 10px;
+      color:var(--accent);
+      font-size:24px;
+      line-height:1.1;
+    }
+    .match-convoc-sub{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:12px;
+    }
+    .match-convoc-list{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:15px;
-  margin-top:20px;
+  gap:6px;
+  margin-top:8px;
+}
+    .match-convoc-player{
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,212,0,0.4);
+  border-radius:8px;
+  padding:6px 8px;
+  font-size:15px;
+  font-weight:600;
+  color:#fff;
+  text-align:center;
+}
+    .match-convoc-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:8px;
+    }
+    .match-convoc-comment{
+      color:var(--accent);
+      font-size:13px;
+      line-height:1.25;
+      text-align:right;
+      max-width:55%;
+      font-weight:700;
+    }
+
+  /* Espacement boutons détail match */
+#btnReponseMatch,
+#btnCoachResponses,
+#mapsBlock {
+  margin-top:16px !important;
 }
 
-.card {
-  background:rgba(0,0,0,0.85);
-  border:2px solid var(--couleur-principale);
-  border-radius:20px;
-  padding:20px;
+.match-team-inline{
+  color:var(--accent);
+  font-size:17px;
+  font-weight:900;
+  text-align:right;
+}
+
+.match-detail-title{
+  text-align:center;
+}
+
+.match-season-top{
+  font-size:10px;
+  color:#bdbdbd;
+}
+
+
+/* Layout domicile officiel V40.2 corrigé */
+.domicile-officials-pro{
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+.officials-arbitres{
+  text-align:center;
+  margin-bottom:18px;
+}
+.officials-label{
+  color:var(--accent);
+  font-size:13px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:8px;
+}
+.officials-names{
+  color:#fff;
+  font-size:18px;
+  line-height:1.35;
+}
+.officials-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  text-align:center;
+}
+
+
+/* Convocation compacte SAFE */
+.match-convoc-card{
+  padding:18px !important;
+}
+/* Convocation titre discret */
+.match-convoc-card h3{
+  font-size:14px;
+  font-weight:600;
+  color:#999;
+  margin-bottom:4px;
+}
+.match-convoc-sub{
+  font-size:15px !important;
+  margin-bottom:8px !important;
+}
+.match-convoc-list{
+  display:block !important;
+  gap:0 !important;
+}
+.match-convoc-player{
+  background:transparent !important;
+  border:none !important;
+  padding:2px 0 !important;
+  text-align:left !important;
+  font-size:16px !important;
+  font-weight:600 !important;
+}
+
+
+/* Convocation titre discret forcé */
+#matchConvocationCard h3,
+#matchConvocationCard .match-convoc-title,
+.match-convoc-card h3,
+.match-convoc-title{
+  font-size:14px !important;
+  font-weight:600 !important;
+  color:#999 !important;
+  line-height:1.2 !important;
+  margin:0 0 4px 0 !important;
+  white-space:nowrap !important;
+}
+
+
+/* Apports publics domicile - mise en page compacte */
+.apports-card{
+  display:none;
+  margin-top:14px;
+  border:1px solid rgba(255,212,0,.45);
+  border-radius:18px;
+  padding:14px;
+  background:rgba(255,212,0,.035);
+}
+.apports-title{
+  color:var(--accent);
+  font-size:13px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:12px;
+}
+.apports-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.apport-box{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(0,0,0,.18);
+}
+.apports-kind{
+  color:#fff;
+  font-size:15px;
+  font-weight:900;
+  margin-bottom:6px;
+  white-space:nowrap;
+}
+.apports-count{
+  color:var(--accent);
+}
+.apports-list{
+  color:#d9d9d9;
+  font-size:14px;
+  line-height:1.35;
+}
+.apports-empty{
+  color:#777;
+}
+
+
+/* Titre apports plus naturel */
+.apports-title{
+  color:var(--accent) !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  margin-bottom:3px !important;
+}
+.apports-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.25;
+  margin-bottom:12px;
+}
+.apport-box{
+  padding:11px !important;
+}
+.apports-kind{
+  font-size:14px !important;
+}
+.apports-list{
+  font-size:14px !important;
+}
+
+
+/* Masquage badge type header V40.5 */
+#detailTypeTop{
+  display:none !important;
+}
+
+/* Apports V40.5 clean */
+.apports-card{
+  display:none;
+  margin-top:14px;
+  border:1px solid rgba(255,212,0,.42);
+  border-radius:18px;
+  padding:14px;
+  background:rgba(255,212,0,.035);
+}
+.apports-title{
+  color:var(--accent) !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  margin:0 0 3px 0 !important;
+}
+.apports-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.25;
+  margin-bottom:12px;
+}
+.apports-grid{
+  display:block !important;
+}
+.apport-box{
+  border:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  margin:0 0 12px 0 !important;
+}
+.apports-kind{
+  color:#fff !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  margin-bottom:4px !important;
+  white-space:nowrap;
+}
+.apports-count{
+  color:var(--accent);
+}
+.apports-list{
+  color:#d9d9d9 !important;
+  font-size:14px !important;
+  line-height:1.35 !important;
+}
+.apports-empty{
+  color:#777 !important;
+}
+
+
+/* Organisation match V40.6 */
+.apports-card{
+  display:none;
+  margin-top:14px;
+  border:1px solid rgba(255,212,0,.42);
+  border-radius:18px;
+  padding:14px;
+  background:rgba(255,212,0,.02) !important;
+}
+.apports-title{
+  color:var(--accent) !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  margin:0 0 3px 0 !important;
+}
+.apports-subtitle{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.25;
+  margin-bottom:12px;
+}
+.apports-grid{
+  display:block !important;
+}
+.apport-box{
+  border:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  margin:0 0 12px 0 !important;
+}
+.apports-kind{
+  color:var(--accent) !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  margin-bottom:4px !important;
+  white-space:nowrap;
+}
+.apports-count{
+  color:var(--accent);
+}
+.apports-list{
+  color:#fff !important;
+  font-size:14px !important;
+  line-height:1.45 !important;
+}
+.apports-empty{
+  color:#777 !important;
+}
+
+
+/* V40.9 merci organisation */
+.apports-ok{
+  color:#1faa59 !important;
+  font-weight:900;
+}
+.officials-thanks{
+  color:var(--accent);
+  font-size:18px;
+  font-weight:900;
+  text-align:center;
+  margin-bottom:16px;
+}
+
+/* V40.15 anti flash organisation */
+.apports-card{
+  display:none;
+}
+
+.btn-action{
+  background:#ffd400;
+  color:#000;
+  padding:10px 14px;
+  border-radius:10px;
+  text-decoration:none;
   font-weight:bold;
 }
 
-.footer {
-  color:var(--couleur-principale);
-  margin-top:15px;
+/* Bureau V40.29 */
+.bureau-member-card{
+  background:linear-gradient(180deg,#1a1a1a,#171717);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:18px;
+  margin-bottom:12px;
+}
+.bureau-member-name{
+  font-size:22px;
+  font-weight:900;
+  color:#fff;
+  margin-bottom:6px;
+}
+.bureau-member-role{
+  font-size:16px;
+  color:var(--accent);
+  font-weight:900;
+  margin-bottom:12px;
+}
+.bureau-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.bureau-action-btn{
+  display:inline-block;
+  text-decoration:none;
+  background:var(--accent);
+  color:#000;
+  padding:10px 13px;
+  border-radius:12px;
+  font-weight:900;
+  font-size:14px;
+}
+.bureau-info-muted{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.35;
+}
+
+
+/* =========================================================
+   V40.51 - Fond SVG HTML homogène + cartes transparentes
+   ========================================================= */
+html,body{min-height:100%;background:#000!important;color:#fff;}
+body::before,body::after{content:none!important;display:none!important;}
+#camSvgBackground{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#000;}
+#camSvgBackground svg{width:100vw;height:100vh;display:block;}
+body>*:not(#camSvgBackground){position:relative;z-index:1;}
+header,main,section,.screen,.container,.app,.wrapper,.page,.hero,.top,.app-header,.content,#home,#homeScreen,.home,.home-screen{background:transparent!important;}
+.card,.item,.match-card,.bureau-member-card,.convocation-card,.response-card,.menu-btn,.list-card,.team-card,.player-card{
+  background:rgba(0,0,0,.38)!important;
+  border:1px solid rgba(255,212,0,.34)!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.36);
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+input,textarea,select{
+  background:rgba(0,0,0,.45)!important;
+  border:1px solid rgba(255,212,0,.28)!important;
+  color:#fff!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+button,.menu-btn,.back{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transition:transform .12s ease;}
+button:active,.menu-btn:active,.back:active{transform:scale(.97);}
+.back{background:rgba(0,0,0,.42)!important;border:2px solid var(--accent,#ffd400)!important;color:var(--accent,#ffd400)!important;}
+hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!important;}
+.modal,#infoModal,.version-modal,.changelog-modal{
+  position:fixed!important;inset:0!important;z-index:99999!important;
+  align-items:center!important;justify-content:center!important;padding:18px!important;
+  background:rgba(0,0,0,.64)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+.modal.open,#infoModal.open,.version-modal.open,.changelog-modal.open,
+.modal[style*="display: block"],#infoModal[style*="display: block"],.version-modal[style*="display: block"],.changelog-modal[style*="display: block"]{display:flex!important;}
+.modal-content,.modal-box,.info-modal-content,#infoModal .card,#infoModal>div,.version-modal>div,.changelog-modal>div{
+  position:relative!important;margin:0 auto!important;max-width:420px!important;width:min(92vw,420px)!important;
+  max-height:80vh!important;overflow:auto!important;background:rgba(10,10,10,.94)!important;
+  border:1px solid rgba(255,212,0,.40)!important;border-radius:22px!important;box-shadow:0 20px 60px rgba(0,0,0,.75)!important;
+}
+
+</style>
+
+<style>
+/* Masquer champs inutiles */
+#detailPostal, #detailCity,
+#detailCompetition, #detailTour,
+#detailScore, #detailStatut {
+    display: none;
+}
+
+/* Masquer leurs labels */
+.detail-row:has(#detailPostal),
+.detail-row:has(#detailCity),
+.detail-row:has(#detailCompetition),
+.detail-row:has(#detailTour),
+.detail-row:has(#detailScore),
+.detail-row:has(#detailStatut) {
+    display: none;
+}
+
+/* Nouveau header détail match : on masque les anciennes lignes dupliquées */
+.detail-row:has(#detailDate),
+.detail-row:has(#detailTime),
+.detail-row:has(#detailType),
+.detail-row:has(#detailSeason),
+.detail-row:has(#detailOpponent) {
+    display: none;
+}
+
+
+.btn-action{
+  background:#ffd400;
+  color:#000;
+  padding:10px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:bold;
 }
 </style>
-</head>
 
+
+<style>
+#domicileOfficialsBlock{display:none}
+
+.btn-action{
+  background:#ffd400;
+  color:#000;
+  padding:10px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:bold;
+}
+</style>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="logo_32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="logo_192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="logo_180.png">
+<meta name="apple-mobile-web-app-title" content="CAM Basket">
+
+</head>
 <body>
 
-<div class="container">
-
-<img src="logo.png" class="logo">
-
-<h1>CAM Basket<br>Montrichard</h1>
-
-<div class="version">Version V40.45</div>
-
-<div id="message" class="footer">Chargement...</div>
-
-<div class="menu">
-<div class="card" onclick="window.location='equipes.html'">ÉQUIPES</div>
-<div class="card">BUREAU</div>
-<div class="card">BÉNÉVOLES</div>
-<div class="card">MISE À JOUR</div>
+<div id="camSvgBackground" aria-hidden="true">
+  <svg viewBox="0 0 390 844" preserveAspectRatio="none">
+    <defs>
+      <radialGradient id="g" cx="50%" cy="25%" r="75%">
+        <stop offset="0%" stop-color="#202020"/>
+        <stop offset="70%" stop-color="#070707"/>
+        <stop offset="100%" stop-color="#000000"/>
+      </radialGradient>
+    </defs>
+    <rect width="390" height="844" fill="url(#g)"/>
+    <g opacity="0.16" transform="translate(-120 135) scale(1.35)">
+      <ellipse cx="265" cy="220" rx="210" ry="170" fill="#666"/>
+      <path d="M80 345 C170 230 260 120 455 55" stroke="#050505" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <path d="M160 410 C205 300 270 185 475 90" stroke="#050505" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <path d="M40 235 C175 260 350 245 505 155" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
+      <path d="M275 50 C290 150 310 260 360 405" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
+    </g>
+    <g>
+      <path d="M0 0 H390 V20 C290 8 190 14 105 17 C45 18 18 12 0 6Z" fill="#ffd400"/>
+      <path d="M0 0 V844 H18 C9 744 14 636 12 520 C9 390 16 255 10 145 C6 68 12 25 0 0Z" fill="#ffd400"/>
+      <path d="M390 0 V844 H372 C381 744 376 636 378 520 C381 390 374 255 380 145 C384 68 378 25 390 0Z" fill="#ffd400"/>
+      <path d="M0 844 H390 V820 C310 834 238 828 150 824 C78 820 34 836 0 844Z" fill="#ffd400"/>
+      <path d="M0 30 C80 20 170 28 250 20 C315 14 356 22 390 28" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
+      <path d="M20 0 C10 90 30 175 19 265 C10 335 24 435 17 525 C10 635 24 745 18 844" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
+      <path d="M370 0 C380 90 360 175 371 265 C380 335 366 435 373 525 C380 635 366 745 372 844" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
+      <path d="M0 816 C78 830 160 812 252 824 C315 832 360 818 390 812" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
+    </g>
+  </svg>
 </div>
 
+  <header>
+    <div class="hero">
+      <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
+        <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
+      </button>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.51</span></div>
+      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
+      <div class="top-actions">
+        <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
+        <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
+        <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
+        <button id="btn-update" class="btn-outline" onclick="setActiveButton(null); reloadData()">Mettre à jour</button>
+      </div>
+      <div id="status" class="status">Chargement…</div>
+    </div>
+  </header>
+
+  <main>
+    <section id="teamsScreen" class="screen active">
+      <div class="card">
+        <h2>Équipes <span id="seasonBadge" class="pill"></span></h2>
+        <div class="muted">Saison active uniquement.</div>
+      </div>
+      <div class="toolbar">
+        <input id="teamSearch" class="search" type="text" placeholder="Rechercher une équipe" oninput="renderTeams()">
+      </div>
+      <div id="teamsList" class="list"></div>
+    </section>
+
+    <section id="teamMenuScreen" class="screen">
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour aux équipes</button>
+      <div class="card">
+        <h2 id="teamMenuTitle">Équipe</h2>
+        <div id="teamMenuSub" class="muted"></div>
+      </div>
+      <div class="grid-2">
+        <button class="menu-btn" onclick="openPlayers()">
+          <span class="big">👥 Joueurs</span>
+          <span class="small">Voir l’effectif de l’équipe</span>
+        </button>
+        <button class="menu-btn" onclick="openMatches()">
+          <span class="big">📅 Matchs</span>
+          <span class="small">Voir les matchs de l’équipe</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="playersScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
+      <div class="card">
+        <h2 id="playersTitle">Joueurs</h2>
+        <div class="muted">Liste filtrée sur l’équipe sélectionnée et la saison active.</div>
+      </div>
+      <div id="playersList" class="list"></div>
+    </section>
+
+    <section id="matchesScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
+      <div class="card">
+        <h2 id="matchesTitle">Matchs</h2>
+        <div class="muted">Clique sur un match pour voir le détail et ouvrir l’itinéraire.</div>
+      </div>
+      <div id="matchesList" class="list"></div>
+    </section>
+
+    <section id="matchDetailScreen" class="screen">
+      <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
+      <div class="card">
+        <div class="match-detail-header">
+          <div class="match-top-line">
+            <div id="detailSeasonTop" class="match-season-top">SAISON</div>
+            <div></div>
+            <div id="detailTeamInline" class="match-team-inline"></div>
+          </div>
+          <h2 id="detailTitle" class="match-detail-title">Détail match</h2>
+          <div class="match-date-time-row">
+            <span id="detailDateTop"></span>
+            <span id="detailTimeTop"></span>
+          </div>
+          <div id="detailTypeTop" class="match-type-top"></div>
+        </div>
+
+<div id="matchConvocationCard" class="match-convoc-card">
+        <h2>Convocation</h2>
+        <div id="matchConvocationSub" class="match-convoc-sub"></div>
+        <div id="matchConvocationList" class="match-convoc-list"></div>
+      </div>
+
+      
+        <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
+        <div id="matchApportsCard" class="apports-card">
+        <div class="apports-title">🏀 🏀 Merci à vous</div>
+        <div id="apportsSubtitle" class="apports-subtitle">Objectif : 2 boissons / 2 nourritures</div>
+
+        <div class="apports-grid">
+          <div id="apportsBoissonSection" class="apport-box">
+            <div id="apportsBoissonTitle" class="apports-kind">Boisson <span class="apports-count">0 / 2</span></div>
+            <div id="apportsBoissonList" class="apports-list"><span class="apports-empty">Aucun</span></div>
+          </div>
+
+          <div id="apportsNourritureSection" class="apport-box">
+            <div id="apportsNourritureTitle" class="apports-kind">Nourriture <span class="apports-count">0 / 2</span></div>
+            <div id="apportsNourritureList" class="apports-list"><span class="apports-empty">Aucun</span></div>
+          </div>
+
+          <div id="apportsMaillotsSection" class="apport-box">
+            <div id="apportsMaillotsTitle" class="apports-kind">Maillots</div>
+            <div id="apportsMaillotsList" class="apports-list"><span class="apports-empty">Aucun</span></div>
+          </div>
+        </div>
+      </div>
+
+        <div class="detail-row"><span class="detail-label">Date</span><span id="detailDate"></span></div>
+        <div class="detail-row"><span class="detail-label">Heure</span><span id="detailTime"></span></div>
+        <div class="detail-row"><span class="detail-label">Adversaire</span><span id="detailOpponent"></span></div>
+        <div class="detail-row"><span class="detail-label">Domicile / Extérieur</span><span id="detailType"></span></div>
+        <div class="detail-row"><span class="detail-label">📍 Gymnase</span><span id="detailGym"></span></div>
+        <div class="detail-row"><span class="detail-label">📬 Adresse</span><span id="detailAddress"></span></div>
+        <div class="detail-row"><span class="detail-label">Code postal</span><span id="detailPostal"></span></div>
+        <div class="detail-row"><span class="detail-label">Ville</span><span id="detailCity"></span></div>
+        <div class="detail-row"><span class="detail-label">Compétition</span><span id="detailCompetition"></span></div>
+        <div class="detail-row"><span class="detail-label">Tour</span><span id="detailTour"></span></div>
+        <div class="detail-row"><span class="detail-label">Score</span><span id="detailScore"></span></div>
+                <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
+        <div id="domicileOfficialsBlock">
+          <div class="domicile-officials-pro">
+            <div class="officials-thanks">👏 Merci aux officiels</div>
+            <div class="officials-arbitres">
+              <div class="officials-label">👨‍⚖️ Arbitres</div>
+              <div id="detailArbitres" class="officials-names">-</div>
+            </div>
+
+            <div class="officials-grid">
+              <div>
+                <div class="officials-label">⏱️ Chrono</div>
+                <div id="detailChrono" class="officials-names">-</div>
+              </div>
+              <div>
+                <div class="officials-label">📋 Table</div>
+                <div id="detailTable" class="officials-names">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="mapsBlock" style="margin-top:14px">
+          <a id="mapsLink" class="link-btn" target="_blank" rel="noopener noreferrer">📍 Ouvrir l’itinéraire</a>
+        </div>
+      </div>
+
+      <!-- MOVED CONVOCATION BLOCK -->
+<div id="coachResponsesCard" class="card coach-card">
+        <h2>Réponses coach</h2>
+        <div id="coachMsg" class="coach-msg">Aucune réponse chargée.</div>
+
+        <div class="coach-block">
+          <span class="coach-title">Présents</span>
+          <div id="coachPresents" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        <button id="btnFaireConvocationCoach" style="display:none;margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#0b0b0b;color:#fff;border:2px solid #ffd400;">
+          Faire la convocation
+        </button>
+
+        <div id="convocationSelectionCard" class="convoc-card">
+          <span class="convoc-title">Sélection des joueurs convoqués</span>
+          <div class="muted">Les joueurs présents sont pré-cochés. Tu peux ajuster.</div>
+          <div id="convocationList" class="convoc-list"></div>
+
+          <label for="convocationCommentaire" style="display:block;margin-top:12px;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;">
+            Commentaire coach
+          </label>
+          <textarea id="convocationCommentaire" placeholder="Ex : RDV 13h30, pensez à la gourde..." style="width:100%;min-height:70px;margin-top:6px;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0b0b0b;color:#fff;font-size:15px;box-sizing:border-box;"></textarea>
+
+          <button id="btnGenererConvocation" class="convoc-action">Générer la convocation</button>
+          <div id="convocationResult" class="convoc-result"></div>
+        </div>
+
+        <div class="coach-block">
+          <span class="coach-title">Absents</span>
+          <div id="coachAbsents" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        <div class="coach-block">
+          <span class="coach-title">Transport</span>
+          <div id="coachTransport" class="coach-list"><div class="muted">Aucun</div></div>
+        </div>
+
+        
 </div>
+    </section>
 
-<script>
-const URL_SCRIPT = "COLLE_TON_URL_ICI";
 
-fetch(URL_SCRIPT)
-.then(res => res.json())
-.then(data => {
-  let config = {};
-  data.forEach(l => config[l.clé] = l.valeur);
+    <section id="bureauScreen"  class="screen">
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <div class="card">
+        <h2>Bureau</h2>
+        <div class="muted">Membres du bureau de l’association.</div>
+      </div>
+      <div id="bureauList" class="list"></div>
+    </section>
 
-  if(config.message_accueil){
-    document.getElementById("message").innerText = config.message_accueil;
-  }
+    <section id="benevolesScreen" class="screen">
+      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <div class="card">
+        <h2>Bénévoles</h2>
+        <div class="muted">Bénévoles du club.</div>
+      </div>
+      <div id="benevolesList" class="list"></div>
+    </section>
+  </main>
 
-  if(config.couleur_principale){
-    document.documentElement.style.setProperty('--couleur-principale', config.couleur_principale);
-  }
-});
-</script>
+  <script>
+    const SHEET_ID = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
+    const SHEETS = {
+      parametres: "PARAMETRES",
+      equipes: "EQUIPES",
+      joueurs: "JOUEURS",
+      matchs: "MATCHS",
+      bureau: "BUREAU",
+      benevoles: "BENEVOLES",
+      convocations: "CONVOCATIONS"
+    };
 
+
+    const RESPONSE_SHEET_ID = SHEET_ID;
+    const RESPONSE_SHEET_NAME = "REPONSES";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
+    let lastCoachPresentPlayers = [];
+
+    let state = {
+      season: "",
+      equipes: [],
+      joueurs: [],
+      matchs: [],
+      bureau: [],
+      benevoles: [],
+      convocations: [],
+      selectedTeam: null,
+      currentMatchRows: [],
+      currentOpenMatch: null
+    };
+
+    function showScreen(id){
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function setStatus(text){ document.getElementById("status").textContent = text; }
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function normalize(str){
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .trim()
+        .toLowerCase();
+    }
+
+    function sameSeason(a, b){
+      const sa = normalize(String(a || ""));
+      const sb = normalize(String(b || ""));
+      if (!sa || !sb) return sa === sb;
+      if (sa === sb) return true;
+
+      const aParts = sa.split("/").map(x => x.trim()).filter(Boolean);
+      const bParts = sb.split("/").map(x => x.trim()).filter(Boolean);
+
+      if (aParts.length > 1 && bParts.length === 1 && aParts.includes(sb)) return true;
+      if (bParts.length > 1 && aParts.length === 1 && bParts.includes(sa)) return true;
+
+      return false;
+    }
+
+    function badgeForType(type){
+      const t = normalize(type);
+      const isHome = ["d","dom","domicile"].includes(t);
+      const isAway = ["e","ext","exterieur","extérieur"].includes(t);
+      if (isHome) return { label: "Domicile", badge: '<span class="badge-home">Domicile</span>' };
+      if (isAway) return { label: "Extérieur", badge: '<span class="badge-away">Extérieur</span>' };
+      return { label: String(type || "-"), badge: "" };
+    }
+
+    async function fetchRows(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      const json = JSON.parse(txt.substring(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
+      const cols = json.table.cols.map(c => c.label || c.id || "");
+      return (json.table.rows || []).map(r => cols.map((col, i) => {
+        const cell = r.c[i];
+        if (!cell) return "";
+        if (cell.f !== null && cell.f !== undefined && String(cell.f).trim() !== "") return String(cell.f);
+        if (cell.v !== null && cell.v !== undefined) return String(cell.v);
+        return "";
+      }));
+    }
+
+    function parseCsvLine(line){
+      const out = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === "," && !inQuotes) {
+          out.push(cur);
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      out.push(cur);
+      return out;
+    }
+
+    async function fetchRowsCsv(sheetName){
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+      const res = await fetch(url);
+      const txt = await res.text();
+      return txt
+        .replace(/^\uFEFF/, "")
+        .split(/\r?\n/)
+        .filter(line => line.trim() !== "")
+        .map(parseCsvLine)
+        .map(row => row.map(cell => String(cell || "").trim()));
+    }
+
+    function findSeason(paramRows){
+      for (const row of paramRows) {
+        const left = normalize(row[0]);
+        const right = String(row[1] || "").trim();
+        if (left === "saison active") return right;
+      }
+      return "";
+    }
+
+    async function reloadData(){
+      try{
+        setStatus("Chargement des données…");
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows] = await Promise.all([
+          fetchRows(SHEETS.parametres),
+          fetchRows(SHEETS.equipes),
+          fetchRowsCsv(SHEETS.joueurs),
+          fetchRows(SHEETS.matchs),
+          fetchRows(SHEETS.bureau),
+          fetchRows(SHEETS.benevoles),
+          fetchRowsCsv(SHEETS.convocations)
+        ]);
+
+        state.season = findSeason(paramRows);
+
+        state.equipes = eqRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          categorie: String(r[2] || "").trim(),
+          coach: String(r[3] || "").trim()
+        })).filter(x => x.equipe && normalize(x.saison) !== "saison");
+
+        state.joueurs = jrRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          joueur: String(r[2] || "").trim(),
+          licence: String(r[3] || "").trim(),
+          numero: String(r[4] || "").trim(),
+          poste: String(r[5] || "").trim(),
+          code: String(r[6] || "").trim()
+        })).filter(x => x.joueur && normalize(x.saison) !== "saison");
+
+        // MATCHS attendu :
+        // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
+        // G Gymnase | H Adresse | I Code postal | J Ville | K Arbitre 1 | L Arbitre 2 | M Chrono | N Table
+        state.matchs = mtRows.map(r => ({
+          saison: String(r[0] || "").trim(),
+          equipe: String(r[1] || "").trim(),
+          date: String(r[2] || "").trim(),
+          heure: String(r[3] || "").trim(),
+          adversaire: String(r[4] || "").trim(),
+          type: String(r[5] || "").trim(),
+          gymnase: String(r[6] || "").trim(),
+          adresse: String(r[7] || "").trim(),
+          codePostal: String(r[8] || "").trim(),
+          ville: String(r[9] || "").trim(),
+          arbitre1: String(r[10] || "").trim(),
+          arbitre2: String(r[11] || "").trim(),
+          chrono: String(r[12] || "").trim(),
+          table: String(r[13] || "").trim()
+        })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
+
+        state.bureau = bureauRows.map(r => ({
+          nom: String(r[0] || "").trim(),
+          fonction: String(r[1] || "").trim(),
+          telephone: String(r[2] || "").trim(),
+          email: String(r[3] || "").trim()
+        })).filter(x => {
+          const n = normalize(x.nom);
+          return x.nom &&
+            n !== "nom" &&
+            n !== "cle" &&
+            n !== "clé" &&
+            n !== "saison active" &&
+            n !== "club";
+        });
+
+        state.benevoles = benevoleRows.map(r => ({
+          nom: String(r[0] || "").trim(),
+          role: String(r[1] || "").trim(),
+          telephone: String(r[2] || "").trim(),
+          email: String(r[3] || "").trim()
+        })).filter(x => x.nom && normalize(x.nom) !== "nom");
+
+        state.convocations = (convocationRows || []).map(r => ({
+          date: String(r[0] || "").trim(),
+          match: String(r[1] || "").trim(),
+          equipe: String(r[2] || "").trim(),
+          joueur: String(r[3] || "").trim(),
+          statut: String(r[4] || "").trim(),
+          commentaire: String(r[5] || "").trim(),
+          codeCoach: String(r[6] || "").trim()
+        })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
+
+        document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
+        renderTeams();
+        renderBureau();
+        renderBenevoles();
+        setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
+      } catch(err){
+        console.error(err);
+        setStatus("Erreur de chargement");
+        document.getElementById("teamsList").innerHTML =
+          '<div class="empty">Impossible de charger les données. Vérifie les feuilles PARAMETRES, EQUIPES, JOUEURS, MATCHS.</div>';
+      }
+    }
+
+    function renderTeams(){
+      const el = document.getElementById("teamsList");
+      const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
+
+      let teams = state.equipes.filter(t => !state.season || sameSeason(t.saison, state.season));
+      if(q){ teams = teams.filter(t => t.equipe.toLowerCase().includes(q)); }
+
+      if(!teams.length){
+        el.innerHTML = '<div class="empty">Aucune équipe trouvée pour la saison active.</div>';
+        return;
+      }
+
+      el.innerHTML = teams.map(t => `
+        <div class="item" data-team="${escapeHtml(t.equipe)}" data-cat="${escapeHtml(t.categorie)}" data-coach="${escapeHtml(t.coach)}">
+          <div class="item-title">${escapeHtml(t.equipe)}</div>
+          <div class="item-sub">${escapeHtml(t.categorie || "Catégorie non renseignée")} ${t.coach ? "• Coach : " + escapeHtml(t.coach) : ""}</div>
+        </div>
+      `).join("");
+
+      el.querySelectorAll(".item").forEach(node => {
+        node.addEventListener("click", () => selectTeam(node.dataset.team, node.dataset.cat, node.dataset.coach));
+      });
+    }
+
+    function selectTeam(team, cat, coach){
+      state.selectedTeam = { team, cat, coach };
+      document.getElementById("teamMenuTitle").textContent = team;
+      document.getElementById("teamMenuSub").textContent = [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
+      showScreen("teamMenuScreen");
+    }
+
+    function openPlayers(){
+      const team = state.selectedTeam?.team || "";
+      document.getElementById("playersTitle").textContent = "Joueurs — " + team;
+      const rows = state.joueurs.filter(j => j.equipe === team && (!state.season || sameSeason(j.saison, state.season)));
+
+      const el = document.getElementById("playersList");
+      if(!rows.length){
+        el.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette équipe et cette saison.</div>';
+      } else {
+        el.innerHTML = rows.map(j => `
+          <div class="item">
+            <div class="item-title">${j.numero ? "#" + escapeHtml(j.numero) + " — " : ""}${escapeHtml(j.joueur)}</div>
+            <div class="item-sub">${(() => {
+              const lic = String(j.licence ?? "").trim();
+              return lic !== "" ? "Licence : " + escapeHtml(lic) : "Licence non renseignée";
+            })()}</div>
+            <div class="item-sub">${j.poste ? "Poste : " + escapeHtml(j.poste) : ""}</div>
+          </div>
+        `).join("");
+      }
+      showScreen("playersScreen");
+    }
+
+
+    function isHomeType(type){
+      return ["d","dom","domicile"].includes(normalize(type));
+    }
+
+    function buildMatchDisplay(m){
+      return isHomeType(m.type)
+        ? `Montrichard ${m.equipe} vs ${m.adversaire}`
+        : `${m.adversaire} vs Montrichard ${m.equipe}`;
+    }
+
+    function buildMatchTitleHtml(m){
+      const homeClub = "Montrichard";
+      const adversaire = escapeHtml(m.adversaire || "-");
+
+      if (isHomeType(m.type)) {
+        return `<span class="vs-line">${homeClub}</span><span class="vs-small">vs</span><span class="vs-line">${adversaire}</span>`;
+      }
+
+      return `<span class="vs-line">${adversaire}</span><span class="vs-small">vs</span><span class="vs-line">${homeClub}</span>`;
+    }
+
+
+
+    function buildMatchKey(m){
+      return [
+        m.equipe || "",
+        m.adversaire || "",
+        badgeForType(m.type).label || "",
+        m.date || "",
+        m.heure || ""
+      ].map(x => normalize(x)).join("|");
+    }
+
+    function rowArrayToObject(headers, row){
+      const obj = {};
+      headers.forEach((h, i) => obj[String(h || "").trim()] = String(row[i] || "").trim());
+      return obj;
+    }
+
+    function buildResponseMatchKeyFromText(matchText){
+      let txt = String(matchText || "").replace(/\s+/g, " ").trim();
+
+      const type = /\bdomicile\b/i.test(txt) ? "domicile" : (/\bextérieur\b|\bexterieur\b/i.test(txt) ? "extérieur" : "");
+      const dateMatch = txt.match(/\b\d{1,2}\/\d{1,2}\/\d{4}\b|\b\d{4}-\d{2}-\d{2}\b/);
+      const heureMatch = txt.match(/\b\d{1,2}h\d{2}\b|\b\d{1,2}:\d{2}\b/);
+
+      let date = dateMatch ? dateMatch[0] : "";
+      let heure = heureMatch ? heureMatch[0].replace(":", "h") : "";
+      let equipe = "";
+      let adversaire = "";
+
+      // Nouveau format clé stricte : equipe|adversaire|type|date|heure
+      const pipeParts = txt.split("|").map(x => x.trim());
+      if (pipeParts.length >= 5) {
+        equipe = pipeParts[0] || "";
+        adversaire = pipeParts[1] || "";
+        const t = pipeParts[2] || "";
+        date = pipeParts[3] || date;
+        heure = (pipeParts[4] || heure).replace(":", "h");
+        return [equipe, adversaire, badgeForType(t).label, date, heure].map(x => normalize(x)).join("|");
+      }
+
+      // Format actuel formulaire : "Montrichard U18M-1 vs Montils - 18/05/2026 - 20h00 - Domicile"
+      const dashParts = txt.split(" - ").map(x => x.trim());
+      const title = dashParts[0] || txt;
+
+      if (dashParts.length >= 4) {
+        date = dashParts[1] || date;
+        heure = (dashParts[2] || heure).replace(":", "h");
+      }
+
+      if (title.includes(" vs ")) {
+        const parts = title.split(" vs ").map(x => x.trim());
+        const left = parts[0] || "";
+        const right = parts[1] || "";
+
+        if (normalize(left).startsWith("montrichard ")) {
+          equipe = left.replace(/^Montrichard\s+/i, "").trim();
+          adversaire = right;
+        } else if (normalize(right).startsWith("montrichard ")) {
+          adversaire = left;
+          equipe = right.replace(/^Montrichard\s+/i, "").trim();
+        } else {
+          equipe = left;
+          adversaire = right;
+        }
+      }
+
+      return [equipe, adversaire, type, date, heure].map(x => normalize(x)).join("|");
+    }
+
+    function responseMatchesCurrentMatch(responseMatchText, currentMatch){
+      if (!currentMatch) return false;
+
+      const responseKey = buildResponseMatchKeyFromText(responseMatchText);
+      const currentKey = buildMatchKey(currentMatch);
+
+      // Match strict obligatoire : équipe + adversaire + type + date + heure.
+      // Évite qu'une réponse d'un match à 14h00 soit reprise sur le match à 20h00.
+      return responseKey === currentKey;
+    }
+
+
+    function parseMatchDateTime(m){
+      const dateTxt = String(m.date || "").trim();
+      const heureTxt = String(m.heure || "00:00").trim().replace("h", ":");
+
+      let year = 0, month = 0, day = 0;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateTxt)) {
+        const p = dateTxt.split("-");
+        year = Number(p[0]);
+        month = Number(p[1]);
+        day = Number(p[2]);
+      } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateTxt)) {
+        const p = dateTxt.split("/");
+        day = Number(p[0]);
+        month = Number(p[1]);
+        year = Number(p[2]);
+      } else if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(dateTxt)) {
+        const p = dateTxt.split("-");
+        day = Number(p[0]);
+        month = Number(p[1]);
+        year = Number(p[2]);
+      }
+
+      const hp = heureTxt.split(":");
+      const hour = Number(hp[0] || 0);
+      const minute = Number(hp[1] || 0);
+
+      if (!year || !month || !day) return new Date(9999, 11, 31);
+      return new Date(year, month - 1, day, hour, minute);
+    }
+
+    function isPastMatch(m){
+      return parseMatchDateTime(m) < new Date();
+    }
+
+    function openMatches(){
+      const team = state.selectedTeam?.team || "";
+      document.getElementById("matchesTitle").textContent = "Matchs — " + team;
+
+      const allRows = state.matchs
+        .filter(m => m.equipe === team && (!state.season || sameSeason(m.saison, state.season)))
+        .sort((a, b) => parseMatchDateTime(a) - parseMatchDateTime(b));
+
+      const futurs = allRows.filter(m => !isPastMatch(m));
+      const passes = allRows.filter(m => isPastMatch(m));
+
+      state.currentMatchRows = [...futurs, ...passes];
+
+      const el = document.getElementById("matchesList");
+      if(!state.currentMatchRows.length){
+        el.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe et cette saison.</div>';
+      } else {
+        function renderGroup(title, rows, startIndex, past){
+          if (!rows.length) return "";
+          return `
+            <div class="match-section-title">${title}</div>
+            ${rows.map((m, idx) => {
+              const realIdx = startIndex + idx;
+              const typeInfo = badgeForType(m.type);
+              const lieuLigne = [m.gymnase, m.ville].filter(Boolean).join(" • ");
+              const pastBadge = past ? '<span class="match-lock">PASSÉ 🔒</span>' : "";
+              return `
+                <div class="item ${past ? "match-past" : ""}" data-idx="${realIdx}">
+                  <div class="item-title">${escapeHtml(m.date)} ${typeInfo.badge}${pastBadge}</div>
+                  <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(buildMatchDisplay(m))}</div>
+                  ${!isHomeType(m.type) ? `<div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>` : ""}
+                </div>
+              `;
+            }).join("")}
+          `;
+        }
+
+        el.innerHTML =
+          renderGroup("Matchs à venir", futurs, 0, false) +
+          renderGroup("Matchs passés", passes, futurs.length, true);
+
+        el.querySelectorAll(".item").forEach(node => {
+          node.addEventListener("click", () => openMatchDetail(Number(node.dataset.idx)));
+        });
+      }
+      showScreen("matchesScreen");
+    }
+
+    function openMatchDetail(idx){
+      const m = state.currentMatchRows[idx];
+      state.currentOpenMatch = m;
+      const matchPast = isPastMatch(m);
+      const typeInfo = badgeForType(m.type);
+      const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
+
+      document.getElementById("detailTitle").innerHTML = buildMatchTitleHtml(m);
+      document.getElementById("detailSeasonTop").textContent = badgeForType(m.type).label || "-";
+      document.getElementById("detailTeamInline").textContent = m.equipe || "";
+      document.getElementById("detailDateTop").textContent = m.date || "-";
+      document.getElementById("detailTimeTop").textContent = m.heure || "-";
+      document.getElementById("detailTypeTop").textContent = badgeForType(m.type).label || "-";
+      const pastNotice = document.getElementById("pastMatchNotice");
+      if (pastNotice) pastNotice.style.display = matchPast ? "block" : "none";
+      document.getElementById("detailDate").textContent = m.date || "-";
+      document.getElementById("detailTime").textContent = m.heure || "-";
+      document.getElementById("detailOpponent").textContent = m.adversaire || "-";
+      document.getElementById("detailType").textContent = typeInfo.label || "-";
+      document.getElementById("detailGym").textContent = m.gymnase || "-";
+      document.getElementById("detailAddress").innerHTML =
+        (m.adresse ? m.adresse + "<br>" : "") +
+        ((m.codePostal || "") + " " + (m.ville || "")).trim();
+      document.getElementById("detailPostal").textContent = "";
+      document.getElementById("detailCity").textContent = "";
+      document.getElementById("detailCompetition").textContent = m.competition || "-";
+      document.getElementById("detailTour").textContent = m.tour || "-";
+      document.getElementById("detailScore").textContent = m.score || "-";
+      document.getElementById("detailSeason").textContent = m.saison || "-";
+
+      const isHome = ["d","dom","domicile"].includes(normalize(m.type));
+
+      const addressRow = document.getElementById("detailAddress")?.closest(".detail-row");
+      const mapsBlock = document.getElementById("mapsBlock");
+
+      if (addressRow) addressRow.style.display = isHome ? "none" : "block";
+      if (mapsBlock) mapsBlock.style.display = isHome ? "none" : "block";
+
+      const officialsBlock = document.getElementById("domicileOfficialsBlock");
+      if (isHome) {
+        officialsBlock.style.display = "block";
+
+        const arbitres = [m.arbitre1, m.arbitre2]
+          .map(x => String(x || "").trim())
+          .filter(Boolean)
+          .join("<br>");
+
+        const chrono = String(m.chrono || "").trim();
+        const table = String(m.table || "").trim();
+
+        document.getElementById("detailArbitres").innerHTML = arbitres || "-";
+        document.getElementById("detailChrono").textContent = chrono || "-";
+        document.getElementById("detailTable").innerHTML = table ? table.replace(/[,;]/g, "<br>") : "-";
+      } else {
+        officialsBlock.style.display = "none";
+        document.getElementById("detailArbitres").innerHTML = "";
+        document.getElementById("detailChrono").textContent = "";
+        document.getElementById("detailTable").innerHTML = "";
+      }
+
+      document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
+      
+let bouton = document.getElementById("btnReponseMatch");
+
+if(!bouton){
+  bouton = document.createElement("button");
+  bouton.id = "btnReponseMatch";
+  bouton.style.marginTop = "12px";
+  bouton.style.width = "100%";
+  bouton.style.padding = "14px";
+  bouton.style.fontWeight = "900";
+  bouton.style.borderRadius = "14px";
+  bouton.style.background = "#ffd400";
+  bouton.style.border = "none";
+  bouton.style.color = "#000";
+  bouton.innerText = "Répondre au match";
+
+  document.querySelector("#matchDetailScreen .card").appendChild(bouton);
+}
+
+if (matchPast) {
+  bouton.style.display = "none";
+} else {
+  bouton.style.display = "block";
+  bouton.onclick = function(){
+    ouvrirFormulaire(
+      buildMatchKey(m),
+      m.equipe,
+      m.type,
+      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+    );
+  };
+}
+
+let boutonCoach = document.getElementById("btnCoachResponses");
+
+if(!boutonCoach){
+  boutonCoach = document.createElement("button");
+  boutonCoach.id = "btnCoachResponses";
+  boutonCoach.style.marginTop = "12px";
+  boutonCoach.style.width = "100%";
+  boutonCoach.style.padding = "14px";
+  boutonCoach.style.fontWeight = "900";
+  boutonCoach.style.borderRadius = "14px";
+  boutonCoach.innerText = "Réponses coach";
+  document.querySelector("#matchDetailScreen .card").appendChild(boutonCoach);
+}
+
+if (matchPast) {
+  boutonCoach.style.display = "none";
+} else {
+  boutonCoach.style.display = "block";
+  boutonCoach.onclick = function(){
+    loadCoachResponses(
+      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+    );
+  };
+}
+
+
+
+document.addEventListener("click", function(e){
+      if(e.target && e.target.id === "btnFaireConvocationCoach"){
+
+        const codeCoach = prompt("Code coach ?");
+
+        if (!codeCoach || !codeCoach.trim()){
+          alert("Code requis");
+          return;
+        }
+
+        state.codeCoach = codeCoach.trim();
+
+        ouvrirSelectionConvocation();
+      }
+      if(e.target && e.target.id === "btnGenererConvocation"){
+        genererConvocation();
+      }
+    });
+
+afficherConvocationDansMatch([]);
+coachCardReset();
+chargerConvocationEnregistree(m);
+      loadApportsDomicile();
+showScreen("matchDetailScreen");
+
+    }
+
+
+
+    function coachCardReset(){
+      document.getElementById("coachResponsesCard").style.display = "none";
+      document.getElementById("coachMsg").textContent = "Aucune réponse chargée.";
+      document.getElementById("coachPresents").innerHTML = '<div class="muted">Aucun</div>';
+      document.getElementById("coachAbsents").innerHTML = '<div class="muted">Aucun</div>';
+      document.getElementById("coachTransport").innerHTML = '<div class="muted">Aucun</div>';
+      const btnConvoc = document.getElementById("btnFaireConvocationCoach");
+      if (btnConvoc) btnConvoc.style.display = "none";
+      const convocCard = document.getElementById("convocationSelectionCard");
+      if (convocCard) convocCard.style.display = "none";
+      const convocList = document.getElementById("convocationList");
+      if (convocList) convocList.innerHTML = "";
+      const convocResult = document.getElementById("convocationResult");
+      if (convocResult) {
+        convocResult.style.display = "none";
+        convocResult.innerHTML = "";
+      }
+      const commentaireConvoc = document.getElementById("convocationCommentaire");
+      if (commentaireConvoc) commentaireConvoc.value = "";
+      lastCoachPresentPlayers = [];
+    }
+
+    function getRowValue(row, wanted){
+      const target = normalize(wanted);
+      for (const key in row){
+        if (normalize(key) === target) return String(row[key] || "").trim();
+      }
+      return "";
+    }
+
+    async function loadCoachResponses(matchText){
+      const card = document.getElementById("coachResponsesCard");
+      const msg = document.getElementById("coachMsg");
+      const presents = document.getElementById("coachPresents");
+      const absents = document.getElementById("coachAbsents");
+      const transport = document.getElementById("coachTransport");
+
+      card.style.display = "block";
+      msg.textContent = "Chargement des réponses coach…";
+      presents.innerHTML = '<div class="muted">Chargement…</div>';
+      absents.innerHTML = '<div class="muted">Chargement…</div>';
+      transport.innerHTML = '<div class="muted">Chargement…</div>';
+
+      try{
+        const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
+
+        if (!csvRows || csvRows.length < 2) {
+          msg.textContent = "Aucune réponse reçue pour ce match.";
+          presents.innerHTML = '<div class="muted">Aucun</div>';
+          absents.innerHTML = '<div class="muted">Aucun</div>';
+          transport.innerHTML = '<div class="muted">Aucun</div>';
+          return;
+        }
+
+        const headers = csvRows[0];
+        const rows = csvRows.slice(1).map(r => rowArrayToObject(headers, r));
+
+        const filtered = rows.filter(row => {
+          const matchText = getRowValue(row, "Match");
+          const txt = normalize(matchText);
+
+          const equipeOk = txt.includes(normalize(state.currentOpenMatch.equipe));
+          const adversaireOk = txt.includes(normalize(state.currentOpenMatch.adversaire));
+          const dateOk = txt.includes(normalize(state.currentOpenMatch.date));
+
+          const heureMatch = normalize(state.currentOpenMatch.heure);
+          const heureOk = !heureMatch || txt.includes(heureMatch);
+
+          return equipeOk && adversaireOk && dateOk && heureOk;
+        });
+
+        // Anti-doublons : on garde uniquement la dernière réponse par joueur
+        const uniqueByPlayer = {};
+        filtered.forEach(row => {
+          const prenomKey = normalize(getRowValue(row, "Prénom") || getRowValue(row, "Prenom"));
+          if (prenomKey) uniqueByPlayer[prenomKey] = row;
+        });
+        const cleanRows = Object.values(uniqueByPlayer);
+
+        const presentItems = [];
+        const absentItems = [];
+        const transportItems = [];
+        lastCoachPresentPlayers = [];
+
+        cleanRows.forEach(row => {
+          const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+          const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
+          const mode = getRowValue(row, "Transport");
+          const places = getRowValue(row, "Places");
+          const commentaire = getRowValue(row, "Commentaire");
+
+          if (presence === "Présent") {
+            if (prenom) {
+              lastCoachPresentPlayers.push({
+                prenom,
+                transport: mode || "",
+                places: places || "",
+                commentaire: commentaire || ""
+              });
+            }
+            presentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${mode ? ` — ${escapeHtml(mode)}` : ""}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
+          } else if (presence === "Absent") {
+            absentItems.push(`<div class="coach-item">${escapeHtml(prenom)}${commentaire ? `<br><span class="muted">${escapeHtml(commentaire)}</span>` : ""}</div>`);
+          }
+
+          if (mode) {
+            transportItems.push(`<div class="coach-item">${escapeHtml(prenom)} — ${escapeHtml(mode)}${places ? ` (${escapeHtml(places)} place${String(places)==="1"?"":"s"})` : ""}</div>`);
+          }
+        });
+
+        msg.textContent = filtered.length
+          ? `${filtered.length} réponse(s) reçue(s) — ${cleanRows.length} joueur(s) unique(s)`
+          : "Aucune réponse reçue pour ce match.";
+        presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
+        absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
+        transport.innerHTML = transportItems.length ? transportItems.join("") : '<div class="muted">Aucun</div>';
+
+        const btnConvoc = document.getElementById("btnFaireConvocationCoach");
+        if (btnConvoc) btnConvoc.style.display = presentItems.length ? "block" : "none";
+      } catch(err){
+        console.error(err);
+        msg.textContent = "Impossible de charger les réponses coach.";
+        presents.innerHTML = '<div class="muted">Aucun</div>';
+        absents.innerHTML = '<div class="muted">Aucun</div>';
+        transport.innerHTML = '<div class="muted">Aucun</div>';
+      }
+    }
+
+
+
+    function resetApportsDomicile(){
+      const card = document.getElementById("matchApportsCard");
+      if (card) card.style.display = "none";
+
+      const bTitle = document.getElementById("apportsBoissonTitle");
+      const nTitle = document.getElementById("apportsNourritureTitle");
+      const mTitle = document.getElementById("apportsMaillotsTitle");
+      const bList = document.getElementById("apportsBoissonList");
+      const nList = document.getElementById("apportsNourritureList");
+      const mList = document.getElementById("apportsMaillotsList");
+      const subtitle = document.getElementById("apportsSubtitle");
+
+      if (bTitle) bTitle.innerHTML = 'Boisson <span class="apports-count">0 / 2</span>';
+      if (nTitle) nTitle.innerHTML = 'Nourriture <span class="apports-count">0 / 2</span>';
+      if (mTitle) mTitle.textContent = "Maillots";
+      if (bList) bList.innerHTML = '<span class="apports-empty">Aucun</span>';
+      if (nList) nList.innerHTML = '<span class="apports-empty">Aucun</span>';
+      if (mList) mList.innerHTML = '<span class="apports-empty">Aucun</span>';
+      if (subtitle) subtitle.textContent = "Objectif : 2 boissons / 2 nourritures";
+    }
+
+    async function loadApportsDomicile(){
+      const m = state.currentOpenMatch;
+      const card = document.getElementById("matchApportsCard");
+      if (!card || !m) {
+        resetApportsDomicile();
+        return;
+      }
+
+      const isHome = isHomeType(m.type);
+      const boissonSection = document.getElementById("apportsBoissonSection");
+      const nourritureSection = document.getElementById("apportsNourritureSection");
+      const subtitle = document.getElementById("apportsSubtitle");
+
+      card.style.display = "none";
+      if (boissonSection) boissonSection.style.display = isHome ? "block" : "none";
+      if (nourritureSection) nourritureSection.style.display = isHome ? "block" : "none";
+      if (subtitle) subtitle.textContent = isHome ? "Objectif : 2 boissons / 2 nourritures" : "Qui prend les maillots ?";
+
+      try{
+        const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
+        if (!csvRows || csvRows.length < 2) {
+          resetApportsDomicile();
+          return;
+        }
+
+        const headers = csvRows[0];
+        const rows = csvRows.slice(1).map(r => rowArrayToObject(headers, r));
+        const filtered = rows.filter(row => responseMatchesCurrentMatch(getRowValue(row, "Match"), m));
+
+        // Dernière réponse par joueur uniquement
+        const uniqueByPlayer = {};
+        filtered.forEach(row => {
+          const prenomKey = normalize(getRowValue(row, "Prénom") || getRowValue(row, "Prenom"));
+          if (prenomKey) uniqueByPlayer[prenomKey] = row;
+        });
+        const cleanRows = Object.values(uniqueByPlayer);
+
+        const boissons = [];
+        const nourritures = [];
+        const maillots = [];
+
+        cleanRows.forEach(row => {
+          const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+          const presence = getRowValue(row, "Présence") || getRowValue(row, "Presence");
+          const apport = getRowValue(row, "Apport");
+
+          if (presence !== "Présent") return;
+
+          if (normalize(apport).includes("boisson")) boissons.push(prenom);
+          if (normalize(apport).includes("nourriture")) nourritures.push(prenom);
+          if (normalize(apport).includes("maillot")) maillots.push(prenom);
+        });
+
+        const hasAnyOrganisation =
+          boissons.length > 0 ||
+          nourritures.length > 0 ||
+          maillots.length > 0;
+
+        if (!hasAnyOrganisation) {
+          resetApportsDomicile();
+          return;
+        }
+
+        card.style.display = "block";
+
+        document.getElementById("apportsBoissonTitle").innerHTML =
+          boissons.length >= 2
+            ? `Boisson <span class="apports-count">${boissons.length} / 2</span> <span class="apports-ok">✅</span>`
+            : `Boisson <span class="apports-count">${boissons.length} / 2</span>`;
+
+        document.getElementById("apportsNourritureTitle").innerHTML =
+          nourritures.length >= 2
+            ? `Nourriture <span class="apports-count">${nourritures.length} / 2</span> <span class="apports-ok">✅</span>`
+            : `Nourriture <span class="apports-count">${nourritures.length} / 2</span>`;
+
+        document.getElementById("apportsMaillotsTitle").innerHTML =
+          maillots.length >= 1
+            ? `Maillots <span class="apports-ok">✅</span>`
+            : "Maillots";
+
+        document.getElementById("apportsBoissonList").innerHTML = boissons.length
+          ? boissons.map(n => `<div>• ${escapeHtml(n)}</div>`).join("")
+          : '<span class="apports-empty">Aucun</span>';
+
+        document.getElementById("apportsNourritureList").innerHTML = nourritures.length
+          ? nourritures.map(n => `<div>• ${escapeHtml(n)}</div>`).join("")
+          : '<span class="apports-empty">Aucun</span>';
+
+        document.getElementById("apportsMaillotsList").innerHTML = maillots.length
+          ? maillots.map(n => `<div>• ${escapeHtml(n)}</div>`).join("")
+          : '<span class="apports-empty">Aucun</span>';
+
+      } catch(err){
+        console.error(err);
+        resetApportsDomicile();
+        if (card) card.style.display = "block";
+      }
+    }
+
+
+    
+
+
+function renderBureau(){
+      const el = document.getElementById("bureauList");
+      if (!el) return;
+
+      const rows = (state.bureau || []).filter(m => {
+        const nom = String(m.nom || "").trim();
+        const role = String(m.fonction || m.role || "").trim();
+        const n = normalize(nom);
+        const r = normalize(role);
+
+        return nom &&
+          n !== "nom" &&
+          n !== "cle" &&
+          n !== "clé" &&
+          n !== "saison active" &&
+          n !== "club" &&
+          r !== "valeur";
+      });
+
+      if (!rows.length) {
+        el.innerHTML = '<div class="empty">Aucun membre du bureau renseigné.<br><br>Vérifie l’onglet BUREAU : ligne 1 = Nom | Rôle | Téléphone | Email.</div>';
+        return;
+      }
+
+      el.innerHTML = rows.map(m => {
+        const nom = String(m.nom || "").trim();
+        const role = String(m.fonction || m.role || "").trim();
+        const telephoneRaw = String(m.telephone || "").trim();
+        const telephone = telephoneRaw.replace(/[\s.-]/g, "");
+        const email = String(m.email || "").trim();
+
+        const telBtn = telephone
+          ? `<a class="bureau-action-btn" href="tel:${escapeHtml(telephone)}">📞 Appeler</a>`
+          : "";
+
+        const mailBtn = email && email.includes("@")
+          ? `<a class="bureau-action-btn" href="mailto:${escapeHtml(email)}">✉️ Mail</a>`
+          : "";
+
+        return `
+          <div class="bureau-member-card">
+            <div class="bureau-member-name">${escapeHtml(nom)}</div>
+            <div class="bureau-member-role">${escapeHtml(role || "Membre du bureau")}</div>
+            ${telBtn || mailBtn ? `<div class="bureau-actions">${telBtn}${mailBtn}</div>` : `<div class="bureau-info-muted">Contact non renseigné</div>`}
+          </div>
+        `;
+      }).join("");
+    }
+
+
+    function renderBenevoles(){
+      const el = document.getElementById("benevolesList");
+      if(!state.benevoles.length){
+        el.innerHTML = '<div class="empty">Aucun bénévole trouvé.</div>';
+        return;
+      }
+      el.innerHTML = state.benevoles.map(p => `
+        <div class="item">
+          <div class="item-title">${escapeHtml(p.nom)}</div>
+          <div class="item-sub">${escapeHtml(p.role || "-")}</div>
+          <div class="item-sub">${p.telephone ? "Tél : " + escapeHtml(p.telephone) : ""}${p.email ? (p.telephone ? " • " : "") + "Email : " + escapeHtml(p.email) : ""}</div>
+        </div>
+      `).join("");
+    }
+
+
+    function setActiveButton(name){
+      const buttons = ['btn-teams','btn-bureau','btn-benevoles'];
+
+      buttons.forEach(id => {
+        const el = document.getElementById(id);
+        if(el){
+          el.classList.remove('active');
+          el.classList.remove('btn-light');
+          el.classList.add('btn-outline');
+        }
+      });
+
+      if(name){
+        const active = document.getElementById('btn-' + name);
+        if(active){
+          active.classList.add('active');
+          active.classList.remove('btn-outline');
+          active.classList.add('btn-light');
+        }
+      }
+    }
+
+
+function openInfoModal(){
+      document.getElementById('infoModal').classList.add('active');
+    }
+
+    function closeInfoModal(e){
+      if(!e || e.target.id === 'infoModal'){
+        document.getElementById('infoModal').classList.remove('active');
+      }
+    }
+
+    
+
+function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
+  const joueurs = state.joueurs
+    .filter(j => j.equipe === equipe)
+    .map(j => {
+      const nom = String(j.joueur || "").trim();
+      const code = String(j.code || "").trim();
+      return nom + "§" + code;
+    });
+
+  const joueursString = encodeURIComponent(joueurs.join("|"));
+
+  const url = "formulaire.html?match=" + encodeURIComponent(match)
+            + "&display=" + encodeURIComponent(displayMatch || match)
+            + "&equipe=" + encodeURIComponent(equipe)
+            + "&type=" + encodeURIComponent(typeMatch || "")
+            + "&joueurs=" + joueursString;
+
+  window.open(url, "_blank");
+}
+
+
+
+    function ouvrirSelectionConvocation(){
+      const card = document.getElementById("convocationSelectionCard");
+      const list = document.getElementById("convocationList");
+      const result = document.getElementById("convocationResult");
+
+      if (!card || !list) return;
+
+      card.style.display = "block";
+      if (result) {
+        result.style.display = "none";
+        result.innerHTML = "";
+      }
+
+      const uniques = [];
+      const seen = new Set();
+      lastCoachPresentPlayers.forEach(p => {
+        const key = normalize(p.prenom);
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        uniques.push(p);
+      });
+
+      if (!uniques.length) {
+        list.innerHTML = '<div class="muted">Aucun joueur présent à convoquer.</div>';
+        return;
+      }
+
+      list.innerHTML = uniques.map((p, idx) => {
+        const detail = [p.transport, p.places ? p.places + " place(s)" : ""].filter(Boolean).join(" • ");
+        return `
+          <label class="convoc-item">
+            <input type="checkbox" checked data-prenom="${escapeHtml(p.prenom)}">
+            <span>${escapeHtml(p.prenom)}${detail ? " — " + escapeHtml(detail) : ""}</span>
+          </label>
+        `;
+      }).join("");
+    }
+
+    
+function cleanCompare(v){
+      return normalize(v).replace(/[^a-z0-9]/g, "");
+    }
+
+
+function uniqueNamesClean(names){
+      const seen = new Set();
+      const out = [];
+
+      (names || []).forEach(name => {
+        const cleanName = String(name || "").trim();
+        const key = cleanCompare(cleanName);
+        if (!cleanName || seen.has(key)) return;
+        seen.add(key);
+        out.push(cleanName);
+      });
+
+      return out;
+    }
+
+
+    function chargerConvocationEnregistree(m){
+      const card = document.getElementById("matchConvocationCard");
+      const sub = document.getElementById("matchConvocationSub");
+      const list = document.getElementById("matchConvocationList");
+
+      if (!card || !sub || !list || !m) return;
+
+      const key = buildMatchKey(m);
+
+      const rows = (state.convocations || []).filter(c =>
+        c.match === key &&
+        cleanCompare(c.equipe) === cleanCompare(m.equipe || "")
+      );
+
+      if (!rows.length) {
+        card.style.display = "none";
+        sub.textContent = "";
+        list.innerHTML = "";
+        return;
+      }
+
+      const joueurs = rows.map(r => r.joueur).filter(Boolean);
+      const commentaire = rows.find(r => r.commentaire)?.commentaire || "";
+
+      card.style.display = "block";
+      sub.textContent = joueurs.length + " joueur(s) convoqué(s)";
+      list.innerHTML = joueurs.map((j, idx) =>
+        `<div class="match-convoc-player">${idx + 1}. ${escapeHtml(j)}</div>`
+      ).join("");
+
+      if (commentaire) {
+        sub.innerHTML = `${joueurs.length} joueur(s) convoqué(s)<br><span style="color:var(--accent);font-weight:700;">${escapeHtml(commentaire)}</span>`;
+      }
+    }
+
+
+    
+function cleanCompare(v){
+      return normalize(v).replace(/[^a-z0-9]/g, "");
+    }
+
+    function uniqueNamesClean(names){
+      const seen = new Set();
+      const out = [];
+      (names || []).forEach(name => {
+        const cleanName = String(name || "").trim();
+        const key = cleanCompare(cleanName);
+        if (!cleanName || seen.has(key)) return;
+        seen.add(key);
+        out.push(cleanName);
+      });
+      return out;
+    }
+
+    function chargerConvocationEnregistree(m){
+      const card = document.getElementById("matchConvocationCard");
+      const list = document.getElementById("matchConvocationList");
+      const sub = document.getElementById("matchConvocationSub");
+      if (!card || !list || !m) return;
+
+      const key = buildMatchKey(m);
+      const rows = (state.convocations || []).filter(c =>
+        String(c.match || "").trim() === key &&
+        cleanCompare(c.equipe) === cleanCompare(m.equipe || "")
+      );
+
+      const joueurs = uniqueNamesClean(rows.map(r => r.joueur));
+      const commentaire = rows.find(r => String(r.commentaire || "").trim())?.commentaire || "";
+
+      if (!joueurs.length) {
+        card.style.display = "none";
+        list.innerHTML = "";
+        if (sub) sub.textContent = "";
+        return;
+      }
+
+      afficherConvocationDansMatch(joueurs, commentaire);
+    }
+
+    function afficherConvocationDansMatch(joueurs, commentaire = ""){
+      const card = document.getElementById("matchConvocationCard");
+      const list = document.getElementById("matchConvocationList");
+      const sub = document.getElementById("matchConvocationSub");
+
+      if (!card || !list) return;
+
+      const cleanJoueurs = uniqueNamesClean(joueurs);
+
+      if (!cleanJoueurs.length) {
+        card.style.display = "none";
+        list.innerHTML = "";
+        if (sub) sub.textContent = "";
+        return;
+      }
+
+      card.style.display = "block";
+
+      if (sub) {
+        sub.innerHTML = `
+          <div class="match-convoc-head">
+            <span>${cleanJoueurs.length} joueur(s) convoqué(s)</span>
+            ${commentaire ? `<span class="match-convoc-comment">${escapeHtml(commentaire)}</span>` : ""}
+          </div>
+        `;
+      }
+
+      list.innerHTML = cleanJoueurs.map((n, i) => `
+        <div class="match-convoc-player">${i + 1}. ${escapeHtml(n)}</div>
+      `).join("") + `
+        <div style="margin-top:15px;">
+          <button id="btnWhatsappConvocationDetail" style="
+            background:#25D366;
+            color:#000;
+            border:none;
+            padding:12px;
+            border-radius:12px;
+            width:100%;
+            font-weight:900;
+          ">
+            📲 Envoyer sur WhatsApp
+          </button>
+        </div>
+      `;
+    }
+
+    async function enregistrerConvocationSheet(joueurs, commentaire){
+      const m = state.currentOpenMatch;
+      if (!m) {
+        alert("Aucun match ouvert.");
+        return false;
+      }
+      if (!state.codeCoach) {
+        alert("Code coach requis.");
+        return false;
+      }
+
+      const joueursClean = uniqueNamesClean(joueurs);
+
+      const data = {
+        action: "saveConvocation",
+        match: buildMatchKey(m),
+        equipe: m.equipe || "",
+        joueurs: joueursClean,
+        commentaire: commentaire || "",
+        codeCoach: state.codeCoach
+      };
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(data)
+        });
+
+        const txt = await res.text();
+
+        if (txt !== "OK") {
+          alert("Erreur sauvegarde convocation : " + txt);
+          return false;
+        }
+
+        const key = buildMatchKey(m);
+        state.convocations = (state.convocations || []).filter(c =>
+          !(String(c.match || "").trim() === key && cleanCompare(c.equipe) === cleanCompare(m.equipe || ""))
+        );
+
+        joueursClean.forEach(j => {
+          state.convocations.push({
+            date: new Date().toISOString(),
+            match: key,
+            equipe: m.equipe || "",
+            joueur: j,
+            statut: "Convoqué",
+            commentaire: commentaire || "",
+            codeCoach: state.codeCoach
+          });
+        });
+
+        state.codeCoach = null;
+        return true;
+      } catch(e) {
+        alert("Erreur réseau convocation : " + (e.message || e));
+        return false;
+      }
+    }
+async function genererConvocation(){
+      const result = document.getElementById("convocationResult");
+      const checked = uniqueNamesClean(Array.from(document.querySelectorAll("#convocationList input[type='checkbox']:checked")).map(input => input.dataset.prenom).filter(Boolean));
+
+      const commentaireCoach = document.getElementById("convocationCommentaire")
+        ? document.getElementById("convocationCommentaire").value.trim()
+        : "";
+
+      if (!result) return;
+
+      result.style.display = "block";
+
+      if (!checked.length) {
+        result.innerHTML = '<span class="convoc-title">Convocation</span><div class="muted">Aucun joueur sélectionné.</div>';
+        return;
+      }
+
+      result.innerHTML = '<span class="convoc-title">Enregistrement...</span>';
+
+      const okSave = await enregistrerConvocationSheet(checked, commentaireCoach);
+      if (!okSave) return;
+
+      result.innerHTML =
+        '<span class="convoc-title">Convocation enregistrée ✅</span>' +
+        checked.map(n => `<div>• ${escapeHtml(n)}</div>`).join("") +
+        `<div style="margin-top:15px;padding-top:10px;border-top:1px solid #333;">
+          <div style="margin-bottom:8px;font-weight:900;color:#ffd400;">Partager la convocation</div>
+          <button id="btnShareWhatsappConvocation" class="convoc-action" style="background:#25D366;color:#000;border:none;">
+            Envoyer via WhatsApp
+          </button>
+        </div>`;
+
+      const btnShareWhatsappConvocation = document.getElementById("btnShareWhatsappConvocation");
+      if (btnShareWhatsappConvocation) {
+        btnShareWhatsappConvocation.onclick = function(){
+          partagerWhatsappConvocation(checked, commentaireCoach);
+        };
+      }
+
+      afficherConvocationDansMatch(checked, commentaireCoach);
+
+      const coachCard = document.getElementById("coachResponsesCard");
+      if (coachCard) coachCard.style.display = "none";
+
+      const matchCard = document.getElementById("matchConvocationCard");
+      if (matchCard) matchCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+
+    document.addEventListener("click", function(e){
+      if(e.target && e.target.id === "btnWhatsappConvocationDetail"){
+        const m = state.currentOpenMatch;
+        if(!m) return;
+
+        const joueurs = Array.from(document.querySelectorAll("#matchConvocationList .match-convoc-player"))
+          .map(el => el.textContent.replace(/^\d+\.\s*/, "").trim())
+          .filter(Boolean);
+
+        if(!joueurs.length) return;
+
+        const titreMatch = buildMatchDisplay(m);
+        const message =
+`🏀 Convocation CAM Basket Montrichard
+
+${titreMatch}
+${m.date || ""} ${m.heure || ""}
+
+Équipe : ${m.equipe || ""}
+
+Joueurs convoqués :
+${joueurs.map(j => "• " + j).join("\n")}`;
+
+        window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
+      }
+    });
+
+
+    reloadData();
+  </script>
+<div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <h3>Application CAM Basket</h3>
+      <div class="modal-line"><span class="modal-label">Version :</span> V40.34</div>
+      <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
+      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
+      <div class="modal-line"><span class="modal-label">Modifications :</span></div>
+      <ul class="modal-list">
+        <li>Fond remplacé par un SVG HTML homogène</li>
+        <li>Plus de problème de largeur ou de hauteur d’image</li>
+        <li>Cartes transparentes sans flou sur toute l’application</li>
+        <li>Connexions existantes conservées</li>
+      </ul>
+      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
+      <div class="modal-credit">Créé par Alex</div>
+    </div>
+  </div>
 </body>
 </html>
