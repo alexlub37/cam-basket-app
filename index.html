@@ -778,159 +778,43 @@
 
 
 /* =========================================================
-   V40.50 - Fond HTML propre + connexions conservées
+   V40.51 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
-
-html, body{
-  min-height:100%;
-  background:#000 !important;
-  color:#fff;
+html,body{min-height:100%;background:#000!important;color:#fff;}
+body::before,body::after{content:none!important;display:none!important;}
+#camSvgBackground{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#000;}
+#camSvgBackground svg{width:100vw;height:100vh;display:block;}
+body>*:not(#camSvgBackground){position:relative;z-index:1;}
+header,main,section,.screen,.container,.app,.wrapper,.page,.hero,.top,.app-header,.content,#home,#homeScreen,.home,.home-screen{background:transparent!important;}
+.card,.item,.match-card,.bureau-member-card,.convocation-card,.response-card,.menu-btn,.list-card,.team-card,.player-card{
+  background:rgba(0,0,0,.38)!important;
+  border:1px solid rgba(255,212,0,.34)!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.36);
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
 }
-
-body::before,
-body::after{
-  content:none !important;
-  display:none !important;
+input,textarea,select{
+  background:rgba(0,0,0,.45)!important;
+  border:1px solid rgba(255,212,0,.28)!important;
+  color:#fff!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
 }
-
-#camHtmlBackground{
-  position:fixed;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 24%, rgba(255,212,0,.10), transparent 30%),
-    linear-gradient(180deg, #050505 0%, #000 100%);
+button,.menu-btn,.back{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transition:transform .12s ease;}
+button:active,.menu-btn:active,.back:active{transform:scale(.97);}
+.back{background:rgba(0,0,0,.42)!important;border:2px solid var(--accent,#ffd400)!important;color:var(--accent,#ffd400)!important;}
+hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!important;}
+.modal,#infoModal,.version-modal,.changelog-modal{
+  position:fixed!important;inset:0!important;z-index:99999!important;
+  align-items:center!important;justify-content:center!important;padding:18px!important;
+  background:rgba(0,0,0,.64)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
 }
-
-#camHtmlBackground .cam-bg-image{
-  position:absolute;
-  top:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:100vw;
-  max-width:430px;
-  height:100vh;
-  background:url("fond-cam.jpg") top center / contain no-repeat;
-  opacity:.94;
-}
-
-#camHtmlBackground .cam-bg-dark{
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(rgba(0,0,0,.18), rgba(0,0,0,.58)),
-    radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,.30) 70%);
-}
-
-body > *:not(#camHtmlBackground){
-  position:relative;
-  z-index:1;
-}
-
-header,
-main,
-section,
-.screen,
-.container,
-.app,
-.wrapper,
-.page,
-.hero,
-.top,
-.app-header,
-.content,
-#home,
-#homeScreen,
-.home,
-.home-screen{
-  background:transparent !important;
-}
-
-.card,
-.item,
-.match-card,
-.bureau-member-card,
-.convocation-card,
-.response-card,
-.menu-btn{
-  background:rgba(0,0,0,.52) !important;
-  border:1px solid rgba(255,212,0,.30) !important;
-  box-shadow:0 12px 28px rgba(0,0,0,.45);
-  backdrop-filter:blur(7px);
-  -webkit-backdrop-filter:blur(7px);
-}
-
-button,
-.menu-btn,
-.back{
-  transition:transform .12s ease, opacity .12s ease, box-shadow .12s ease;
-}
-
-button:active,
-.menu-btn:active,
-.back:active{
-  transform:scale(.97);
-}
-
-.back{
-  background:rgba(0,0,0,.68) !important;
-  border:2px solid var(--accent, #ffd400) !important;
-  color:var(--accent, #ffd400) !important;
-}
-
-input,
-textarea,
-select{
-  background:rgba(0,0,0,.72) !important;
-  border:1px solid rgba(255,212,0,.24) !important;
-  color:#fff !important;
-}
-
-.modal,
-#infoModal,
-.version-modal,
-.changelog-modal{
-  position:fixed !important;
-  inset:0 !important;
-  z-index:99999 !important;
-  align-items:center !important;
-  justify-content:center !important;
-  padding:18px !important;
-  background:rgba(0,0,0,.65) !important;
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
-}
-
-.modal.open,
-#infoModal.open,
-.version-modal.open,
-.changelog-modal.open,
-.modal[style*="display: block"],
-#infoModal[style*="display: block"],
-.version-modal[style*="display: block"],
-.changelog-modal[style*="display: block"]{
-  display:flex !important;
-}
-
-.modal-content,
-.modal-box,
-.info-modal-content,
-#infoModal .card,
-#infoModal > div,
-.version-modal > div,
-.changelog-modal > div{
-  position:relative !important;
-  margin:0 auto !important;
-  max-width:420px !important;
-  width:min(92vw,420px) !important;
-  max-height:80vh !important;
-  overflow:auto !important;
-  background:rgba(10,10,10,.94) !important;
-  border:1px solid rgba(255,212,0,.38) !important;
-  border-radius:22px !important;
-  box-shadow:0 20px 60px rgba(0,0,0,.75) !important;
+.modal.open,#infoModal.open,.version-modal.open,.changelog-modal.open,
+.modal[style*="display: block"],#infoModal[style*="display: block"],.version-modal[style*="display: block"],.changelog-modal[style*="display: block"]{display:flex!important;}
+.modal-content,.modal-box,.info-modal-content,#infoModal .card,#infoModal>div,.version-modal>div,.changelog-modal>div{
+  position:relative!important;margin:0 auto!important;max-width:420px!important;width:min(92vw,420px)!important;
+  max-height:80vh!important;overflow:auto!important;background:rgba(10,10,10,.94)!important;
+  border:1px solid rgba(255,212,0,.40)!important;border-radius:22px!important;box-shadow:0 20px 60px rgba(0,0,0,.75)!important;
 }
 
 </style>
@@ -995,13 +879,43 @@ select{
 
 </head>
 <body>
-<div id="camHtmlBackground"><div class="cam-bg-image"></div><div class="cam-bg-dark"></div></div>
+
+<div id="camSvgBackground" aria-hidden="true">
+  <svg viewBox="0 0 390 844" preserveAspectRatio="none">
+    <defs>
+      <radialGradient id="g" cx="50%" cy="25%" r="75%">
+        <stop offset="0%" stop-color="#202020"/>
+        <stop offset="70%" stop-color="#070707"/>
+        <stop offset="100%" stop-color="#000000"/>
+      </radialGradient>
+    </defs>
+    <rect width="390" height="844" fill="url(#g)"/>
+    <g opacity="0.16" transform="translate(-120 135) scale(1.35)">
+      <ellipse cx="265" cy="220" rx="210" ry="170" fill="#666"/>
+      <path d="M80 345 C170 230 260 120 455 55" stroke="#050505" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <path d="M160 410 C205 300 270 185 475 90" stroke="#050505" stroke-width="28" fill="none" stroke-linecap="round"/>
+      <path d="M40 235 C175 260 350 245 505 155" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
+      <path d="M275 50 C290 150 310 260 360 405" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
+    </g>
+    <g>
+      <path d="M0 0 H390 V20 C290 8 190 14 105 17 C45 18 18 12 0 6Z" fill="#ffd400"/>
+      <path d="M0 0 V844 H18 C9 744 14 636 12 520 C9 390 16 255 10 145 C6 68 12 25 0 0Z" fill="#ffd400"/>
+      <path d="M390 0 V844 H372 C381 744 376 636 378 520 C381 390 374 255 380 145 C384 68 378 25 390 0Z" fill="#ffd400"/>
+      <path d="M0 844 H390 V820 C310 834 238 828 150 824 C78 820 34 836 0 844Z" fill="#ffd400"/>
+      <path d="M0 30 C80 20 170 28 250 20 C315 14 356 22 390 28" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
+      <path d="M20 0 C10 90 30 175 19 265 C10 335 24 435 17 525 C10 635 24 745 18 844" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
+      <path d="M370 0 C380 90 360 175 371 265 C380 335 366 435 373 525 C380 635 366 745 372 844" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
+      <path d="M0 816 C78 830 160 812 252 824 C315 832 360 818 390 812" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
+    </g>
+  </svg>
+</div>
+
   <header>
     <div class="hero">
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.50</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.51</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -2542,34 +2456,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Fond reconstruit en HTML/CSS</li>
-        <li>Image utilisée comme cadre stable sur mobile</li>
-        <li>Connexions Google Sheets et fonctions existantes conservées</li>
-        <li>Popup version recentrée</li>
+        <li>Fond remplacé par un SVG HTML homogène</li>
+        <li>Plus de problème de largeur ou de hauteur d’image</li>
+        <li>Cartes transparentes sans flou sur toute l’application</li>
+        <li>Connexions existantes conservées</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
     </div>
   </div>
-
-<script>
-(function(){
-  window.camCenterModals = function(){
-    document.querySelectorAll('.modal, #infoModal, .version-modal, .changelog-modal').forEach(function(m){
-      if(m && (m.style.display === 'block' || m.classList.contains('open'))){
-        m.classList.add('open');
-      }
-    });
-  };
-  var oldOpenInfoModal = window.openInfoModal;
-  if(typeof oldOpenInfoModal === "function"){
-    window.openInfoModal = function(){
-      oldOpenInfoModal();
-      setTimeout(window.camCenterModals, 0);
-    };
-  }
-})();
-</script>
-
 </body>
 </html>
