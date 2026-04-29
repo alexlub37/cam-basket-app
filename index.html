@@ -915,7 +915,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <button class="hero-logo-btn" onclick="openInfoModal()" aria-label="Informations application">
         <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
       </button>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.59</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.60</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -1760,7 +1760,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V40.58 : on vide toujours l'ancienne sélection avant de charger le match courant
+      // V40.60 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1798,13 +1798,11 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V40.58 : filtrage strict sur le match courant
-          // 1) si la colonne Match contient la clé complète : équipe|adversaire|type|date|heure
+          // V40.60 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
-          // 2) fallback sécurisé : colonne Équipe + adversaire + date + heure + type
           const txt = normalize(responseMatchText);
-          const equipeOk = cleanCompare(responseEquipe) === cleanCompare(state.currentOpenMatch.equipe);
+          const equipeOk = !responseEquipe || cleanCompare(responseEquipe) === cleanCompare(state.currentOpenMatch.equipe);
           const adversaireOk = txt.includes(normalize(state.currentOpenMatch.adversaire));
           const dateOk = txt.includes(normalize(state.currentOpenMatch.date));
 
@@ -1820,8 +1818,10 @@ showScreen("matchDetailScreen");
         // Anti-doublons : on garde uniquement la dernière réponse par joueur
         const uniqueByPlayer = {};
         filtered.forEach(row => {
-          const prenomKey = normalize(getRowValue(row, "Prénom") || getRowValue(row, "Prenom"));
-          if (prenomKey) uniqueByPlayer[prenomKey] = row;
+          const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+          const code = getRowValue(row, "Code") || getRowValue(row, "Code joueur") || getRowValue(row, "code");
+          const prenomKey = cleanCompare(prenom) + "|" + cleanCompare(code || prenom);
+          if (prenomKey !== "|") uniqueByPlayer[prenomKey] = row; // dernière réponse conservée
         });
         const cleanRows = Object.values(uniqueByPlayer);
 
@@ -2457,10 +2457,13 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction retour après réponse joueur</li>
-        <li>Plus de redirection vers la racine GitHub 404</li>
-        <li>Retour vers cam-basket-app après envoi ou annulation</li>
-        <li>Corrections réponses coach V40.58 conservées</li>
+        <li>Récupération de la version qui fonctionnait</li>
+        <li>Nouvelle mise en page conservée</li>
+        <li>Formulaire complet restauré</li>
+        <li>Bouton Annuler restauré</li>
+        <li>Anti-doublon réponses coach renforcé</li>
+        <li>Filtrage réponses par match corrigé</li>
+        <li>Code coach demandé une seule fois</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -2469,12 +2472,11 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V40.57 - Correctif code coach convocation
-   Un seul gestionnaire, pas de double demande de code
+   V40.60 - Gestion code coach unique
    ========================================================= */
 (function(){
-  if (window.__camCoachConvocationHandlerV4057) return;
-  window.__camCoachConvocationHandlerV4057 = true;
+  if (window.__camCoachConvocationHandlerV4060) return;
+  window.__camCoachConvocationHandlerV4060 = true;
 
   document.addEventListener("click", function(e){
     const btnConvoc = e.target && e.target.closest ? e.target.closest("#btnFaireConvocationCoach") : null;
@@ -2485,7 +2487,6 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       const codeCoach = prompt("Code coach ?");
 
       if (!codeCoach || !String(codeCoach).trim()){
-        // Annuler = on ne fait rien, on ne doit pas ouvrir la sélection
         return;
       }
 
