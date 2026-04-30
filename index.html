@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.7 corrigé */
+/* Layout domicile officiel V60.8 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.7 */
+/* Masquage badge type header V60.8 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.7 clean */
+/* Apports V60.8 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.7 */
+/* Organisation match V60.8 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.7 merci organisation */
+/* V60.8 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.7 anti flash organisation */
+/* V60.8 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.7 */
+/* Bureau V60.8 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +782,7 @@
 
 
 /* =========================================================
-   V60.7 - Fond SVG HTML homogène + cartes transparentes
+   V60.8 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -916,7 +916,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.7</button>
+    ">V60.8</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1329,7 +1329,18 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles),
           fetchRowsCsv(SHEETS.convocations),
-          fetchRowsCsv(SHEETS.config).catch(() => [])
+          (async () => {
+            try {
+              const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CONFIG`;
+              const r = await fetch(url);
+              const t = await r.text();
+              const j = JSON.parse(t.replace(/^[^\(]+\(/, "").replace(/\);?\s*$/, ""));
+              return (j.table.rows || []).map(row => [
+                row.c[0] ? String(row.c[0].v || "") : "",
+                row.c[1] ? String(row.c[1].v || "") : ""
+              ]);
+            } catch(e) { return []; }
+          })()
         ]);
 
         state.season = findSeason(paramRows);
@@ -1840,7 +1851,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.7 : vider l’ancienne sélection avant chaque lecture
+      // V60.8 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1878,7 +1889,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.7 : filtrage strict du match courant
+          // V60.8 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2649,7 +2660,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.7</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.8</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2669,7 +2680,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.7 - Gestion code coach unique
+   V60.8 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
