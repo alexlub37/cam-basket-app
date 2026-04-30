@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V41.16 corrigé */
+/* Layout domicile officiel V60.0 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V41.16 */
+/* Masquage badge type header V60.0 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V41.16 clean */
+/* Apports V60.0 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V41.16 */
+/* Organisation match V60.0 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V41.16 merci organisation */
+/* V60.0 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V41.16 anti flash organisation */
+/* V60.0 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V41.16 */
+/* Bureau V60.0 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V41.16 - Fond SVG HTML homogène + cartes transparentes
+   V60.0 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,26 +911,20 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V41.16</button>
+    ">V60.0</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
           <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
         </button>
-        <div style="
-          position:absolute;
-          top: 18px;
-          right: -58px;
-          font-family: 'Segoe Script', 'Brush Script MT', 'Comic Sans MS', cursive;
-          font-size: 13px;
-          color: #ffd400;
-          line-height: 1.3;
-          text-align: left;
-          transform: rotate(-14deg);
-          text-shadow: 0 2px 6px rgba(0,0,0,0.8);
-          pointer-events: none;
-          white-space: nowrap;
-        ">Tous<br>en Jaune&nbsp;!</div>
+        <div id="heroSlogan" style="position:absolute;
+      top:10px;
+      left:12px;
+      background:rgba(255,212,0,0.15);
+      border:1px solid rgba(255,212,0,0.40);
+      color:#ffd400;
+      font-size:10px;
+      font-weight:800">Tous<br>en Jaune&nbsp;!</div>
       </div>
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
@@ -1181,13 +1175,17 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       matchs: "MATCHS",
       bureau: "BUREAU",
       benevoles: "BENEVOLES",
-      convocations: "CONVOCATIONS"
+      convocations: "CONVOCATIONS",
+      config: "CONFIG"
     };
 
 
     const RESPONSE_SHEET_ID = SHEET_ID;
     const RESPONSE_SHEET_NAME = "REPONSES";
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
+    function getScriptUrl() {
+      return window._configScriptUrl || APPS_SCRIPT_URL;
+    }
     let lastCoachPresentPlayers = [];
 
     let state = {
@@ -1314,14 +1312,15 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, configRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles),
-          fetchRowsCsv(SHEETS.convocations)
+          fetchRowsCsv(SHEETS.convocations),
+          fetchRowsCsv(SHEETS.config)
         ]);
 
         state.season = findSeason(paramRows);
@@ -1394,6 +1393,16 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           commentaire: String(r[5] || "").trim(),
           codeCoach: String(r[6] || "").trim()
         })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
+
+        
+        // ══ CONFIG ══
+        state.config = {};
+        (configRows || []).forEach(r => {
+          const key = String(r[0] || "").trim().toLowerCase();
+          const val = String(r[1] || "").trim();
+          if (key && key !== "cle" && key !== "clé") state.config[key] = val;
+        });
+        appliquerConfig();
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
@@ -1821,7 +1830,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V41.16 : vider l’ancienne sélection avant chaque lecture
+      // V60.0 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1859,7 +1868,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V41.16 : filtrage strict du match courant
+          // V60.0 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2223,7 +2232,7 @@ async function annulerConvocation() {
   if (btn) { btn.disabled = true; btn.textContent = "Annulation…"; }
 
   try {
-    const res = await fetch(APPS_SCRIPT_URL, { method:"POST", body:JSON.stringify(data) });
+    const res = await fetch(getScriptUrl(), { method:"POST", body:JSON.stringify(data) });
     const txt = await res.text();
 
     if (txt === "CODE_COACH_INVALIDE") { alert("Code coach incorrect ❌"); return; }
@@ -2234,7 +2243,7 @@ async function annulerConvocation() {
       !(c.match === buildMatchKey(m) &&
         cleanCompare(c.equipe) === cleanCompare(m.equipe || ""))
     );
-    state.codeCoach = null;
+    // On garde state.codeCoach en mémoire pour pouvoir refaire une convocation
     chargerConvocationEnregistree(m);
     afficherConvocationDansMatch([]);
     if (btn) { btn.style.display="none"; btn.disabled=false; btn.textContent="🗑 Annuler la convocation"; }
@@ -2251,6 +2260,78 @@ async function annulerConvocation() {
   } finally {
     if (btn) btn.disabled = false;
   }
+}
+
+
+// ════════════════════════════════════════
+// ⚙️ APPLICATION DE LA CONFIG SHEET
+// ════════════════════════════════════════
+function appliquerConfig() {
+  const cfg = state.config || {};
+
+  // ── Couleur principale (accent)
+  const couleur = cfg["couleur_principale"] || cfg["couleur_accent"] || "";
+  if (couleur && /^#[0-9a-fA-F]{3,6}$/.test(couleur)) {
+    document.documentElement.style.setProperty("--accent", couleur);
+    document.documentElement.style.setProperty("--btn-primary-bg", couleur);
+    // Mettre à jour le badge version
+    const badge = document.querySelector("button[onclick=\"openInfoModal()\"]");
+    if (badge) badge.style.background = couleur.replace(/^#/, "rgba(") + ",0.15)";
+  }
+
+  // ── Couleur secondaire (fond)
+  const couleur2 = cfg["couleur_secondaire"] || "";
+  if (couleur2 && /^#[0-9a-fA-F]{3,6}$/.test(couleur2)) {
+    document.documentElement.style.setProperty("--bg", couleur2);
+  }
+
+  // ── Nom du club
+  const nomClub = cfg["nom_club"] || cfg["nom_club"] || "";
+  if (nomClub) {
+    // Titre principal hero
+    const heroTitle = document.querySelector(".hero-title");
+    if (heroTitle) heroTitle.innerHTML = nomClub.replace(" - ", "<br>").replace(" / ", "<br>");
+    // Titre de la page
+    document.title = nomClub;
+    // Modale info
+    const modalTitle = document.getElementById("infoModalClub");
+    if (modalTitle) modalTitle.textContent = nomClub;
+  }
+
+  // ── Slogan / message accueil (Tous en Jaune !)
+  const slogan = cfg["message_accueil"] || cfg["slogan"] || "";
+  if (slogan) {
+    const sloganEl = document.getElementById("heroSlogan");
+    if (sloganEl) sloganEl.textContent = slogan;
+  }
+
+  // ── Logo URL
+  const logoUrl = cfg["logo_url"] || "";
+  if (logoUrl) {
+    document.querySelectorAll(".hero-logo, .logo-img").forEach(img => {
+      img.src = logoUrl;
+    });
+  }
+
+  // ── URL Apps Script (override si présent)
+  const urlScript = cfg["url_script"] || "";
+  if (urlScript && urlScript.startsWith("https://script.google.com")) {
+    window._configScriptUrl = urlScript;
+  }
+
+  // ── Sections activer/désactiver
+  const showBureau = (cfg["activer_bureau"] || "oui").toLowerCase() !== "non";
+  const showBenevoles = (cfg["activer_benevoles"] || "oui").toLowerCase() !== "non";
+  const showConvocations = (cfg["activer_convocations"] || "oui").toLowerCase() !== "non";
+
+  const btnBureau = document.getElementById("btn-bureau");
+  const btnBenevoles = document.getElementById("btn-benevoles");
+  if (btnBureau) btnBureau.style.display = showBureau ? "" : "none";
+  if (btnBenevoles) btnBenevoles.style.display = showBenevoles ? "" : "none";
+
+  // Masquer section convocation si désactivée
+  const convocCard = document.getElementById("coachResponsesCard");
+  if (convocCard) convocCard.style.display = showConvocations ? "" : "none";
 }
 
 function envoyerWhatsappConvocation() {
@@ -2520,7 +2601,7 @@ function cleanCompare(v){
       };
 
       try {
-        const res = await fetch(APPS_SCRIPT_URL, {
+        const res = await fetch(getScriptUrl(), {
           method: "POST",
           body: JSON.stringify(data)
         });
@@ -2549,7 +2630,7 @@ function cleanCompare(v){
           });
         });
 
-        state.codeCoach = null;
+        // On garde state.codeCoach en mémoire pour la session
         return true;
       } catch(e) {
         alert("Erreur réseau convocation : " + (e.message || e));
@@ -2627,27 +2708,26 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V41.16</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.0</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Récupération de la version qui fonctionnait</li>
-        <li>Nouvelle mise en page conservée</li>
-        <li>Formulaire complet restauré</li>
-        <li>Bouton Annuler restauré</li>
-        <li>Anti-doublon réponses coach renforcé</li>
-        <li>Filtrage réponses par match corrigé</li>
-        <li>Code coach demandé une seule fois</li>
-      </ul>
-      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
+        <li><strong>V60.0 — 30/04/2026 14h00</strong></li>
+        <li>⚙️ CONFIG Google Sheet connectée</li>
+        <li>🎨 Couleurs, nom club, slogan depuis le Sheet</li>
+        <li>— — —</li>
+        <li><strong>V41.17</strong> — Bug code coach corrigé</li>
+        <li><strong>V41.14</strong> — Boutons WhatsApp/Annuler déplacés</li>
+        <li><strong>V41.1</strong> — CSS unifié, annulation convocation</li>
+      </ul>      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
     </div>
   </div>
 
 <script>
 /* =========================================================
-   V41.16 - Gestion code coach unique
+   V60.0 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
