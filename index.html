@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V60.8 corrigé */
+/* Layout domicile officiel V60.10 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V60.8 */
+/* Masquage badge type header V60.10 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.8 clean */
+/* Apports V60.10 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V60.8 */
+/* Organisation match V60.10 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V60.8 merci organisation */
+/* V60.10 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V60.8 anti flash organisation */
+/* V60.10 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.8 */
+/* Bureau V60.10 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V60.8 - Fond SVG HTML homogène + cartes transparentes
+   V60.10 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,7 +911,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.8</button>
+    ">V60.10</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1409,9 +1409,6 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           if (key && key !== "cle" && key !== "clé") state.config[key] = val;
         });
         appliquerConfig();
-        // Rappel après rendu complet pour s'assurer que tout est appliqué
-        setTimeout(() => appliquerConfig(), 300);
-
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
         renderBureau();
@@ -1838,7 +1835,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.8 : vider l’ancienne sélection avant chaque lecture
+      // V60.10 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1876,7 +1873,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.8 : filtrage strict du match courant
+          // V60.10 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2276,44 +2273,12 @@ async function annulerConvocation() {
 // ════════════════════════════════════════
 function appliquerConfig() {
   const cfg = state.config || {};
-  console.log("appliquerConfig() — config reçue:", JSON.stringify(cfg));
 
-  // ── Couleur principale (accent) — force sur tous les éléments
+  // ── Couleur principale (accent)
   const couleur = cfg["couleur_principale"] || cfg["couleur_accent"] || "";
   if (couleur && /^#[0-9a-fA-F]{3,6}$/.test(couleur)) {
-    // Variables CSS
     document.documentElement.style.setProperty("--accent", couleur);
     document.documentElement.style.setProperty("--btn-primary-bg", couleur);
-
-    // Injection d'une règle CSS globale pour forcer partout
-    let styleOverride = document.getElementById("configColorOverride");
-    if (!styleOverride) {
-      styleOverride = document.createElement("style");
-      styleOverride.id = "configColorOverride";
-      document.head.appendChild(styleOverride);
-    }
-    styleOverride.textContent = `
-      :root { --accent: ${couleur} !important; }
-      .btn-light.active,
-      .btn-outline.active,
-      .btn-primary,
-      .convoc-action,
-      button[id="btn-teams"] { background: ${couleur} !important; color: #000 !important; }
-      .btn-outline { border-color: ${couleur} !important; color: #fff !important; }
-      .hero-sub, .badge-season, .coach-title, .convoc-title,
-      .apports-title, .section-title, h2,
-      .match-convoc-title { color: ${couleur} !important; }
-      .choice-btn.active { background: ${couleur} !important; border-color: ${couleur} !important; color:#000 !important; }
-      .send { background: ${couleur} !important; }
-    `;
-    // Forcer aussi inline sur les éléments déjà rendus
-    document.querySelectorAll(".btn-light.active, #btn-teams").forEach(el => {
-      el.style.setProperty("background", couleur, "important");
-      el.style.setProperty("color", "#000", "important");
-    });
-    document.querySelectorAll(".btn-outline").forEach(el => {
-      el.style.setProperty("border-color", couleur, "important");
-    });
     // Mettre à jour le badge version
     const badge = document.querySelector("button[onclick=\"openInfoModal()\"]");
     if (badge) badge.style.background = couleur.replace(/^#/, "rgba(") + ",0.15)";
@@ -2326,77 +2291,46 @@ function appliquerConfig() {
   }
 
   // ── Nom du club
-  const nomClub = cfg["nom_club"] || cfg["nom_club"] || "";
+  const nomClub = cfg["nom_club"] || "";
   if (nomClub) {
-    // Titre principal hero
-    const heroTitle = document.querySelector(".hero-title");
-    if (heroTitle) heroTitle.innerHTML = nomClub.replace(" - ", "<br>").replace(" / ", "<br>");
-    // Titre de la page
-    document.title = nomClub;
-    // Modale info
-    const modalTitle = document.getElementById("infoModalClub");
-    if (modalTitle) modalTitle.textContent = nomClub;
+    const applyNom = () => {
+      const heroTitle = document.querySelector(".hero-title");
+      if (heroTitle) heroTitle.innerHTML = nomClub;
+      document.title = nomClub;
+      const modalTitle = document.getElementById("infoModalClub");
+      if (modalTitle) modalTitle.textContent = nomClub;
+    };
+    applyNom();
+    setTimeout(applyNom, 400);
   }
 
-  // ── Slogan / message accueil + style complet
+  // ── Slogan / message accueil + style
   const slogan = cfg["message_accueil"] || cfg["slogan"] || "";
   const sloganEl = document.getElementById("heroSlogan");
   if (sloganEl) {
-    // Texte
     if (slogan) sloganEl.innerHTML = slogan.replace(" ", "<br>");
-
-    // Taille
-    const taille = cfg["slogan_taille"] || "";
-    if (taille) sloganEl.style.fontSize = taille + "px";
-
-    // Rotation / inclinaison
-    const rotation = cfg["slogan_rotation"] || "";
-    if (rotation) sloganEl.style.transform = "rotate(" + rotation + "deg)";
-
-    // Position X (right)
-    const posX = cfg["slogan_position_x"] || "";
-    if (posX) sloganEl.style.right = posX + "px";
-
-    // Position Y (top)
-    const posY = cfg["slogan_position_y"] || "";
-    if (posY) sloganEl.style.top = posY + "px";
-
-    // Couleur
-    const couleurSlogan = cfg["slogan_couleur"] || "";
-    if (couleurSlogan) sloganEl.style.color = couleurSlogan;
-
-    // Police
-    const policeSlogan = cfg["slogan_police"] || "";
-    if (policeSlogan) sloganEl.style.fontFamily = policeSlogan;
+    if (cfg["slogan_taille"])     sloganEl.style.fontSize   = cfg["slogan_taille"] + "px";
+    if (cfg["slogan_rotation"])   sloganEl.style.transform  = "rotate(" + cfg["slogan_rotation"] + "deg)";
+    if (cfg["slogan_position_x"]) sloganEl.style.right      = cfg["slogan_position_x"] + "px";
+    if (cfg["slogan_position_y"]) sloganEl.style.top        = cfg["slogan_position_y"] + "px";
+    if (cfg["slogan_couleur"])    sloganEl.style.color       = cfg["slogan_couleur"];
+    if (cfg["slogan_police"])     sloganEl.style.fontFamily  = cfg["slogan_police"];
   }
 
-  // ── Police générale de l'app
-  const policeApp = cfg["police_app"] || "";
-  if (policeApp) {
-    document.documentElement.style.setProperty(
-      "--font-family",
-      policeApp + ", -apple-system, BlinkMacSystemFont, sans-serif"
-    );
-    document.body.style.fontFamily = policeApp + ", -apple-system, BlinkMacSystemFont, sans-serif";
+  // ── Police générale
+  if (cfg["police_app"]) {
+    document.body.style.fontFamily = cfg["police_app"] + ", -apple-system, sans-serif";
   }
 
-  // ── Titre club : taille police
-  const titreTaille = cfg["titre_taille"] || "";
-  if (titreTaille) {
+  // ── Titre taille
+  if (cfg["titre_taille"]) {
     const heroTitle = document.querySelector(".hero-title");
-    if (heroTitle) heroTitle.style.fontSize = titreTaille + "px";
+    if (heroTitle) heroTitle.style.fontSize = cfg["titre_taille"] + "px";
   }
 
-  // ── Couleur texte général
-  const couleurTexte = cfg["couleur_texte"] || "";
-  if (couleurTexte && /^#[0-9a-fA-F]{3,6}$/.test(couleurTexte)) {
-    document.documentElement.style.setProperty("--text", couleurTexte);
-  }
-
-  // ── Border radius des cards
-  const cardRadius = cfg["card_radius"] || "";
-  if (cardRadius) {
-    document.documentElement.style.setProperty("--radius", cardRadius + "px");
+  // ── Card radius
+  if (cfg["card_radius"]) {
+    document.documentElement.style.setProperty("--radius", cfg["card_radius"] + "px");
   }
 
   // ── Logo URL
@@ -2802,12 +2736,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.8</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.10</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li><strong>V60.8 — 30/04/2026 14h00</strong></li>
+        <li><strong>V60.10 — 30/04/2026 14h00</strong></li>
         <li>⚙️ CONFIG Google Sheet connectée</li>
         <li>🎨 Couleurs, nom club, slogan depuis le Sheet</li>
         <li>— — —</li>
@@ -2821,7 +2755,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.8 - Gestion code coach unique
+   V60.10 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
