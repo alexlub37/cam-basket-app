@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V41.1 corrigé */
+/* Layout domicile officiel V41.2 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V41.1 */
+/* Masquage badge type header V41.2 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V41.1 clean */
+/* Apports V41.2 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V41.1 */
+/* Organisation match V41.2 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V41.1 merci organisation */
+/* V41.2 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V41.1 anti flash organisation */
+/* V41.2 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V41.1 */
+/* Bureau V41.2 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V41.1 - Fond SVG HTML homogène + cartes transparentes
+   V41.2 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,7 +911,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V41.1</button>
+    ">V41.2</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1012,6 +1012,19 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         <h2>Convocation</h2>
         <div id="matchConvocationSub" class="match-convoc-sub"></div>
         <div id="matchConvocationList" class="match-convoc-list"></div>
+        <button id="btnAnnulerConvocation" onclick="annulerConvocation()" style="
+          display:none;
+          width:100%;
+          margin-top:14px;
+          padding:12px;
+          background:transparent;
+          border:2px solid #e04040;
+          color:#e04040;
+          border-radius:14px;
+          font-size:14px;
+          font-weight:700;
+          cursor:pointer;
+        ">🗑 Annuler la convocation</button>
       </div>
 
       
@@ -1100,20 +1113,6 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <textarea id="convocationCommentaire" placeholder="Ex : RDV 13h30, pensez à la gourde..." style="width:100%;min-height:70px;margin-top:6px;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0b0b0b;color:#fff;font-size:15px;box-sizing:border-box;"></textarea>
 
           <button id="btnGenererConvocation" class="convoc-action">Générer la convocation</button>
-
-          <button id="btnAnnulerConvocation" onclick="annulerConvocation()" style="
-            display:none;
-            width:100%;
-            margin-top:10px;
-            padding:13px;
-            background:transparent;
-            border:2px solid #e04040;
-            color:#e04040;
-            border-radius:14px;
-            font-size:15px;
-            font-weight:700;
-            cursor:pointer;
-          ">🗑 Annuler / Effacer la convocation</button>
 
           <div id="convocationResult" class="convoc-result"></div>
         </div>
@@ -1801,7 +1800,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V41.1 : vider l’ancienne sélection avant chaque lecture
+      // V41.2 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1839,7 +1838,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V41.1 : filtrage strict du match courant
+          // V41.2 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2582,7 +2581,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V41.1</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V41.2</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2602,7 +2601,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V41.1 - Gestion code coach unique
+   V41.2 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
