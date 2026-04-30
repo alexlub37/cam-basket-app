@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V41.12 corrigé */
+/* Layout domicile officiel V41.13 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V41.12 */
+/* Masquage badge type header V41.13 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V41.12 clean */
+/* Apports V41.13 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V41.12 */
+/* Organisation match V41.13 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V41.12 merci organisation */
+/* V41.13 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V41.12 anti flash organisation */
+/* V41.13 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V41.12 */
+/* Bureau V41.13 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V41.12 - Fond SVG HTML homogène + cartes transparentes
+   V41.13 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,7 +911,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V41.12</button>
+    ">V41.13</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1090,34 +1090,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           Faire la convocation
         </button>
 
-        <!-- Boutons coach : WhatsApp + Annuler -->
-        <button id="btnWhatsappCoach" onclick="envoyerWhatsappConvocation()" style="
-          display:block;
-          margin-top:10px;
-          width:100%;
-          padding:13px;
-          background:#25D366;
-          color:#000;
-          border:none;
-          border-radius:14px;
-          font-size:15px;
-          font-weight:900;
-          cursor:pointer;
-        ">📲 Envoyer sur WhatsApp</button>
 
-        <button id="btnAnnulerConvocation" onclick="annulerConvocation()" style="
-          display:none;
-          margin-top:10px;
-          width:100%;
-          padding:13px;
-          background:transparent;
-          border:2px solid #e04040;
-          color:#e04040;
-          border-radius:14px;
-          font-size:15px;
-          font-weight:700;
-          cursor:pointer;
-        ">🗑 Annuler la convocation</button>
 
         <div id="convocationSelectionCard" class="convoc-card">
           <span class="convoc-title">Sélection des joueurs convoqués</span>
@@ -1146,6 +1119,35 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           ">🗑 Annuler la convocation publiée</button>
 
           <div id="convocationResult" class="convoc-result"></div>
+
+          <!-- Boutons WhatsApp + Annuler après le code coach -->
+          <button id="btnWhatsappCoach" onclick="envoyerWhatsappConvocation()" style="
+            display:block;
+            margin-top:14px;
+            width:100%;
+            padding:13px;
+            background:#25D366;
+            color:#000;
+            border:none;
+            border-radius:14px;
+            font-size:15px;
+            font-weight:900;
+            cursor:pointer;
+          ">📲 Envoyer sur WhatsApp</button>
+
+          <button id="btnAnnulerConvocation" onclick="annulerConvocation()" style="
+            display:block;
+            margin-top:10px;
+            width:100%;
+            padding:13px;
+            background:transparent;
+            border:2px solid #e04040;
+            color:#e04040;
+            border-radius:14px;
+            font-size:15px;
+            font-weight:700;
+            cursor:pointer;
+          ">🗑 Annuler la convocation</button>
         </div>
 
         <div class="coach-block">
@@ -1831,7 +1833,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V41.12 : vider l’ancienne sélection avant chaque lecture
+      // V41.13 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1869,7 +1871,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V41.12 : filtrage strict du match courant
+          // V41.13 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2645,7 +2647,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V41.12</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V41.13</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2665,7 +2667,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V41.12 - Gestion code coach unique
+   V41.13 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
