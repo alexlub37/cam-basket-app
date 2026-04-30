@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V60.2 corrigé */
+/* Layout domicile officiel V60.0 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V60.2 */
+/* Masquage badge type header V60.0 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.2 clean */
+/* Apports V60.0 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V60.2 */
+/* Organisation match V60.0 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V60.2 merci organisation */
+/* V60.0 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V60.2 anti flash organisation */
+/* V60.0 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.2 */
+/* Bureau V60.0 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V60.2 - Fond SVG HTML homogène + cartes transparentes
+   V60.0 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,13 +911,13 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.2</button>
+    ">V60.0</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
           <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
         </button>
-        <div id="heroSlogan" style="
+        <div style="
           position:absolute;
           top: 18px;
           right: -58px;
@@ -1189,9 +1189,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     const RESPONSE_SHEET_ID = SHEET_ID;
     const RESPONSE_SHEET_NAME = "REPONSES";
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
-    function getScriptUrl() {
-      return window._configScriptUrl || APPS_SCRIPT_URL;
-    }
+    function getScriptUrl() { return window._configScriptUrl || APPS_SCRIPT_URL; }
     let lastCoachPresentPlayers = [];
 
     let state = {
@@ -1318,25 +1316,16 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, configRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles),
-          fetchRowsCsv(SHEETS.convocations)
+          fetchRowsCsv(SHEETS.convocations),
+          fetchRowsCsv(SHEETS.config).catch(() => [])
         ]);
-
-        // Chargement CONFIG séparé pour ne pas bloquer si erreur
-        let configRows = [];
-        try {
-          configRows = await fetchRowsCsv(SHEETS.config);
-          console.log("CONFIG chargée:", configRows.length, "lignes");
-          configRows.forEach(r => console.log("  →", r[0], "=", r[1]));
-        } catch(e) {
-          console.warn("CONFIG non chargée:", e.message);
-        }
 
         state.season = findSeason(paramRows);
 
@@ -1409,13 +1398,14 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           codeCoach: String(r[6] || "").trim()
         })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
 
-        
-        // ══ CONFIG ══
+        // ══ Lire et appliquer la CONFIG ══
         state.config = {};
         (configRows || []).forEach(r => {
-          const key = String(r[0] || "").trim().toLowerCase();
-          const val = String(r[1] || "").trim();
-          if (key && key !== "cle" && key !== "clé") state.config[key] = val;
+          const key   = String(r[0] || "").trim().toLowerCase();
+          const val   = String(r[1] || "").trim();
+          if (key && key !== "cle" && key !== "clé" && key !== "valeur") {
+            state.config[key] = val;
+          }
         });
         appliquerConfig();
 
@@ -1845,7 +1835,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.2 : vider l’ancienne sélection avant chaque lecture
+      // V60.0 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1883,7 +1873,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.2 : filtrage strict du match courant
+          // V60.0 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2258,7 +2248,7 @@ async function annulerConvocation() {
       !(c.match === buildMatchKey(m) &&
         cleanCompare(c.equipe) === cleanCompare(m.equipe || ""))
     );
-    // On garde state.codeCoach en mémoire pour pouvoir refaire une convocation
+    state.codeCoach = null;
     chargerConvocationEnregistree(m);
     afficherConvocationDansMatch([]);
     if (btn) { btn.style.display="none"; btn.disabled=false; btn.textContent="🗑 Annuler la convocation"; }
@@ -2275,135 +2265,6 @@ async function annulerConvocation() {
   } finally {
     if (btn) btn.disabled = false;
   }
-}
-
-
-// ════════════════════════════════════════
-// ⚙️ APPLICATION DE LA CONFIG SHEET
-// ════════════════════════════════════════
-function appliquerConfig() {
-  const cfg = state.config || {};
-  console.log("appliquerConfig() — config reçue:", JSON.stringify(cfg));
-
-  // ── Couleur principale (accent)
-  const couleur = cfg["couleur_principale"] || cfg["couleur_accent"] || "";
-  console.log("couleur_principale:", couleur);
-  if (couleur && /^#[0-9a-fA-F]{3,6}$/.test(couleur)) {
-    document.documentElement.style.setProperty("--accent", couleur);
-    document.documentElement.style.setProperty("--btn-primary-bg", couleur);
-    console.log("✅ Couleur appliquée:", couleur);
-    // Mettre à jour le badge version
-    const badge = document.querySelector("button[onclick=\"openInfoModal()\"]");
-    if (badge) badge.style.background = couleur.replace(/^#/, "rgba(") + ",0.15)";
-  }
-
-  // ── Couleur secondaire (fond)
-  const couleur2 = cfg["couleur_secondaire"] || "";
-  if (couleur2 && /^#[0-9a-fA-F]{3,6}$/.test(couleur2)) {
-    document.documentElement.style.setProperty("--bg", couleur2);
-  }
-
-  // ── Nom du club
-  const nomClub = cfg["nom_club"] || cfg["nom_club"] || "";
-  if (nomClub) {
-    // Titre principal hero
-    const heroTitle = document.querySelector(".hero-title");
-    if (heroTitle) heroTitle.innerHTML = nomClub.replace(" - ", "<br>").replace(" / ", "<br>");
-    // Titre de la page
-    document.title = nomClub;
-    // Modale info
-    const modalTitle = document.getElementById("infoModalClub");
-    if (modalTitle) modalTitle.textContent = nomClub;
-  }
-
-  // ── Slogan / message accueil + style complet
-  const slogan = cfg["message_accueil"] || cfg["slogan"] || "";
-  const sloganEl = document.getElementById("heroSlogan");
-  if (sloganEl) {
-    // Texte
-    if (slogan) sloganEl.innerHTML = slogan.replace(" ", "<br>");
-
-    // Taille
-    const taille = cfg["slogan_taille"] || "";
-    if (taille) sloganEl.style.fontSize = taille + "px";
-
-    // Rotation / inclinaison
-    const rotation = cfg["slogan_rotation"] || "";
-    if (rotation) sloganEl.style.transform = "rotate(" + rotation + "deg)";
-
-    // Position X (right)
-    const posX = cfg["slogan_position_x"] || "";
-    if (posX) sloganEl.style.right = posX + "px";
-
-    // Position Y (top)
-    const posY = cfg["slogan_position_y"] || "";
-    if (posY) sloganEl.style.top = posY + "px";
-
-    // Couleur
-    const couleurSlogan = cfg["slogan_couleur"] || "";
-    if (couleurSlogan) sloganEl.style.color = couleurSlogan;
-
-    // Police
-    const policeSlogan = cfg["slogan_police"] || "";
-    if (policeSlogan) sloganEl.style.fontFamily = policeSlogan;
-  }
-
-  // ── Police générale de l'app
-  const policeApp = cfg["police_app"] || "";
-  if (policeApp) {
-    document.documentElement.style.setProperty(
-      "--font-family",
-      policeApp + ", -apple-system, BlinkMacSystemFont, sans-serif"
-    );
-    document.body.style.fontFamily = policeApp + ", -apple-system, BlinkMacSystemFont, sans-serif";
-  }
-
-  // ── Titre club : taille police
-  const titreTaille = cfg["titre_taille"] || "";
-  if (titreTaille) {
-    const heroTitle = document.querySelector(".hero-title");
-    if (heroTitle) heroTitle.style.fontSize = titreTaille + "px";
-  }
-
-  // ── Couleur texte général
-  const couleurTexte = cfg["couleur_texte"] || "";
-  if (couleurTexte && /^#[0-9a-fA-F]{3,6}$/.test(couleurTexte)) {
-    document.documentElement.style.setProperty("--text", couleurTexte);
-  }
-
-  // ── Border radius des cards
-  const cardRadius = cfg["card_radius"] || "";
-  if (cardRadius) {
-    document.documentElement.style.setProperty("--radius", cardRadius + "px");
-  }
-
-  // ── Logo URL
-  const logoUrl = cfg["logo_url"] || "";
-  if (logoUrl) {
-    document.querySelectorAll(".hero-logo, .logo-img").forEach(img => {
-      img.src = logoUrl;
-    });
-  }
-
-  // ── URL Apps Script (override si présent)
-  const urlScript = cfg["url_script"] || "";
-  if (urlScript && urlScript.startsWith("https://script.google.com")) {
-    window._configScriptUrl = urlScript;
-  }
-
-  // ── Sections activer/désactiver
-  const showBureau = (cfg["activer_bureau"] || "oui").toLowerCase() !== "non";
-  const showBenevoles = (cfg["activer_benevoles"] || "oui").toLowerCase() !== "non";
-  const showConvocations = (cfg["activer_convocations"] || "oui").toLowerCase() !== "non";
-
-  const btnBureau = document.getElementById("btn-bureau");
-  const btnBenevoles = document.getElementById("btn-benevoles");
-  if (btnBureau) btnBureau.style.display = showBureau ? "" : "none";
-  if (btnBenevoles) btnBenevoles.style.display = showBenevoles ? "" : "none";
-
-  // Masquer section convocation si désactivée
-  const convocCard = document.getElementById("coachResponsesCard");
-  if (convocCard) convocCard.style.display = showConvocations ? "" : "none";
 }
 
 function envoyerWhatsappConvocation() {
@@ -2429,6 +2290,84 @@ Joueurs convoqués :
 ${joueurs.map(j => "• " + j).join("\n")}`;
 
   window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
+}
+
+
+// ════════════════════════════════════════════
+// ⚙️  CONFIG — appliquée après chargement
+// ════════════════════════════════════════════
+function appliquerConfig() {
+  const cfg = state.config || {};
+
+  // 1. Couleur principale
+  const c1 = cfg["couleur_principale"] || "";
+  if (c1) {
+    document.documentElement.style.setProperty("--accent", c1);
+  }
+
+  // 2. Couleur fond
+  const c2 = cfg["couleur_secondaire"] || "";
+  if (c2) {
+    document.documentElement.style.setProperty("--bg", c2);
+  }
+
+  // 3. Couleur texte
+  const ct = cfg["couleur_texte"] || "";
+  if (ct) {
+    document.documentElement.style.setProperty("--text", ct);
+  }
+
+  // 4. Nom du club
+  const nom = cfg["nom_club"] || "";
+  if (nom) {
+    const el = document.querySelector(".hero-title");
+    if (el) el.innerHTML = nom;
+    document.title = nom;
+  }
+
+  // 5. Slogan texte
+  const slogan = cfg["message_accueil"] || "";
+  if (slogan) {
+    const el = document.getElementById("heroSlogan");
+    if (el) el.innerHTML = slogan;
+  }
+
+  // 6. Slogan style
+  const sloganEl = document.getElementById("heroSlogan");
+  if (sloganEl) {
+    if (cfg["slogan_taille"])     sloganEl.style.fontSize   = cfg["slogan_taille"] + "px";
+    if (cfg["slogan_rotation"])   sloganEl.style.transform  = "rotate(" + cfg["slogan_rotation"] + "deg)";
+    if (cfg["slogan_position_x"]) sloganEl.style.right      = cfg["slogan_position_x"] + "px";
+    if (cfg["slogan_position_y"]) sloganEl.style.top        = cfg["slogan_position_y"] + "px";
+    if (cfg["slogan_couleur"])    sloganEl.style.color       = cfg["slogan_couleur"];
+    if (cfg["slogan_police"])     sloganEl.style.fontFamily  = cfg["slogan_police"];
+  }
+
+  // 7. Police générale
+  if (cfg["police_app"]) {
+    document.body.style.fontFamily = cfg["police_app"] + ", -apple-system, sans-serif";
+  }
+
+  // 8. Card radius
+  if (cfg["card_radius"]) {
+    document.documentElement.style.setProperty("--radius", cfg["card_radius"] + "px");
+  }
+
+  // 9. Logo URL
+  if (cfg["logo_url"]) {
+    document.querySelectorAll(".hero-logo").forEach(img => { img.src = cfg["logo_url"]; });
+  }
+
+  // 10. URL Apps Script
+  if (cfg["url_script"] && cfg["url_script"].startsWith("https://script.google.com")) {
+    window._configScriptUrl = cfg["url_script"];
+  }
+
+  // 11. Activer/désactiver sections
+  const btnBureau    = document.getElementById("btn-bureau");
+  const btnBenevoles = document.getElementById("btn-benevoles");
+  if (btnBureau    && cfg["activer_bureau"]    === "non") btnBureau.style.display    = "none";
+  if (btnBenevoles && cfg["activer_benevoles"] === "non") btnBenevoles.style.display = "none";
 }
 
 function _refreshMatchResponses() {
@@ -2702,7 +2641,7 @@ function cleanCompare(v){
           });
         });
 
-        // On garde state.codeCoach en mémoire pour la session
+        state.codeCoach = null;
         return true;
       } catch(e) {
         alert("Erreur réseau convocation : " + (e.message || e));
@@ -2780,26 +2719,27 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.2</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.0</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li><strong>V60.2 — 30/04/2026 14h00</strong></li>
-        <li>⚙️ CONFIG Google Sheet connectée</li>
-        <li>🎨 Couleurs, nom club, slogan depuis le Sheet</li>
-        <li>— — —</li>
-        <li><strong>V41.17</strong> — Bug code coach corrigé</li>
-        <li><strong>V41.14</strong> — Boutons WhatsApp/Annuler déplacés</li>
-        <li><strong>V41.1</strong> — CSS unifié, annulation convocation</li>
-      </ul>      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
+        <li>Récupération de la version qui fonctionnait</li>
+        <li>Nouvelle mise en page conservée</li>
+        <li>Formulaire complet restauré</li>
+        <li>Bouton Annuler restauré</li>
+        <li>Anti-doublon réponses coach renforcé</li>
+        <li>Filtrage réponses par match corrigé</li>
+        <li>Code coach demandé une seule fois</li>
+      </ul>
+      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
     </div>
   </div>
 
 <script>
 /* =========================================================
-   V60.2 - Gestion code coach unique
+   V60.0 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
