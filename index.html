@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.2 corrigé */
+/* Layout domicile officiel V60.3 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.2 */
+/* Masquage badge type header V60.3 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.2 clean */
+/* Apports V60.3 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.2 */
+/* Organisation match V60.3 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.2 merci organisation */
+/* V60.3 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.2 anti flash organisation */
+/* V60.3 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.2 */
+/* Bureau V60.3 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,12 +782,12 @@
 
 
 /* =========================================================
-   V60.2 - Fond SVG HTML homogène + cartes transparentes
+   V60.3 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
-#camSvgBackground{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#000;}
-#camSvgBackground svg{width:100vw;height:100vh;display:block;}
+#camSvgBackground{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;background:#000;}
+#camSvgBackground svg{width:100%;height:100%;display:block;position:absolute;top:0;left:0;}
 body>*:not(#camSvgBackground){position:relative;z-index:1;}
 header,main,section,.screen,.container,.app,.wrapper,.page,.hero,.top,.app-header,.content,#home,#homeScreen,.home,.home-screen{background:transparent!important;}
 .card,.item,.match-card,.bureau-member-card,.convocation-card,.response-card,.menu-btn,.list-card,.team-card,.player-card{
@@ -870,7 +870,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 <body>
 
 <div id="camSvgBackground" aria-hidden="true">
-  <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 390 844" preserveAspectRatio="none">
     <defs>
       <radialGradient id="g" cx="50%" cy="25%" r="75%">
         <stop offset="0%" stop-color="#202020"/>
@@ -915,7 +915,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.2</button>
+    ">V60.3</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1839,7 +1839,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.2 : vider l’ancienne sélection avant chaque lecture
+      // V60.3 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1877,7 +1877,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.2 : filtrage strict du match courant
+          // V60.3 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2648,7 +2648,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.2</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.3</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2668,7 +2668,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.2 - Gestion code coach unique
+   V60.3 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
