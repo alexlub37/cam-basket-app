@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V41.16 corrigé */
+/* Layout domicile officiel V41.17 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V41.16 */
+/* Masquage badge type header V41.17 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V41.16 clean */
+/* Apports V41.17 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V41.16 */
+/* Organisation match V41.17 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V41.16 merci organisation */
+/* V41.17 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V41.16 anti flash organisation */
+/* V41.17 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V41.16 */
+/* Bureau V41.17 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V41.16 - Fond SVG HTML homogène + cartes transparentes
+   V41.17 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,7 +911,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V41.16</button>
+    ">V41.17</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1821,7 +1821,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V41.16 : vider l’ancienne sélection avant chaque lecture
+      // V41.17 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1859,7 +1859,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V41.16 : filtrage strict du match courant
+          // V41.17 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2234,7 +2234,7 @@ async function annulerConvocation() {
       !(c.match === buildMatchKey(m) &&
         cleanCompare(c.equipe) === cleanCompare(m.equipe || ""))
     );
-    state.codeCoach = null;
+    // On garde state.codeCoach en mémoire pour pouvoir refaire une convocation
     chargerConvocationEnregistree(m);
     afficherConvocationDansMatch([]);
     if (btn) { btn.style.display="none"; btn.disabled=false; btn.textContent="🗑 Annuler la convocation"; }
@@ -2549,7 +2549,7 @@ function cleanCompare(v){
           });
         });
 
-        state.codeCoach = null;
+        // On garde state.codeCoach en mémoire pour la session
         return true;
       } catch(e) {
         alert("Erreur réseau convocation : " + (e.message || e));
@@ -2627,7 +2627,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V41.16</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V41.17</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2647,7 +2647,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V41.16 - Gestion code coach unique
+   V41.17 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
