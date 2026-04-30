@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V60.1 corrigé */
+/* Layout domicile officiel V60.5 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V60.1 */
+/* Masquage badge type header V60.5 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.1 clean */
+/* Apports V60.5 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V60.1 */
+/* Organisation match V60.5 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V60.1 merci organisation */
+/* V60.5 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V60.1 anti flash organisation */
+/* V60.5 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.1 */
+/* Bureau V60.5 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V60.1 - Fond SVG HTML homogène + cartes transparentes
+   V60.5 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -882,7 +882,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <path d="M40 235 C175 260 350 245 505 155" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
       <path d="M275 50 C290 150 310 260 360 405" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
     </g>
-    <g>
+    <g id="svgAccentPaths">
       <path d="M0 0 H390 V20 C290 8 190 14 105 17 C45 18 18 12 0 6Z" fill="#ffd400"/>
       <path d="M0 0 V844 H18 C9 744 14 636 12 520 C9 390 16 255 10 145 C6 68 12 25 0 0Z" fill="#ffd400"/>
       <path d="M390 0 V844 H372 C381 744 376 636 378 520 C381 390 374 255 380 145 C384 68 378 25 390 0Z" fill="#ffd400"/>
@@ -911,7 +911,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.1</button>
+    ">V60.5</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1403,11 +1403,13 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           const val = String(r[1] || "").trim();
           if (key && key !== "cle" && key !== "clé" && key !== "valeur") state.config[key] = val;
         });
-        appliquerConfig();
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
         renderBureau();
         renderBenevoles();
+        // Appliquer CONFIG après rendu complet
+        appliquerConfig();
+        setTimeout(appliquerConfig, 500);
         setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
       } catch(err){
         console.error(err);
@@ -1830,7 +1832,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.1 : vider l’ancienne sélection avant chaque lecture
+      // V60.5 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1868,7 +1870,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.1 : filtrage strict du match courant
+          // V60.5 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2158,6 +2160,17 @@ function renderBureau(){
           active.classList.remove('btn-outline');
           active.classList.add('btn-light');
         }
+      }
+      // Réappliquer la couleur CONFIG après changement de bouton actif
+      if (state.config && state.config["couleur_principale"]) {
+        const c = state.config["couleur_principale"];
+        document.querySelectorAll(".btn-light.active").forEach(el => {
+          el.style.setProperty("background", c, "important");
+          el.style.setProperty("border-color", c, "important");
+        });
+        document.querySelectorAll(".btn-outline").forEach(el => {
+          el.style.setProperty("border-color", c, "important");
+        });
       }
     }
 
@@ -2636,7 +2649,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.1</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2656,7 +2669,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.1 - Gestion code coach unique
+   V60.5 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2722,11 +2735,21 @@ function appliquerConfig() {
       ".btn-light.active,.btn-outline.active,.convoc-action{background:" + c + "!important;border-color:" + c + "!important}" +
       ".btn-outline{border-color:" + c + "!important}" +
       ".hero-sub,.badge-season,.coach-title,.convoc-title,.apports-title,.match-convoc-title{color:" + c + "!important}";
-    // Méthode 3 : inline sur éléments déjà rendus
-    document.querySelectorAll(".btn-light.active").forEach(el => {
+    // Méthode 3 : inline sur éléments + log
+    const btns = document.querySelectorAll(".btn-light.active, #btn-teams");
+    console.log("Boutons trouvés:", btns.length, "couleur:", c);
+    btns.forEach(el => {
       el.style.setProperty("background", c, "important");
       el.style.setProperty("border-color", c, "important");
+      console.log("Appliqué sur:", el.id || el.className);
     });
+    // Texte hero-sub
+    document.querySelectorAll(".hero-sub, .badge-season").forEach(el => {
+      el.style.setProperty("color", c, "important");
+    });
+    // Fond SVG brushstrokes
+    const svgPaths = document.querySelectorAll("#svgAccentPaths path");
+    svgPaths.forEach(p => p.setAttribute("fill", c));
   }
   // Nom du club
   if (cfg["nom_club"]) {
