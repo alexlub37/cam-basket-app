@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V41.17 corrigé */
+/* Layout domicile officiel V60.0 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V41.17 */
+/* Masquage badge type header V60.0 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V41.17 clean */
+/* Apports V60.0 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V41.17 */
+/* Organisation match V60.0 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V41.17 merci organisation */
+/* V60.0 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V41.17 anti flash organisation */
+/* V60.0 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V41.17 */
+/* Bureau V60.0 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V41.17 - Fond SVG HTML homogène + cartes transparentes
+   V60.0 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -882,7 +882,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <path d="M40 235 C175 260 350 245 505 155" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
       <path d="M275 50 C290 150 310 260 360 405" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
     </g>
-    <g>
+    <g id="svgAccentPaths">
       <path d="M0 0 H390 V20 C290 8 190 14 105 17 C45 18 18 12 0 6Z" fill="#ffd400"/>
       <path d="M0 0 V844 H18 C9 744 14 636 12 520 C9 390 16 255 10 145 C6 68 12 25 0 0Z" fill="#ffd400"/>
       <path d="M390 0 V844 H372 C381 744 376 636 378 520 C381 390 374 255 380 145 C384 68 378 25 390 0Z" fill="#ffd400"/>
@@ -911,13 +911,13 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V41.17</button>
+    ">V60.0</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
           <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
         </button>
-        <div style="
+        <div id="heroSlogan" style="
           position:absolute;
           top: 18px;
           right: -58px;
@@ -1181,7 +1181,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       matchs: "MATCHS",
       bureau: "BUREAU",
       benevoles: "BENEVOLES",
-      convocations: "CONVOCATIONS"
+      convocations: "CONVOCATIONS",
+      config: "CONFIG"
     };
 
 
@@ -1314,14 +1315,15 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, configRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles),
-          fetchRowsCsv(SHEETS.convocations)
+          fetchRowsCsv(SHEETS.convocations),
+          fetchRowsCsv(SHEETS.config).catch(() => [])
         ]);
 
         state.season = findSeason(paramRows);
@@ -1395,10 +1397,21 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           codeCoach: String(r[6] || "").trim()
         })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
 
+        // Parser CONFIG
+        state.config = {};
+        (configRows || []).forEach(r => {
+          const key = String(r[0] || "").trim().toLowerCase();
+          const val = String(r[1] || "").trim();
+          if (key && key !== "cle" && key !== "clé" && key !== "valeur") state.config[key] = val;
+        });
+
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
         renderBureau();
         renderBenevoles();
+        // Appliquer CONFIG après rendu
+        appliquerConfig();
+        setTimeout(appliquerConfig, 600);
         setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
       } catch(err){
         console.error(err);
@@ -1821,7 +1834,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V41.17 : vider l’ancienne sélection avant chaque lecture
+      // V60.0 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1859,7 +1872,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V41.17 : filtrage strict du match courant
+          // V60.0 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2148,6 +2161,9 @@ function renderBureau(){
           active.classList.add('active');
           active.classList.remove('btn-outline');
           active.classList.add('btn-light');
+          // Réappliquer couleur CONFIG
+          const c = state.config && state.config['couleur_principale'];
+          if (c) active.style.setProperty('background', c, 'important');
         }
       }
     }
@@ -2627,7 +2643,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V41.17</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.0</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2647,7 +2663,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V41.17 - Gestion code coach unique
+   V60.0 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2698,6 +2714,53 @@ window.addEventListener('focus', () => {
     setTimeout(_refreshMatchResponses, 800);
   }
 });
+
+// ══════════════════════════════════
+// ⚙️ CONFIG
+// ══════════════════════════════════
+function appliquerConfig() {
+  const cfg = state.config || {};
+
+  // Couleur principale
+  const c = cfg["couleur_principale"] || "";
+  if (c) {
+    // Variable CSS
+    document.documentElement.style.setProperty("--accent", c);
+    // Style injecté pour forcer sur tous les éléments
+    let s = document.getElementById("_cfg");
+    if (!s) { s = document.createElement("style"); s.id = "_cfg"; document.head.appendChild(s); }
+    s.textContent =
+      ".btn-light.active{background:" + c + "!important;border-color:" + c + "!important}" +
+      ".btn-outline{border-color:" + c + "!important}" +
+      ".hero-sub,.badge-season,.coach-title,.convoc-title,.apports-title{color:" + c + "!important}";
+    // SVG fond brushstrokes
+    document.querySelectorAll("#svgAccentPaths path[fill]").forEach(p => p.setAttribute("fill", c));
+    // Boutons déjà actifs
+    document.querySelectorAll(".btn-light.active").forEach(el => {
+      el.style.setProperty("background", c, "important");
+    });
+  }
+
+  // Nom du club
+  const nom = cfg["nom_club"] || "";
+  if (nom) {
+    const el = document.querySelector(".hero-title");
+    if (el) el.innerHTML = nom;
+    document.title = nom;
+  }
+
+  // Slogan
+  const sEl = document.getElementById("heroSlogan");
+  if (sEl) {
+    if (cfg["message_accueil"]) sEl.innerHTML = cfg["message_accueil"];
+    if (cfg["slogan_couleur"])  sEl.style.color = cfg["slogan_couleur"];
+  }
+
+  // Sections
+  if (cfg["activer_bureau"]    === "non") { const b = document.getElementById("btn-bureau");    if (b) b.style.display = "none"; }
+  if (cfg["activer_benevoles"] === "non") { const b = document.getElementById("btn-benevoles"); if (b) b.style.display = "none"; }
+}
+
 </script>
 
 </body>
