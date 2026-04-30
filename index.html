@@ -24,6 +24,10 @@
       --warn:#ff9f1c;
     }
     *{box-sizing:border-box}
+    html, body {
+      overscroll-behavior-x: none;
+      overflow-x: hidden;
+    }
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
@@ -449,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.0 corrigé */
+/* Layout domicile officiel V60.1 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.0 */
+/* Masquage badge type header V60.1 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.0 clean */
+/* Apports V60.1 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +659,7 @@
 }
 
 
-/* Organisation match V60.0 */
+/* Organisation match V60.1 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +712,7 @@
 }
 
 
-/* V60.0 merci organisation */
+/* V60.1 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.0 anti flash organisation */
+/* V60.1 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.0 */
+/* Bureau V60.1 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +782,7 @@
 
 
 /* =========================================================
-   V60.0 - Fond SVG HTML homogène + cartes transparentes
+   V60.1 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -866,7 +870,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 <body>
 
 <div id="camSvgBackground" aria-hidden="true">
-  <svg viewBox="0 0 390 844" preserveAspectRatio="none">
+  <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
     <defs>
       <radialGradient id="g" cx="50%" cy="25%" r="75%">
         <stop offset="0%" stop-color="#202020"/>
@@ -911,7 +915,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.0</button>
+    ">V60.1</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1189,6 +1193,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     const RESPONSE_SHEET_ID = SHEET_ID;
     const RESPONSE_SHEET_NAME = "REPONSES";
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
+    function getScriptUrl() { return window._configScriptUrl || APPS_SCRIPT_URL; }
     let lastCoachPresentPlayers = [];
 
     let state = {
@@ -1834,7 +1839,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.0 : vider l’ancienne sélection avant chaque lecture
+      // V60.1 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1872,7 +1877,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.0 : filtrage strict du match courant
+          // V60.1 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2239,7 +2244,7 @@ async function annulerConvocation() {
   if (btn) { btn.disabled = true; btn.textContent = "Annulation…"; }
 
   try {
-    const res = await fetch(APPS_SCRIPT_URL, { method:"POST", body:JSON.stringify(data) });
+    const res = await fetch(getScriptUrl(), { method:"POST", body:JSON.stringify(data) });
     const txt = await res.text();
 
     if (txt === "CODE_COACH_INVALIDE") { alert("Code coach incorrect ❌"); return; }
@@ -2536,7 +2541,7 @@ function cleanCompare(v){
       };
 
       try {
-        const res = await fetch(APPS_SCRIPT_URL, {
+        const res = await fetch(getScriptUrl(), {
           method: "POST",
           body: JSON.stringify(data)
         });
@@ -2643,7 +2648,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.0</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.1</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2663,7 +2668,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.0 - Gestion code coach unique
+   V60.1 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2754,6 +2759,11 @@ function appliquerConfig() {
   if (sEl) {
     if (cfg["message_accueil"]) sEl.innerHTML = cfg["message_accueil"];
     if (cfg["slogan_couleur"])  sEl.style.color = cfg["slogan_couleur"];
+  }
+
+  // URL Apps Script
+  if (cfg["url_script"] && cfg["url_script"].startsWith("https://script.google.com")) {
+    window._configScriptUrl = cfg["url_script"];
   }
 
   // Sections
