@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.3 corrigé */
+/* Layout domicile officiel V60.4 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.3 */
+/* Masquage badge type header V60.4 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.3 clean */
+/* Apports V60.4 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.3 */
+/* Organisation match V60.4 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.3 merci organisation */
+/* V60.4 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.3 anti flash organisation */
+/* V60.4 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.3 */
+/* Bureau V60.4 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +782,7 @@
 
 
 /* =========================================================
-   V60.3 - Fond SVG HTML homogène + cartes transparentes
+   V60.4 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -877,6 +877,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         <stop offset="70%" stop-color="#070707"/>
         <stop offset="100%" stop-color="#000000"/>
       </radialGradient>
+      <clipPath id="bounds"><rect width="390" height="844"/></clipPath>
     </defs>
     <rect width="390" height="844" fill="url(#g)"/>
     <g opacity="0.16" transform="translate(-120 135) scale(1.35)">
@@ -886,10 +887,10 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <path d="M40 235 C175 260 350 245 505 155" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
       <path d="M275 50 C290 150 310 260 360 405" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
     </g>
-    <g id="svgAccentPaths">
+    <g id="svgAccentPaths" clip-path="url(#bounds)">
       <path d="M0 0 H390 V20 C290 8 190 14 105 17 C45 18 18 12 0 6Z" fill="#ffd400"/>
-      <path d="M0 0 V844 H18 C9 744 14 636 12 520 C9 390 16 255 10 145 C6 68 12 25 0 0Z" fill="#ffd400"/>
-      <path d="M390 0 V844 H372 C381 744 376 636 378 520 C381 390 374 255 380 145 C384 68 378 25 390 0Z" fill="#ffd400"/>
+      <path d="M0 0 V844 H10 C5 744 8 636 7 520 C5 390 9 255 6 145 C4 68 7 25 0 0Z" fill="#ffd400"/>
+      <path d="M390 0 V844 H380 C385 744 382 636 383 520 C385 390 381 255 384 145 C386 68 383 25 390 0Z" fill="#ffd400"/>
       <path d="M0 844 H390 V820 C310 834 238 828 150 824 C78 820 34 836 0 844Z" fill="#ffd400"/>
       <path d="M0 30 C80 20 170 28 250 20 C315 14 356 22 390 28" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
       <path d="M20 0 C10 90 30 175 19 265 C10 335 24 435 17 525 C10 635 24 745 18 844" stroke="#050505" stroke-width="10" fill="none" opacity=".75"/>
@@ -915,7 +916,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.3</button>
+    ">V60.4</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1839,7 +1840,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.3 : vider l’ancienne sélection avant chaque lecture
+      // V60.4 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1877,7 +1878,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.3 : filtrage strict du match courant
+          // V60.4 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2648,7 +2649,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.3</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.4</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2668,7 +2669,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.3 - Gestion code coach unique
+   V60.4 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
