@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
   <style>
@@ -817,6 +817,19 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   border:1px solid rgba(255,212,0,.40)!important;border-radius:22px!important;box-shadow:0 20px 60px rgba(0,0,0,.75)!important;
 }
 
+
+    /* ── Compatibilité iOS/Android ── */
+    * { -webkit-tap-highlight-color: transparent; }
+    input, select, textarea { font-size: 16px !important; } /* évite zoom iOS */
+    body { -webkit-overflow-scrolling: touch; }
+    
+    /* Safe area notch iPhone */
+    header {
+      padding-top: max(18px, env(safe-area-inset-top)) !important;
+    }
+    body {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
 </style>
 
 <style>
@@ -877,6 +890,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 <link rel="apple-touch-icon" sizes="180x180" href="logo_180.png">
 <meta name="apple-mobile-web-app-title" content="CAM Basket">
 
+<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNBTSBCYXNrZXQgTW9udHJpY2hhcmQiLAogICJzaG9ydF9uYW1lIjogIkNBTSBCYXNrZXQiLAogICJzdGFydF91cmwiOiAiLi9pbmRleC5odG1sIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDAwMDAwIiwKICAidGhlbWVfY29sb3IiOiAiI2ZmZDQwMCIsCiAgImljb25zIjogWwogICAgeyJzcmMiOiAibG9nb18xOTIucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmcifSwKICAgIHsic3JjIjogImxvZ29fNTEyLnBuZyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIn0KICBdCn0=">
 </head>
 <body>
 
@@ -931,7 +945,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           white-space: nowrap;
         ">Tous<br>en Jaune&nbsp;!</div>
       </div>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.60</span></div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1><div style="margin-top:6px;text-align:center;"><span style="background:#ffd400;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:900;">Version V40.63</span></div>
       <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -1739,6 +1753,16 @@ afficherConvocationDansMatch([]);
 coachCardReset();
 chargerConvocationEnregistree(m);
       loadApportsDomicile();
+
+      // Injecter l'indicateur de refresh si pas encore présent
+      if (!document.getElementById('_refreshIndicator')) {
+        const ind = document.createElement('div');
+        ind.id = '_refreshIndicator';
+        ind.innerHTML = '🔄 Mise à jour…';
+        ind.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);background:rgba(255,212,0,0.92);color:#000;font-size:13px;font-weight:700;padding:6px 18px;border-radius:20px;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;';
+        document.body.appendChild(ind);
+      }
+
 showScreen("matchDetailScreen");
 
     }
@@ -2137,7 +2161,40 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
             + "&type=" + encodeURIComponent(typeMatch || "")
             + "&joueurs=" + joueursString;
 
-  window.open(url, "_blank");
+  const popup = window.open(url, "_blank");
+
+  // Surveiller la fermeture du formulaire pour rafraîchir instantanément
+  if (popup) {
+    const timer = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(timer);
+        _refreshMatchResponses();
+      }
+    }, 600);
+  } else {
+    // Si popup bloquée (iOS), on écoute le retour au focus de la page
+    window._pendingRefresh = true;
+  }
+}
+
+function _refreshMatchResponses() {
+  const m = state.currentOpenMatch;
+  if (!m) return;
+
+  // Indicateur visuel discret
+  const indicator = document.getElementById('_refreshIndicator');
+  if (indicator) {
+    indicator.style.opacity = '1';
+    setTimeout(() => { indicator.style.opacity = '0'; }, 1800);
+  }
+
+  // Recharger les réponses coach + apports
+  Promise.all([
+    loadCoachResponses(
+      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+    ),
+    loadApportsDomicile()
+  ]).catch(() => {});
 }
 
 
@@ -2525,6 +2582,20 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
     }
   }, true);
 })();
+
+// ── Refresh auto quand retour depuis le formulaire (iOS) ──
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && window._pendingRefresh) {
+    window._pendingRefresh = false;
+    setTimeout(_refreshMatchResponses, 800);
+  }
+});
+window.addEventListener('focus', () => {
+  if (window._pendingRefresh) {
+    window._pendingRefresh = false;
+    setTimeout(_refreshMatchResponses, 800);
+  }
+});
 </script>
 
 </body>
