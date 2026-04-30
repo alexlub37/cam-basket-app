@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.5 corrigé */
+/* Layout domicile officiel V60.6 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.5 */
+/* Masquage badge type header V60.6 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.5 clean */
+/* Apports V60.6 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.5 */
+/* Organisation match V60.6 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.5 merci organisation */
+/* V60.6 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.5 anti flash organisation */
+/* V60.6 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.5 */
+/* Bureau V60.6 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +782,7 @@
 
 
 /* =========================================================
-   V60.5 - Fond SVG HTML homogène + cartes transparentes
+   V60.6 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -916,7 +916,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.5</button>
+    ">V60.6</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1840,7 +1840,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.5 : vider l’ancienne sélection avant chaque lecture
+      // V60.6 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1878,7 +1878,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.5 : filtrage strict du match courant
+          // V60.6 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2649,7 +2649,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.5</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.6</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2669,7 +2669,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.5 - Gestion code coach unique
+   V60.6 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2760,10 +2760,11 @@ function appliquerConfig() {
   if (sEl) {
     if (cfg["message_accueil"])   sEl.innerHTML   = cfg["message_accueil"];
     if (cfg["slogan_couleur"])    sEl.style.color      = cfg["slogan_couleur"];
-    if (cfg["slogan_taille"])     sEl.style.fontSize   = cfg["slogan_taille"] + "px";
-    if (cfg["slogan_rotation"])   sEl.style.transform  = "rotate(" + cfg["slogan_rotation"] + "deg)";
-    if (cfg["slogan_position_x"]) sEl.style.right      = cfg["slogan_position_x"] + "px";
-    if (cfg["slogan_position_y"]) sEl.style.top        = cfg["slogan_position_y"] + "px";
+        const cleanNum = v => String(v || "0").replace(/\(/g,"-").replace(/\)/g,"").trim();
+    if (cfg["slogan_taille"])     sEl.style.fontSize  = cleanNum(cfg["slogan_taille"]) + "px";
+    if (cfg["slogan_rotation"])   sEl.style.transform = "rotate(" + cleanNum(cfg["slogan_rotation"]) + "deg)";
+    if (cfg["slogan_position_x"]) sEl.style.right     = cleanNum(cfg["slogan_position_x"]) + "px";
+    if (cfg["slogan_position_y"]) sEl.style.top       = cleanNum(cfg["slogan_position_y"]) + "px";
   }
 
   // URL Apps Script
