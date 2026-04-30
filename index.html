@@ -917,7 +917,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
           <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
         </button>
-        <div style="
+        <div id="heroSlogan" style="
           position:absolute;
           top: 18px;
           right: -58px;
@@ -1189,7 +1189,6 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     const RESPONSE_SHEET_ID = SHEET_ID;
     const RESPONSE_SHEET_NAME = "REPONSES";
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
-    function getScriptUrl() { return window._configScriptUrl || APPS_SCRIPT_URL; }
     let lastCoachPresentPlayers = [];
 
     let state = {
@@ -1398,17 +1397,13 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           codeCoach: String(r[6] || "").trim()
         })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
 
-        // ══ Lire et appliquer la CONFIG ══
         state.config = {};
         (configRows || []).forEach(r => {
-          const key   = String(r[0] || "").trim().toLowerCase();
-          const val   = String(r[1] || "").trim();
-          if (key && key !== "cle" && key !== "clé" && key !== "valeur") {
-            state.config[key] = val;
-          }
+          const key = String(r[0] || "").trim().toLowerCase();
+          const val = String(r[1] || "").trim();
+          if (key && key !== "cle" && key !== "clé" && key !== "valeur") state.config[key] = val;
         });
         appliquerConfig();
-
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
         renderBureau();
@@ -2237,7 +2232,7 @@ async function annulerConvocation() {
   if (btn) { btn.disabled = true; btn.textContent = "Annulation…"; }
 
   try {
-    const res = await fetch(getScriptUrl(), { method:"POST", body:JSON.stringify(data) });
+    const res = await fetch(APPS_SCRIPT_URL, { method:"POST", body:JSON.stringify(data) });
     const txt = await res.text();
 
     if (txt === "CODE_COACH_INVALIDE") { alert("Code coach incorrect ❌"); return; }
@@ -2290,84 +2285,6 @@ Joueurs convoqués :
 ${joueurs.map(j => "• " + j).join("\n")}`;
 
   window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
-}
-
-
-// ════════════════════════════════════════════
-// ⚙️  CONFIG — appliquée après chargement
-// ════════════════════════════════════════════
-function appliquerConfig() {
-  const cfg = state.config || {};
-
-  // 1. Couleur principale
-  const c1 = cfg["couleur_principale"] || "";
-  if (c1) {
-    document.documentElement.style.setProperty("--accent", c1);
-  }
-
-  // 2. Couleur fond
-  const c2 = cfg["couleur_secondaire"] || "";
-  if (c2) {
-    document.documentElement.style.setProperty("--bg", c2);
-  }
-
-  // 3. Couleur texte
-  const ct = cfg["couleur_texte"] || "";
-  if (ct) {
-    document.documentElement.style.setProperty("--text", ct);
-  }
-
-  // 4. Nom du club
-  const nom = cfg["nom_club"] || "";
-  if (nom) {
-    const el = document.querySelector(".hero-title");
-    if (el) el.innerHTML = nom;
-    document.title = nom;
-  }
-
-  // 5. Slogan texte
-  const slogan = cfg["message_accueil"] || "";
-  if (slogan) {
-    const el = document.getElementById("heroSlogan");
-    if (el) el.innerHTML = slogan;
-  }
-
-  // 6. Slogan style
-  const sloganEl = document.getElementById("heroSlogan");
-  if (sloganEl) {
-    if (cfg["slogan_taille"])     sloganEl.style.fontSize   = cfg["slogan_taille"] + "px";
-    if (cfg["slogan_rotation"])   sloganEl.style.transform  = "rotate(" + cfg["slogan_rotation"] + "deg)";
-    if (cfg["slogan_position_x"]) sloganEl.style.right      = cfg["slogan_position_x"] + "px";
-    if (cfg["slogan_position_y"]) sloganEl.style.top        = cfg["slogan_position_y"] + "px";
-    if (cfg["slogan_couleur"])    sloganEl.style.color       = cfg["slogan_couleur"];
-    if (cfg["slogan_police"])     sloganEl.style.fontFamily  = cfg["slogan_police"];
-  }
-
-  // 7. Police générale
-  if (cfg["police_app"]) {
-    document.body.style.fontFamily = cfg["police_app"] + ", -apple-system, sans-serif";
-  }
-
-  // 8. Card radius
-  if (cfg["card_radius"]) {
-    document.documentElement.style.setProperty("--radius", cfg["card_radius"] + "px");
-  }
-
-  // 9. Logo URL
-  if (cfg["logo_url"]) {
-    document.querySelectorAll(".hero-logo").forEach(img => { img.src = cfg["logo_url"]; });
-  }
-
-  // 10. URL Apps Script
-  if (cfg["url_script"] && cfg["url_script"].startsWith("https://script.google.com")) {
-    window._configScriptUrl = cfg["url_script"];
-  }
-
-  // 11. Activer/désactiver sections
-  const btnBureau    = document.getElementById("btn-bureau");
-  const btnBenevoles = document.getElementById("btn-benevoles");
-  if (btnBureau    && cfg["activer_bureau"]    === "non") btnBureau.style.display    = "none";
-  if (btnBenevoles && cfg["activer_benevoles"] === "non") btnBenevoles.style.display = "none";
 }
 
 function _refreshMatchResponses() {
@@ -2612,7 +2529,7 @@ function cleanCompare(v){
       };
 
       try {
-        const res = await fetch(getScriptUrl(), {
+        const res = await fetch(APPS_SCRIPT_URL, {
           method: "POST",
           body: JSON.stringify(data)
         });
@@ -2790,6 +2707,33 @@ window.addEventListener('focus', () => {
     setTimeout(_refreshMatchResponses, 800);
   }
 });
+
+function appliquerConfig() {
+  const cfg = state.config || {};
+  // Couleur principale
+  if (cfg["couleur_principale"]) {
+    let s = document.getElementById("_cfg");
+    if (!s) { s = document.createElement("style"); s.id = "_cfg"; document.head.appendChild(s); }
+    s.textContent = ":root{--accent:" + cfg["couleur_principale"] + " !important}";
+  }
+  // Nom du club
+  if (cfg["nom_club"]) {
+    const el = document.querySelector(".hero-title");
+    if (el) el.innerHTML = cfg["nom_club"];
+    document.title = cfg["nom_club"];
+  }
+  // Slogan texte + style
+  const sEl = document.getElementById("heroSlogan");
+  if (sEl) {
+    if (cfg["message_accueil"]) sEl.innerHTML = cfg["message_accueil"];
+    if (cfg["slogan_couleur"])  sEl.style.color       = cfg["slogan_couleur"];
+    if (cfg["slogan_taille"])   sEl.style.fontSize    = cfg["slogan_taille"] + "px";
+    if (cfg["slogan_rotation"]) sEl.style.transform   = "rotate(" + cfg["slogan_rotation"] + "deg)";
+  }
+  // Sections
+  if (cfg["activer_bureau"]    === "non") { const b = document.getElementById("btn-bureau");    if (b) b.style.display = "none"; }
+  if (cfg["activer_benevoles"] === "non") { const b = document.getElementById("btn-benevoles"); if (b) b.style.display = "none"; }
+}
 </script>
 
 </body>
