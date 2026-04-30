@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V60.0 corrigé */
+/* Layout domicile officiel V60.2 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V60.0 */
+/* Masquage badge type header V60.2 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.0 clean */
+/* Apports V60.2 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V60.0 */
+/* Organisation match V60.2 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V60.0 merci organisation */
+/* V60.2 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V60.0 anti flash organisation */
+/* V60.2 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.0 */
+/* Bureau V60.2 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V60.0 - Fond SVG HTML homogène + cartes transparentes
+   V60.2 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,20 +911,26 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.0</button>
+    ">V60.2</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
           <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
         </button>
-        <div id="heroSlogan" style="position:absolute;
-      top:10px;
-      left:12px;
-      background:rgba(255,212,0,0.15);
-      border:1px solid rgba(255,212,0,0.40);
-      color:#ffd400;
-      font-size:10px;
-      font-weight:800">Tous<br>en Jaune&nbsp;!</div>
+        <div id="heroSlogan" style="
+          position:absolute;
+          top: 18px;
+          right: -58px;
+          font-family: 'Segoe Script', 'Brush Script MT', 'Comic Sans MS', cursive;
+          font-size: 13px;
+          color: #ffd400;
+          line-height: 1.3;
+          text-align: left;
+          transform: rotate(-14deg);
+          text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+          pointer-events: none;
+          white-space: nowrap;
+        ">Tous<br>en Jaune&nbsp;!</div>
       </div>
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
@@ -1312,16 +1318,25 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, configRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
           fetchRows(SHEETS.matchs),
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles),
-          fetchRowsCsv(SHEETS.convocations),
-          fetchRowsCsv(SHEETS.config)
+          fetchRowsCsv(SHEETS.convocations)
         ]);
+
+        // Chargement CONFIG séparé pour ne pas bloquer si erreur
+        let configRows = [];
+        try {
+          configRows = await fetchRowsCsv(SHEETS.config);
+          console.log("CONFIG chargée:", configRows.length, "lignes");
+          configRows.forEach(r => console.log("  →", r[0], "=", r[1]));
+        } catch(e) {
+          console.warn("CONFIG non chargée:", e.message);
+        }
 
         state.season = findSeason(paramRows);
 
@@ -1830,7 +1845,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.0 : vider l’ancienne sélection avant chaque lecture
+      // V60.2 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1868,7 +1883,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.0 : filtrage strict du match courant
+          // V60.2 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2268,12 +2283,15 @@ async function annulerConvocation() {
 // ════════════════════════════════════════
 function appliquerConfig() {
   const cfg = state.config || {};
+  console.log("appliquerConfig() — config reçue:", JSON.stringify(cfg));
 
   // ── Couleur principale (accent)
   const couleur = cfg["couleur_principale"] || cfg["couleur_accent"] || "";
+  console.log("couleur_principale:", couleur);
   if (couleur && /^#[0-9a-fA-F]{3,6}$/.test(couleur)) {
     document.documentElement.style.setProperty("--accent", couleur);
     document.documentElement.style.setProperty("--btn-primary-bg", couleur);
+    console.log("✅ Couleur appliquée:", couleur);
     // Mettre à jour le badge version
     const badge = document.querySelector("button[onclick=\"openInfoModal()\"]");
     if (badge) badge.style.background = couleur.replace(/^#/, "rgba(") + ",0.15)";
@@ -2298,11 +2316,65 @@ function appliquerConfig() {
     if (modalTitle) modalTitle.textContent = nomClub;
   }
 
-  // ── Slogan / message accueil (Tous en Jaune !)
+  // ── Slogan / message accueil + style complet
   const slogan = cfg["message_accueil"] || cfg["slogan"] || "";
-  if (slogan) {
-    const sloganEl = document.getElementById("heroSlogan");
-    if (sloganEl) sloganEl.textContent = slogan;
+  const sloganEl = document.getElementById("heroSlogan");
+  if (sloganEl) {
+    // Texte
+    if (slogan) sloganEl.innerHTML = slogan.replace(" ", "<br>");
+
+    // Taille
+    const taille = cfg["slogan_taille"] || "";
+    if (taille) sloganEl.style.fontSize = taille + "px";
+
+    // Rotation / inclinaison
+    const rotation = cfg["slogan_rotation"] || "";
+    if (rotation) sloganEl.style.transform = "rotate(" + rotation + "deg)";
+
+    // Position X (right)
+    const posX = cfg["slogan_position_x"] || "";
+    if (posX) sloganEl.style.right = posX + "px";
+
+    // Position Y (top)
+    const posY = cfg["slogan_position_y"] || "";
+    if (posY) sloganEl.style.top = posY + "px";
+
+    // Couleur
+    const couleurSlogan = cfg["slogan_couleur"] || "";
+    if (couleurSlogan) sloganEl.style.color = couleurSlogan;
+
+    // Police
+    const policeSlogan = cfg["slogan_police"] || "";
+    if (policeSlogan) sloganEl.style.fontFamily = policeSlogan;
+  }
+
+  // ── Police générale de l'app
+  const policeApp = cfg["police_app"] || "";
+  if (policeApp) {
+    document.documentElement.style.setProperty(
+      "--font-family",
+      policeApp + ", -apple-system, BlinkMacSystemFont, sans-serif"
+    );
+    document.body.style.fontFamily = policeApp + ", -apple-system, BlinkMacSystemFont, sans-serif";
+  }
+
+  // ── Titre club : taille police
+  const titreTaille = cfg["titre_taille"] || "";
+  if (titreTaille) {
+    const heroTitle = document.querySelector(".hero-title");
+    if (heroTitle) heroTitle.style.fontSize = titreTaille + "px";
+  }
+
+  // ── Couleur texte général
+  const couleurTexte = cfg["couleur_texte"] || "";
+  if (couleurTexte && /^#[0-9a-fA-F]{3,6}$/.test(couleurTexte)) {
+    document.documentElement.style.setProperty("--text", couleurTexte);
+  }
+
+  // ── Border radius des cards
+  const cardRadius = cfg["card_radius"] || "";
+  if (cardRadius) {
+    document.documentElement.style.setProperty("--radius", cardRadius + "px");
   }
 
   // ── Logo URL
@@ -2708,12 +2780,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.0</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.2</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li><strong>V60.0 — 30/04/2026 14h00</strong></li>
+        <li><strong>V60.2 — 30/04/2026 14h00</strong></li>
         <li>⚙️ CONFIG Google Sheet connectée</li>
         <li>🎨 Couleurs, nom club, slogan depuis le Sheet</li>
         <li>— — —</li>
@@ -2727,7 +2799,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.0 - Gestion code coach unique
+   V60.2 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
