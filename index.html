@@ -375,7 +375,7 @@
     .convoc-item input{transform:scale(1.25)}
     .convoc-result{display:none;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#101010;color:#fff}
     .convoc-title{color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;margin-bottom:8px;display:block}
-    .convoc-action{margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#ffd400;color:#000;border:none}
+    .convoc-action{margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:var(--accent);color:#000;border:none}
     .match-convoc-card{
   border:1.5px solid rgba(255,212,0,0.6);
   border-radius:16px;
@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V60.5 corrigé */
+/* Layout domicile officiel V60.7 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V60.5 */
+/* Masquage badge type header V60.7 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.5 clean */
+/* Apports V60.7 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V60.5 */
+/* Organisation match V60.7 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V60.5 merci organisation */
+/* V60.7 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,13 +721,13 @@
   margin-bottom:16px;
 }
 
-/* V60.5 anti flash organisation */
+/* V60.7 anti flash organisation */
 .apports-card{
   display:none;
 }
 
 .btn-action{
-  background:#ffd400;
+  background:var(--accent);
   color:#000;
   padding:10px 14px;
   border-radius:10px;
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.5 */
+/* Bureau V60.7 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V60.5 - Fond SVG HTML homogène + cartes transparentes
+   V60.7 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,7 +911,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.5</button>
+    ">V60.7</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1432,6 +1432,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           if (key && key !== "cle" && key !== "clé") state.config[key] = val;
         });
         appliquerConfig();
+        // Rappel après rendu complet pour s'assurer que tout est appliqué
+        setTimeout(() => appliquerConfig(), 300);
 
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
@@ -1859,7 +1861,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.5 : vider l’ancienne sélection avant chaque lecture
+      // V60.7 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1897,7 +1899,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.5 : filtrage strict du match courant
+          // V60.7 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2315,17 +2317,26 @@ function appliquerConfig() {
     }
     styleOverride.textContent = `
       :root { --accent: ${couleur} !important; }
-      .btn-primary, .convoc-action, #btn-teams,
-      .badge-home, .badge-season, .hero-sub,
-      .coach-title, .convoc-title, .match-convoc-title,
-      .apports-title, .section-title { color: ${couleur} !important; }
-      .btn-primary, .convoc-action { background: ${couleur} !important; }
-      button.active, .btn-outline:hover { border-color: ${couleur} !important; }
-      #btn-teams { background: ${couleur} !important; color: #000 !important; }
-      .choice-btn.active { background: ${couleur} !important; border-color: ${couleur} !important; }
-      input:focus, textarea:focus, select:focus { border-color: ${couleur} !important; }
-      h2 { color: ${couleur} !important; }
+      .btn-light.active,
+      .btn-outline.active,
+      .btn-primary,
+      .convoc-action,
+      button[id="btn-teams"] { background: ${couleur} !important; color: #000 !important; }
+      .btn-outline { border-color: ${couleur} !important; color: #fff !important; }
+      .hero-sub, .badge-season, .coach-title, .convoc-title,
+      .apports-title, .section-title, h2,
+      .match-convoc-title { color: ${couleur} !important; }
+      .choice-btn.active { background: ${couleur} !important; border-color: ${couleur} !important; color:#000 !important; }
+      .send { background: ${couleur} !important; }
     `;
+    // Forcer aussi inline sur les éléments déjà rendus
+    document.querySelectorAll(".btn-light.active, #btn-teams").forEach(el => {
+      el.style.setProperty("background", couleur, "important");
+      el.style.setProperty("color", "#000", "important");
+    });
+    document.querySelectorAll(".btn-outline").forEach(el => {
+      el.style.setProperty("border-color", couleur, "important");
+    });
     // Mettre à jour le badge version
     const badge = document.querySelector("button[onclick=\"openInfoModal()\"]");
     if (badge) badge.style.background = couleur.replace(/^#/, "rgba(") + ",0.15)";
@@ -2814,12 +2825,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.5</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.7</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li><strong>V60.5 — 30/04/2026 14h00</strong></li>
+        <li><strong>V60.7 — 30/04/2026 14h00</strong></li>
         <li>⚙️ CONFIG Google Sheet connectée</li>
         <li>🎨 Couleurs, nom club, slogan depuis le Sheet</li>
         <li>— — —</li>
@@ -2833,7 +2844,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.5 - Gestion code coach unique
+   V60.7 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
