@@ -375,7 +375,7 @@
     .convoc-item input{transform:scale(1.25)}
     .convoc-result{display:none;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#101010;color:#fff}
     .convoc-title{color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;margin-bottom:8px;display:block}
-    .convoc-action{margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:var(--accent);color:#000;border:none}
+    .convoc-action{margin-top:12px;width:100%;padding:14px;font-weight:900;border-radius:14px;background:#ffd400;color:#000;border:none}
     .match-convoc-card{
   border:1.5px solid rgba(255,212,0,0.6);
   border-radius:16px;
@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V60.10 corrigé */
+/* Layout domicile officiel V60.0 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V60.10 */
+/* Masquage badge type header V60.0 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.10 clean */
+/* Apports V60.0 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V60.10 */
+/* Organisation match V60.0 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V60.10 merci organisation */
+/* V60.0 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,13 +721,13 @@
   margin-bottom:16px;
 }
 
-/* V60.10 anti flash organisation */
+/* V60.0 anti flash organisation */
 .apports-card{
   display:none;
 }
 
 .btn-action{
-  background:var(--accent);
+  background:#ffd400;
   color:#000;
   padding:10px 14px;
   border-radius:10px;
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.10 */
+/* Bureau V60.0 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V60.10 - Fond SVG HTML homogène + cartes transparentes
+   V60.0 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,26 +911,20 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.10</button>
+    ">V60.0</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
           <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
         </button>
-        <div id="heroSlogan" style="
-          position:absolute;
-          top: 18px;
-          right: -58px;
-          font-family: 'Segoe Script', 'Brush Script MT', 'Comic Sans MS', cursive;
-          font-size: 13px;
-          color: #ffd400;
-          line-height: 1.3;
-          text-align: left;
-          transform: rotate(-14deg);
-          text-shadow: 0 2px 6px rgba(0,0,0,0.8);
-          pointer-events: none;
-          white-space: nowrap;
-        ">Tous<br>en Jaune&nbsp;!</div>
+        <div id="heroSlogan" style="position:absolute;
+      top:10px;
+      left:12px;
+      background:rgba(255,212,0,0.15);
+      border:1px solid rgba(255,212,0,0.40);
+      color:#ffd400;
+      font-size:10px;
+      font-weight:800">Tous<br>en Jaune&nbsp;!</div>
       </div>
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
@@ -1326,7 +1320,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles),
           fetchRowsCsv(SHEETS.convocations),
-          fetchRowsCsv(SHEETS.config).catch(() => [])
+          fetchRowsCsv(SHEETS.config)
         ]);
 
         state.season = findSeason(paramRows);
@@ -1409,6 +1403,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           if (key && key !== "cle" && key !== "clé") state.config[key] = val;
         });
         appliquerConfig();
+
         document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
         renderTeams();
         renderBureau();
@@ -1835,7 +1830,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.10 : vider l’ancienne sélection avant chaque lecture
+      // V60.0 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1873,7 +1868,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.10 : filtrage strict du match courant
+          // V60.0 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2291,46 +2286,23 @@ function appliquerConfig() {
   }
 
   // ── Nom du club
-  const nomClub = cfg["nom_club"] || "";
+  const nomClub = cfg["nom_club"] || cfg["nom_club"] || "";
   if (nomClub) {
-    const applyNom = () => {
-      const heroTitle = document.querySelector(".hero-title");
-      if (heroTitle) heroTitle.innerHTML = nomClub;
-      document.title = nomClub;
-      const modalTitle = document.getElementById("infoModalClub");
-      if (modalTitle) modalTitle.textContent = nomClub;
-    };
-    applyNom();
-    setTimeout(applyNom, 400);
-  }
-
-  // ── Slogan / message accueil + style
-  const slogan = cfg["message_accueil"] || cfg["slogan"] || "";
-  const sloganEl = document.getElementById("heroSlogan");
-  if (sloganEl) {
-    if (slogan) sloganEl.innerHTML = slogan.replace(" ", "<br>");
-    if (cfg["slogan_taille"])     sloganEl.style.fontSize   = cfg["slogan_taille"] + "px";
-    if (cfg["slogan_rotation"])   sloganEl.style.transform  = "rotate(" + cfg["slogan_rotation"] + "deg)";
-    if (cfg["slogan_position_x"]) sloganEl.style.right      = cfg["slogan_position_x"] + "px";
-    if (cfg["slogan_position_y"]) sloganEl.style.top        = cfg["slogan_position_y"] + "px";
-    if (cfg["slogan_couleur"])    sloganEl.style.color       = cfg["slogan_couleur"];
-    if (cfg["slogan_police"])     sloganEl.style.fontFamily  = cfg["slogan_police"];
-  }
-
-  // ── Police générale
-  if (cfg["police_app"]) {
-    document.body.style.fontFamily = cfg["police_app"] + ", -apple-system, sans-serif";
-  }
-
-  // ── Titre taille
-  if (cfg["titre_taille"]) {
+    // Titre principal hero
     const heroTitle = document.querySelector(".hero-title");
-    if (heroTitle) heroTitle.style.fontSize = cfg["titre_taille"] + "px";
+    if (heroTitle) heroTitle.innerHTML = nomClub.replace(" - ", "<br>").replace(" / ", "<br>");
+    // Titre de la page
+    document.title = nomClub;
+    // Modale info
+    const modalTitle = document.getElementById("infoModalClub");
+    if (modalTitle) modalTitle.textContent = nomClub;
   }
 
-  // ── Card radius
-  if (cfg["card_radius"]) {
-    document.documentElement.style.setProperty("--radius", cfg["card_radius"] + "px");
+  // ── Slogan / message accueil (Tous en Jaune !)
+  const slogan = cfg["message_accueil"] || cfg["slogan"] || "";
+  if (slogan) {
+    const sloganEl = document.getElementById("heroSlogan");
+    if (sloganEl) sloganEl.textContent = slogan;
   }
 
   // ── Logo URL
@@ -2736,12 +2708,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.10</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.0</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li><strong>V60.10 — 30/04/2026 14h00</strong></li>
+        <li><strong>V60.0 — 30/04/2026 14h00</strong></li>
         <li>⚙️ CONFIG Google Sheet connectée</li>
         <li>🎨 Couleurs, nom club, slogan depuis le Sheet</li>
         <li>— — —</li>
@@ -2755,7 +2727,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.10 - Gestion code coach unique
+   V60.0 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
