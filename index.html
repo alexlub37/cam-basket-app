@@ -449,7 +449,7 @@
 }
 
 
-/* Layout domicile officiel V60.4 corrigé */
+/* Layout domicile officiel V60.5 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -597,12 +597,12 @@
 }
 
 
-/* Masquage badge type header V60.4 */
+/* Masquage badge type header V60.5 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.4 clean */
+/* Apports V60.5 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -655,7 +655,7 @@
 }
 
 
-/* Organisation match V60.4 */
+/* Organisation match V60.5 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -708,7 +708,7 @@
 }
 
 
-/* V60.4 merci organisation */
+/* V60.5 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -721,7 +721,7 @@
   margin-bottom:16px;
 }
 
-/* V60.4 anti flash organisation */
+/* V60.5 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -735,7 +735,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.4 */
+/* Bureau V60.5 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -778,7 +778,7 @@
 
 
 /* =========================================================
-   V60.4 - Fond SVG HTML homogène + cartes transparentes
+   V60.5 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -911,7 +911,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.4</button>
+    ">V60.5</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1328,14 +1328,28 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           fetchRowsCsv(SHEETS.convocations)
         ]);
 
-        // Chargement CONFIG séparé pour ne pas bloquer si erreur
+        // Chargement CONFIG — méthode JSON plus fiable
         let configRows = [];
         try {
-          configRows = await fetchRowsCsv(SHEETS.config);
-          console.log("CONFIG chargée:", configRows.length, "lignes");
+          const configUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CONFIG`;
+          const configRes = await fetch(configUrl);
+          const configTxt = await configRes.text();
+          // Google renvoie google.visualization.Query.setResponse({...})
+          const jsonStr = configTxt.replace(/^[^(]+\(/, "").replace(/\);?\s*$/, "");
+          const jsonData = JSON.parse(jsonStr);
+          const rows = jsonData.table.rows || [];
+          configRows = rows.map(r => [
+            (r.c[0] && r.c[0].v) ? String(r.c[0].v) : "",
+            (r.c[1] && r.c[1].v) ? String(r.c[1].v) : ""
+          ]);
+          console.log("CONFIG JSON chargée:", configRows.length, "lignes");
           configRows.forEach(r => console.log("  →", r[0], "=", r[1]));
         } catch(e) {
           console.warn("CONFIG non chargée:", e.message);
+          // Fallback CSV
+          try {
+            configRows = await fetchRowsCsv(SHEETS.config);
+          } catch(e2) {}
         }
 
         state.season = findSeason(paramRows);
@@ -1845,7 +1859,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.4 : vider l’ancienne sélection avant chaque lecture
+      // V60.5 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1883,7 +1897,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.4 : filtrage strict du match courant
+          // V60.5 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2800,12 +2814,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.4</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.5</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li><strong>V60.4 — 30/04/2026 14h00</strong></li>
+        <li><strong>V60.5 — 30/04/2026 14h00</strong></li>
         <li>⚙️ CONFIG Google Sheet connectée</li>
         <li>🎨 Couleurs, nom club, slogan depuis le Sheet</li>
         <li>— — —</li>
@@ -2819,7 +2833,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.4 - Gestion code coach unique
+   V60.5 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
