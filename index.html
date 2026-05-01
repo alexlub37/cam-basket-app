@@ -310,6 +310,59 @@
       font-weight:900;
       font-size:15px
     }
+    /* ══ CARD CE WEEK-END ══ */
+    #weekendCard {
+      display: none;
+      margin-bottom: 14px;
+    }
+    .weekend-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .weekend-match {
+      background: #151515;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border-left: 3px solid var(--accent);
+    }
+    .weekend-match-equipe {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .weekend-match-adversaire {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .weekend-match-infos {
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      gap: 10px;
+    }
+    .weekend-match-type {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 700;
+      margin-left: auto;
+    }
+    .type-dom { background: rgba(31,170,89,0.2); color: #1faa59; }
+    .type-ext { background: rgba(255,159,28,0.15); color: #ff9f1c; }
+
     .modal-overlay{
       position:fixed;
       inset:0;
@@ -453,7 +506,7 @@
 }
 
 
-/* Layout domicile officiel V60.22 corrigé */
+/* Layout domicile officiel V60.23 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +654,12 @@
 }
 
 
-/* Masquage badge type header V60.22 */
+/* Masquage badge type header V60.23 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.22 clean */
+/* Apports V60.23 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +712,7 @@
 }
 
 
-/* Organisation match V60.22 */
+/* Organisation match V60.23 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +765,7 @@
 }
 
 
-/* V60.22 merci organisation */
+/* V60.23 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +778,7 @@
   margin-bottom:16px;
 }
 
-/* V60.22 anti flash organisation */
+/* V60.23 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +792,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.22 */
+/* Bureau V60.23 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +835,7 @@
 
 
 /* =========================================================
-   V60.22 - Fond SVG HTML homogène + cartes transparentes
+   V60.23 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -881,7 +934,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   justify-content:center;
   transition:opacity 0.4s ease;
 ">
-  <img id="splashLogo" src="" alt="Logo" style="
+  <img id="splashLogo" src="Image PNG.png" alt="Logo" style="
     width:160px;
     height:160px;
     object-fit:contain;
@@ -945,11 +998,11 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.22</button>
+    ">V60.23</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
-          <img src="" alt="Logo" class="hero-logo" id="mainLogo">
+          <img src="Image PNG.png" alt="Logo" class="hero-logo" id="mainLogo">
         </button>
         <div id="heroSlogan" style="
           display:none;
@@ -981,6 +1034,11 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
   <main>
     <section id="teamsScreen" class="screen active">
+      <!-- Card Ce week-end -->
+      <div id="weekendCard" class="card">
+        <div class="weekend-title">🏀 Ce week-end</div>
+        <div id="weekendList"></div>
+      </div>
       <div class="card">
         <h2>Équipes <span id="seasonBadge" class="pill"></span></h2>
         <div class="muted">Saison active uniquement.</div>
@@ -1490,6 +1548,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         renderTeams();
         renderBureau();
         renderBenevoles();
+        renderWeekend();
         // Appliquer CONFIG après rendu
         // CONFIG déjà appliquée au début du chargement
         setTimeout(appliquerConfig, 300);
@@ -1915,7 +1974,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.22 : vider l’ancienne sélection avant chaque lecture
+      // V60.23 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1953,7 +2012,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.22 : filtrage strict du match courant
+          // V60.23 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2381,6 +2440,58 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
   window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
 }
 
+
+function renderWeekend() {
+  const card = document.getElementById("weekendCard");
+  const list = document.getElementById("weekendList");
+  if (!card || !list) return;
+
+  const now = new Date();
+  // Trouver le prochain week-end (vendredi soir → dimanche soir)
+  const day = now.getDay(); // 0=dim, 1=lun...6=sam
+  const diffToFri = (5 - day + 7) % 7;
+  const friday = new Date(now);
+  friday.setDate(now.getDate() + (diffToFri === 0 && now.getHours() >= 20 ? 7 : diffToFri));
+  friday.setHours(18, 0, 0, 0);
+  const sunday = new Date(friday);
+  sunday.setDate(friday.getDate() + 2);
+  sunday.setHours(23, 59, 59, 0);
+
+  // Filtrer les matchs du week-end
+  const matchsWE = (state.matchs || []).filter(m => {
+    if (!m.date) return false;
+    const parts = m.date.split('/');
+    if (parts.length < 3) return false;
+    const d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+    return d >= friday && d <= sunday && m.saison === state.season;
+  });
+
+  if (matchsWE.length === 0) {
+    card.style.display = "none";
+    return;
+  }
+
+  card.style.display = "block";
+  list.innerHTML = matchsWE.map(m => {
+    const isDom = (m.type || "").toLowerCase().includes("dom");
+    const typeClass = isDom ? "type-dom" : "type-ext";
+    const typeLabel = isDom ? "Domicile" : "Extérieur";
+    return `
+      <div class="weekend-match">
+        <div class="weekend-match-equipe">${escapeHtml(m.equipe)}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="weekend-match-adversaire">vs ${escapeHtml(m.adversaire || "?")}</div>
+          <span class="weekend-match-type ${typeClass}">${typeLabel}</span>
+        </div>
+        <div class="weekend-match-infos">
+          <span>📅 ${escapeHtml(m.date)}</span>
+          <span>🕐 ${escapeHtml(m.heure || "?")}</span>
+          ${m.gymnase ? `<span>📍 ${escapeHtml(m.gymnase)}</span>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+}
+
 function _refreshMatchResponses() {
   const m = state.currentOpenMatch;
   if (!m) return;
@@ -2730,7 +2841,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.22</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.23</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2750,7 +2861,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.22 - Gestion code coach unique
+   V60.23 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
