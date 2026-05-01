@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.13 corrigé */
+/* Layout domicile officiel V60.15 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.13 */
+/* Masquage badge type header V60.15 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.13 clean */
+/* Apports V60.15 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.13 */
+/* Organisation match V60.15 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.13 merci organisation */
+/* V60.15 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.13 anti flash organisation */
+/* V60.15 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.13 */
+/* Bureau V60.15 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +782,7 @@
 
 
 /* =========================================================
-   V60.13 - Fond SVG HTML homogène + cartes transparentes
+   V60.15 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -867,7 +867,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
 <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNBTSBCYXNrZXQgTW9udHJpY2hhcmQiLAogICJzaG9ydF9uYW1lIjogIkNBTSBCYXNrZXQiLAogICJzdGFydF91cmwiOiAiLi9pbmRleC5odG1sIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDAwMDAwIiwKICAidGhlbWVfY29sb3IiOiAiI2ZmZDQwMCIsCiAgImljb25zIjogWwogICAgeyJzcmMiOiAibG9nb18xOTIucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmcifSwKICAgIHsic3JjIjogImxvZ29fNTEyLnBuZyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIn0KICBdCn0=">
 </head>
-<body>
+<body class="loading">
 
 <div id="camSvgBackground" aria-hidden="true">
   <svg viewBox="0 0 390 844" preserveAspectRatio="none">
@@ -916,16 +916,18 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.13</button>
+    ">V60.15</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
           <img src="Image PNG.png" alt="Logo CAM Basket Montrichard" class="hero-logo">
         </button>
         <div id="heroSlogan" style="
+          display:none;
           position:absolute;
-          top: 18px;
-          left: 120px;
+          top: auto;
+          left: auto;
+          right: auto;
           font-family: 'Segoe Script', 'Brush Script MT', 'Comic Sans MS', cursive;
           font-size: 13px;
           color: #ffd400;
@@ -1430,6 +1432,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         renderBenevoles();
         // Appliquer CONFIG après rendu
         appliquerConfig();
+        document.body.classList.remove("loading");
         setTimeout(appliquerConfig, 600);
         setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
       } catch(err){
@@ -1853,7 +1856,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.13 : vider l’ancienne sélection avant chaque lecture
+      // V60.15 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1891,7 +1894,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.13 : filtrage strict du match courant
+          // V60.15 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2668,7 +2671,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.13</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.15</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2688,7 +2691,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.13 - Gestion code coach unique
+   V60.15 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2780,10 +2783,12 @@ function appliquerConfig() {
     if (cfg["message_accueil"])   sEl.innerHTML   = cfg["message_accueil"];
     if (cfg["slogan_couleur"])    sEl.style.color      = cfg["slogan_couleur"];
         const cleanNum = v => String(v || "0").replace(/\(/g,"-").replace(/\)/g,"").trim();
-    if (cfg["slogan_taille"])     sEl.style.fontSize  = cleanNum(cfg["slogan_taille"]) + "px";
-    if (cfg["slogan_rotation"])   sEl.style.transform = "rotate(" + cleanNum(cfg["slogan_rotation"]) + "deg)";
-    if (cfg["slogan_position_x"]) sEl.style.left      = cleanNum(cfg["slogan_position_x"]) + "px";
-    if (cfg["slogan_position_y"]) sEl.style.top       = cleanNum(cfg["slogan_position_y"]) + "px";
+    sEl.style.fontSize  = cfg["slogan_taille"]     ? cleanNum(cfg["slogan_taille"]) + "px"                 : "13px";
+    sEl.style.transform = cfg["slogan_rotation"]   ? "rotate(" + cleanNum(cfg["slogan_rotation"]) + "deg)"   : "rotate(-14deg)";
+    sEl.style.left      = cfg["slogan_position_x"] ? cleanNum(cfg["slogan_position_x"]) + "px"               : "120px";
+    sEl.style.top       = cfg["slogan_position_y"] ? cleanNum(cfg["slogan_position_y"]) + "px"               : "18px";
+    sEl.style.right     = "auto";
+    sEl.style.display    = "block";
   }
 
   // URL Apps Script
