@@ -2448,40 +2448,95 @@ function renderWeekend() {
 
   const now = new Date();
   now.setHours(0, 0, 0, 0);
+
   // Afficher les matchs des 7 prochains jours
   const in7days = new Date(now);
   in7days.setDate(now.getDate() + 7);
 
+  // V40.61 : seules les équipes de la saison active sont autorisées
+  const equipesSaisonActive = new Set(
+    (state.equipes || [])
+      .filter(e => !state.season || sameSeason(e.saison, state.season))
+      .map(e => normalize(e.equipe))
+      .filter(Boolean)
+  );
+
+  function parseWeekendDate(dateText) {
+    const txt = String(dateText || "").trim();
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(txt)) {
+      const p = txt.split("-");
+      return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    }
+
+    const parts = txt.split("/");
+    if (parts.length < 3) return null;
+
+    let year = parseInt(parts[2], 10);
+    if (year < 100) year += 2000;
+
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+
+    if (!day || !month || !year) return null;
+    return new Date(year, month - 1, day);
+  }
+
   const matchsWE = (state.matchs || []).filter(m => {
     if (!m.date) return false;
-    const parts = m.date.split('/');
-    if (parts.length < 3) return false;
-    // Gérer année à 2 ou 4 chiffres
-    let year = parseInt(parts[2]);
-    if (year < 100) year += 2000;
-    const d = new Date(year, parseInt(parts[1])-1, parseInt(parts[0]));
+
+    // 1) le match doit être dans la saison active
+    if (state.season && !sameSeason(m.saison, state.season)) return false;
+
+    // 2) l'équipe doit exister dans l'onglet EQUIPES pour cette saison
+    if (equipesSaisonActive.size && !equipesSaisonActive.has(normalize(m.equipe))) return false;
+
+    // 3) le match doit être dans les 7 prochains jours
+    const d = parseWeekendDate(m.date);
+    if (!d) return false;
+
     return d >= now && d <= in7days;
   }).sort((a, b) => {
-    const pa = a.date.split('/'); const pb = b.date.split('/');
-    return new Date(parseInt(pa[2]<100?+pa[2]+2000:pa[2]), pa[1]-1, pa[0]) - 
-           new Date(parseInt(pb[2]<100?+pb[2]+2000:pb[2]), pb[1]-1, pb[0]);
+    const da = parseWeekendDate(a.date);
+    const db = parseWeekendDate(b.date);
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+
+    const dateDiff = da - db;
+    if (dateDiff !== 0) return dateDiff;
+
+    // V40.62 : si même jour, tri par heure
+    const ha = String(a.heure || "").trim().replace("h", ":");
+    const hb = String(b.heure || "").trim().replace("h", ":");
+
+    function minutes(h) {
+      const p = h.split(":");
+      const hh = parseInt(p[0], 10) || 0;
+      const mm = parseInt(p[1], 10) || 0;
+      return hh * 60 + mm;
+    }
+
+    return minutes(ha) - minutes(hb);
   });
 
   if (matchsWE.length === 0) {
     card.style.display = "none";
+    list.innerHTML = "";
     return;
   }
 
   card.style.display = "block";
   list.innerHTML = matchsWE.map(m => {
-    const isDom = (m.type || "").toLowerCase().includes("dom");
+    const isDom = isHomeType(m.type);
     const typeClass = isDom ? "type-dom" : "type-ext";
     const typeLabel = isDom ? "Domicile" : "Extérieur";
+
     return `
       <div class="weekend-match">
         <div class="weekend-match-equipe">${escapeHtml(m.equipe)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between">
-          <div class="weekend-match-adversaire">vs ${escapeHtml(m.adversaire || "?")}</div>
+          <div class="weekend-match-adversaire">${escapeHtml(buildMatchDisplay(m))}</div>
           <span class="weekend-match-type ${typeClass}">${typeLabel}</span>
         </div>
         <div class="weekend-match-infos">
@@ -2847,13 +2902,9 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Récupération de la version qui fonctionnait</li>
-        <li>Nouvelle mise en page conservée</li>
-        <li>Formulaire complet restauré</li>
-        <li>Bouton Annuler restauré</li>
-        <li>Anti-doublon réponses coach renforcé</li>
-        <li>Filtrage réponses par match corrigé</li>
-        <li>Code coach demandé une seule fois</li>
+        <li>Correction carte matchs du week-end</li>
+        <li>Filtrage par saison active conservé</li>
+        <li>Tri des matchs par jour puis par heure</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
