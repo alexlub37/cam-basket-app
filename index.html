@@ -1297,14 +1297,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       return out;
     }
 
-    
-        }
-        parts.push(cur);
-        return parts.map(p => String(p || "").trim());
-      });
-    }
-
-async function fetchRowsCsv(sheetName){
+    async function fetchRowsCsv(sheetName){
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
       const res = await fetch(url);
       const txt = await res.text();
