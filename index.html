@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.16 corrigé */
+/* Layout domicile officiel V60.17 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.16 */
+/* Masquage badge type header V60.17 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.16 clean */
+/* Apports V60.17 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.16 */
+/* Organisation match V60.17 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.16 merci organisation */
+/* V60.17 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.16 anti flash organisation */
+/* V60.17 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.16 */
+/* Bureau V60.17 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +782,7 @@
 
 
 /* =========================================================
-   V60.16 - Fond SVG HTML homogène + cartes transparentes
+   V60.17 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -902,7 +902,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
   <header>
     <!-- Badge version cliquable — haut gauche -->
-    <button onclick="openInfoModal()" style="
+    <button onclick="openInfoModal()" id="versionBadge" style="
       position:absolute;
       top:10px;
       left:12px;
@@ -916,7 +916,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.16</button>
+    ">V60.17</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1333,12 +1333,14 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           fetchRowsCsv(SHEETS.convocations),
           (async () => {
             try {
-              const r = await fetch(APPS_SCRIPT_URL + "?action=getConfig");
+              const ctrl = new AbortController();
+              const timer = setTimeout(() => ctrl.abort(), 3000); // timeout 3s
+              const r = await fetch(APPS_SCRIPT_URL + "?action=getConfig", {signal: ctrl.signal});
+              clearTimeout(timer);
               const cfg = await r.json();
-              // Convertir {clé: valeur} en tableau [[clé, valeur], ...]
               return Object.entries(cfg).map(([k, v]) => [k, String(v)]);
             } catch(e) {
-              console.warn("CONFIG via script échoué:", e);
+              console.warn("CONFIG échoué:", e);
               return [];
             }
           })()
@@ -1858,7 +1860,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.16 : vider l’ancienne sélection avant chaque lecture
+      // V60.17 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1896,7 +1898,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.16 : filtrage strict du match courant
+          // V60.17 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2673,7 +2675,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.16</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.17</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2693,7 +2695,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.16 - Gestion code coach unique
+   V60.17 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2765,6 +2767,9 @@ function appliquerConfig() {
       ".hero-sub,.badge-season,.coach-title,.convoc-title,.apports-title{color:" + c + "!important}";
     // SVG fond brushstrokes
     document.querySelectorAll("#svgAccentPaths path[fill]").forEach(p => p.setAttribute("fill", c));
+    // Badge version
+    const badge = document.getElementById("versionBadge");
+    if (badge) { badge.style.color = c; badge.style.borderColor = c; }
     // Boutons déjà actifs
     document.querySelectorAll(".btn-light.active").forEach(el => {
       el.style.setProperty("background", c, "important");
