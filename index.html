@@ -506,7 +506,7 @@
 }
 
 
-/* Layout domicile officiel V60.23 corrigé */
+/* Layout domicile officiel V60.24 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -654,12 +654,12 @@
 }
 
 
-/* Masquage badge type header V60.23 */
+/* Masquage badge type header V60.24 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.23 clean */
+/* Apports V60.24 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* Organisation match V60.23 */
+/* Organisation match V60.24 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -765,7 +765,7 @@
 }
 
 
-/* V60.23 merci organisation */
+/* V60.24 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -778,7 +778,7 @@
   margin-bottom:16px;
 }
 
-/* V60.23 anti flash organisation */
+/* V60.24 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -792,7 +792,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.23 */
+/* Bureau V60.24 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -835,7 +835,7 @@
 
 
 /* =========================================================
-   V60.23 - Fond SVG HTML homogène + cartes transparentes
+   V60.24 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -998,7 +998,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.23</button>
+    ">V60.24</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1036,7 +1036,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     <section id="teamsScreen" class="screen active">
       <!-- Card Ce week-end -->
       <div id="weekendCard" class="card">
-        <div class="weekend-title">🏀 Ce week-end</div>
+        <div class="weekend-title">🏀 Prochains matchs</div>
         <div id="weekendList"></div>
       </div>
       <div class="card">
@@ -1974,7 +1974,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.23 : vider l’ancienne sélection avant chaque lecture
+      // V60.24 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -2012,7 +2012,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.23 : filtrage strict du match courant
+          // V60.24 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2447,23 +2447,24 @@ function renderWeekend() {
   if (!card || !list) return;
 
   const now = new Date();
-  // Trouver le prochain week-end (vendredi soir → dimanche soir)
-  const day = now.getDay(); // 0=dim, 1=lun...6=sam
-  const diffToFri = (5 - day + 7) % 7;
-  const friday = new Date(now);
-  friday.setDate(now.getDate() + (diffToFri === 0 && now.getHours() >= 20 ? 7 : diffToFri));
-  friday.setHours(18, 0, 0, 0);
-  const sunday = new Date(friday);
-  sunday.setDate(friday.getDate() + 2);
-  sunday.setHours(23, 59, 59, 0);
+  now.setHours(0, 0, 0, 0);
+  // Afficher les matchs des 7 prochains jours
+  const in7days = new Date(now);
+  in7days.setDate(now.getDate() + 7);
 
-  // Filtrer les matchs du week-end
   const matchsWE = (state.matchs || []).filter(m => {
     if (!m.date) return false;
     const parts = m.date.split('/');
     if (parts.length < 3) return false;
-    const d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
-    return d >= friday && d <= sunday && m.saison === state.season;
+    // Gérer année à 2 ou 4 chiffres
+    let year = parseInt(parts[2]);
+    if (year < 100) year += 2000;
+    const d = new Date(year, parseInt(parts[1])-1, parseInt(parts[0]));
+    return d >= now && d <= in7days;
+  }).sort((a, b) => {
+    const pa = a.date.split('/'); const pb = b.date.split('/');
+    return new Date(parseInt(pa[2]<100?+pa[2]+2000:pa[2]), pa[1]-1, pa[0]) - 
+           new Date(parseInt(pb[2]<100?+pb[2]+2000:pb[2]), pb[1]-1, pb[0]);
   });
 
   if (matchsWE.length === 0) {
@@ -2841,7 +2842,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.23</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.24</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2861,7 +2862,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.23 - Gestion code coach unique
+   V60.24 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
