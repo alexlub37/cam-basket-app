@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.21 corrigé */
+/* Layout domicile officiel V60.20 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.21 */
+/* Masquage badge type header V60.20 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.21 clean */
+/* Apports V60.20 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.21 */
+/* Organisation match V60.20 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.21 merci organisation */
+/* V60.20 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.21 anti flash organisation */
+/* V60.20 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.21 */
+/* Bureau V60.20 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +782,7 @@
 
 
 /* =========================================================
-   V60.21 - Fond SVG HTML homogène + cartes transparentes
+   V60.20 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -881,7 +881,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   justify-content:center;
   transition:opacity 0.4s ease;
 ">
-  <img id="splashLogo" src="" alt="Logo" style="
+  <img id="splashLogo" src="Image PNG.png" alt="Logo" style="
     width:160px;
     height:160px;
     object-fit:contain;
@@ -945,11 +945,11 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.21</button>
+    ">V60.20</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
-          <img src="" alt="Logo" class="hero-logo" id="mainLogo">
+          <img src="Image PNG.png" alt="Logo" class="hero-logo" id="mainLogo">
         </button>
         <div id="heroSlogan" style="
           display:none;
@@ -1915,7 +1915,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.21 : vider l’ancienne sélection avant chaque lecture
+      // V60.20 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1953,7 +1953,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.21 : filtrage strict du match courant
+          // V60.20 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2730,7 +2730,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.21</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.20</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2750,7 +2750,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.21 - Gestion code coach unique
+   V60.20 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
