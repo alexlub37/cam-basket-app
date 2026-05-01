@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.17 corrigé */
+/* Layout domicile officiel V60.18 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.17 */
+/* Masquage badge type header V60.18 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.17 clean */
+/* Apports V60.18 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.17 */
+/* Organisation match V60.18 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.17 merci organisation */
+/* V60.18 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.17 anti flash organisation */
+/* V60.18 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.17 */
+/* Bureau V60.18 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +782,7 @@
 
 
 /* =========================================================
-   V60.17 - Fond SVG HTML homogène + cartes transparentes
+   V60.18 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -916,7 +916,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.17</button>
+    ">V60.18</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1323,6 +1323,22 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     async function reloadData(){
       try{
         setStatus("Chargement des données…");
+
+        // Pré-charger CONFIG immédiatement
+        try {
+          const r0 = await fetch(APPS_SCRIPT_URL + "?action=getConfig");
+          const cfg0 = await r0.json();
+          state.config = {};
+          Object.entries(cfg0).forEach(([k,v]) => { state.config[k.trim().toLowerCase()] = String(v); });
+          appliquerConfig();
+          document.body.classList.remove("loading");
+          const svgBg = document.getElementById("camSvgBackground");
+          if (svgBg) svgBg.style.opacity = "1";
+        } catch(e) {
+          document.body.classList.remove("loading");
+          const svgBg = document.getElementById("camSvgBackground");
+          if (svgBg) svgBg.style.opacity = "1";
+        }
         const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, configRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
@@ -1334,7 +1350,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           (async () => {
             try {
               const ctrl = new AbortController();
-              const timer = setTimeout(() => ctrl.abort(), 3000); // timeout 3s
+              const timer = setTimeout(() => ctrl.abort(), 8000); // timeout 8s
               const r = await fetch(APPS_SCRIPT_URL + "?action=getConfig", {signal: ctrl.signal});
               clearTimeout(timer);
               const cfg = await r.json();
@@ -1433,11 +1449,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         renderBureau();
         renderBenevoles();
         // Appliquer CONFIG après rendu
-        appliquerConfig();
-        document.body.classList.remove("loading");
-        const svgBg = document.getElementById('camSvgBackground');
-        if (svgBg) svgBg.style.opacity = '1';
-        setTimeout(appliquerConfig, 600);
+        // CONFIG déjà appliquée au début du chargement
+        setTimeout(appliquerConfig, 300);
         setStatus(state.season ? `Saison active : ${state.season}` : "Données chargées");
       } catch(err){
         console.error(err);
@@ -1860,7 +1873,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.17 : vider l’ancienne sélection avant chaque lecture
+      // V60.18 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1898,7 +1911,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.17 : filtrage strict du match courant
+          // V60.18 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2675,7 +2688,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.17</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.18</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2695,7 +2708,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.17 - Gestion code coach unique
+   V60.18 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
