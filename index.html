@@ -598,7 +598,7 @@
 }
 
 
-/* Layout domicile officiel V60.26 corrigé */
+/* Layout domicile officiel V60.25 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -746,12 +746,12 @@
 }
 
 
-/* Masquage badge type header V60.26 */
+/* Masquage badge type header V60.25 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.26 clean */
+/* Apports V60.25 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -804,7 +804,7 @@
 }
 
 
-/* Organisation match V60.26 */
+/* Organisation match V60.25 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -857,7 +857,7 @@
 }
 
 
-/* V60.26 merci organisation */
+/* V60.25 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -870,7 +870,7 @@
   margin-bottom:16px;
 }
 
-/* V60.26 anti flash organisation */
+/* V60.25 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -884,7 +884,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.26 */
+/* Bureau V60.25 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -927,7 +927,7 @@
 
 
 /* =========================================================
-   V60.26 - Fond SVG HTML homogène + cartes transparentes
+   V60.25 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -1021,15 +1021,13 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   <div class="login-sub">Identifiez-vous pour continuer</div>
 
   <div class="login-card">
-    <!-- Étape 1 : choisir équipe puis joueur -->
+    <!-- Étape 1 : saisir prénom + équipe -->
     <div id="loginStep1" class="login-step active">
+      <div class="login-label">Ton prénom</div>
+      <input id="loginPrenom" class="login-input" type="text" placeholder="Ex: Alex" autocomplete="off">
       <div class="login-label">Ton équipe</div>
-      <select id="loginEquipe" class="login-input" onchange="loginFiltrerJoueurs()">
+      <select id="loginEquipe" class="login-input">
         <option value="">Sélectionne ton équipe</option>
-      </select>
-      <div class="login-label" id="loginJoueurLabel" style="display:none">Ton nom</div>
-      <select id="loginJoueur" class="login-input" style="display:none">
-        <option value="">Sélectionne ton nom</option>
       </select>
       <button class="login-btn" onclick="loginStep1Next()">Continuer →</button>
       <div id="loginError1" class="login-error"></div>
@@ -1122,7 +1120,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.26</button>
+    ">V60.25</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2100,7 +2098,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.26 : vider l’ancienne sélection avant chaque lecture
+      // V60.25 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -2138,7 +2136,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.26 : filtrage strict du match courant
+          // V60.25 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2968,7 +2966,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.26</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.25</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2999,7 +2997,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.26 - Gestion code coach unique
+   V60.25 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -3076,21 +3074,15 @@ function afficherLogin() {
   const screen = document.getElementById("loginScreen");
   if (!screen) return;
   
-  // Remplir le select équipes depuis JOUEURS (pas EQUIPES)
+  // Remplir le select équipes
   const select = document.getElementById("loginEquipe");
-  const equipes = [...new Set((state.joueurs || [])
-    .filter(j => j.saison === state.season)
-    .map(j => j.equipe)
+  const equipes = [...new Set((state.equipes || [])
+    .filter(e => e.saison === state.season)
+    .map(e => e.equipe)
   )].sort();
   
   select.innerHTML = '<option value="">Sélectionne ton équipe</option>' +
     equipes.map(e => `<option value="${e}">${e}</option>`).join("");
-
-  // Reset joueur
-  const selJoueur = document.getElementById("loginJoueur");
-  const labelJoueur = document.getElementById("loginJoueurLabel");
-  if (selJoueur) { selJoueur.style.display = "none"; selJoueur.innerHTML = ""; }
-  if (labelJoueur) labelJoueur.style.display = "none";
   
   // Mettre le logo et nom du club
   const logo = document.getElementById("loginLogo");
@@ -3102,42 +3094,19 @@ function afficherLogin() {
   screen.classList.add("visible");
 }
 
-function loginFiltrerJoueurs() {
-  const equipe = document.getElementById("loginEquipe").value;
-  const selJoueur = document.getElementById("loginJoueur");
-  const labelJoueur = document.getElementById("loginJoueurLabel");
-  
-  if (!equipe) {
-    selJoueur.style.display = "none";
-    labelJoueur.style.display = "none";
-    return;
-  }
-  
-  // Filtrer les joueurs de cette équipe
-  const joueurs = (state.joueurs || [])
-    .filter(j => j.equipe === equipe && j.saison === state.season)
-    .map(j => j.joueur)
-    .sort();
-  
-  selJoueur.innerHTML = '<option value="">Sélectionne ton nom</option>' +
-    joueurs.map(j => `<option value="${j}">${j}</option>`).join("");
-  
-  selJoueur.style.display = "block";
-  labelJoueur.style.display = "block";
-}
-
 function loginStep1Next() {
+  const prenom = document.getElementById("loginPrenom").value.trim();
   const equipe = document.getElementById("loginEquipe").value;
-  const joueurNom = document.getElementById("loginJoueur").value;
   const err = document.getElementById("loginError1");
   
+  if (!prenom) { err.textContent = "Entre ton prénom"; err.style.display = "block"; return; }
   if (!equipe) { err.textContent = "Sélectionne ton équipe"; err.style.display = "block"; return; }
-  if (!joueurNom) { err.textContent = "Sélectionne ton nom"; err.style.display = "block"; return; }
   err.style.display = "none";
   
   // Vérifier si le joueur a déjà un code
   const joueur = (state.joueurs || []).find(j => 
-    j.equipe === equipe && j.joueur === joueurNom
+    j.equipe === equipe && 
+    j.joueur.toLowerCase().includes(prenom.toLowerCase())
   );
   
   const step2Title = document.getElementById("loginStep2Title");
@@ -3158,8 +3127,8 @@ function loginBack() {
 }
 
 async function loginStep2Valider() {
+  const prenom = document.getElementById("loginPrenom").value.trim();
   const equipe = document.getElementById("loginEquipe").value;
-  const prenom = document.getElementById("loginJoueur").value;
   const code = document.getElementById("loginCode").value.trim();
   const err = document.getElementById("loginError2");
   const btn = document.querySelector("#loginStep2 .login-btn");
@@ -3184,7 +3153,7 @@ async function loginStep2Valider() {
     if (joueur && joueur.code) {
       // Code existant → vérifier
       if (String(joueur.code).trim() === code) {
-        sauvegarderProfil({ prenom: prenom, equipe, code });
+        sauvegarderProfil({ prenom, equipe, code });
         fermerLogin();
       } else {
         err.textContent = "Code incorrect";
