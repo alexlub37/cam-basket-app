@@ -92,10 +92,15 @@
       background:#0b0b0b;
       color:#fff;
     }
-    .btn-light,
+    .btn-light.active,
     .btn-outline.active{
       background:var(--accent);
       color:#000;
+    }
+    .btn-light:not(.active){
+      background:#0b0b0b;
+      color:#fff;
+      border:2px solid var(--accent);
     }
     .btn-outline{
       background:#0b0b0b;
@@ -453,7 +458,7 @@
 }
 
 
-/* Layout domicile officiel V60.11 corrigé */
+/* Layout domicile officiel V60.12 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +606,12 @@
 }
 
 
-/* Masquage badge type header V60.11 */
+/* Masquage badge type header V60.12 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.11 clean */
+/* Apports V60.12 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +664,7 @@
 }
 
 
-/* Organisation match V60.11 */
+/* Organisation match V60.12 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +717,7 @@
 }
 
 
-/* V60.11 merci organisation */
+/* V60.12 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +730,7 @@
   margin-bottom:16px;
 }
 
-/* V60.11 anti flash organisation */
+/* V60.12 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +744,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.11 */
+/* Bureau V60.12 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +787,7 @@
 
 
 /* =========================================================
-   V60.11 - Fond SVG HTML homogène + cartes transparentes
+   V60.12 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -916,7 +921,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.11</button>
+    ">V60.12</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1297,7 +1302,14 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       return out;
     }
 
-    async function fetchRowsCsv(sheetName){
+    
+        }
+        parts.push(cur);
+        return parts.map(p => String(p || "").trim());
+      });
+    }
+
+async function fetchRowsCsv(sheetName){
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
       const res = await fetch(url);
       const txt = await res.text();
@@ -1329,7 +1341,14 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles),
           fetchRowsCsv(SHEETS.convocations),
-          fetchRowsCsv(SHEETS.config).catch(() => [])
+          (async () => {
+            try {
+              const url = getScriptUrl() + "?action=getConfig";
+              const r = await fetch(url);
+              const j = await r.json();
+              return Object.entries(j).map(([k,v]) => [k, String(v)]);
+            } catch(e) { return []; }
+          })()
         ]);
 
         state.season = findSeason(paramRows);
@@ -1843,7 +1862,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.11 : vider l’ancienne sélection avant chaque lecture
+      // V60.12 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1881,7 +1900,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.11 : filtrage strict du match courant
+          // V60.12 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2652,7 +2671,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.11</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.12</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2672,7 +2691,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.11 - Gestion code coach unique
+   V60.12 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2774,6 +2793,12 @@ function appliquerConfig() {
   if (cfg["url_script"] && cfg["url_script"].startsWith("https://script.google.com")) {
     window._configScriptUrl = cfg["url_script"];
   }
+
+  // Couleur boutons inactifs (fond)
+  const cBtnInactif = cfg["couleur_bouton"] || "#0b0b0b";
+  document.querySelectorAll(".btn-light:not(.active), .btn-outline:not(.active)").forEach(el => {
+    el.style.setProperty("background", cBtnInactif, "important");
+  });
 
   // Sections
   if (cfg["activer_bureau"]    === "non") { const b = document.getElementById("btn-bureau");    if (b) b.style.display = "none"; }
