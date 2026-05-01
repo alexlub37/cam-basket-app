@@ -453,7 +453,7 @@
 }
 
 
-/* Layout domicile officiel V60.12 corrigé */
+/* Layout domicile officiel V60.11 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -601,12 +601,12 @@
 }
 
 
-/* Masquage badge type header V60.12 */
+/* Masquage badge type header V60.11 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.12 clean */
+/* Apports V60.11 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -659,7 +659,7 @@
 }
 
 
-/* Organisation match V60.12 */
+/* Organisation match V60.11 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +712,7 @@
 }
 
 
-/* V60.12 merci organisation */
+/* V60.11 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -725,7 +725,7 @@
   margin-bottom:16px;
 }
 
-/* V60.12 anti flash organisation */
+/* V60.11 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -739,7 +739,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.12 */
+/* Bureau V60.11 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -782,7 +782,7 @@
 
 
 /* =========================================================
-   V60.12 - Fond SVG HTML homogène + cartes transparentes
+   V60.11 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -916,7 +916,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.12</button>
+    ">V60.11</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -924,8 +924,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         </button>
         <div id="heroSlogan" style="
           position:absolute;
-          top: auto;
-          left: auto;
+          top: 18px;
+          left: 120px;
           font-family: 'Segoe Script', 'Brush Script MT', 'Comic Sans MS', cursive;
           font-size: 13px;
           color: #ffd400;
@@ -1297,14 +1297,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       return out;
     }
 
-    
-        }
-        parts.push(cur);
-        return parts.map(p => String(p || "").trim());
-      });
-    }
-
-async function fetchRowsCsv(sheetName){
+    async function fetchRowsCsv(sheetName){
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
       const res = await fetch(url);
       const txt = await res.text();
@@ -1850,7 +1843,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.12 : vider l’ancienne sélection avant chaque lecture
+      // V60.11 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -1888,7 +1881,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.12 : filtrage strict du match courant
+          // V60.11 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2659,7 +2652,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.12</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.11</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2679,7 +2672,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 <script>
 /* =========================================================
-   V60.12 - Gestion code coach unique
+   V60.11 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2771,12 +2764,10 @@ function appliquerConfig() {
     if (cfg["message_accueil"])   sEl.innerHTML   = cfg["message_accueil"];
     if (cfg["slogan_couleur"])    sEl.style.color      = cfg["slogan_couleur"];
         const cleanNum = v => String(v || "0").replace(/\(/g,"-").replace(/\)/g,"").trim();
-    // Toujours appliquer avec valeur par défaut si CONFIG vide
-    sEl.style.fontSize  = cfg["slogan_taille"]    ? cleanNum(cfg["slogan_taille"]) + "px"    : "13px";
-    sEl.style.transform = cfg["slogan_rotation"]  ? "rotate(" + cleanNum(cfg["slogan_rotation"]) + "deg)" : "rotate(-14deg)";
-    sEl.style.left      = cfg["slogan_position_x"] ? cleanNum(cfg["slogan_position_x"]) + "px" : "120px";
-    sEl.style.top       = cfg["slogan_position_y"] ? cleanNum(cfg["slogan_position_y"]) + "px" : "18px";
-    sEl.style.right     = "auto";
+    if (cfg["slogan_taille"])     sEl.style.fontSize  = cleanNum(cfg["slogan_taille"]) + "px";
+    if (cfg["slogan_rotation"])   sEl.style.transform = "rotate(" + cleanNum(cfg["slogan_rotation"]) + "deg)";
+    if (cfg["slogan_position_x"]) sEl.style.left      = cleanNum(cfg["slogan_position_x"]) + "px";
+    if (cfg["slogan_position_y"]) sEl.style.top       = cleanNum(cfg["slogan_position_y"]) + "px";
   }
 
   // URL Apps Script
