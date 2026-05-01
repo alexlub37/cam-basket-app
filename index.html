@@ -363,6 +363,98 @@
     .type-dom { background: rgba(31,170,89,0.2); color: #1faa59; }
     .type-ext { background: rgba(255,159,28,0.15); color: #ff9f1c; }
 
+    /* ══ ÉCRAN CONNEXION ══ */
+    #loginScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 8000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+    #loginScreen.visible { display: flex; }
+    .login-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 20px;
+    }
+    .login-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .login-sub {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .login-card {
+      background: #141414;
+      border-radius: 18px;
+      padding: 24px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .login-label {
+      font-size: 12px;
+      color: #888;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .login-input {
+      width: 100%;
+      background: #0a0a0a;
+      border: 1.5px solid #2a2a2a;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      padding: 14px;
+      box-sizing: border-box;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus { border-color: var(--accent, #ffd400); }
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent, #ffd400);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .login-btn-secondary {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: #666;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .login-error {
+      color: #ff5555;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+    .login-step { display: none; }
+    .login-step.active { display: block; }
+
     .modal-overlay{
       position:fixed;
       inset:0;
@@ -506,7 +598,7 @@
 }
 
 
-/* Layout domicile officiel V60.24 corrigé */
+/* Layout domicile officiel V60.25 corrigé */
 .domicile-officials-pro{
   margin-top:18px;
   padding-top:16px;
@@ -654,12 +746,12 @@
 }
 
 
-/* Masquage badge type header V60.24 */
+/* Masquage badge type header V60.25 */
 #detailTypeTop{
   display:none !important;
 }
 
-/* Apports V60.24 clean */
+/* Apports V60.25 clean */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -712,7 +804,7 @@
 }
 
 
-/* Organisation match V60.24 */
+/* Organisation match V60.25 */
 .apports-card{
   display:none;
   margin-top:14px;
@@ -765,7 +857,7 @@
 }
 
 
-/* V60.24 merci organisation */
+/* V60.25 merci organisation */
 .apports-ok{
   color:#1faa59 !important;
   font-weight:900;
@@ -778,7 +870,7 @@
   margin-bottom:16px;
 }
 
-/* V60.24 anti flash organisation */
+/* V60.25 anti flash organisation */
 .apports-card{
   display:none;
 }
@@ -792,7 +884,7 @@
   font-weight:bold;
 }
 
-/* Bureau V60.24 */
+/* Bureau V60.25 */
 .bureau-member-card{
   background:linear-gradient(180deg,#1a1a1a,#171717);
   border:1px solid var(--line);
@@ -835,7 +927,7 @@
 
 
 /* =========================================================
-   V60.24 - Fond SVG HTML homogène + cartes transparentes
+   V60.25 - Fond SVG HTML homogène + cartes transparentes
    ========================================================= */
 html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
@@ -922,6 +1014,36 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 </head>
 <body class="loading">
 
+<!-- ══ ÉCRAN CONNEXION ══ -->
+<div id="loginScreen">
+  <img id="loginLogo" src="Image PNG.png" class="login-logo" alt="Logo">
+  <div class="login-title" id="loginClubName">CAM Basket</div>
+  <div class="login-sub">Identifiez-vous pour continuer</div>
+
+  <div class="login-card">
+    <!-- Étape 1 : saisir prénom + équipe -->
+    <div id="loginStep1" class="login-step active">
+      <div class="login-label">Ton prénom</div>
+      <input id="loginPrenom" class="login-input" type="text" placeholder="Ex: Alex" autocomplete="off">
+      <div class="login-label">Ton équipe</div>
+      <select id="loginEquipe" class="login-input">
+        <option value="">Sélectionne ton équipe</option>
+      </select>
+      <button class="login-btn" onclick="loginStep1Next()">Continuer →</button>
+      <div id="loginError1" class="login-error"></div>
+    </div>
+
+    <!-- Étape 2 : créer ou saisir code -->
+    <div id="loginStep2" class="login-step">
+      <div id="loginStep2Title" class="login-label">Ton code d'accès (4 chiffres)</div>
+      <input id="loginCode" class="login-input" type="number" placeholder="••••" maxlength="4" autocomplete="off">
+      <button class="login-btn" onclick="loginStep2Valider()">Valider</button>
+      <button class="login-btn-secondary" onclick="loginBack()">← Retour</button>
+      <div id="loginError2" class="login-error"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ SPLASH SCREEN ══ -->
 <div id="splashScreen" style="
   position:fixed;
@@ -998,7 +1120,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.24</button>
+    ">V60.25</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1549,6 +1671,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         renderBureau();
         renderBenevoles();
         renderWeekend();
+        // Vérifier connexion joueur
+        setTimeout(() => initLogin(), 300);
         // Appliquer CONFIG après rendu
         // CONFIG déjà appliquée au début du chargement
         setTimeout(appliquerConfig, 300);
@@ -1974,7 +2098,7 @@ showScreen("matchDetailScreen");
     }
 
     async function loadCoachResponses(matchText){
-      // V60.24 : vider l’ancienne sélection avant chaque lecture
+      // V60.25 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
 
       const card = document.getElementById("coachResponsesCard");
@@ -2012,7 +2136,7 @@ showScreen("matchDetailScreen");
           const responseMatchText = getRowValue(row, "Match");
           const responseEquipe = getRowValue(row, "Équipe") || getRowValue(row, "Equipe");
 
-          // V60.24 : filtrage strict du match courant
+          // V60.25 : filtrage strict du match courant
           if (responseMatchesCurrentMatch(responseMatchText, state.currentOpenMatch)) return true;
 
           const txt = normalize(responseMatchText);
@@ -2842,7 +2966,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.24</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.25</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -2855,14 +2979,25 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
         <li>Filtrage réponses par match corrigé</li>
         <li>Code coach demandé une seule fois</li>
       </ul>
-      <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
+      <button onclick="deconnexion()" style="
+  width:100%;
+  padding:12px;
+  background:transparent;
+  border:1px solid #333;
+  color:#888;
+  border-radius:10px;
+  font-size:13px;
+  cursor:pointer;
+  margin-bottom:10px;
+">🔓 Changer de joueur</button>
+<button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
     </div>
   </div>
 
 <script>
 /* =========================================================
-   V60.24 - Gestion code coach unique
+   V60.25 - Gestion code coach unique
    ========================================================= */
 (function(){
   if (window.__camCoachConvocationHandlerV4060) return;
@@ -2917,6 +3052,169 @@ window.addEventListener('focus', () => {
 // ══════════════════════════════════
 // ⚙️ CONFIG
 // ══════════════════════════════════
+
+// ════════════════════════════════════════
+// 🔐 SYSTÈME DE CONNEXION JOUEUR
+// ════════════════════════════════════════
+
+function initLogin() {
+  // Vérifier si un profil est déjà sauvegardé
+  const profil = getProfil();
+  if (profil && profil.prenom && profil.equipe && profil.code) {
+    // Profil existant → pas besoin de se connecter
+    appliquerProfil(profil);
+    return false; // pas d'affichage login
+  }
+  // Pas de profil → afficher l'écran de connexion
+  afficherLogin();
+  return true;
+}
+
+function afficherLogin() {
+  const screen = document.getElementById("loginScreen");
+  if (!screen) return;
+  
+  // Remplir le select équipes
+  const select = document.getElementById("loginEquipe");
+  const equipes = [...new Set((state.equipes || [])
+    .filter(e => e.saison === state.season)
+    .map(e => e.equipe)
+  )].sort();
+  
+  select.innerHTML = '<option value="">Sélectionne ton équipe</option>' +
+    equipes.map(e => `<option value="${e}">${e}</option>`).join("");
+  
+  // Mettre le logo et nom du club
+  const logo = document.getElementById("loginLogo");
+  const nom = document.getElementById("loginClubName");
+  const logoSrc = (state.config && state.config["logo_url"]) || "Image PNG.png";
+  if (logo) logo.src = logoSrc;
+  if (nom) nom.textContent = (state.config && state.config["nom_club"]) || "Mon Club";
+  
+  screen.classList.add("visible");
+}
+
+function loginStep1Next() {
+  const prenom = document.getElementById("loginPrenom").value.trim();
+  const equipe = document.getElementById("loginEquipe").value;
+  const err = document.getElementById("loginError1");
+  
+  if (!prenom) { err.textContent = "Entre ton prénom"; err.style.display = "block"; return; }
+  if (!equipe) { err.textContent = "Sélectionne ton équipe"; err.style.display = "block"; return; }
+  err.style.display = "none";
+  
+  // Vérifier si le joueur a déjà un code
+  const joueur = (state.joueurs || []).find(j => 
+    j.equipe === equipe && 
+    j.joueur.toLowerCase().includes(prenom.toLowerCase())
+  );
+  
+  const step2Title = document.getElementById("loginStep2Title");
+  if (joueur && joueur.code) {
+    step2Title.textContent = "Entre ton code d'accès (4 chiffres)";
+  } else {
+    step2Title.textContent = "Crée ton code d'accès (4 chiffres)";
+  }
+  
+  document.getElementById("loginStep1").classList.remove("active");
+  document.getElementById("loginStep2").classList.add("active");
+}
+
+function loginBack() {
+  document.getElementById("loginStep2").classList.remove("active");
+  document.getElementById("loginStep1").classList.add("active");
+  document.getElementById("loginError2").style.display = "none";
+}
+
+async function loginStep2Valider() {
+  const prenom = document.getElementById("loginPrenom").value.trim();
+  const equipe = document.getElementById("loginEquipe").value;
+  const code = document.getElementById("loginCode").value.trim();
+  const err = document.getElementById("loginError2");
+  const btn = document.querySelector("#loginStep2 .login-btn");
+  
+  if (code.length !== 4 || isNaN(code)) {
+    err.textContent = "Le code doit être 4 chiffres";
+    err.style.display = "block";
+    return;
+  }
+  
+  btn.textContent = "Vérification...";
+  btn.disabled = true;
+  err.style.display = "none";
+  
+  try {
+    // Vérifier si le joueur existe et a déjà un code
+    const joueur = (state.joueurs || []).find(j => 
+      j.equipe === equipe && 
+      j.joueur.toLowerCase().includes(prenom.toLowerCase())
+    );
+    
+    if (joueur && joueur.code) {
+      // Code existant → vérifier
+      if (String(joueur.code).trim() === code) {
+        sauvegarderProfil({ prenom, equipe, code });
+        fermerLogin();
+      } else {
+        err.textContent = "Code incorrect";
+        err.style.display = "block";
+      }
+    } else {
+      // Nouveau code → enregistrer via Apps Script
+      const res = await fetch(getScriptUrl(), {
+        method: "POST",
+        body: JSON.stringify({ action: "setCodeJoueur", prenom, equipe, code })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        sauvegarderProfil({ prenom, equipe, code });
+        fermerLogin();
+      } else {
+        err.textContent = data.error || "Joueur non trouvé dans le Sheet";
+        err.style.display = "block";
+      }
+    }
+  } catch(e) {
+    err.textContent = "Erreur de connexion";
+    err.style.display = "block";
+  }
+  
+  btn.textContent = "Valider";
+  btn.disabled = false;
+}
+
+function fermerLogin() {
+  const screen = document.getElementById("loginScreen");
+  if (screen) screen.classList.remove("visible");
+  const profil = getProfil();
+  if (profil) appliquerProfil(profil);
+}
+
+function appliquerProfil(profil) {
+  // Sauvegarder dans state pour utilisation dans toute l'app
+  state.profil = profil;
+  // Mettre à jour l'affichage
+  renderWeekend();
+}
+
+// ── LocalStorage profil ──
+function sauvegarderProfil(profil) {
+  try { localStorage.setItem("cam_profil", JSON.stringify(profil)); } catch(e) {}
+}
+
+function getProfil() {
+  try { 
+    const p = localStorage.getItem("cam_profil");
+    return p ? JSON.parse(p) : null;
+  } catch(e) { return null; }
+}
+
+function deconnexion() {
+  try { localStorage.removeItem("cam_profil"); } catch(e) {}
+  state.profil = null;
+  location.reload();
+}
+
 function appliquerConfig() {
   const cfg = state.config || {};
 
