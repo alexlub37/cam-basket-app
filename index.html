@@ -1073,7 +1073,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.28</button>
+    ">V60.29</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1933,6 +1933,59 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       return parseMatchDateTime(m) < new Date();
     }
 
+    function heureMatchEstVide_(heure){
+      const h = normalize(String(heure || "").replace(":", "h"));
+      return !h || h === "00h00" || h === "0h00" || h === "00h" || h === "0h";
+    }
+
+    function statutMatchBloqueReponse_(statut){
+      const s = normalize(statut || "Programmé");
+      return s === "forfait adverse" || s === "forfait cam";
+    }
+
+    function statutMatchAutoriseReponse_(statut){
+      const s = normalize(statut || "Programmé");
+      return !s || s === "programme" || s === "reporte";
+    }
+
+    function raisonReponseMatchBloquee(m){
+      if (!m) return "Match introuvable.";
+
+      if (!String(m.equipe || "").trim()) {
+        return "équipe non renseignée.";
+      }
+
+      if (!String(m.adversaire || "").trim()) {
+        return "adversaire non renseigné.";
+      }
+
+      if (!String(m.type || "").trim()) {
+        return "domicile / extérieur non renseigné.";
+      }
+
+      if (!String(m.date || "").trim()) {
+        return "date non renseignée.";
+      }
+
+      if (heureMatchEstVide_(m.heure)) {
+        return "heure non renseignée.";
+      }
+
+      if (statutMatchBloqueReponse_(m.statut)) {
+        return "match en " + (m.statut || "forfait") + ".";
+      }
+
+      if (!statutMatchAutoriseReponse_(m.statut)) {
+        return "statut du match non compatible avec une réponse.";
+      }
+
+      return "";
+    }
+
+    function matchEstRepondable(m){
+      return raisonReponseMatchBloquee(m) === "";
+    }
+
     function openMatches(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("matchesTitle").textContent = "Matchs — " + team;
@@ -2043,6 +2096,27 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
       document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
       
+const blocageReponse = raisonReponseMatchBloquee(m);
+const reponseOuverte = !matchPast && !blocageReponse;
+
+let avisReponse = document.getElementById("matchResponseNotice");
+if(!avisReponse){
+  avisReponse = document.createElement("div");
+  avisReponse.id = "matchResponseNotice";
+  avisReponse.className = "empty";
+  avisReponse.style.marginTop = "12px";
+  avisReponse.style.marginBottom = "12px";
+  document.querySelector("#matchDetailScreen .card").appendChild(avisReponse);
+}
+
+if (!matchPast && blocageReponse) {
+  avisReponse.style.display = "block";
+  avisReponse.innerHTML = "🔒 Réponses non ouvertes<br><span class='muted'>" + escapeHtml(blocageReponse) + "</span>";
+} else {
+  avisReponse.style.display = "none";
+  avisReponse.innerHTML = "";
+}
+
 let bouton = document.getElementById("btnReponseMatch");
 
 if(!bouton){
@@ -2061,7 +2135,7 @@ if(!bouton){
   document.querySelector("#matchDetailScreen .card").appendChild(bouton);
 }
 
-if (matchPast) {
+if (!reponseOuverte) {
   bouton.style.display = "none";
 } else {
   bouton.style.display = "block";
@@ -2089,7 +2163,7 @@ if(!boutonCoach){
   document.querySelector("#matchDetailScreen .card").appendChild(boutonCoach);
 }
 
-if (matchPast) {
+if (!reponseOuverte) {
   boutonCoach.style.display = "none";
 } else {
   boutonCoach.style.display = "block";
@@ -3387,7 +3461,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.28</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.29</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
