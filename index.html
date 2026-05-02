@@ -998,7 +998,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.24</button>
+    ">V60.25</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2221,6 +2221,27 @@ function renderBureau(){
       const el = document.getElementById("bureauList");
       if (!el) return;
 
+      const cfg = state.config || {};
+      const urlGestionMatchs = String(cfg["url_formulaire_gestion_matchs"] || "").trim();
+      const gestionActive = String(cfg["activer_gestion_matchs"] || "oui").trim().toLowerCase() !== "non";
+
+      const gestionMatchsHtml = gestionActive ? `
+        <div class="bureau-member-card">
+          <div class="bureau-member-name">🏀 Gestion matchs</div>
+          <div class="bureau-member-role">Ajouter ou modifier les matchs</div>
+          ${
+            urlGestionMatchs
+              ? `<div class="bureau-actions">
+                   <a class="bureau-action-btn" href="${escapeHtml(urlGestionMatchs)}" target="_blank" rel="noopener noreferrer">Ouvrir le formulaire</a>
+                 </div>`
+              : `<div class="bureau-info-muted">
+                   URL non renseignée dans CONFIG.<br>
+                   Ajoute : url_formulaire_gestion_matchs
+                 </div>`
+          }
+        </div>
+      ` : "";
+
       const rows = (state.bureau || []).filter(m => {
         const nom = String(m.nom || "").trim();
         const role = String(m.fonction || m.role || "").trim();
@@ -2237,11 +2258,11 @@ function renderBureau(){
       });
 
       if (!rows.length) {
-        el.innerHTML = '<div class="empty">Aucun membre du bureau renseigné.<br><br>Vérifie l’onglet BUREAU : ligne 1 = Nom | Rôle | Téléphone | Email.</div>';
+        el.innerHTML = gestionMatchsHtml + '<div class="empty">Aucun membre du bureau renseigné.<br><br>Vérifie l’onglet BUREAU : ligne 1 = Nom | Rôle | Téléphone | Email.</div>';
         return;
       }
 
-      el.innerHTML = rows.map(m => {
+      el.innerHTML = gestionMatchsHtml + rows.map(m => {
         const nom = String(m.nom || "").trim();
         const role = String(m.fonction || m.role || "").trim();
         const telephoneRaw = String(m.telephone || "").trim();
@@ -2265,7 +2286,6 @@ function renderBureau(){
         `;
       }).join("");
     }
-
 
     function renderBenevoles(){
       const el = document.getElementById("benevolesList");
@@ -2897,7 +2917,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.24</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.25</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
