@@ -970,6 +970,18 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   #gestionMatchsScreen select{font-size:16px!important}
 }
 
+/* Protection Gestion matchs V60.28 */
+.gm-lock-card{
+  border:1px solid rgba(255,212,0,.42)!important;
+  background:rgba(0,0,0,.42)!important;
+}
+.gm-lock-note{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.35;
+  margin-top:6px;
+}
+
 </style>
 
 
@@ -1061,7 +1073,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.27</button>
+    ">V60.28</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2445,7 +2457,65 @@ function gmShowMessage(txt, ok){
   setTimeout(() => { el.style.display = "none"; }, 6000);
 }
 
-function showGestionMatchsScreen(){
+function gmGetStoredCode(){
+  return String(sessionStorage.getItem("cam_gestion_matchs_code") || "").trim();
+}
+
+function gmSetStoredCode(code){
+  sessionStorage.setItem("cam_gestion_matchs_code", String(code || "").trim());
+}
+
+async function gmVerifierCodeServeur(code){
+  const res = await fetch(getScriptUrl(), {
+    method:"POST",
+    body: JSON.stringify({
+      action:"verifierCodeGestionMatchs",
+      codeGestionMatchs: String(code || "").trim()
+    })
+  });
+  const txt = String(await res.text() || "").trim();
+  try{
+    const obj = JSON.parse(txt);
+    return obj && obj.ok === true;
+  }catch(e){
+    return txt === "OK";
+  }
+}
+
+async function gmEnsureAccess(){
+  const stored = gmGetStoredCode();
+  if (stored) {
+    try{
+      if (await gmVerifierCodeServeur(stored)) return true;
+      sessionStorage.removeItem("cam_gestion_matchs_code");
+    }catch(e){
+      sessionStorage.removeItem("cam_gestion_matchs_code");
+    }
+  }
+
+  const code = prompt("Code bureau pour accéder à la gestion des matchs :");
+  if (code === null) return false;
+
+  const cleanCode = String(code || "").trim();
+  if (!cleanCode) return false;
+
+  try{
+    const ok = await gmVerifierCodeServeur(cleanCode);
+    if (!ok) {
+      alert("Code bureau incorrect ❌");
+      return false;
+    }
+    gmSetStoredCode(cleanCode);
+    return true;
+  }catch(e){
+    alert("Erreur vérification code : " + (e.message || e));
+    return false;
+  }
+}
+
+async function showGestionMatchsScreen(){
+  const ok = await gmEnsureAccess();
+  if (!ok) return;
   renderGestionMatchs();
   showScreen("gestionMatchsScreen");
 }
@@ -2479,11 +2549,18 @@ function gmOnAddLieuChange(){
 }
 
 async function gmPost(data){
+  data = data || {};
+  data.codeGestionMatchs = gmGetStoredCode();
+
   const res = await fetch(getScriptUrl(), {
     method:"POST",
     body: JSON.stringify(data)
   });
   const txt = String(await res.text() || "").trim();
+  if (txt === "CODE_GESTION_MATCHS_INVALIDE") {
+    sessionStorage.removeItem("cam_gestion_matchs_code");
+    throw new Error("Code bureau incorrect ou expiré");
+  }
   if (txt !== "OK" && !txt.startsWith("OK")) {
     throw new Error(txt || "Réponse vide du serveur");
   }
@@ -2628,7 +2705,7 @@ function renderBureau(){
           <div class="bureau-member-name">🏀 Gestion matchs</div>
           <div class="bureau-member-role">Ajouter ou modifier les matchs</div>
           <div class="bureau-actions">
-            <button class="bureau-action-btn" onclick="showGestionMatchsScreen()" style="border:none;cursor:pointer;">Ouvrir dans l’application</button>
+            <button class="bureau-action-btn" onclick="showGestionMatchsScreen()" style="border:none;cursor:pointer;">🔐 Ouvrir la gestion matchs</button>
           </div>
         </div>
       `;
@@ -3310,14 +3387,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.24</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.28</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>Correction carte matchs du week-end</li>
-        <li>Filtrage par saison active conservé</li>
-        <li>Tri des matchs par jour puis par heure</li>
+        <li>Gestion matchs intégrée protégée par code bureau</li>
+        <li>Validation serveur du code avant ajout/modification</li>
+        <li>Correction mobile du bouton de mise à jour match</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
