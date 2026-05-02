@@ -919,8 +919,56 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 .gm-message{display:none;margin:12px 0;padding:12px;border-radius:14px;font-weight:900;text-align:center}
 .gm-message.ok{display:block;background:#1f8f3a;color:#fff}
 .gm-message.err{display:block;background:#b00020;color:#fff}
-.gm-hidden{display:none!important}
-@media(max-width:480px){.gm-row{grid-template-columns:1fr}}
+ .gm-hidden{display:none!important}
+#gestionMatchsScreen .card{padding:18px!important;overflow:visible}
+#gestionMatchsScreen input,
+#gestionMatchsScreen select,
+#gestionMatchsScreen textarea{
+  width:100%!important;
+  max-width:100%!important;
+  min-height:48px!important;
+  display:block!important;
+  padding:12px 14px!important;
+  border-radius:16px!important;
+  font-size:16px!important;
+  line-height:1.2!important;
+}
+#gestionMatchsScreen .gm-field{width:100%!important;min-width:0!important}
+#gestionMatchsScreen .gm-field label{font-size:16px!important;line-height:1.2!important}
+#gestionMatchsScreen .gm-row{align-items:end}
+#gestionMatchsScreen .gm-tabs{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:rgba(0,0,0,.72);
+  padding:8px 0;
+}
+#gestionMatchsScreen .gm-action-bar{
+  position:sticky;
+  bottom:max(10px, env(safe-area-inset-bottom));
+  z-index:6;
+  padding:10px 0 2px;
+  background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.88) 35%,rgba(0,0,0,.95));
+}
+#gestionMatchsScreen .gm-submit{
+  width:100%!important;
+  min-height:54px!important;
+  border:3px solid #fff!important;
+  border-radius:18px!important;
+  background:#ffd400!important;
+  color:#000!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.45);
+}
+#gestionMatchsScreen .gm-submit:disabled{opacity:.65!important}
+@media(max-width:600px){
+  #gestionMatchsScreen{padding-bottom:90px}
+  #gestionMatchsScreen .gm-row{grid-template-columns:1fr!important;gap:0!important}
+  #gestionMatchsScreen h2{font-size:30px!important;line-height:1.08!important}
+  #gestionMatchsScreen .card{padding:16px!important;border-radius:22px!important}
+  #gestionMatchsScreen select{font-size:16px!important}
+}
 
 </style>
 
@@ -1013,7 +1061,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.26</button>
+    ">V60.27</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1318,7 +1366,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
             <div class="gm-field"><label>Table</label><input id="gmAddTable" type="text" placeholder="Facultatif"></div>
           </div>
         </div>
-        <button onclick="gmAjouterMatch()">Ajouter le match</button>
+        <div class="gm-action-bar"><button id="gmAddBtn" class="gm-submit" onclick="gmAjouterMatch()">Ajouter le match</button></div>
       </div>
 
       <div id="gmEditPanel" class="card gm-hidden">
@@ -1357,7 +1405,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
               <div class="gm-field"><label>Table</label><input id="gmEditTable" type="text" placeholder="Facultatif"></div>
             </div>
           </div>
-          <button onclick="gmModifierMatch()">Mettre à jour le match</button>
+          <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
     </section>
@@ -1594,7 +1642,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
         // G Gymnase | H Adresse | I Code postal | J Ville | K Arbitre 1 | L Arbitre 2 | M Chrono | N Table
         state.matchs = mtRows.map((r, i) => ({
-          row: i + 1,
+          row: i + 2,
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
           date: String(r[2] || "").trim(),
@@ -2392,7 +2440,9 @@ function gmShowMessage(txt, ok){
   if (!el) return;
   el.textContent = txt;
   el.className = ok ? "gm-message ok" : "gm-message err";
-  setTimeout(() => { el.style.display = "none"; }, 5000);
+  el.style.display = "block";
+  el.scrollIntoView({ behavior:"smooth", block:"center" });
+  setTimeout(() => { el.style.display = "none"; }, 6000);
 }
 
 function showGestionMatchsScreen(){
@@ -2429,9 +2479,14 @@ function gmOnAddLieuChange(){
 }
 
 async function gmPost(data){
-  const res = await fetch(getScriptUrl(), { method:"POST", body: JSON.stringify(data) });
-  const txt = await res.text();
-  if (txt !== "OK" && !/^OK/.test(txt)) throw new Error(txt);
+  const res = await fetch(getScriptUrl(), {
+    method:"POST",
+    body: JSON.stringify(data)
+  });
+  const txt = String(await res.text() || "").trim();
+  if (txt !== "OK" && !txt.startsWith("OK")) {
+    throw new Error(txt || "Réponse vide du serveur");
+  }
   return txt;
 }
 
@@ -2459,12 +2514,19 @@ async function gmAjouterMatch(){
   };
   if (!data.adversaire && !data.nouveauClubNom) { gmShowMessage("Choisis un adversaire ou indique le nouveau club.", false); return; }
   if (!data.lieu) { gmShowMessage("Choisis Domicile ou Extérieur.", false); return; }
+  const btn = document.getElementById("gmAddBtn");
+  const oldTxt = btn ? btn.textContent : "";
   try{
+    if (btn) { btn.disabled = true; btn.textContent = "Ajout en cours..."; }
     await gmPost(data);
     gmShowMessage("Match ajouté ✅", true);
     await reloadData();
     showGestionMatchsScreen();
-  }catch(e){ gmShowMessage("Erreur ajout : " + (e.message || e), false); }
+  }catch(e){
+    gmShowMessage("Erreur ajout : " + (e.message || e), false);
+  }finally{
+    if (btn) { btn.disabled = false; btn.textContent = oldTxt || "Ajouter le match"; }
+  }
 }
 
 function gmEditEquipeChange(){
@@ -2541,13 +2603,20 @@ async function gmModifierMatch(){
     chrono: document.getElementById("gmEditChrono").value.trim(),
     table: document.getElementById("gmEditTable").value.trim()
   };
+  const btn = document.getElementById("gmEditBtn");
+  const oldTxt = btn ? btn.textContent : "";
   try{
+    if (btn) { btn.disabled = true; btn.textContent = "Mise à jour en cours..."; }
     await gmPost(data);
     gmShowMessage("Match mis à jour ✅", true);
     await reloadData();
     showGestionMatchsScreen();
     gmSetMode("edit");
-  }catch(e){ gmShowMessage("Erreur modification : " + (e.message || e), false); }
+  }catch(e){
+    gmShowMessage("Erreur modification : " + (e.message || e), false);
+  }finally{
+    if (btn) { btn.disabled = false; btn.textContent = oldTxt || "Mettre à jour le match"; }
+  }
 }
 
 function renderBureau(){
