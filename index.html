@@ -907,6 +907,21 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       display: none;
     }
     #domicileOfficialsBlock { display: none; }
+
+
+/* Gestion matchs intégrée V60.26 */
+.gm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.gm-tab.active{background:var(--accent)!important;color:#000!important}
+.gm-field{margin-top:12px}
+.gm-field label{display:block;color:#fff;font-weight:900;margin-bottom:6px;font-size:14px}
+.gm-field small{display:block;color:var(--muted);margin-top:5px;font-size:12px;line-height:1.35}
+.gm-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gm-message{display:none;margin:12px 0;padding:12px;border-radius:14px;font-weight:900;text-align:center}
+.gm-message.ok{display:block;background:#1f8f3a;color:#fff}
+.gm-message.err{display:block;background:#b00020;color:#fff}
+.gm-hidden{display:none!important}
+@media(max-width:480px){.gm-row{grid-template-columns:1fr}}
+
 </style>
 
 
@@ -998,7 +1013,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.25</button>
+    ">V60.26</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1256,6 +1271,97 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <div id="bureauList" class="list"></div>
     </section>
 
+
+
+    <section id="gestionMatchsScreen" class="screen">
+      <button class="back" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">← Retour au bureau</button>
+      <div class="card">
+        <h2>🏀 Gestion matchs</h2>
+        <div class="muted">Ajouter ou modifier un match sans sortir de l’application.</div>
+      </div>
+
+      <div class="gm-tabs">
+        <button id="gmTabAdd" class="gm-tab active" onclick="gmSetMode('add')">Ajouter</button>
+        <button id="gmTabEdit" class="gm-tab" onclick="gmSetMode('edit')">Modifier</button>
+      </div>
+
+      <div id="gmMessage" class="gm-message"></div>
+
+      <div id="gmAddPanel" class="card">
+        <h2>Ajouter un match</h2>
+        <div class="gm-field"><label>Saison</label><input id="gmAddSaison" type="text" readonly></div>
+        <div class="gm-field"><label>Équipe</label><select id="gmAddEquipe"></select></div>
+        <div class="gm-row">
+          <div class="gm-field"><label>Date</label><input id="gmAddDate" type="date"></div>
+          <div class="gm-field"><label>Heure</label><input id="gmAddHeure" type="time"></div>
+        </div>
+        <div class="gm-field"><label>Adversaire obligatoire</label><select id="gmAddAdversaire" onchange="gmOnAddAdversaireChange()"></select></div>
+        <div id="gmNewClubBox" class="gm-hidden">
+          <div class="gm-field"><label>Nouveau club</label><input id="gmNewClubNom" type="text" placeholder="Nom du club"></div>
+          <div class="gm-field"><label>Gymnase</label><input id="gmNewClubGymnase" type="text" placeholder="Facultatif"></div>
+          <div class="gm-field"><label>Adresse</label><input id="gmNewClubAdresse" type="text" placeholder="Facultatif"></div>
+          <div class="gm-row">
+            <div class="gm-field"><label>Code postal</label><input id="gmNewClubCP" type="text" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Ville</label><input id="gmNewClubVille" type="text" placeholder="Facultatif"></div>
+          </div>
+        </div>
+        <div class="gm-field"><label>Domicile / Extérieur obligatoire</label>
+          <select id="gmAddLieu" onchange="gmOnAddLieuChange()">
+            <option value="">Choisir</option><option value="Domicile">Domicile</option><option value="Extérieur">Extérieur</option>
+          </select>
+        </div>
+        <div id="gmAddOfficiels" class="gm-hidden">
+          <div class="gm-field"><label>Arbitre 1</label><input id="gmAddArbitre1" type="text" placeholder="Facultatif"></div>
+          <div class="gm-field"><label>Arbitre 2</label><input id="gmAddArbitre2" type="text" placeholder="Facultatif"></div>
+          <div class="gm-row">
+            <div class="gm-field"><label>Chrono</label><input id="gmAddChrono" type="text" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Table</label><input id="gmAddTable" type="text" placeholder="Facultatif"></div>
+          </div>
+        </div>
+        <button onclick="gmAjouterMatch()">Ajouter le match</button>
+      </div>
+
+      <div id="gmEditPanel" class="card gm-hidden">
+        <h2>Modifier un match</h2>
+        <div class="gm-field"><label>1. Équipe</label><select id="gmEditEquipe" onchange="gmEditEquipeChange()"></select></div>
+        <div class="gm-field"><label>2. Adversaire</label><select id="gmEditAdversaire" onchange="gmEditAdversaireChange()"></select></div>
+        <div class="gm-field"><label>3. Match</label><select id="gmEditMatch" onchange="gmEditMatchChange()"></select></div>
+        <div class="gm-field"><label>4. Motif de modification</label>
+          <select id="gmEditMotif">
+            <option value="simple">Simple mise à jour — arbitres, table, chrono</option>
+            <option value="date_heure">Date / heure modifiée — le match reste programmé</option>
+            <option value="reporte">Match reporté — match repoussé ou en attente</option>
+            <option value="forfait_adverse">Forfait adverse — l’adversaire déclare forfait</option>
+            <option value="forfait_cam">Forfait CAM — notre équipe déclare forfait</option>
+          </select>
+          <small>Le motif mettra à jour automatiquement la colonne Statut match.</small>
+        </div>
+
+        <div id="gmEditFields" class="gm-hidden">
+          <div class="gm-field"><label>Équipe</label><input id="gmEditEquipeLocked" type="text" readonly></div>
+          <div class="gm-row">
+            <div class="gm-field"><label>Date</label><input id="gmEditDate" type="date"></div>
+            <div class="gm-field"><label>Heure</label><input id="gmEditHeure" type="time"></div>
+          </div>
+          <div class="gm-field"><label>Adversaire verrouillé</label><input id="gmEditAdversaireLocked" type="text" readonly></div>
+          <div class="gm-field"><label>Domicile / Extérieur</label>
+            <select id="gmEditLieu" onchange="gmEditLieuChange()">
+              <option value="">Choisir</option><option value="Domicile">Domicile</option><option value="Extérieur">Extérieur</option>
+            </select>
+          </div>
+          <div id="gmEditOfficiels" class="gm-hidden">
+            <div class="gm-field"><label>Arbitre 1</label><input id="gmEditArbitre1" type="text" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Arbitre 2</label><input id="gmEditArbitre2" type="text" placeholder="Facultatif"></div>
+            <div class="gm-row">
+              <div class="gm-field"><label>Chrono</label><input id="gmEditChrono" type="text" placeholder="Facultatif"></div>
+              <div class="gm-field"><label>Table</label><input id="gmEditTable" type="text" placeholder="Facultatif"></div>
+            </div>
+          </div>
+          <button onclick="gmModifierMatch()">Mettre à jour le match</button>
+        </div>
+      </div>
+    </section>
+
     <section id="benevolesScreen" class="screen">
       <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
       <div class="card">
@@ -1276,6 +1382,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       bureau: "BUREAU",
       benevoles: "BENEVOLES",
       convocations: "CONVOCATIONS",
+      adversaires: "ADVERSAIRES",
       config: "CONFIG"
     };
 
@@ -1294,6 +1401,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       bureau: [],
       benevoles: [],
       convocations: [],
+      adversaires: [],
       selectedTeam: null,
       currentMatchRows: [],
       currentOpenMatch: null
@@ -1439,7 +1547,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           const svgBg = document.getElementById("camSvgBackground");
           if (svgBg) svgBg.style.opacity = "1";
         }, 800);
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, configRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, adversaireRows, configRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
@@ -1447,6 +1555,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           fetchRows(SHEETS.bureau),
           fetchRows(SHEETS.benevoles),
           fetchRowsCsv(SHEETS.convocations),
+          fetchRows(SHEETS.adversaires),
           (async () => {
             try {
               const ctrl = new AbortController();
@@ -1484,7 +1593,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         // MATCHS attendu :
         // A Saison | B Équipe | C Date | D Heure | E Adversaire | F Domicile/Extérieur
         // G Gymnase | H Adresse | I Code postal | J Ville | K Arbitre 1 | L Arbitre 2 | M Chrono | N Table
-        state.matchs = mtRows.map(r => ({
+        state.matchs = mtRows.map((r, i) => ({
+          row: i + 1,
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
           date: String(r[2] || "").trim(),
@@ -1498,7 +1608,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           arbitre1: String(r[10] || "").trim(),
           arbitre2: String(r[11] || "").trim(),
           chrono: String(r[12] || "").trim(),
-          table: String(r[13] || "").trim()
+          table: String(r[13] || "").trim(),
+          statut: String(r[14] || "Programmé").trim() || "Programmé"
         })).filter(x => (x.equipe || x.date || x.adversaire) && normalize(x.saison) !== "saison");
 
         state.bureau = bureauRows.map(r => ({
@@ -1532,6 +1643,14 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           commentaire: String(r[5] || "").trim(),
           codeCoach: String(r[6] || "").trim()
         })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
+
+        state.adversaires = (adversaireRows || []).map(r => ({
+          club: String(r[0] || "").trim(),
+          gymnase: String(r[1] || "").trim(),
+          adresse: String(r[2] || "").trim(),
+          codePostal: String(r[3] || "").trim(),
+          ville: String(r[4] || "").trim()
+        })).filter(x => x.club && normalize(x.club) !== "club");
 
         // Parser CONFIG
         state.config = {};
@@ -2217,30 +2336,233 @@ showScreen("matchDetailScreen");
     
 
 
+
+
+// ═══════════════════════════════════════
+// Gestion matchs intégrée V60.26
+// ═══════════════════════════════════════
+const GM_NEW_CLUB = "__NOUVEAU_CLUB__";
+let gmCurrentMatch = null;
+
+function gmDateDisplayToInput(dateDisplay){
+  const txt = String(dateDisplay || "").trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(txt)) return txt;
+  const p = txt.split("/");
+  if (p.length !== 3) return "";
+  return p[2] + "-" + p[1].padStart(2,"0") + "-" + p[0].padStart(2,"0");
+}
+
+function gmHeureDisplayToInput(heure){
+  return String(heure || "").replace("h", ":");
+}
+
+function gmFillSelect(id, values, label, includeNew){
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  sel.innerHTML = `<option value="">${label}</option>`;
+  values.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v;
+    opt.textContent = v;
+    sel.appendChild(opt);
+  });
+  if (includeNew) {
+    const opt = document.createElement("option");
+    opt.value = GM_NEW_CLUB;
+    opt.textContent = "➕ Ajouter un nouveau club";
+    sel.appendChild(opt);
+  }
+}
+
+function gmEquipesActives(){
+  return (state.equipes || [])
+    .filter(e => !state.season || sameSeason(e.saison, state.season))
+    .map(e => e.equipe)
+    .filter(Boolean);
+}
+
+function gmAdversaires(){
+  const fromSheet = (state.adversaires || []).map(a => a.club).filter(Boolean);
+  const fromMatches = (state.matchs || []).map(m => m.adversaire).filter(Boolean);
+  return Array.from(new Set([...fromSheet, ...fromMatches])).sort();
+}
+
+function gmShowMessage(txt, ok){
+  const el = document.getElementById("gmMessage");
+  if (!el) return;
+  el.textContent = txt;
+  el.className = ok ? "gm-message ok" : "gm-message err";
+  setTimeout(() => { el.style.display = "none"; }, 5000);
+}
+
+function showGestionMatchsScreen(){
+  renderGestionMatchs();
+  showScreen("gestionMatchsScreen");
+}
+
+function renderGestionMatchs(){
+  document.getElementById("gmAddSaison").value = state.season || "";
+  gmFillSelect("gmAddEquipe", gmEquipesActives(), "Choisir une équipe", false);
+  gmFillSelect("gmAddAdversaire", gmAdversaires(), "Choisir un adversaire", true);
+  gmFillSelect("gmEditEquipe", gmEquipesActives(), "Choisir une équipe", false);
+  gmFillSelect("gmEditAdversaire", [], "Choisir un adversaire", false);
+  gmFillSelect("gmEditMatch", [], "Choisir un match", false);
+  gmSetMode("add");
+}
+
+function gmSetMode(mode){
+  const add = mode === "add";
+  document.getElementById("gmAddPanel").classList.toggle("gm-hidden", !add);
+  document.getElementById("gmEditPanel").classList.toggle("gm-hidden", add);
+  document.getElementById("gmTabAdd").classList.toggle("active", add);
+  document.getElementById("gmTabEdit").classList.toggle("active", !add);
+}
+
+function gmOnAddAdversaireChange(){
+  const isNew = document.getElementById("gmAddAdversaire").value === GM_NEW_CLUB;
+  document.getElementById("gmNewClubBox").classList.toggle("gm-hidden", !isNew);
+}
+
+function gmOnAddLieuChange(){
+  const lieu = document.getElementById("gmAddLieu").value;
+  document.getElementById("gmAddOfficiels").classList.toggle("gm-hidden", lieu !== "Domicile");
+}
+
+async function gmPost(data){
+  const res = await fetch(getScriptUrl(), { method:"POST", body: JSON.stringify(data) });
+  const txt = await res.text();
+  if (txt !== "OK" && !/^OK/.test(txt)) throw new Error(txt);
+  return txt;
+}
+
+async function gmAjouterMatch(){
+  const adv = document.getElementById("gmAddAdversaire").value;
+  const isNew = adv === GM_NEW_CLUB;
+  const data = {
+    action: "ajouterMatch",
+    saison: document.getElementById("gmAddSaison").value.trim(),
+    equipe: document.getElementById("gmAddEquipe").value.trim(),
+    date: document.getElementById("gmAddDate").value,
+    heure: document.getElementById("gmAddHeure").value,
+    adversaire: isNew ? "" : adv,
+    lieu: document.getElementById("gmAddLieu").value,
+    nouveauClub: isNew,
+    nouveauClubNom: document.getElementById("gmNewClubNom").value.trim(),
+    nouveauGymnase: document.getElementById("gmNewClubGymnase").value.trim(),
+    nouvelleAdresse: document.getElementById("gmNewClubAdresse").value.trim(),
+    nouveauCodePostal: document.getElementById("gmNewClubCP").value.trim(),
+    nouvelleVille: document.getElementById("gmNewClubVille").value.trim(),
+    arbitre1: document.getElementById("gmAddArbitre1").value.trim(),
+    arbitre2: document.getElementById("gmAddArbitre2").value.trim(),
+    chrono: document.getElementById("gmAddChrono").value.trim(),
+    table: document.getElementById("gmAddTable").value.trim()
+  };
+  if (!data.adversaire && !data.nouveauClubNom) { gmShowMessage("Choisis un adversaire ou indique le nouveau club.", false); return; }
+  if (!data.lieu) { gmShowMessage("Choisis Domicile ou Extérieur.", false); return; }
+  try{
+    await gmPost(data);
+    gmShowMessage("Match ajouté ✅", true);
+    await reloadData();
+    showGestionMatchsScreen();
+  }catch(e){ gmShowMessage("Erreur ajout : " + (e.message || e), false); }
+}
+
+function gmEditEquipeChange(){
+  const eq = document.getElementById("gmEditEquipe").value;
+  const advs = Array.from(new Set((state.matchs || [])
+    .filter(m => m.equipe === eq && (!state.season || sameSeason(m.saison, state.season)))
+    .map(m => m.adversaire).filter(Boolean))).sort();
+  gmFillSelect("gmEditAdversaire", advs, "Choisir un adversaire", false);
+  gmFillSelect("gmEditMatch", [], "Choisir un match", false);
+  document.getElementById("gmEditFields").classList.add("gm-hidden");
+}
+
+function gmEditAdversaireChange(){
+  const eq = document.getElementById("gmEditEquipe").value;
+  const adv = document.getElementById("gmEditAdversaire").value;
+  const matchs = (state.matchs || [])
+    .filter(m => m.equipe === eq && m.adversaire === adv && (!state.season || sameSeason(m.saison, state.season)))
+    .sort((a,b) => parseMatchDateTime(a) - parseMatchDateTime(b));
+  const sel = document.getElementById("gmEditMatch");
+  sel.innerHTML = '<option value="">Choisir un match</option>';
+  matchs.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = String(m.row);
+    opt.textContent = `Ligne ${m.row} — ${m.equipe || ""} — ${m.date || "date vide"} — ${badgeForType(m.type).label || m.type || "lieu vide"} — ${m.heure || "heure vide"} — ${m.statut || "Programmé"}`;
+    sel.appendChild(opt);
+  });
+  document.getElementById("gmEditFields").classList.add("gm-hidden");
+}
+
+function gmEditMatchChange(){
+  const row = Number(document.getElementById("gmEditMatch").value);
+  const m = (state.matchs || []).find(x => Number(x.row) === row);
+  gmCurrentMatch = m || null;
+  if (!m) { document.getElementById("gmEditFields").classList.add("gm-hidden"); return; }
+  document.getElementById("gmEditEquipeLocked").value = m.equipe || "";
+  document.getElementById("gmEditDate").value = gmDateDisplayToInput(m.date);
+  document.getElementById("gmEditHeure").value = gmHeureDisplayToInput(m.heure);
+  document.getElementById("gmEditAdversaireLocked").value = m.adversaire || "";
+  document.getElementById("gmEditLieu").value = badgeForType(m.type).label || m.type || "";
+  document.getElementById("gmEditArbitre1").value = m.arbitre1 || "";
+  document.getElementById("gmEditArbitre2").value = m.arbitre2 || "";
+  document.getElementById("gmEditChrono").value = m.chrono || "";
+  document.getElementById("gmEditTable").value = m.table || "";
+  document.getElementById("gmEditMotif").value = gmStatutToAction(m.statut);
+  document.getElementById("gmEditFields").classList.remove("gm-hidden");
+  gmEditLieuChange();
+}
+
+function gmStatutToAction(statut){
+  const s = normalize(statut);
+  if (s === "reporte" || s === "reporté") return "reporte";
+  if (s === "forfait adverse") return "forfait_adverse";
+  if (s === "forfait cam") return "forfait_cam";
+  return "simple";
+}
+
+function gmEditLieuChange(){
+  const lieu = document.getElementById("gmEditLieu").value;
+  document.getElementById("gmEditOfficiels").classList.toggle("gm-hidden", lieu !== "Domicile");
+}
+
+async function gmModifierMatch(){
+  if (!gmCurrentMatch) { gmShowMessage("Aucun match sélectionné.", false); return; }
+  const data = {
+    action: "modifierMatch",
+    row: gmCurrentMatch.row,
+    equipe: document.getElementById("gmEditEquipeLocked").value.trim(),
+    date: document.getElementById("gmEditDate").value,
+    heure: document.getElementById("gmEditHeure").value,
+    lieu: document.getElementById("gmEditLieu").value,
+    actionMatch: document.getElementById("gmEditMotif").value,
+    arbitre1: document.getElementById("gmEditArbitre1").value.trim(),
+    arbitre2: document.getElementById("gmEditArbitre2").value.trim(),
+    chrono: document.getElementById("gmEditChrono").value.trim(),
+    table: document.getElementById("gmEditTable").value.trim()
+  };
+  try{
+    await gmPost(data);
+    gmShowMessage("Match mis à jour ✅", true);
+    await reloadData();
+    showGestionMatchsScreen();
+    gmSetMode("edit");
+  }catch(e){ gmShowMessage("Erreur modification : " + (e.message || e), false); }
+}
+
 function renderBureau(){
       const el = document.getElementById("bureauList");
       if (!el) return;
 
-      const cfg = state.config || {};
-      const urlGestionMatchs = String(cfg["url_formulaire_gestion_matchs"] || "").trim();
-      const gestionActive = String(cfg["activer_gestion_matchs"] || "oui").trim().toLowerCase() !== "non";
-
-      const gestionMatchsHtml = gestionActive ? `
+      const gestionMatchsHtml = `
         <div class="bureau-member-card">
           <div class="bureau-member-name">🏀 Gestion matchs</div>
           <div class="bureau-member-role">Ajouter ou modifier les matchs</div>
-          ${
-            urlGestionMatchs
-              ? `<div class="bureau-actions">
-                   <a class="bureau-action-btn" href="${escapeHtml(urlGestionMatchs)}" target="_blank" rel="noopener noreferrer">Ouvrir le formulaire</a>
-                 </div>`
-              : `<div class="bureau-info-muted">
-                   URL non renseignée dans CONFIG.<br>
-                   Ajoute : url_formulaire_gestion_matchs
-                 </div>`
-          }
+          <div class="bureau-actions">
+            <button class="bureau-action-btn" onclick="showGestionMatchsScreen()" style="border:none;cursor:pointer;">Ouvrir dans l’application</button>
+          </div>
         </div>
-      ` : "";
+      `;
 
       const rows = (state.bureau || []).filter(m => {
         const nom = String(m.nom || "").trim();
@@ -2287,7 +2609,9 @@ function renderBureau(){
       }).join("");
     }
 
-    function renderBenevoles(){
+
+    
+function renderBenevoles(){
       const el = document.getElementById("benevolesList");
       if(!state.benevoles.length){
         el.innerHTML = '<div class="empty">Aucun bénévole trouvé.</div>';
@@ -2917,7 +3241,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.25</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.24</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
