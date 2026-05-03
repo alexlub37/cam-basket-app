@@ -137,6 +137,28 @@
       line-height:1.35;
       margin-top:4px;
     }
+    .team-extra{
+      margin-top:12px;
+      padding-top:10px;
+      border-top:1px solid rgba(255,212,0,.22);
+      display:grid;
+      gap:6px;
+    }
+    .team-extra-title{
+      color:var(--accent);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+    .team-training-line,.team-info-line{
+      color:#fff;
+      font-size:14px;
+      line-height:1.35;
+    }
+    .team-info-line{
+      color:var(--muted);
+    }
     .match-section-title{
       margin:14px 0 8px;
       color:var(--accent);
@@ -310,7 +332,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.47 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.48 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1227,7 +1249,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.47</button>
+    ">V60.48</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1588,7 +1610,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
-      <!-- V60.47 : textes des cartes pilotables depuis CONFIG + activation des petites phrases + OFFICIELS menus déroulants -->
+      <!-- V60.48 : infos entraînement sur cartes Équipes + textes CONFIG + OFFICIELS menus déroulants -->
     </section>
 
     <section id="benevolesScreen" class="screen">
@@ -1857,11 +1879,24 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
         state.season = findSeason(paramRows);
 
+        // EQUIPES attendu :
+        // A Saison | B Équipe | C Catégorie | D Coach | E Code coach
+        // F Entraînement 1 jour | G Entraînement 1 heure | H Entraînement 1 lieu
+        // I Entraînement 2 jour | J Entraînement 2 heure | K Entraînement 2 lieu
+        // L Info équipe | M Afficher infos équipe
         state.equipes = eqRows.map(r => ({
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
           categorie: String(r[2] || "").trim(),
-          coach: String(r[3] || "").trim()
+          coach: String(r[3] || "").trim(),
+          entrainement1Jour: String(r[5] || "").trim(),
+          entrainement1Heure: String(r[6] || "").trim(),
+          entrainement1Lieu: String(r[7] || "").trim(),
+          entrainement2Jour: String(r[8] || "").trim(),
+          entrainement2Heure: String(r[9] || "").trim(),
+          entrainement2Lieu: String(r[10] || "").trim(),
+          infoEquipe: String(r[11] || "").trim(),
+          afficherInfosEquipe: String(r[12] || "Oui").trim() || "Oui"
         })).filter(x => x.equipe && normalize(x.saison) !== "saison");
 
         state.joueurs = jrRows.map(r => ({
@@ -1981,6 +2016,45 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       }
     }
 
+    function formatTrainingLine(jour, heure, lieu){
+      const parts = [];
+      if (jour) parts.push(jour);
+      if (heure) parts.push(heure);
+      if (lieu) parts.push(lieu);
+      return parts.join(" — ");
+    }
+
+    function shouldShowTeamDetails(t){
+      const local = normalize(t && t.afficherInfosEquipe);
+      if (["non","no","false","0","inactif"].includes(local)) return false;
+      return true;
+    }
+
+    function renderTeamExtras(t){
+      if (!t || !shouldShowTeamDetails(t)) return "";
+
+      const showTraining = cfgBool("equipes_infos_entrainement_actif", true);
+      const showInfo = cfgBool("equipes_info_equipe_actif", true);
+      const trainingTitle = cfgValue("equipes_entrainement_titre", "Entraînements");
+      const infoTitle = cfgValue("equipes_info_titre", "Info équipe");
+
+      const l1 = formatTrainingLine(t.entrainement1Jour, t.entrainement1Heure, t.entrainement1Lieu);
+      const l2 = formatTrainingLine(t.entrainement2Jour, t.entrainement2Heure, t.entrainement2Lieu);
+
+      const lines = [];
+      if (showTraining && (l1 || l2)) {
+        lines.push(`<div class="team-extra-title">${escapeHtml(trainingTitle)}</div>`);
+        if (l1) lines.push(`<div class="team-training-line">${escapeHtml(l1)}</div>`);
+        if (l2) lines.push(`<div class="team-training-line">${escapeHtml(l2)}</div>`);
+      }
+      if (showInfo && t.infoEquipe) {
+        lines.push(`<div class="team-extra-title">${escapeHtml(infoTitle)}</div>`);
+        lines.push(`<div class="team-info-line">${escapeHtml(t.infoEquipe)}</div>`);
+      }
+
+      return lines.length ? `<div class="team-extra">${lines.join("")}</div>` : "";
+    }
+
     function renderTeams(){
       const el = document.getElementById("teamsList");
       const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
@@ -1994,21 +2068,32 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       }
 
       el.innerHTML = teams.map(t => `
-        <div class="item" data-team="${escapeHtml(t.equipe)}" data-cat="${escapeHtml(t.categorie)}" data-coach="${escapeHtml(t.coach)}">
+        <div class="item" data-team="${escapeHtml(t.equipe)}">
           <div class="item-title">${escapeHtml(t.equipe)}</div>
           <div class="item-sub">${escapeHtml(t.categorie || "Catégorie non renseignée")} ${t.coach ? "• Coach : " + escapeHtml(t.coach) : ""}</div>
+          ${renderTeamExtras(t)}
         </div>
       `).join("");
 
       el.querySelectorAll(".item").forEach(node => {
-        node.addEventListener("click", () => selectTeam(node.dataset.team, node.dataset.cat, node.dataset.coach));
+        node.addEventListener("click", () => {
+          const teamName = node.dataset.team || "";
+          const t = state.equipes.find(x => x.equipe === teamName) || { equipe: teamName };
+          selectTeam(t);
+        });
       });
     }
 
-    function selectTeam(team, cat, coach){
-      state.selectedTeam = { team, cat, coach };
-      document.getElementById("teamMenuTitle").textContent = team;
-      document.getElementById("teamMenuSub").textContent = [cat, coach ? "Coach : " + coach : "", state.season].filter(Boolean).join(" • ");
+    function selectTeam(teamData, cat, coach){
+      const t = (typeof teamData === "object" && teamData !== null)
+        ? teamData
+        : (state.equipes.find(x => x.equipe === teamData) || { equipe: teamData, categorie: cat, coach: coach });
+
+      state.selectedTeam = { team: t.equipe, cat: t.categorie, coach: t.coach };
+      document.getElementById("teamMenuTitle").textContent = t.equipe;
+      const base = [t.categorie, t.coach ? "Coach : " + t.coach : "", state.season].filter(Boolean).join(" • ");
+      const extras = renderTeamExtras(t);
+      document.getElementById("teamMenuSub").innerHTML = escapeHtml(base) + extras;
       showScreen("teamMenuScreen");
     }
 
@@ -4032,12 +4117,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.47</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.48</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.47 — textes des cartes pilotables depuis CONFIG + activation des petites phrases</li>
+        <li>V60.48 — infos entraînements et infos équipe sur les cartes Équipes</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4194,7 +4279,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.47
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.48
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
@@ -4219,6 +4304,8 @@ function appliquerConfig() {
   setCfgText("homeUpcomingTitle", "accueil_matchs_titre", "🏀 Matchs à venir", "accueil_matchs_titre_actif");
   setCfgTitleWithSeason("teamsCardTitle", "equipes_titre", "Équipes");
   setCfgText("teamsCardText", "equipes_texte", "Saison active uniquement.", "equipes_texte_actif");
+  // Infos complémentaires des cartes Équipes : les données viennent de la feuille EQUIPES, l'affichage est piloté par CONFIG.
+  // Clés disponibles : equipes_infos_entrainement_actif, equipes_info_equipe_actif, equipes_entrainement_titre, equipes_info_titre.
   setCfgText("menuPlayersText", "menu_joueurs_texte", "Voir l’effectif de l’équipe", "menu_joueurs_texte_actif");
   setCfgText("menuMatchesText", "menu_matchs_texte", "Voir les matchs de l’équipe", "menu_matchs_texte_actif");
   setCfgText("playersCardText", "joueurs_texte", "Liste filtrée sur l’équipe sélectionnée et la saison active.", "joueurs_texte_actif");
