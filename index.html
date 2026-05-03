@@ -137,27 +137,98 @@
       line-height:1.35;
       margin-top:4px;
     }
+    /* V60.49 - Cartes équipes harmonisées */
+    .team-item{
+      padding:16px 16px 14px !important;
+      border-radius:22px !important;
+    }
+    .team-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .team-name{
+      font-weight:950;
+      font-size:30px;
+      line-height:1.02;
+      color:#fff;
+      letter-spacing:-.02em;
+    }
+    .team-badge-cat{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      max-width:44%;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,212,0,.48);
+      background:rgba(255,212,0,.10);
+      color:var(--accent);
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .team-meta{
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.25;
+      margin-top:4px;
+    }
     .team-extra{
       margin-top:12px;
-      padding-top:10px;
-      border-top:1px solid rgba(255,212,0,.22);
+      padding-top:11px;
+      border-top:1px solid rgba(255,212,0,.18);
       display:grid;
-      gap:6px;
+      gap:8px;
     }
     .team-extra-title{
       color:var(--accent);
       font-size:12px;
       font-weight:900;
-      text-transform:uppercase;
-      letter-spacing:.05em;
+      text-transform:none;
+      letter-spacing:.02em;
+      margin-bottom:1px;
     }
-    .team-training-line,.team-info-line{
+    .team-training-list{
+      display:grid;
+      gap:5px;
+    }
+    .team-training-line{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
       color:#fff;
-      font-size:14px;
-      line-height:1.35;
+      font-size:15px;
+      line-height:1.30;
+    }
+    .team-training-icon{
+      flex:0 0 auto;
+      width:18px;
+      opacity:.95;
+      text-align:center;
+    }
+    .team-training-text{
+      min-width:0;
     }
     .team-info-line{
       color:var(--muted);
+      font-size:14px;
+      line-height:1.35;
+      padding:8px 10px;
+      border-radius:12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.07);
+    }
+    @media(max-width:420px){
+      .team-name{font-size:28px;}
+      .team-badge-cat{font-size:12px;padding:5px 9px;}
+      .team-meta{font-size:15px;}
+      .team-training-line{font-size:14px;}
     }
     .match-section-title{
       margin:14px 0 8px;
@@ -332,7 +403,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.48 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.49 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1249,7 +1320,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.48</button>
+    ">V60.49</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1610,7 +1681,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
-      <!-- V60.48 : infos entraînement sur cartes Équipes + textes CONFIG + OFFICIELS menus déroulants -->
+      <!-- V60.49 : cartes Équipes harmonisées + infos entraînement compactes -->
     </section>
 
     <section id="benevolesScreen" class="screen">
@@ -2017,17 +2088,29 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     }
 
     function formatTrainingLine(jour, heure, lieu){
-      const parts = [];
-      if (jour) parts.push(jour);
-      if (heure) parts.push(heure);
-      if (lieu) parts.push(lieu);
-      return parts.join(" — ");
+      const day = cleanText(jour);
+      const time = cleanText(heure);
+      const place = cleanText(lieu);
+
+      const main = [day, time].filter(Boolean).join(" • ");
+      if (main && place) return `${main} — ${place}`;
+      return main || place;
     }
 
     function shouldShowTeamDetails(t){
       const local = normalize(t && t.afficherInfosEquipe);
       if (["non","no","false","0","inactif"].includes(local)) return false;
       return true;
+    }
+
+    function renderTrainingLine(text){
+      if (!text) return "";
+      return `
+        <div class="team-training-line">
+          <span class="team-training-icon">📅</span>
+          <span class="team-training-text">${escapeHtml(text)}</span>
+        </div>
+      `;
     }
 
     function renderTeamExtras(t){
@@ -2044,8 +2127,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       const lines = [];
       if (showTraining && (l1 || l2)) {
         lines.push(`<div class="team-extra-title">${escapeHtml(trainingTitle)}</div>`);
-        if (l1) lines.push(`<div class="team-training-line">${escapeHtml(l1)}</div>`);
-        if (l2) lines.push(`<div class="team-training-line">${escapeHtml(l2)}</div>`);
+        lines.push(`<div class="team-training-list">${[renderTrainingLine(l1), renderTrainingLine(l2)].filter(Boolean).join("")}</div>`);
       }
       if (showInfo && t.infoEquipe) {
         lines.push(`<div class="team-extra-title">${escapeHtml(infoTitle)}</div>`);
@@ -2053,6 +2135,24 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       }
 
       return lines.length ? `<div class="team-extra">${lines.join("")}</div>` : "";
+    }
+
+    function renderTeamCard(t){
+      const cat = cleanText(t.categorie);
+      const coach = cleanText(t.coach);
+      const meta = coach ? `Coach : ${escapeHtml(coach)}` : "";
+      const badge = cat ? `<span class="team-badge-cat">${escapeHtml(cat)}</span>` : "";
+
+      return `
+        <div class="item team-item" data-team="${escapeHtml(t.equipe)}">
+          <div class="team-head">
+            <div class="team-name">${escapeHtml(t.equipe)}</div>
+            ${badge}
+          </div>
+          ${meta ? `<div class="team-meta">${meta}</div>` : ""}
+          ${renderTeamExtras(t)}
+        </div>
+      `;
     }
 
     function renderTeams(){
@@ -2067,13 +2167,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         return;
       }
 
-      el.innerHTML = teams.map(t => `
-        <div class="item" data-team="${escapeHtml(t.equipe)}">
-          <div class="item-title">${escapeHtml(t.equipe)}</div>
-          <div class="item-sub">${escapeHtml(t.categorie || "Catégorie non renseignée")} ${t.coach ? "• Coach : " + escapeHtml(t.coach) : ""}</div>
-          ${renderTeamExtras(t)}
-        </div>
-      `).join("");
+      el.innerHTML = teams.map(renderTeamCard).join("");
 
       el.querySelectorAll(".item").forEach(node => {
         node.addEventListener("click", () => {
@@ -4117,12 +4211,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.48</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.49</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.48 — infos entraînements et infos équipe sur les cartes Équipes</li>
+        <li>V60.49 — cartes Équipes harmonisées et infos entraînement plus lisibles</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4279,7 +4373,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.48
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.49
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
