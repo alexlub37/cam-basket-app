@@ -137,17 +137,24 @@
       line-height:1.35;
       margin-top:4px;
     }
-    /* V60.50 - Cartes équipes harmonisées */
+    /* V60.51 - Cartes équipes compactées */
     .team-item{
       padding:16px 16px 14px !important;
       border-radius:22px !important;
     }
     .team-head{
       display:flex;
-      align-items:flex-start;
+      align-items:center;
       justify-content:space-between;
       gap:10px;
-      margin-bottom:6px;
+      margin-bottom:8px;
+    }
+    .team-title-line{
+      min-width:0;
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+      flex-wrap:wrap;
     }
     .team-name{
       font-weight:950;
@@ -155,6 +162,15 @@
       line-height:1.02;
       color:#fff;
       letter-spacing:-.02em;
+      flex:0 0 auto;
+    }
+    .team-coach-inline{
+      color:var(--muted);
+      font-size:15px;
+      font-weight:750;
+      line-height:1.15;
+      white-space:nowrap;
+      opacity:.95;
     }
     .team-badge-cat{
       flex:0 0 auto;
@@ -226,6 +242,7 @@
     }
     @media(max-width:420px){
       .team-name{font-size:28px;}
+      .team-coach-inline{font-size:14px;}
       .team-badge-cat{font-size:12px;padding:5px 9px;}
       .team-meta{font-size:15px;}
       .team-training-line{font-size:14px;}
@@ -403,7 +420,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.50 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.51 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1320,7 +1337,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.50</button>
+    ">V60.51</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1681,7 +1698,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
-      <!-- V60.50 : cartes Équipes harmonisées + infos entraînement compactes -->
+      <!-- V60.51 : cartes Équipes harmonisées + infos entraînement compactes -->
     </section>
 
     <section id="benevolesScreen" class="screen">
@@ -2144,16 +2161,18 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     function renderTeamCard(t){
       const cat = cleanText(t.categorie);
       const coach = cleanText(t.coach);
-      const meta = coach ? `Coach : ${escapeHtml(coach)}` : "";
+      const coachInline = coach ? `<span class="team-coach-inline">Coach : ${escapeHtml(coach)}</span>` : "";
       const badge = cat ? `<span class="team-badge-cat">${escapeHtml(cat)}</span>` : "";
 
       return `
         <div class="item team-item" data-team="${escapeHtml(t.equipe)}">
           <div class="team-head">
-            <div class="team-name">${escapeHtml(t.equipe)}</div>
+            <div class="team-title-line">
+              <div class="team-name">${escapeHtml(t.equipe)}</div>
+              ${coachInline}
+            </div>
             ${badge}
           </div>
-          ${meta ? `<div class="team-meta">${meta}</div>` : ""}
           ${renderTeamExtras(t)}
         </div>
       `;
@@ -4215,12 +4234,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.50</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.51</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.50 — cartes Équipes harmonisées et infos entraînement plus lisibles</li>
+        <li>V60.51 — cartes Équipes compactées : coach sur la ligne du nom et infos entraînement lisibles</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4377,7 +4396,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.50
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.51
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
