@@ -909,7 +909,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     #domicileOfficialsBlock { display: none; }
 
 
-/* Gestion matchs intégrée V60.33 */
+/* Gestion matchs intégrée V60.34 */
 .gm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .gm-tab.active{background:var(--accent)!important;color:#000!important}
 .gm-field{margin-top:12px}
@@ -970,7 +970,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   #gestionMatchsScreen select{font-size:16px!important}
 }
 
-/* Protection Gestion matchs V60.33 */
+/* Protection Gestion matchs V60.34 */
 .gm-lock-card{
   border:1px solid rgba(255,212,0,.42)!important;
   background:rgba(0,0,0,.42)!important;
@@ -996,7 +996,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
 
 
-/* V60.33 - réponses à reconfirmer visibles */
+/* V60.34 - réponses à reconfirmer visibles */
 .reconfirm-alert{
   margin-top:12px;
   margin-bottom:12px;
@@ -1130,7 +1130,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.33</button>
+    ">V60.34</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1524,6 +1524,39 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       currentMatchRows: [],
       currentOpenMatch: null
     };
+
+
+    function cfgValue(key, fallback = "") {
+      const cfg = state.config || {};
+      const val = cfg[String(key || "").trim().toLowerCase()];
+      return val === undefined || val === null || String(val).trim() === "" ? fallback : String(val).trim();
+    }
+
+    function cfgInt(key, fallback) {
+      const raw = cfgValue(key, "");
+      if (raw === "") return fallback;
+      const n = parseInt(String(raw).replace(",", "."), 10);
+      return Number.isFinite(n) && n >= 0 ? n : fallback;
+    }
+
+    function cfgBool(key, fallback) {
+      const raw = normalize(cfgValue(key, ""));
+      if (!raw) return fallback;
+      if (["oui", "o", "yes", "y", "true", "1", "actif", "active"].includes(raw)) return true;
+      if (["non", "n", "no", "false", "0", "inactif", "inactive"].includes(raw)) return false;
+      return fallback;
+    }
+
+    function getOrganisationQuotas() {
+      return {
+        maillots: cfgInt("quota_maillots", 1),
+        boisson: cfgInt("quota_boisson", 2),
+        nourriture: cfgInt("quota_nourriture", 2),
+        activerMaillots: cfgBool("activer_maillots", true),
+        activerBoisson: cfgBool("activer_boisson", true),
+        activerNourriture: cfgBool("activer_nourriture", true)
+      };
+    }
 
     function showScreen(id){
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -2531,6 +2564,7 @@ showScreen("matchDetailScreen");
       const card = document.getElementById("matchApportsCard");
       if (card) card.style.display = "none";
 
+      const quotas = getOrganisationQuotas();
       const bTitle = document.getElementById("apportsBoissonTitle");
       const nTitle = document.getElementById("apportsNourritureTitle");
       const mTitle = document.getElementById("apportsMaillotsTitle");
@@ -2539,13 +2573,13 @@ showScreen("matchDetailScreen");
       const mList = document.getElementById("apportsMaillotsList");
       const subtitle = document.getElementById("apportsSubtitle");
 
-      if (bTitle) bTitle.innerHTML = 'Boisson <span class="apports-count">0 / 2</span>';
-      if (nTitle) nTitle.innerHTML = 'Nourriture <span class="apports-count">0 / 2</span>';
-      if (mTitle) mTitle.textContent = "Maillots";
+      if (bTitle) bTitle.innerHTML = `Boisson <span class="apports-count">0 / ${quotas.boisson}</span>`;
+      if (nTitle) nTitle.innerHTML = `Nourriture <span class="apports-count">0 / ${quotas.nourriture}</span>`;
+      if (mTitle) mTitle.innerHTML = `Maillots <span class="apports-count">0 / ${quotas.maillots}</span>`;
       if (bList) bList.innerHTML = '<span class="apports-empty">Aucun</span>';
       if (nList) nList.innerHTML = '<span class="apports-empty">Aucun</span>';
       if (mList) mList.innerHTML = '<span class="apports-empty">Aucun</span>';
-      if (subtitle) subtitle.textContent = "Objectif : 2 boissons / 2 nourritures";
+      if (subtitle) subtitle.textContent = `Objectif : ${quotas.boisson} boisson(s) / ${quotas.nourriture} nourriture(s)`;
     }
 
     async function loadApportsDomicile(){
@@ -2557,14 +2591,19 @@ showScreen("matchDetailScreen");
       }
 
       const isHome = isHomeType(m.type);
+      const quotas = getOrganisationQuotas();
       const boissonSection = document.getElementById("apportsBoissonSection");
       const nourritureSection = document.getElementById("apportsNourritureSection");
+      const maillotsSection = document.getElementById("apportsMaillotsSection");
       const subtitle = document.getElementById("apportsSubtitle");
 
       card.style.display = "none";
-      if (boissonSection) boissonSection.style.display = isHome ? "block" : "none";
-      if (nourritureSection) nourritureSection.style.display = isHome ? "block" : "none";
-      if (subtitle) subtitle.textContent = isHome ? "Objectif : 2 boissons / 2 nourritures" : "Qui prend les maillots ?";
+      if (boissonSection) boissonSection.style.display = isHome && quotas.activerBoisson ? "block" : "none";
+      if (nourritureSection) nourritureSection.style.display = isHome && quotas.activerNourriture ? "block" : "none";
+      if (maillotsSection) maillotsSection.style.display = quotas.activerMaillots ? "block" : "none";
+      if (subtitle) subtitle.textContent = isHome
+        ? `Objectif : ${quotas.boisson} boisson(s) / ${quotas.nourriture} nourriture(s)`
+        : `Qui prend les maillots ? Objectif : ${quotas.maillots}`;
 
       try{
         const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
@@ -2614,19 +2653,19 @@ showScreen("matchDetailScreen");
         card.style.display = "block";
 
         document.getElementById("apportsBoissonTitle").innerHTML =
-          boissons.length >= 2
-            ? `Boisson <span class="apports-count">${boissons.length} / 2</span> <span class="apports-ok">✅</span>`
-            : `Boisson <span class="apports-count">${boissons.length} / 2</span>`;
+          boissons.length >= quotas.boisson
+            ? `Boisson <span class="apports-count">${boissons.length} / ${quotas.boisson}</span> <span class="apports-ok">✅</span>`
+            : `Boisson <span class="apports-count">${boissons.length} / ${quotas.boisson}</span>`;
 
         document.getElementById("apportsNourritureTitle").innerHTML =
-          nourritures.length >= 2
-            ? `Nourriture <span class="apports-count">${nourritures.length} / 2</span> <span class="apports-ok">✅</span>`
-            : `Nourriture <span class="apports-count">${nourritures.length} / 2</span>`;
+          nourritures.length >= quotas.nourriture
+            ? `Nourriture <span class="apports-count">${nourritures.length} / ${quotas.nourriture}</span> <span class="apports-ok">✅</span>`
+            : `Nourriture <span class="apports-count">${nourritures.length} / ${quotas.nourriture}</span>`;
 
         document.getElementById("apportsMaillotsTitle").innerHTML =
-          maillots.length >= 1
-            ? `Maillots <span class="apports-ok">✅</span>`
-            : "Maillots";
+          maillots.length >= quotas.maillots
+            ? `Maillots <span class="apports-count">${maillots.length} / ${quotas.maillots}</span> <span class="apports-ok">✅</span>`
+            : `Maillots <span class="apports-count">${maillots.length} / ${quotas.maillots}</span>`;
 
         document.getElementById("apportsBoissonList").innerHTML = boissons.length
           ? boissons.map(n => `<div>• ${escapeHtml(n)}</div>`).join("")
@@ -2654,7 +2693,7 @@ showScreen("matchDetailScreen");
 
 
 // ═══════════════════════════════════════
-// Gestion matchs intégrée V60.33
+// Gestion matchs intégrée V60.34
 // ═══════════════════════════════════════
 const GM_NEW_CLUB = "__NOUVEAU_CLUB__";
 let gmCurrentMatch = null;
@@ -3101,7 +3140,7 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
             + "&equipe=" + encodeURIComponent(equipe)
             + "&type=" + encodeURIComponent(typeMatch || "")
             + "&joueurs=" + joueursString
-            + "&v=60.33"
+            + "&v=60.34"
             + "&t=" + encodeURIComponent(Date.now());
 
   const popup = window.open(url, "_blank");
@@ -3658,12 +3697,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.33</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.34</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.33 — verrou serveur Maillots renforcé + anti-cache formulaire</li>
+        <li>V60.34 — quotas Maillots / Boisson / Nourriture pilotés par CONFIG</li>
         <li>Gestion matchs intégrée protégée par code bureau</li>
         <li>Réponses joueurs à reconfirmer si date / heure / lieu modifié</li>
         <li>Validation serveur du code avant ajout/modification</li>
