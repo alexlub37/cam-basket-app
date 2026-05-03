@@ -253,7 +253,7 @@
       .team-training-line{font-size:14px;}
     }
 
-    /* V60.54 - Page équipe harmonisée + Espace coach */
+    /* V60.55 - Page équipe harmonisée + Espace coach compact */
     .team-actions-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -270,53 +270,84 @@
     }
     .coach-space-match{
       cursor:pointer;
+      padding:15px!important;
     }
-    .coach-space-head{
-      display:flex;
-      justify-content:space-between;
+    .coach-space-top{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
       align-items:flex-start;
       gap:10px;
-      margin-bottom:8px;
+      margin-bottom:10px;
     }
     .coach-space-title{
-      font-size:20px;
-      line-height:1.15;
+      font-size:18px;
+      line-height:1.16;
       font-weight:900;
       color:#fff;
     }
-    .coach-space-date{
-      flex:0 0 auto;
-      text-align:right;
-      color:var(--accent);
+    .coach-space-meta{
+      margin-top:5px;
+      color:var(--muted);
       font-size:13px;
+      line-height:1.25;
+      font-weight:700;
+    }
+    .coach-status-badge{
+      white-space:nowrap;
+      border-radius:999px;
+      padding:6px 9px;
+      font-size:11px;
       font-weight:900;
-      line-height:1.2;
+      border:1px solid rgba(255,159,28,.50);
+      background:rgba(255,159,28,.10);
+      color:#ffd08a;
+    }
+    .coach-status-badge.ok{
+      border-color:rgba(31,170,89,.45);
+      background:rgba(31,170,89,.10);
+      color:#9effb8;
     }
     .coach-space-stats{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
+      display:flex;
+      flex-wrap:wrap;
       gap:7px;
-      margin-top:10px;
+      margin-top:6px;
     }
     .coach-stat-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
       border:1px solid rgba(255,255,255,.10);
-      border-radius:12px;
-      padding:7px 8px;
-      background:rgba(255,255,255,.04);
+      border-radius:999px;
+      padding:6px 8px;
+      background:rgba(255,255,255,.035);
+      color:#fff;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.15;
+    }
+    .coach-stat-pill b{
       color:#fff;
       font-size:13px;
-      font-weight:800;
     }
     .coach-alert-line{
-      margin-top:8px;
+      margin-top:9px;
       padding:8px 10px;
       border-radius:12px;
       border:1px solid rgba(255,159,28,.45);
-      background:rgba(255,159,28,.09);
+      background:rgba(255,159,28,.08);
       color:#ffd08a;
-      font-size:13px;
+      font-size:12px;
       font-weight:800;
-      line-height:1.3;
+      line-height:1.28;
+    }
+    .coach-open-hint{
+      margin-top:10px;
+      color:var(--accent);
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
     }
     .coach-match-header{
       margin-bottom:14px;
@@ -505,7 +536,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.54 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.55 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1422,7 +1453,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.54</button>
+    ">V60.55</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2480,22 +2511,28 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         if (s.sansReponse) alerts.push(`${s.sansReponse} sans réponse`);
         if (nbRemplacer) alerts.push(`${nbRemplacer} à remplacer`);
         if (s.quotas.activerMaillots && s.org.maillots > s.quotas.maillots) alerts.push(`maillots à vérifier`);
+        const isOk = alerts.length === 0;
+        const statusLabel = isOk ? "OK" : "À traiter";
+        const statusClass = isOk ? "ok" : "warn";
+        const meta = [m.date || "-", m.heure || "-", badgeForType(m.type).label || ""].filter(Boolean).join(" • ");
+        const gym = m.gymnase ? ` • ${m.gymnase}` : "";
         return `
           <div class="item coach-space-match" data-coach-match-idx="${i}">
-            <div class="coach-space-head">
+            <div class="coach-space-top">
               <div>
                 <div class="coach-space-title">${escapeHtml(buildMatchDisplay(m))}</div>
-                <div class="item-sub">${escapeHtml(badgeForType(m.type).label)}${m.gymnase ? " • " + escapeHtml(m.gymnase) : ""}</div>
+                <div class="coach-space-meta">${escapeHtml(meta)}${escapeHtml(gym)}</div>
               </div>
-              <div class="coach-space-date">${escapeHtml(m.date || "-")}<br>${escapeHtml(m.heure || "-")}</div>
+              <div class="coach-status-badge ${statusClass}">${statusLabel}</div>
             </div>
             <div class="coach-space-stats">
-              <div class="coach-stat-pill">✅ ${s.presents} présent(s)</div>
-              <div class="coach-stat-pill">❌ ${s.absents} absent(s)</div>
-              <div class="coach-stat-pill">⏳ ${s.sansReponse} sans réponse</div>
-              <div class="coach-stat-pill">📋 ${convoc.length} convoqué(s)</div>
+              <div class="coach-stat-pill">✅ <b>${s.presents}</b> présents</div>
+              <div class="coach-stat-pill">❌ <b>${s.absents}</b> absents</div>
+              <div class="coach-stat-pill">⏳ <b>${s.sansReponse}</b> sans réponse</div>
+              <div class="coach-stat-pill">📋 <b>${convoc.length}</b> convoqués</div>
             </div>
             ${alerts.length ? `<div class="coach-alert-line">⚠️ ${escapeHtml(alerts.join(" • "))}</div>` : `<div class="coach-alert-line" style="border-color:rgba(31,170,89,.45);background:rgba(31,170,89,.08);color:#9effb8;">✅ Rien d’urgent</div>`}
+            <div class="coach-open-hint">Voir / gérer →</div>
           </div>
         `;
       }).join("");
@@ -4524,12 +4561,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.54</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.55</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.54 — Espace coach : le code coach est conservé pour générer la convocation sans deuxième demande</li>
+        <li>V60.55 — Espace coach plus compact : cartes matchs allégées avec statut, résumé rapide et accès Voir / gérer</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4557,7 +4594,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       e.preventDefault();
       e.stopPropagation();
 
-      // V60.54 : si le coach est déjà entré dans l’Espace coach,
+      // V60.55 : si le coach est déjà entré dans l’Espace coach,
       // on réutilise le code coach mémorisé pour éviter une deuxième demande.
       if (!state.codeCoach || !String(state.codeCoach).trim()) {
         const codeCoach = prompt("Code coach ?");
@@ -4686,7 +4723,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.54
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.55
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
