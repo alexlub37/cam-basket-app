@@ -909,7 +909,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     #domicileOfficialsBlock { display: none; }
 
 
-/* Gestion matchs intégrée V60.30 */
+/* Gestion matchs intégrée V60.31 */
 .gm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .gm-tab.active{background:var(--accent)!important;color:#000!important}
 .gm-field{margin-top:12px}
@@ -970,7 +970,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   #gestionMatchsScreen select{font-size:16px!important}
 }
 
-/* Protection Gestion matchs V60.30 */
+/* Protection Gestion matchs V60.31 */
 .gm-lock-card{
   border:1px solid rgba(255,212,0,.42)!important;
   background:rgba(0,0,0,.42)!important;
@@ -992,6 +992,51 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   font-size:13px;
   font-weight:800;
   line-height:1.35;
+}
+
+
+
+/* V60.31 - réponses à reconfirmer visibles */
+.reconfirm-alert{
+  margin-top:12px;
+  margin-bottom:12px;
+  padding:12px 14px;
+  border-radius:16px;
+  border:1px solid rgba(255,159,28,.55);
+  background:rgba(255,159,28,.12);
+  color:#ffd08a;
+  font-weight:800;
+  line-height:1.35;
+}
+.reconfirm-alert .small{
+  display:block;
+  color:#e8e8e8;
+  font-size:13px;
+  font-weight:600;
+  margin-top:4px;
+}
+.coach-reconfirm-box{
+  margin-top:12px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(255,159,28,.45);
+  background:rgba(255,159,28,.08);
+}
+.coach-reconfirm-title{
+  color:#ffd08a;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  font-weight:900;
+  margin-bottom:8px;
+}
+.coach-reconfirm-item{
+  padding:8px 10px;
+  border-radius:12px;
+  background:rgba(0,0,0,.22);
+  color:#fff;
+  margin-top:6px;
+  font-size:14px;
 }
 
 </style>
@@ -1085,7 +1130,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.30</button>
+    ">V60.31</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2143,7 +2188,7 @@ if(!bouton){
   bouton.style.background = "#ffd400";
   bouton.style.border = "none";
   bouton.style.color = "#000";
-  bouton.innerText = "Répondre au match";
+  bouton.innerText = "Répondre / confirmer";
 
   document.querySelector("#matchDetailScreen .card").appendChild(bouton);
 }
@@ -2152,12 +2197,13 @@ if (!reponseOuverte) {
   bouton.style.display = "none";
 } else {
   bouton.style.display = "block";
+  bouton.innerText = "Répondre / confirmer";
   bouton.onclick = function(){
     ouvrirFormulaire(
       buildMatchKey(m),
       m.equipe,
       m.type,
-      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+      getCurrentMatchTextForForm(m)
     );
   };
 }
@@ -2182,7 +2228,7 @@ if (!reponseOuverte) {
   boutonCoach.style.display = "block";
   boutonCoach.onclick = function(){
     loadCoachResponses(
-      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+      getCurrentMatchTextForForm(m)
     );
   };
 }
@@ -2193,6 +2239,7 @@ afficherConvocationDansMatch([]);
 coachCardReset();
 chargerConvocationEnregistree(m);
       loadApportsDomicile();
+      loadReconfirmationNotice(m);
 
       // Injecter l'indicateur de refresh si pas encore présent
       if (!document.getElementById('_refreshIndicator')) {
@@ -2228,6 +2275,11 @@ showScreen("matchDetailScreen");
       }
       const commentaireConvoc = document.getElementById("convocationCommentaire");
       if (commentaireConvoc) commentaireConvoc.value = "";
+      const reconfirmBox = document.getElementById("coachReconfirmBox");
+      if (reconfirmBox) {
+        reconfirmBox.style.display = "none";
+        reconfirmBox.innerHTML = "";
+      }
       lastCoachPresentPlayers = [];
     }
 
@@ -2239,6 +2291,82 @@ showScreen("matchDetailScreen");
       return "";
     }
 
+
+    function getStatutReponse(row){
+      return getRowValue(row, "Statut réponse") || getRowValue(row, "Statut reponse") || "Active";
+    }
+
+    function isStatutReponse(row, statut){
+      return normalize(getStatutReponse(row)) === normalize(statut);
+    }
+
+    function isReponseActive(row){
+      const st = normalize(getStatutReponse(row));
+      return !st || st === "active";
+    }
+
+    function isReponseAReconfirmer(row){
+      const st = normalize(getStatutReponse(row));
+      return st === normalize("À reconfirmer") || st === "a reconfirmer";
+    }
+
+    function isReponseAnnulee(row){
+      const st = normalize(getStatutReponse(row));
+      return st === "annulee" || st === "annule" || st === normalize("Annulée");
+    }
+
+    function getCurrentMatchTextForForm(m){
+      return buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label;
+    }
+
+    async function loadReconfirmationNotice(m){
+      let notice = document.getElementById("matchReconfirmNotice");
+      if(!notice){
+        notice = document.createElement("div");
+        notice.id = "matchReconfirmNotice";
+        notice.className = "reconfirm-alert";
+        const card = document.querySelector("#matchDetailScreen .card");
+        const responseNotice = document.getElementById("matchResponseNotice");
+        if (card && responseNotice) card.insertBefore(notice, responseNotice);
+        else if (card) card.appendChild(notice);
+      }
+
+      notice.style.display = "none";
+      notice.innerHTML = "";
+
+      if (!m) return;
+
+      try{
+        const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
+        if (!csvRows || csvRows.length < 2) return;
+
+        const headers = csvRows[0];
+        const rows = csvRows.slice(1).map(r => rowArrayToObject(headers, r));
+        const filtered = rows.filter(row =>
+          responseMatchesCurrentMatch(getRowValue(row, "Match"), m) &&
+          cleanCompare(getRowValue(row, "Équipe") || getRowValue(row, "Equipe")) === cleanCompare(m.equipe)
+        );
+
+        const reconfirmRows = filtered.filter(isReponseAReconfirmer);
+        const activeRows = filtered.filter(isReponseActive);
+
+        if (!reconfirmRows.length) return;
+
+        const joueurs = reconfirmRows
+          .map(row => getRowValue(row, "Prénom") || getRowValue(row, "Prenom"))
+          .filter(Boolean);
+
+        const joueursTxt = joueurs.length ? "<br><span class='small'>Joueur(s) concerné(s) : " + escapeHtml(joueurs.join(", ")) + "</span>" : "";
+        const nbActives = activeRows.length;
+        const activeTxt = nbActives ? "<span class='small'>" + nbActives + " nouvelle(s) réponse(s) active(s) déjà reçue(s).</span>" : "";
+
+        notice.style.display = "block";
+        notice.innerHTML = "⚠️ Match modifié : " + reconfirmRows.length + " réponse(s) à reconfirmer." + joueursTxt + activeTxt;
+      }catch(e){
+        console.warn("Reconfirmation non chargée", e);
+      }
+    }
+
     async function loadCoachResponses(matchText){
       // V60.24 : vider l’ancienne sélection avant chaque lecture
       lastCoachPresentPlayers = [];
@@ -2248,12 +2376,23 @@ showScreen("matchDetailScreen");
       const presents = document.getElementById("coachPresents");
       const absents = document.getElementById("coachAbsents");
       const transport = document.getElementById("coachTransport");
+      let reconfirmBox = document.getElementById("coachReconfirmBox");
+      if (!reconfirmBox) {
+        reconfirmBox = document.createElement("div");
+        reconfirmBox.id = "coachReconfirmBox";
+        reconfirmBox.className = "coach-reconfirm-box";
+        const firstBlock = card.querySelector(".coach-block");
+        if (firstBlock) card.insertBefore(reconfirmBox, firstBlock);
+        else card.appendChild(reconfirmBox);
+      }
 
       card.style.display = "block";
       msg.textContent = "Chargement des réponses coach…";
       presents.innerHTML = '<div class="muted">Chargement…</div>';
       absents.innerHTML = '<div class="muted">Chargement…</div>';
       transport.innerHTML = '<div class="muted">Chargement…</div>';
+      reconfirmBox.style.display = "none";
+      reconfirmBox.innerHTML = "";
 
       try{
         const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
@@ -2295,15 +2434,44 @@ showScreen("matchDetailScreen");
           return equipeOk && adversaireOk && dateOk && heureOk && typeOk;
         });
 
-        // Anti-doublons : on garde uniquement la dernière réponse par joueur
+        // Anti-doublons : on garde la dernière réponse par joueur,
+        // mais une réponse Active est prioritaire sur une ancienne réponse À reconfirmer.
         const uniqueByPlayer = {};
         filtered.forEach(row => {
           const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
-          const code = getRowValue(row, "Code") || getRowValue(row, "Code joueur") || getRowValue(row, "code");
+          const code = getRowValue(row, "Code accès") || getRowValue(row, "Code") || getRowValue(row, "Code joueur") || getRowValue(row, "code");
           const prenomKey = cleanCompare(prenom) + "|" + cleanCompare(code || prenom);
-          if (prenomKey !== "|") uniqueByPlayer[prenomKey] = row; // dernière réponse conservée
+          if (prenomKey === "|") return;
+
+          const current = uniqueByPlayer[prenomKey];
+          if (!current) {
+            uniqueByPlayer[prenomKey] = row;
+            return;
+          }
+
+          if (isReponseActive(row) || (!isReponseActive(current) && !isReponseAnnulee(row))) {
+            uniqueByPlayer[prenomKey] = row;
+          }
         });
-        const cleanRows = Object.values(uniqueByPlayer);
+
+        const cleanRowsAll = Object.values(uniqueByPlayer);
+        const reconfirmRows = cleanRowsAll.filter(isReponseAReconfirmer);
+        const cleanRows = cleanRowsAll.filter(row => isReponseActive(row));
+
+        if (reconfirmRows.length) {
+          reconfirmBox.style.display = "block";
+          reconfirmBox.innerHTML = `
+            <div class="coach-reconfirm-title">⚠️ À reconfirmer</div>
+            ${reconfirmRows.map(row => {
+              const p = getRowValue(row, "Prénom") || getRowValue(row, "Prenom") || "Joueur";
+              const motif = getRowValue(row, "Motif statut") || "Match modifié";
+              return `<div class="coach-reconfirm-item">${escapeHtml(p)} — ${escapeHtml(motif)}</div>`;
+            }).join("")}
+          `;
+        } else {
+          reconfirmBox.style.display = "none";
+          reconfirmBox.innerHTML = "";
+        }
 
         const presentItems = [];
         const absentItems = [];
@@ -2337,7 +2505,7 @@ showScreen("matchDetailScreen");
         });
 
         msg.textContent = filtered.length
-          ? `${filtered.length} réponse(s) reçue(s) — ${cleanRows.length} joueur(s) unique(s)`
+          ? `${cleanRows.length} réponse(s) active(s)` + (reconfirmRows.length ? ` — ${reconfirmRows.length} à reconfirmer` : "")
           : "Aucune réponse reçue pour ce match.";
         presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
         absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
@@ -2486,7 +2654,7 @@ showScreen("matchDetailScreen");
 
 
 // ═══════════════════════════════════════
-// Gestion matchs intégrée V60.30
+// Gestion matchs intégrée V60.31
 // ═══════════════════════════════════════
 const GM_NEW_CLUB = "__NOUVEAU_CLUB__";
 let gmCurrentMatch = null;
@@ -3152,9 +3320,10 @@ function _refreshMatchResponses() {
   // Recharger les réponses coach + apports
   Promise.all([
     loadCoachResponses(
-      buildMatchDisplay(m) + " - " + m.date + " - " + m.heure + " - " + badgeForType(m.type).label
+      getCurrentMatchTextForForm(m)
     ),
-    loadApportsDomicile()
+    loadApportsDomicile(),
+    loadReconfirmationNotice(m)
   ]).catch(() => {});
 }
 
@@ -3487,7 +3656,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.30</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.31</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
