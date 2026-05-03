@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Formulaire Match V60.34</title>
+<title>Formulaire Match V60.37</title>
 
 <style>
 body{
@@ -162,7 +162,7 @@ textarea{
 </div>
 
 <script>
-// V60.36 quotas organisation pilotés par CONFIG + blocage serveur renforcé
+// V60.37 quotas organisation pilotés par CONFIG + blocage serveur renforcé
 
 let presenceValue = "";
 let transportValue = "";
@@ -498,7 +498,7 @@ function getApportFinal(){
 
 let sending = false;
 
-function envoyerFormulaire() {
+async function envoyerFormulaire() {
   if (sending) return;
 
   const joueur = document.getElementById("joueur").value;
@@ -523,6 +523,27 @@ function envoyerFormulaire() {
     return;
   }
 
+  // V60.37 : juste avant l'envoi, on recharge les quotas.
+  // Si un autre joueur vient de prendre les maillots, le bouton est désactivé avant l'enregistrement.
+  const apportAvantControle = getApportFinal();
+  if (presenceValue === "Présent" && apportAvantControle) {
+    await chargerQuotasOrganisation();
+    const apportApresControle = getApportFinal();
+
+    if (normalizeQuota(apportAvantControle).includes("maillot") && !normalizeQuota(apportApresControle).includes("maillot")) {
+      alert("Les maillots sont déjà pris par un autre joueur. Merci de choisir un autre apport.");
+      return;
+    }
+    if (normalizeQuota(apportAvantControle).includes("boisson") && !normalizeQuota(apportApresControle).includes("boisson")) {
+      alert("Le quota Boisson est déjà complet.");
+      return;
+    }
+    if (normalizeQuota(apportAvantControle).includes("nourriture") && !normalizeQuota(apportApresControle).includes("nourriture")) {
+      alert("Le quota Nourriture est déjà complet.");
+      return;
+    }
+  }
+
   sending = true;
 
   const btn = document.querySelector(".send");
@@ -533,7 +554,9 @@ function envoyerFormulaire() {
   const data = {
     action: "enregistrerReponse",
     match: getParam("match"),
+    matchKey: getParam("match"),
     display: getParam("display"),
+    matchDisplay: getParam("display"),
     equipe: getParam("equipe"),
     prenom: joueur,
     presence: presenceValue,
@@ -623,6 +646,101 @@ function getRowQuota(row, name){
   return "";
 }
 
+function normaliserDateQuota(value){
+  const txt = String(value || "").trim();
+  if (!txt) return "";
+  let m = txt.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return String(m[3]).padStart(2,"0") + "/" + String(m[2]).padStart(2,"0") + "/" + m[1];
+  m = txt.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+  if (m) return String(m[1]).padStart(2,"0") + "/" + String(m[2]).padStart(2,"0") + "/" + m[3];
+  return txt;
+}
+
+function normaliserHeureQuota(value){
+  let txt = String(value || "").trim().toLowerCase().replace(":","h").replace(/\s+/g,"");
+  if (!txt) return "";
+  let m = txt.match(/(\d{1,2})h(\d{1,2})/);
+  if (m) return String(Number(m[1])).padStart(2,"0") + "h" + String(Number(m[2])).padStart(2,"0");
+  m = txt.match(/(\d{1,2})h/);
+  if (m) return String(Number(m[1])).padStart(2,"0") + "h00";
+  return txt;
+}
+
+function badgeLieuQuota(value){
+  const t = normalizeQuota(value);
+  if (["d","dom","domicile"].includes(t)) return "Domicile";
+  if (["e","ext","exterieur","extérieur"].includes(t)) return "Extérieur";
+  return String(value || "").trim();
+}
+
+function extraireMatchInfoQuota(matchText){
+  const txt = String(matchText || "").replace(/\s+/g," ").trim();
+  const info = { raw: txt, key:"", equipe:"", adversaire:"", lieu:"", date:"", heure:"" };
+  if (!txt) return info;
+
+  const pipeParts = txt.split("|").map(x => x.trim());
+  if (pipeParts.length >= 5) {
+    info.equipe = pipeParts[0] || "";
+    info.adversaire = pipeParts[1] || "";
+    info.lieu = badgeLieuQuota(pipeParts[2] || "");
+    info.date = normaliserDateQuota(pipeParts[3] || "");
+    info.heure = normaliserHeureQuota(pipeParts[4] || "");
+    info.key = [info.equipe, info.adversaire, info.lieu, info.date, info.heure].map(normalizeQuota).join("|");
+    return info;
+  }
+
+  const dateMatch = txt.match(/\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2}/);
+  const heureMatch = txt.match(/\d{1,2}h\d{0,2}|\d{1,2}:\d{2}/);
+  info.date = dateMatch ? normaliserDateQuota(dateMatch[0]) : "";
+  info.heure = heureMatch ? normaliserHeureQuota(heureMatch[0]) : "";
+
+  if (/domicile/i.test(txt)) info.lieu = "Domicile";
+  else if (/extérieur|exterieur/i.test(txt)) info.lieu = "Extérieur";
+
+  const titre = (txt.split(" - ")[0] || txt).trim();
+  if (titre.includes(" vs ")) {
+    const parts = titre.split(" vs ").map(x => x.trim());
+    const left = parts[0] || "";
+    const right = parts[1] || "";
+    if (normalizeQuota(left).startsWith("montrichard ")) {
+      info.equipe = left.replace(/^Montrichard\s+/i, "").trim();
+      info.adversaire = right;
+    } else if (normalizeQuota(right).startsWith("montrichard ")) {
+      info.adversaire = left;
+      info.equipe = right.replace(/^Montrichard\s+/i, "").trim();
+    }
+  }
+
+  info.key = [info.equipe, info.adversaire, info.lieu, info.date, info.heure].map(normalizeQuota).join("|");
+  return info;
+}
+
+function memeMatchQuota(rowMatch){
+  const row0 = normalizeQuota(rowMatch);
+  const match0 = normalizeQuota(getParam("match"));
+  const display0 = normalizeQuota(getParam("display"));
+  const equipe0 = normalizeQuota(getParam("equipe"));
+
+  if (!row0) return false;
+  if (row0 === match0 || (display0 && row0 === display0)) return true;
+
+  const rowInfo = extraireMatchInfoQuota(rowMatch);
+  const candidats = [getParam("match"), getParam("display")].filter(Boolean).map(extraireMatchInfoQuota);
+
+  return candidats.some(info => {
+    if (rowInfo.key && info.key && rowInfo.key === info.key) return true;
+    if (equipe0 && rowInfo.equipe && normalizeQuota(rowInfo.equipe) !== equipe0) return false;
+
+    let preuves = 0;
+    if (rowInfo.adversaire && info.adversaire && normalizeQuota(rowInfo.adversaire) === normalizeQuota(info.adversaire)) preuves++;
+    if (rowInfo.date && info.date && normalizeQuota(rowInfo.date) === normalizeQuota(info.date)) preuves++;
+    if (rowInfo.heure && info.heure && normalizeQuota(rowInfo.heure) === normalizeQuota(info.heure)) preuves++;
+    if (rowInfo.lieu && info.lieu && normalizeQuota(rowInfo.lieu) === normalizeQuota(info.lieu)) preuves++;
+
+    return preuves >= 2 && rowInfo.adversaire && info.adversaire && rowInfo.date && info.date;
+  });
+}
+
 async function chargerQuotasOrganisation(){
   try{
     const sheetId = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
@@ -639,10 +757,9 @@ async function chargerQuotasOrganisation(){
     const equipeActuelle = normalizeQuota(getParam("equipe"));
 
     function memeMatch(row){
-      const m = normalizeQuota(getRowQuota(row, "Match"));
       const e = normalizeQuota(getRowQuota(row, "Équipe") || getRowQuota(row, "Equipe"));
       if (equipeActuelle && e && e !== equipeActuelle) return false;
-      return m && (m === matchActuel || (displayActuel && m === displayActuel));
+      return memeMatchQuota(getRowQuota(row, "Match"));
     }
 
     const byPlayer = {};
