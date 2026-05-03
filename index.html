@@ -310,7 +310,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.43 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.44 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1227,7 +1227,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.43</button>
+    ">V60.44</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -3464,7 +3464,7 @@ function renderWeekend() {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  // V60.43 : accueil léger, paramétrable et cliquable.
+  // V60.44 : accueil léger, paramétrable et cliquable.
   // CONFIG possible : accueil_matchs_actif / accueil_matchs_jours / accueil_matchs_nb
   if (!cfgBool("accueil_matchs_actif", true)) {
     card.style.display = "none";
@@ -3990,12 +3990,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.43</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.44</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.43 — Accueil paramétrable CONFIG + matchs à venir lisibles + OFFICIELS pour gestion matchs</li>
+        <li>V60.44 — OFFICIELS finalisé : listes Arbitre / Chrono / Table + contrôle doublon</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
