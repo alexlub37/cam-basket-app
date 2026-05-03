@@ -253,7 +253,7 @@
       .team-training-line{font-size:14px;}
     }
 
-    /* V60.55 - Page équipe harmonisée + Espace coach compact */
+    /* V60.56 - Page équipe harmonisée + Espace coach simplifié */
     .team-actions-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -270,33 +270,33 @@
     }
     .coach-space-match{
       cursor:pointer;
-      padding:15px!important;
+      padding:14px!important;
     }
     .coach-space-top{
       display:grid;
       grid-template-columns:minmax(0,1fr) auto;
       align-items:flex-start;
       gap:10px;
-      margin-bottom:10px;
+      margin-bottom:9px;
     }
     .coach-space-title{
-      font-size:18px;
-      line-height:1.16;
+      font-size:17px;
+      line-height:1.14;
       font-weight:900;
       color:#fff;
     }
     .coach-space-meta{
       margin-top:5px;
       color:var(--muted);
-      font-size:13px;
+      font-size:12px;
       line-height:1.25;
       font-weight:700;
     }
     .coach-status-badge{
       white-space:nowrap;
       border-radius:999px;
-      padding:6px 9px;
-      font-size:11px;
+      padding:5px 8px;
+      font-size:10px;
       font-weight:900;
       border:1px solid rgba(255,159,28,.50);
       background:rgba(255,159,28,.10);
@@ -307,47 +307,50 @@
       background:rgba(31,170,89,.10);
       color:#9effb8;
     }
-    .coach-space-stats{
-      display:flex;
-      flex-wrap:wrap;
-      gap:7px;
-      margin-top:6px;
-    }
-    .coach-stat-pill{
-      display:inline-flex;
-      align-items:center;
+    .coach-decision-card{
+      display:grid;
+      grid-template-columns:1fr;
       gap:4px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:999px;
-      padding:6px 8px;
-      background:rgba(255,255,255,.035);
-      color:#fff;
-      font-size:12px;
-      font-weight:800;
-      line-height:1.15;
+      margin-top:6px;
+      padding:9px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,212,0,.22);
+      background:rgba(255,255,255,.025);
     }
-    .coach-stat-pill b{
-      color:#fff;
+    .coach-decision-line{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      color:#e9e9e9;
       font-size:13px;
+      font-weight:800;
+      line-height:1.2;
+    }
+    .coach-decision-line b{
+      color:#fff;
+      font-size:14px;
+      font-weight:900;
+      text-align:right;
+      white-space:nowrap;
     }
     .coach-alert-line{
-      margin-top:9px;
-      padding:8px 10px;
+      margin-top:8px;
+      padding:7px 9px;
       border-radius:12px;
       border:1px solid rgba(255,159,28,.45);
       background:rgba(255,159,28,.08);
       color:#ffd08a;
       font-size:12px;
       font-weight:800;
-      line-height:1.28;
+      line-height:1.25;
     }
     .coach-open-hint{
-      margin-top:10px;
+      margin-top:9px;
       color:var(--accent);
       font-size:12px;
       font-weight:900;
-      text-transform:uppercase;
-      letter-spacing:.04em;
+      text-align:right;
     }
     .coach-match-header{
       margin-bottom:14px;
@@ -536,7 +539,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.55 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.56 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1453,7 +1456,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.55</button>
+    ">V60.56</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2467,7 +2470,17 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         if (apport.includes("boisson")) org.boisson++;
         if (apport.includes("nourriture")) org.nourriture++;
       });
-      return { active: activeRows.length, presents:presents.length, absents:absents.length, reconfirm:reconfirmRows.length, sansReponse, org, quotas };
+      return {
+        effectif: joueursEquipe.length,
+        reponses: activeRows.length,
+        active: activeRows.length,
+        presents: presents.length,
+        absents: absents.length,
+        reconfirm: reconfirmRows.length,
+        sansReponse,
+        org,
+        quotas
+      };
     }
 
     async function renderCoachSpace(){
@@ -2508,12 +2521,17 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         const nbRemplacer = convoc.filter(c => statutConvocationRemplacement(c.statut)).length;
         const alerts = [];
         if (s.reconfirm) alerts.push(`${s.reconfirm} à reconfirmer`);
-        if (s.sansReponse) alerts.push(`${s.sansReponse} sans réponse`);
         if (nbRemplacer) alerts.push(`${nbRemplacer} à remplacer`);
         if (s.quotas.activerMaillots && s.org.maillots > s.quotas.maillots) alerts.push(`maillots à vérifier`);
-        const isOk = alerts.length === 0;
-        const statusLabel = isOk ? "OK" : "À traiter";
-        const statusClass = isOk ? "ok" : "warn";
+
+        const convocationLabel = convoc.length
+          ? `${convoc.length} joueur${convoc.length > 1 ? "s" : ""}`
+          : "non générée";
+        const reponsesLabel = s.effectif ? `${s.reponses} / ${s.effectif}` : `${s.reponses}`;
+
+        const hasProblem = alerts.length > 0;
+        const statusLabel = hasProblem ? "À vérifier" : (convoc.length ? "Convoquée" : "À gérer");
+        const statusClass = hasProblem ? "warn" : (convoc.length ? "ok" : "warn");
         const meta = [m.date || "-", m.heure || "-", badgeForType(m.type).label || ""].filter(Boolean).join(" • ");
         const gym = m.gymnase ? ` • ${m.gymnase}` : "";
         return `
@@ -2525,13 +2543,12 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
               </div>
               <div class="coach-status-badge ${statusClass}">${statusLabel}</div>
             </div>
-            <div class="coach-space-stats">
-              <div class="coach-stat-pill">✅ <b>${s.presents}</b> présents</div>
-              <div class="coach-stat-pill">❌ <b>${s.absents}</b> absents</div>
-              <div class="coach-stat-pill">⏳ <b>${s.sansReponse}</b> sans réponse</div>
-              <div class="coach-stat-pill">📋 <b>${convoc.length}</b> convoqués</div>
+            <div class="coach-decision-card">
+              <div class="coach-decision-line"><span>Réponses</span><b>${escapeHtml(reponsesLabel)}</b></div>
+              <div class="coach-decision-line"><span>Prêts à jouer</span><b>${s.presents}</b></div>
+              <div class="coach-decision-line"><span>Convocation</span><b>${escapeHtml(convocationLabel)}</b></div>
             </div>
-            ${alerts.length ? `<div class="coach-alert-line">⚠️ ${escapeHtml(alerts.join(" • "))}</div>` : `<div class="coach-alert-line" style="border-color:rgba(31,170,89,.45);background:rgba(31,170,89,.08);color:#9effb8;">✅ Rien d’urgent</div>`}
+            ${alerts.length ? `<div class="coach-alert-line">⚠️ ${escapeHtml(alerts.join(" • "))}</div>` : ""}
             <div class="coach-open-hint">Voir / gérer →</div>
           </div>
         `;
@@ -4561,12 +4578,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.55</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.56</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.55 — Espace coach plus compact : cartes matchs allégées avec statut, résumé rapide et accès Voir / gérer</li>
+        <li>V60.56 — Espace coach simplifié : petites cartes décision avec réponses, présents et convocation</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4594,7 +4611,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       e.preventDefault();
       e.stopPropagation();
 
-      // V60.55 : si le coach est déjà entré dans l’Espace coach,
+      // V60.56 : si le coach est déjà entré dans l’Espace coach,
       // on réutilise le code coach mémorisé pour éviter une deuxième demande.
       if (!state.codeCoach || !String(state.codeCoach).trim()) {
         const codeCoach = prompt("Code coach ?");
@@ -4723,7 +4740,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.55
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.56
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
