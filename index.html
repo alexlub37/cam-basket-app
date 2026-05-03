@@ -1039,6 +1039,22 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   font-size:14px;
 }
 
+
+.match-convoc-player.replace{
+  border-color:rgba(255,159,28,.75)!important;
+  color:#ffd08a!important;
+}
+.match-convoc-alert{
+  margin-top:8px;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(255,159,28,.45);
+  background:rgba(255,159,28,.10);
+  color:#ffd08a;
+  font-size:13px;
+  font-weight:800;
+}
+
 </style>
 
 
@@ -1130,7 +1146,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.35</button>
+    ">V60.36</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -3215,7 +3231,7 @@ function envoyerWhatsappConvocation() {
   if (!m) return;
 
   const joueurs = Array.from(document.querySelectorAll("#matchConvocationList .match-convoc-player"))
-    .map(el => el.textContent.replace(/^\d+\.\s*/, "").trim())
+    .map(el => el.textContent.replace(/^\d+\.\s*/, "").replace(/—\s*À remplacer$/i, "").trim())
     .filter(Boolean);
 
   if (!joueurs.length) { alert("Aucun joueur convoqué."); return; }
@@ -3518,17 +3534,24 @@ function cleanCompare(v){
         cleanCompare(c.equipe) === cleanCompare(m.equipe || "")
       );
 
-      const joueurs = uniqueNamesClean(rows.map(r => r.joueur));
+      const items = rows
+        .filter(r => !normalize(r.statut).includes("annul"))
+        .map(r => ({ nom: r.joueur, statut: r.statut || "Convoqué" }));
       const commentaire = rows.find(r => String(r.commentaire || "").trim())?.commentaire || "";
 
-      if (!joueurs.length) {
+      if (!items.length) {
         card.style.display = "none";
         list.innerHTML = "";
         if (sub) sub.textContent = "";
         return;
       }
 
-      afficherConvocationDansMatch(joueurs, commentaire);
+      afficherConvocationDansMatch(items, commentaire);
+    }
+
+    function statutConvocationRemplacement(statut){
+      const s = normalize(statut || "");
+      return s.includes("remplacer") || s.includes("remplace");
     }
 
     function afficherConvocationDansMatch(joueurs, commentaire = ""){
@@ -3538,29 +3561,44 @@ function cleanCompare(v){
 
       if (!card || !list) return;
 
-      const cleanJoueurs = uniqueNamesClean(joueurs);
+      const items = (joueurs || []).map(j => {
+        if (typeof j === "string") return { nom: j, statut: "Convoqué" };
+        return { nom: String(j.nom || j.joueur || "").trim(), statut: String(j.statut || "Convoqué").trim() };
+      }).filter(x => x.nom);
 
-      if (!cleanJoueurs.length) {
+      const seen = new Set();
+      const cleanItems = [];
+      items.forEach(item => {
+        const key = cleanCompare(item.nom);
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        cleanItems.push(item);
+      });
+
+      if (!cleanItems.length) {
         card.style.display = "none";
         list.innerHTML = "";
         if (sub) sub.textContent = "";
         return;
       }
 
+      const nbRemplacer = cleanItems.filter(x => statutConvocationRemplacement(x.statut)).length;
       card.style.display = "block";
 
       if (sub) {
         sub.innerHTML = `
           <div class="match-convoc-head">
-            <span>${cleanJoueurs.length} joueur(s) convoqué(s)</span>
+            <span>${cleanItems.length} joueur(s) convoqué(s)</span>
             ${commentaire ? `<span class="match-convoc-comment">${escapeHtml(commentaire)}</span>` : ""}
           </div>
+          ${nbRemplacer ? `<div class="match-convoc-alert">⚠️ ${nbRemplacer} joueur(s) à remplacer suite à un changement de réponse.</div>` : ""}
         `;
       }
 
-      list.innerHTML = cleanJoueurs.map((n, i) => `
-        <div class="match-convoc-player">${i + 1}. ${escapeHtml(n)}</div>
-      `).join("");
+      list.innerHTML = cleanItems.map((item, i) => {
+        const remp = statutConvocationRemplacement(item.statut);
+        return `<div class="match-convoc-player${remp ? " replace" : ""}">${i + 1}. ${escapeHtml(item.nom)}${remp ? " — À remplacer" : ""}</div>`;
+      }).join("");
     }
 
     async function enregistrerConvocationSheet(joueurs, commentaire){
@@ -3666,7 +3704,7 @@ async function genererConvocation(){
         if(!m) return;
 
         const joueurs = Array.from(document.querySelectorAll("#matchConvocationList .match-convoc-player"))
-          .map(el => el.textContent.replace(/^\d+\.\s*/, "").trim())
+          .map(el => el.textContent.replace(/^\d+\.\s*/, "").replace(/—\s*À remplacer$/i, "").trim())
           .filter(Boolean);
 
         if(!joueurs.length) return;
@@ -3698,7 +3736,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.35 — blocage serveur Maillots renforcé + quotas CONFIG</li>
+        <li>V60.36 — blocage serveur Maillots renforcé + quotas CONFIG</li>
         <li>Gestion matchs intégrée protégée par code bureau</li>
         <li>Réponses joueurs à reconfirmer si date / heure / lieu modifié</li>
         <li>Validation serveur du code avant ajout/modification</li>
