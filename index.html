@@ -137,7 +137,7 @@
       line-height:1.35;
       margin-top:4px;
     }
-    /* V60.52 - Cartes équipes compactées */
+    /* V60.53 - Cartes équipes compactées */
     .team-item{
       padding:16px 16px 14px !important;
       border-radius:22px !important;
@@ -251,6 +251,86 @@
       .team-badge-cat{font-size:12px;padding:5px 9px;}
       .team-meta{font-size:15px;}
       .team-training-line{font-size:14px;}
+    }
+
+    /* V60.53 - Page équipe harmonisée + Espace coach */
+    .team-actions-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .team-actions-grid .coach-action{
+      grid-column:1 / -1;
+    }
+    .team-menu-summary .team-head{
+      margin-bottom:4px;
+    }
+    .team-menu-summary .team-name{
+      font-size:32px;
+    }
+    .coach-space-match{
+      cursor:pointer;
+    }
+    .coach-space-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .coach-space-title{
+      font-size:20px;
+      line-height:1.15;
+      font-weight:900;
+      color:#fff;
+    }
+    .coach-space-date{
+      flex:0 0 auto;
+      text-align:right;
+      color:var(--accent);
+      font-size:13px;
+      font-weight:900;
+      line-height:1.2;
+    }
+    .coach-space-stats{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:7px;
+      margin-top:10px;
+    }
+    .coach-stat-pill{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      padding:7px 8px;
+      background:rgba(255,255,255,.04);
+      color:#fff;
+      font-size:13px;
+      font-weight:800;
+    }
+    .coach-alert-line{
+      margin-top:8px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,159,28,.45);
+      background:rgba(255,159,28,.09);
+      color:#ffd08a;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.3;
+    }
+    .coach-match-header{
+      margin-bottom:14px;
+    }
+    .coach-match-header h2{
+      margin:0 0 8px 0;
+      font-size:26px;
+      line-height:1.08;
+      color:#fff;
+    }
+    .coach-match-sub{
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.35;
     }
     .match-section-title{
       margin:14px 0 8px;
@@ -425,7 +505,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.52 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.53 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1342,7 +1422,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.52</button>
+    ">V60.53</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1408,18 +1488,21 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
     <section id="teamMenuScreen" class="screen">
       <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour aux équipes</button>
-      <div class="card">
-        <h2 id="teamMenuTitle">Équipe</h2>
-        <div id="teamMenuSub" class="muted"></div>
+      <div id="teamMenuCard" class="card team-menu-summary">
+        <div id="teamMenuSummary"></div>
       </div>
-      <div class="grid-2">
+      <div class="team-actions-grid">
         <button class="menu-btn" onclick="openPlayers()">
           <span class="big">👥 Joueurs</span>
           <span id="menuPlayersText" class="small">Voir l’effectif de l’équipe</span>
         </button>
         <button class="menu-btn" onclick="openMatches()">
-          <span class="big">📅 Matchs</span>
+          <span class="big">Matchs</span>
           <span id="menuMatchesText" class="small">Voir les matchs de l’équipe</span>
+        </button>
+        <button id="btnCoachSpace" class="menu-btn coach-action" onclick="openCoachSpace()">
+          <span class="big">🎯 Espace coach</span>
+          <span id="menuCoachText" class="small">Suivre les réponses et gérer les convocations</span>
         </button>
       </div>
     </section>
@@ -1527,6 +1610,22 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         </div>
       </div>
 
+    </section>
+
+
+
+    <section id="coachSpaceScreen" class="screen">
+      <button class="back" onclick="showScreen('teamMenuScreen'); setActiveButton('teams')">← Retour à l’équipe</button>
+      <div class="card">
+        <h2 id="coachSpaceTitle">Espace coach</h2>
+        <div id="coachSpaceText" class="muted">Suivi des réponses et convocations de l’équipe.</div>
+      </div>
+      <div id="coachMatchesList" class="list"></div>
+    </section>
+
+    <section id="coachMatchScreen" class="screen">
+      <button class="back" onclick="showScreen('coachSpaceScreen'); setActiveButton('teams')">← Retour espace coach</button>
+      <div id="coachMatchHeader" class="card coach-match-header"></div>
       <!-- MOVED CONVOCATION BLOCK -->
 <div id="coachResponsesCard" class="card coach-card">
         <h2 id="coachResponsesTitle">Réponses coach</h2>
@@ -1601,6 +1700,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
         
 </div>
+
     </section>
 
 
@@ -1703,7 +1803,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
-      <!-- V60.52 : cartes Équipes harmonisées + infos entraînement compactes -->
+      <!-- V60.53 : cartes Équipes harmonisées + infos entraînement compactes -->
     </section>
 
     <section id="benevolesScreen" class="screen">
@@ -2012,6 +2112,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           equipe: String(r[1] || "").trim(),
           categorie: String(r[2] || "").trim(),
           coach: String(r[3] || "").trim(),
+          codeCoach: String(r[4] || "").trim(),
           entrainement1Jour: String(r[5] || "").trim(),
           entrainement1Heure: String(r[6] || "").trim(),
           entrainement1Lieu: String(r[7] || "").trim(),
@@ -2209,6 +2310,25 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       `;
     }
 
+
+
+    function renderTeamMenuSummary(t){
+      const cat = cleanText(t && t.categorie);
+      const coach = cleanText(t && t.coach);
+      const badge = cat ? `<span class="team-badge-cat">${escapeHtml(cat)}</span>` : "";
+      const coachInline = coach ? `<span class="team-coach-inline">Coach : ${escapeHtml(coach)}</span>` : "";
+      return `
+        <div class="team-head">
+          <div class="team-title-line">
+            <div class="team-name">${escapeHtml(t.equipe || t.team || "Équipe")}</div>
+            ${coachInline}
+          </div>
+          ${badge}
+        </div>
+        ${renderTeamExtras(t)}
+      `;
+    }
+
     function renderTeams(){
       const el = document.getElementById("teamsList");
       const q = (document.getElementById("teamSearch").value || "").toLowerCase().trim();
@@ -2237,12 +2357,169 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         ? teamData
         : (state.equipes.find(x => x.equipe === teamData) || { equipe: teamData, categorie: cat, coach: coach });
 
-      state.selectedTeam = { team: t.equipe, cat: t.categorie, coach: t.coach };
-      document.getElementById("teamMenuTitle").textContent = t.equipe;
-      const base = [t.categorie, t.coach ? "Coach : " + t.coach : "", state.season].filter(Boolean).join(" • ");
-      const extras = renderTeamExtras(t);
-      document.getElementById("teamMenuSub").innerHTML = escapeHtml(base) + extras;
+      state.selectedTeam = Object.assign({}, t, { team: t.equipe, cat: t.categorie });
+      const summary = document.getElementById("teamMenuSummary");
+      if (summary) summary.innerHTML = renderTeamMenuSummary(t);
       showScreen("teamMenuScreen");
+    }
+
+
+
+    function getSelectedTeamData(){
+      const name = state.selectedTeam?.team || state.selectedTeam?.equipe || "";
+      return state.equipes.find(x => cleanCompare(x.equipe) === cleanCompare(name)) || state.selectedTeam || null;
+    }
+
+    function openCoachSpace(){
+      const t = getSelectedTeamData();
+      if (!t || !(t.equipe || t.team)) {
+        alert("Sélectionne une équipe d’abord.");
+        return;
+      }
+
+      const expected = String(t.codeCoach || "").trim();
+      if (!state.coachAccessTeam || cleanCompare(state.coachAccessTeam) !== cleanCompare(t.equipe || t.team)) {
+        const code = prompt("Code coach ?");
+        if (!code || !String(code).trim()) return;
+        if (expected && String(code).trim() !== expected) {
+          alert("Code coach incorrect ❌");
+          return;
+        }
+        state.codeCoach = String(code).trim();
+        state.coachAccessTeam = t.equipe || t.team;
+      }
+
+      renderCoachSpace();
+      showScreen("coachSpaceScreen");
+      setActiveButton("teams");
+    }
+
+    function getConvocationsForMatch(m){
+      const key = buildMatchKey(m);
+      return (state.convocations || []).filter(c =>
+        String(c.match || "").trim() === key &&
+        cleanCompare(c.equipe) === cleanCompare(m.equipe || "") &&
+        !normalize(c.statut).includes("annul")
+      );
+    }
+
+    function computeResponseSummaryForMatch(m, responseRows){
+      const filtered = (responseRows || []).filter(row =>
+        responseMatchesCurrentMatch(getRowValue(row, "Match"), m) &&
+        cleanCompare(getRowValue(row, "Équipe") || getRowValue(row, "Equipe")) === cleanCompare(m.equipe || "")
+      );
+
+      const uniqueByPlayer = {};
+      filtered.forEach(row => {
+        const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
+        const key = cleanCompare(prenom);
+        if (!key) return;
+        const current = uniqueByPlayer[key];
+        if (!current || isReponseActive(row) || (!isReponseActive(current) && !isReponseAnnulee(row))) uniqueByPlayer[key] = row;
+      });
+
+      const rows = Object.values(uniqueByPlayer);
+      const activeRows = rows.filter(isReponseActive);
+      const reconfirmRows = rows.filter(isReponseAReconfirmer);
+      const presents = activeRows.filter(row => normalize(getRowValue(row, "Présence") || getRowValue(row, "Presence")) === "present");
+      const absents = activeRows.filter(row => normalize(getRowValue(row, "Présence") || getRowValue(row, "Presence")) === "absent");
+      const joueursEquipe = (state.joueurs || []).filter(j =>
+        cleanCompare(j.equipe) === cleanCompare(m.equipe || "") &&
+        (!state.season || sameSeason(j.saison, state.season))
+      );
+      const sansReponse = Math.max(0, joueursEquipe.length - activeRows.length - reconfirmRows.length);
+      const quotas = getOrganisationQuotas();
+      const org = { maillots:0, boisson:0, nourriture:0 };
+      presents.forEach(row => {
+        const apport = normalize(getRowValue(row, "Apport"));
+        if (apport.includes("maillot")) org.maillots++;
+        if (apport.includes("boisson")) org.boisson++;
+        if (apport.includes("nourriture")) org.nourriture++;
+      });
+      return { active: activeRows.length, presents:presents.length, absents:absents.length, reconfirm:reconfirmRows.length, sansReponse, org, quotas };
+    }
+
+    async function renderCoachSpace(){
+      const t = getSelectedTeamData();
+      const team = t?.equipe || t?.team || "";
+      const title = document.getElementById("coachSpaceTitle");
+      const text = document.getElementById("coachSpaceText");
+      const list = document.getElementById("coachMatchesList");
+      if (title) title.textContent = `Espace coach — ${team}`;
+      if (text) text.textContent = cfgValue("menu_coach_texte", "Suivre les réponses et gérer les convocations de l’équipe.");
+      if (!list) return;
+      list.innerHTML = '<div class="empty">Chargement des matchs coach…</div>';
+
+      const matchs = (state.matchs || [])
+        .filter(m => cleanCompare(m.equipe) === cleanCompare(team) && (!state.season || sameSeason(m.saison, state.season)))
+        .sort((a,b) => parseMatchDateTime(a) - parseMatchDateTime(b));
+      state.coachMatchRows = matchs;
+
+      if (!matchs.length) {
+        list.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe.</div>';
+        return;
+      }
+
+      let responseObjects = [];
+      try {
+        const csvRows = await fetchRowsCsv(RESPONSE_SHEET_NAME);
+        if (csvRows && csvRows.length > 1) {
+          const headers = csvRows[0];
+          responseObjects = csvRows.slice(1).map(r => rowArrayToObject(headers, r));
+        }
+      } catch(e) {
+        console.warn("Réponses non chargées pour l’espace coach", e);
+      }
+
+      list.innerHTML = matchs.map((m, i) => {
+        const s = computeResponseSummaryForMatch(m, responseObjects);
+        const convoc = getConvocationsForMatch(m);
+        const nbRemplacer = convoc.filter(c => statutConvocationRemplacement(c.statut)).length;
+        const alerts = [];
+        if (s.reconfirm) alerts.push(`${s.reconfirm} à reconfirmer`);
+        if (s.sansReponse) alerts.push(`${s.sansReponse} sans réponse`);
+        if (nbRemplacer) alerts.push(`${nbRemplacer} à remplacer`);
+        if (s.quotas.activerMaillots && s.org.maillots > s.quotas.maillots) alerts.push(`maillots à vérifier`);
+        return `
+          <div class="item coach-space-match" data-coach-match-idx="${i}">
+            <div class="coach-space-head">
+              <div>
+                <div class="coach-space-title">${escapeHtml(buildMatchDisplay(m))}</div>
+                <div class="item-sub">${escapeHtml(badgeForType(m.type).label)}${m.gymnase ? " • " + escapeHtml(m.gymnase) : ""}</div>
+              </div>
+              <div class="coach-space-date">${escapeHtml(m.date || "-")}<br>${escapeHtml(m.heure || "-")}</div>
+            </div>
+            <div class="coach-space-stats">
+              <div class="coach-stat-pill">✅ ${s.presents} présent(s)</div>
+              <div class="coach-stat-pill">❌ ${s.absents} absent(s)</div>
+              <div class="coach-stat-pill">⏳ ${s.sansReponse} sans réponse</div>
+              <div class="coach-stat-pill">📋 ${convoc.length} convoqué(s)</div>
+            </div>
+            ${alerts.length ? `<div class="coach-alert-line">⚠️ ${escapeHtml(alerts.join(" • "))}</div>` : `<div class="coach-alert-line" style="border-color:rgba(31,170,89,.45);background:rgba(31,170,89,.08);color:#9effb8;">✅ Rien d’urgent</div>`}
+          </div>
+        `;
+      }).join("");
+
+      list.querySelectorAll(".coach-space-match").forEach(node => {
+        node.addEventListener("click", () => openCoachMatchDetail(Number(node.dataset.coachMatchIdx)));
+      });
+    }
+
+    function openCoachMatchDetail(idx){
+      const m = (state.coachMatchRows || [])[idx];
+      if (!m) return;
+      state.currentOpenMatch = m;
+      const header = document.getElementById("coachMatchHeader");
+      if (header) {
+        header.innerHTML = `
+          <h2>${buildMatchTitleHtml(m)}</h2>
+          <div class="coach-match-sub">${escapeHtml(m.equipe || "")} • ${escapeHtml(m.date || "-")} • ${escapeHtml(m.heure || "-")} • ${escapeHtml(badgeForType(m.type).label || "")}</div>
+        `;
+      }
+      coachCardReset();
+      showScreen("coachMatchScreen");
+      loadCoachResponses(getCurrentMatchTextForForm(m));
+      chargerConvocationEnregistree(m);
     }
 
     function openPlayers(){
@@ -2627,33 +2904,7 @@ if (!reponseOuverte) {
   };
 }
 
-let boutonCoach = document.getElementById("btnCoachResponses");
-
-if(!boutonCoach){
-  boutonCoach = document.createElement("button");
-  boutonCoach.id = "btnCoachResponses";
-  boutonCoach.style.marginTop = "12px";
-  boutonCoach.style.width = "100%";
-  boutonCoach.style.padding = "14px";
-  boutonCoach.style.fontWeight = "900";
-  boutonCoach.style.borderRadius = "14px";
-  boutonCoach.innerText = "Réponses coach";
-  document.querySelector("#matchDetailScreen .card").appendChild(boutonCoach);
-}
-
-if (!reponseOuverte) {
-  boutonCoach.style.display = "none";
-} else {
-  boutonCoach.style.display = "block";
-  boutonCoach.onclick = function(){
-    loadCoachResponses(
-      getCurrentMatchTextForForm(m)
-    );
-  };
-}
-
-
-
+/* V60.53 : les réponses coach et la convocation sont maintenant dans l’Espace coach. */
 afficherConvocationDansMatch([]);
 coachCardReset();
 chargerConvocationEnregistree(m);
@@ -3660,7 +3911,7 @@ async function annulerConvocation() {
   // Code coach déjà saisi via la section Réponses coach
   const code = state.codeCoach;
   if (!code) {
-    alert("Code coach non disponible. Clique d'abord sur \"Réponses coach\".");
+    alert("Code coach non disponible. Clique d’abord sur l’Espace coach.");
     return;
   }
 
@@ -3709,9 +3960,13 @@ function envoyerWhatsappConvocation() {
   const m = state.currentOpenMatch;
   if (!m) return;
 
-  const joueurs = Array.from(document.querySelectorAll("#matchConvocationList .match-convoc-player"))
+  let joueurs = Array.from(document.querySelectorAll("#matchConvocationList .match-convoc-player"))
     .map(el => el.textContent.replace(/^\d+\.\s*/, "").replace(/—\s*À remplacer$/i, "").trim())
     .filter(Boolean);
+
+  if (!joueurs.length) {
+    joueurs = getConvocationsForMatch(m).map(c => c.joueur).filter(Boolean);
+  }
 
   if (!joueurs.length) { alert("Aucun joueur convoqué."); return; }
 
@@ -4225,10 +4480,14 @@ async function genererConvocation(){
       afficherConvocationDansMatch(checked, commentaireCoach);
 
       const coachCard = document.getElementById("coachResponsesCard");
-      if (coachCard) coachCard.style.display = "none";
+      if (coachCard) coachCard.style.display = "block";
 
-      const matchCard = document.getElementById("matchConvocationCard");
-      if (matchCard) matchCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (document.getElementById("coachMatchScreen")?.classList.contains("active")) {
+        renderCoachSpace().catch(() => {});
+      } else {
+        const matchCard = document.getElementById("matchConvocationCard");
+        if (matchCard) matchCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
 
 
@@ -4265,12 +4524,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.52</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.53</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.52 — cartes Équipes compactées : coach sur la ligne du nom et infos entraînement lisibles</li>
+        <li>V60.53 — cartes Équipes compactées : coach sur la ligne du nom et infos entraînement lisibles</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4427,7 +4686,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.52
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.53
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
@@ -4456,6 +4715,7 @@ function appliquerConfig() {
   // Clés disponibles : equipes_infos_entrainement_actif, equipes_info_equipe_actif, equipes_entrainement_titre, equipes_info_titre.
   setCfgText("menuPlayersText", "menu_joueurs_texte", "Voir l’effectif de l’équipe", "menu_joueurs_texte_actif");
   setCfgText("menuMatchesText", "menu_matchs_texte", "Voir les matchs de l’équipe", "menu_matchs_texte_actif");
+  setCfgText("menuCoachText", "menu_coach_texte", "Suivre les réponses et gérer les convocations", "menu_coach_texte_actif");
   setCfgText("playersCardText", "joueurs_texte", "Liste filtrée sur l’équipe sélectionnée et la saison active.", "joueurs_texte_actif");
   setCfgText("matchesCardText", "matchs_texte", "Clique sur un match pour voir le détail et ouvrir l’itinéraire.", "matchs_texte_actif");
   setCfgText("matchConvocationTitle", "convocation_titre", "Convocation");
