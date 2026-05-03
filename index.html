@@ -137,7 +137,7 @@
       line-height:1.35;
       margin-top:4px;
     }
-    /* V60.49 - Cartes équipes harmonisées */
+    /* V60.50 - Cartes équipes harmonisées */
     .team-item{
       padding:16px 16px 14px !important;
       border-radius:22px !important;
@@ -403,7 +403,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.49 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.50 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1320,7 +1320,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.49</button>
+    ">V60.50</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1681,7 +1681,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
-      <!-- V60.49 : cartes Équipes harmonisées + infos entraînement compactes -->
+      <!-- V60.50 : cartes Équipes harmonisées + infos entraînement compactes -->
     </section>
 
     <section id="benevolesScreen" class="screen">
@@ -1788,6 +1788,10 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         .replaceAll(">","&gt;")
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
+    }
+
+    function cleanText(value){
+      return String(value || "").trim();
     }
 
     function normalize(str){
@@ -4211,12 +4215,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.49</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.50</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.49 — cartes Équipes harmonisées et infos entraînement plus lisibles</li>
+        <li>V60.50 — cartes Équipes harmonisées et infos entraînement plus lisibles</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4373,7 +4377,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.49
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.50
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
