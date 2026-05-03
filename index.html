@@ -1130,7 +1130,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.34</button>
+    ">V60.35</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2560,6 +2560,13 @@ showScreen("matchDetailScreen");
 
 
 
+    function renderTitreQuotaOrganisation(label, count, quota){
+      const base = `${label} <span class="apports-count">${count} / ${quota}</span>`;
+      if (quota > 0 && count > quota) return base + ` <span style="color:#ff9f1c;font-weight:900">⚠️</span>`;
+      if (quota > 0 && count === quota) return base + ` <span class="apports-ok">✅</span>`;
+      return base;
+    }
+
     function resetApportsDomicile(){
       const card = document.getElementById("matchApportsCard");
       if (card) card.style.display = "none";
@@ -2652,20 +2659,9 @@ showScreen("matchDetailScreen");
 
         card.style.display = "block";
 
-        document.getElementById("apportsBoissonTitle").innerHTML =
-          boissons.length >= quotas.boisson
-            ? `Boisson <span class="apports-count">${boissons.length} / ${quotas.boisson}</span> <span class="apports-ok">✅</span>`
-            : `Boisson <span class="apports-count">${boissons.length} / ${quotas.boisson}</span>`;
-
-        document.getElementById("apportsNourritureTitle").innerHTML =
-          nourritures.length >= quotas.nourriture
-            ? `Nourriture <span class="apports-count">${nourritures.length} / ${quotas.nourriture}</span> <span class="apports-ok">✅</span>`
-            : `Nourriture <span class="apports-count">${nourritures.length} / ${quotas.nourriture}</span>`;
-
-        document.getElementById("apportsMaillotsTitle").innerHTML =
-          maillots.length >= quotas.maillots
-            ? `Maillots <span class="apports-count">${maillots.length} / ${quotas.maillots}</span> <span class="apports-ok">✅</span>`
-            : `Maillots <span class="apports-count">${maillots.length} / ${quotas.maillots}</span>`;
+        document.getElementById("apportsBoissonTitle").innerHTML = renderTitreQuotaOrganisation("Boisson", boissons.length, quotas.boisson);
+        document.getElementById("apportsNourritureTitle").innerHTML = renderTitreQuotaOrganisation("Nourriture", nourritures.length, quotas.nourriture);
+        document.getElementById("apportsMaillotsTitle").innerHTML = renderTitreQuotaOrganisation("Maillots", maillots.length, quotas.maillots);
 
         document.getElementById("apportsBoissonList").innerHTML = boissons.length
           ? boissons.map(n => `<div>• ${escapeHtml(n)}</div>`).join("")
@@ -3140,7 +3136,7 @@ function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
             + "&equipe=" + encodeURIComponent(equipe)
             + "&type=" + encodeURIComponent(typeMatch || "")
             + "&joueurs=" + joueursString
-            + "&v=60.34"
+            + "&v=60.35"
             + "&t=" + encodeURIComponent(Date.now());
 
   const popup = window.open(url, "_blank");
@@ -3702,7 +3698,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.34 — quotas Maillots / Boisson / Nourriture pilotés par CONFIG</li>
+        <li>V60.35 — blocage serveur Maillots renforcé + quotas CONFIG</li>
         <li>Gestion matchs intégrée protégée par code bureau</li>
         <li>Réponses joueurs à reconfirmer si date / heure / lieu modifié</li>
         <li>Validation serveur du code avant ajout/modification</li>

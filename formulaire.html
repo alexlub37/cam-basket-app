@@ -162,7 +162,7 @@ textarea{
 </div>
 
 <script>
-// V60.34 quotas organisation pilotés par CONFIG
+// V60.35 quotas organisation pilotés par CONFIG + blocage serveur renforcé
 
 let presenceValue = "";
 let transportValue = "";
@@ -531,7 +531,9 @@ function envoyerFormulaire() {
     btn.innerText = "Envoi en cours...";
   }
   const data = {
+    action: "enregistrerReponse",
     match: getParam("match"),
+    display: getParam("display"),
     equipe: getParam("equipe"),
     prenom: joueur,
     presence: presenceValue,
@@ -562,7 +564,16 @@ function envoyerFormulaire() {
       btn.disabled = false;
       btn.innerText = "Envoyer la réponse";
     }
-    alert("Erreur d'envoi ❌ : " + (err.message || err));
+    const msg = String(err.message || err || "");
+    if (msg.includes("QUOTA_MAILLOTS_COMPLET")) {
+      alert("Les maillots sont déjà pris par un autre joueur. Merci de choisir un autre apport.");
+    } else if (msg.includes("QUOTA_BOISSON_COMPLET")) {
+      alert("Le quota Boisson est déjà complet.");
+    } else if (msg.includes("QUOTA_NOURRITURE_COMPLET")) {
+      alert("Le quota Nourriture est déjà complet.");
+    } else {
+      alert("Erreur d'envoi ❌ : " + msg);
+    }
   });
 }
 
