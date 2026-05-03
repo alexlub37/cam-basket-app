@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Formulaire Match V60.37</title>
+<title>Formulaire Match V60.39</title>
 
 <style>
 body{
@@ -162,7 +162,7 @@ textarea{
 </div>
 
 <script>
-// V60.37 quotas organisation pilotés par CONFIG + blocage serveur renforcé
+// V60.39 quotas organisation pilotés par CONFIG + correction codes joueurs partagés
 
 let presenceValue = "";
 let transportValue = "";
@@ -523,7 +523,7 @@ async function envoyerFormulaire() {
     return;
   }
 
-  // V60.37 : juste avant l'envoi, on recharge les quotas.
+  // V60.39 : juste avant l'envoi, on recharge les quotas.
   // Si un autre joueur vient de prendre les maillots, le bouton est désactivé avant l'enregistrement.
   const apportAvantControle = getApportFinal();
   if (presenceValue === "Présent" && apportAvantControle) {
@@ -649,9 +649,9 @@ function getRowQuota(row, name){
 function normaliserDateQuota(value){
   const txt = String(value || "").trim();
   if (!txt) return "";
-  let m = txt.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = txt.match(/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/);
   if (m) return String(m[3]).padStart(2,"0") + "/" + String(m[2]).padStart(2,"0") + "/" + m[1];
-  m = txt.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+  m = txt.match(/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})\b/);
   if (m) return String(m[1]).padStart(2,"0") + "/" + String(m[2]).padStart(2,"0") + "/" + m[3];
   return txt;
 }
@@ -659,9 +659,9 @@ function normaliserDateQuota(value){
 function normaliserHeureQuota(value){
   let txt = String(value || "").trim().toLowerCase().replace(":","h").replace(/\s+/g,"");
   if (!txt) return "";
-  let m = txt.match(/(\d{1,2})h(\d{1,2})/);
+  let m = txt.match(/\b(\d{1,2})h(\d{1,2})\b/);
   if (m) return String(Number(m[1])).padStart(2,"0") + "h" + String(Number(m[2])).padStart(2,"0");
-  m = txt.match(/(\d{1,2})h/);
+  m = txt.match(/\b(\d{1,2})h\b/);
   if (m) return String(Number(m[1])).padStart(2,"0") + "h00";
   return txt;
 }
@@ -689,13 +689,13 @@ function extraireMatchInfoQuota(matchText){
     return info;
   }
 
-  const dateMatch = txt.match(/\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2}/);
-  const heureMatch = txt.match(/\d{1,2}h\d{0,2}|\d{1,2}:\d{2}/);
+  const dateMatch = txt.match(/\b\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}\b|\b\d{4}-\d{1,2}-\d{1,2}\b/);
+  const heureMatch = txt.match(/\b\d{1,2}h\d{0,2}\b|\b\d{1,2}:\d{2}\b/);
   info.date = dateMatch ? normaliserDateQuota(dateMatch[0]) : "";
   info.heure = heureMatch ? normaliserHeureQuota(heureMatch[0]) : "";
 
-  if (/domicile/i.test(txt)) info.lieu = "Domicile";
-  else if (/extérieur|exterieur/i.test(txt)) info.lieu = "Extérieur";
+  if (/\bdomicile\b/i.test(txt)) info.lieu = "Domicile";
+  else if (/\bextérieur\b|\bexterieur\b/i.test(txt)) info.lieu = "Extérieur";
 
   const titre = (txt.split(" - ")[0] || txt).trim();
   if (titre.includes(" vs ")) {
@@ -741,7 +741,41 @@ function memeMatchQuota(rowMatch){
   });
 }
 
+
+async function chargerQuotasOrganisationDepuisServeur(){
+  try{
+    const params = new URLSearchParams();
+    params.set("action", "getEtatOrganisationMatch");
+    params.set("match", getParam("match"));
+    params.set("matchKey", getParam("match"));
+    params.set("display", getParam("display"));
+    params.set("matchDisplay", getParam("display"));
+    params.set("equipe", getParam("equipe"));
+    params.set("type", getParam("type"));
+    params.set("t", String(Date.now()));
+
+    const res = await fetch(APPS_SCRIPT_URL + "?" + params.toString(), { cache: "no-store" });
+    const data = await res.json();
+    if (!data || data.ok !== true || !data.counts) return false;
+
+    const q = getOrganisationQuotas();
+    const counts = data.counts || {};
+
+    appliquerQuotaBouton("Boisson", Number(counts.boisson || 0) >= q.boisson);
+    appliquerQuotaBouton("Nourriture", Number(counts.nourriture || 0) >= q.nourriture);
+    appliquerQuotaBouton("Maillots", Number(counts.maillots || 0) >= q.maillots);
+
+    return true;
+  }catch(e){
+    console.warn("Quotas serveur non chargés, fallback CSV", e);
+    return false;
+  }
+}
+
 async function chargerQuotasOrganisation(){
+  const okServeur = await chargerQuotasOrganisationDepuisServeur();
+  if (okServeur) return;
+
   try{
     const sheetId = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=REPONSES&t=${encodeURIComponent(Date.now())}`;
@@ -771,7 +805,11 @@ async function chargerQuotasOrganisation(){
 
       const prenom = normalizeQuota(getRowQuota(row, "Prénom") || getRowQuota(row, "Prenom"));
       const code = normalizeQuota(getRowQuota(row, "Code accès") || getRowQuota(row, "Code acces") || getRowQuota(row, "Code"));
-      const key = code || prenom;
+
+      // V60.39 : on déduplique par joueur, pas par code.
+      // Plusieurs joueurs peuvent avoir le même code en test : si on déduplique par code,
+      // le formulaire croit qu'il n'y a qu'un seul apport et laisse Maillots disponible.
+      const key = prenom || code;
       if (key) byPlayer[key] = row;
     });
 
