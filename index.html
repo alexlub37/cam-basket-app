@@ -310,58 +310,102 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ CARD CE WEEK-END ══ */
+    /* ══ CARD CE WEEK-END COMPACTE V60.41 ══ */
     #weekendCard {
       display: none;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+      padding: 12px 14px !important;
     }
     .weekend-title {
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: .06em;
       color: var(--accent);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .weekend-title span:last-child {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .weekend-list-compact {
+      display: grid;
+      gap: 5px;
     }
     .weekend-match {
-      background: #151515;
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: 54px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,212,0,.18);
+      border-radius: 10px;
+      padding: 7px 8px;
+      margin-bottom: 0;
       border-left: 3px solid var(--accent);
+    }
+    .weekend-date {
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .weekend-date small {
+      display: block;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+    .weekend-main {
+      min-width: 0;
+      line-height: 1.15;
     }
     .weekend-match-equipe {
       font-size: 11px;
       color: var(--accent);
-      font-weight: 700;
+      font-weight: 900;
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .weekend-match-adversaire {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
       color: #fff;
-      margin-bottom: 4px;
-    }
-    .weekend-match-infos {
-      font-size: 12px;
-      color: #888;
-      display: flex;
-      gap: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .weekend-match-type {
       display: inline-block;
+      min-width: 32px;
+      text-align: center;
       font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 6px;
-      font-weight: 700;
-      margin-left: auto;
+      padding: 3px 6px;
+      border-radius: 999px;
+      font-weight: 900;
+      white-space: nowrap;
     }
-    .type-dom { background: rgba(31,170,89,0.2); color: #1faa59; }
-    .type-ext { background: rgba(255,159,28,0.15); color: #ff9f1c; }
+    .type-dom { background: rgba(31,170,89,0.2); color: #9effb8; border:1px solid rgba(31,170,89,.55); }
+    .type-ext { background: rgba(255,159,28,0.15); color: #ffd08a; border:1px solid rgba(255,159,28,.55); }
+    .weekend-more {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+    }
 
     .modal-overlay{
       position:fixed;
@@ -1146,7 +1190,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.39</button>
+    ">V60.41</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1184,7 +1228,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     <section id="teamsScreen" class="screen active">
       <!-- Card Ce week-end -->
       <div id="weekendCard" class="card">
-        <div class="weekend-title">🏀 Prochains matchs</div>
+        <div class="weekend-title"><span>🏀 Week-end</span><span>Matchs à venir</span></div>
         <div id="weekendList"></div>
       </div>
       <div class="card">
@@ -3260,11 +3304,29 @@ function renderWeekend() {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  // Afficher les matchs des 7 prochains jours
-  const in7days = new Date(now);
-  in7days.setDate(now.getDate() + 7);
+  // V60.41 : carte légère et paramétrable.
+  // CONFIG possible : weekend_jours = 7 / weekend_nb_max = 6
+  const nbJours = cfgInt("weekend_jours", 7);
+  const nbMax = cfgInt("weekend_nb_max", 6);
 
-  // V40.61 : seules les équipes de la saison active sont autorisées
+  const limitDate = new Date(now);
+  limitDate.setDate(now.getDate() + Math.max(1, nbJours));
+
+  const cacheKey = [
+    state.season || "",
+    (state.matchs || []).length,
+    (state.equipes || []).length,
+    nbJours,
+    nbMax,
+    (state.matchs || []).map(m => [m.saison,m.equipe,m.date,m.heure,m.adversaire,m.type,m.statut].join("~")).join("||")
+  ].join("§");
+
+  if (state.weekendCacheKey === cacheKey && state.weekendCacheHtml) {
+    card.style.display = state.weekendCacheVisible ? "block" : "none";
+    list.innerHTML = state.weekendCacheHtml;
+    return;
+  }
+
   const equipesSaisonActive = new Set(
     (state.equipes || [])
       .filter(e => !state.season || sameSeason(e.saison, state.season))
@@ -3293,20 +3355,28 @@ function renderWeekend() {
     return new Date(year, month - 1, day);
   }
 
+  function minutesFromHour(h) {
+    const txt = String(h || "").trim().toLowerCase().replace("h", ":");
+    const p = txt.split(":");
+    const hh = parseInt(p[0], 10) || 0;
+    const mm = parseInt(p[1], 10) || 0;
+    return hh * 60 + mm;
+  }
+
+  function jourCourt(d) {
+    const jours = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
+    return jours[d.getDay()] || "";
+  }
+
   const matchsWE = (state.matchs || []).filter(m => {
     if (!m.date) return false;
-
-    // 1) le match doit être dans la saison active
     if (state.season && !sameSeason(m.saison, state.season)) return false;
-
-    // 2) l'équipe doit exister dans l'onglet EQUIPES pour cette saison
     if (equipesSaisonActive.size && !equipesSaisonActive.has(normalize(m.equipe))) return false;
 
-    // 3) le match doit être dans les 7 prochains jours
     const d = parseWeekendDate(m.date);
     if (!d) return false;
 
-    return d >= now && d <= in7days;
+    return d >= now && d <= limitDate;
   }).sort((a, b) => {
     const da = parseWeekendDate(a.date);
     const db = parseWeekendDate(b.date);
@@ -3317,46 +3387,48 @@ function renderWeekend() {
     const dateDiff = da - db;
     if (dateDiff !== 0) return dateDiff;
 
-    // V40.62 : si même jour, tri par heure
-    const ha = String(a.heure || "").trim().replace("h", ":");
-    const hb = String(b.heure || "").trim().replace("h", ":");
-
-    function minutes(h) {
-      const p = h.split(":");
-      const hh = parseInt(p[0], 10) || 0;
-      const mm = parseInt(p[1], 10) || 0;
-      return hh * 60 + mm;
-    }
-
-    return minutes(ha) - minutes(hb);
+    return minutesFromHour(a.heure) - minutesFromHour(b.heure);
   });
 
   if (matchsWE.length === 0) {
     card.style.display = "none";
     list.innerHTML = "";
+    state.weekendCacheKey = cacheKey;
+    state.weekendCacheHtml = "";
+    state.weekendCacheVisible = false;
     return;
   }
 
-  card.style.display = "block";
-  list.innerHTML = matchsWE.map(m => {
-    const isDom = isHomeType(m.type);
-    const typeClass = isDom ? "type-dom" : "type-ext";
-    const typeLabel = isDom ? "Domicile" : "Extérieur";
+  const visibles = matchsWE.slice(0, Math.max(1, nbMax));
+  const restant = matchsWE.length - visibles.length;
 
-    return `
-      <div class="weekend-match">
-        <div class="weekend-match-equipe">${escapeHtml(m.equipe)}</div>
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div class="weekend-match-adversaire">${escapeHtml(buildMatchDisplay(m))}</div>
-          <span class="weekend-match-type ${typeClass}">${typeLabel}</span>
-        </div>
-        <div class="weekend-match-infos">
-          <span>📅 ${escapeHtml(m.date)}</span>
-          <span>🕐 ${escapeHtml(m.heure || "?")}</span>
-          ${m.gymnase ? `<span>📍 ${escapeHtml(m.gymnase)}</span>` : ""}
-        </div>
-      </div>`;
-  }).join("");
+  const html = `
+    <div class="weekend-list-compact">
+      ${visibles.map(m => {
+        const d = parseWeekendDate(m.date);
+        const isDom = isHomeType(m.type);
+        const typeClass = isDom ? "type-dom" : "type-ext";
+        const typeLabel = isDom ? "Dom" : "Ext";
+        const adversaire = m.adversaire || buildMatchDisplay(m);
+        return `
+          <div class="weekend-match">
+            <div class="weekend-date">${escapeHtml(d ? jourCourt(d) : "?")}<small>${escapeHtml(m.heure || "?")}</small></div>
+            <div class="weekend-main">
+              <div class="weekend-match-equipe">${escapeHtml(m.equipe || "Équipe ?")}</div>
+              <div class="weekend-match-adversaire">vs ${escapeHtml(adversaire || "Adversaire ?")}</div>
+            </div>
+            <span class="weekend-match-type ${typeClass}">${typeLabel}</span>
+          </div>`;
+      }).join("")}
+    </div>
+    ${restant > 0 ? `<div class="weekend-more">+ ${restant} autre(s) match(s)</div>` : ""}
+  `;
+
+  card.style.display = "block";
+  list.innerHTML = html;
+  state.weekendCacheKey = cacheKey;
+  state.weekendCacheHtml = html;
+  state.weekendCacheVisible = true;
 }
 
 function _refreshMatchResponses() {
@@ -3731,11 +3803,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.39</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.41</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
         <li>Gestion matchs intégrée protégée par code bureau</li>
         <li>Réponses joueurs à reconfirmer si date / heure / lieu modifié</li>
