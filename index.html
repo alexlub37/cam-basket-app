@@ -310,7 +310,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.44 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.45 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1227,7 +1227,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.44</button>
+    ">V60.45</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1538,11 +1538,11 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           </select>
         </div>
         <div id="gmAddOfficiels" class="gm-hidden">
-          <div class="gm-field"><label>Arbitre 1</label><input id="gmAddArbitre1" type="text" list="gmListArbitres" placeholder="Facultatif"></div>
-          <div class="gm-field"><label>Arbitre 2</label><input id="gmAddArbitre2" type="text" list="gmListArbitres" placeholder="Facultatif"></div>
+          <div class="gm-field"><label>Arbitre 1</label><select id="gmAddArbitre1"></select></div>
+          <div class="gm-field"><label>Arbitre 2</label><select id="gmAddArbitre2"></select></div>
           <div class="gm-row">
-            <div class="gm-field"><label>Chrono</label><input id="gmAddChrono" type="text" list="gmListChrono" placeholder="Facultatif"></div>
-            <div class="gm-field"><label>Table</label><input id="gmAddTable" type="text" list="gmListTable" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Chrono</label><select id="gmAddChrono"></select></div>
+            <div class="gm-field"><label>Table</label><select id="gmAddTable"></select></div>
           </div>
         </div>
         <div class="gm-action-bar"><button id="gmAddBtn" class="gm-submit" onclick="gmAjouterMatch()">Ajouter le match</button></div>
@@ -1578,19 +1578,17 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
             </select>
           </div>
           <div id="gmEditOfficiels" class="gm-hidden">
-            <div class="gm-field"><label>Arbitre 1</label><input id="gmEditArbitre1" type="text" list="gmListArbitres" placeholder="Facultatif"></div>
-            <div class="gm-field"><label>Arbitre 2</label><input id="gmEditArbitre2" type="text" list="gmListArbitres" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Arbitre 1</label><select id="gmEditArbitre1"></select></div>
+            <div class="gm-field"><label>Arbitre 2</label><select id="gmEditArbitre2"></select></div>
             <div class="gm-row">
-              <div class="gm-field"><label>Chrono</label><input id="gmEditChrono" type="text" list="gmListChrono" placeholder="Facultatif"></div>
-              <div class="gm-field"><label>Table</label><input id="gmEditTable" type="text" list="gmListTable" placeholder="Facultatif"></div>
+              <div class="gm-field"><label>Chrono</label><select id="gmEditChrono"></select></div>
+              <div class="gm-field"><label>Table</label><select id="gmEditTable"></select></div>
             </div>
           </div>
           <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
-      <datalist id="gmListArbitres"></datalist>
-      <datalist id="gmListChrono"></datalist>
-      <datalist id="gmListTable"></datalist>
+      <!-- V60.45 : listes OFFICIELS en vrais menus déroulants <select> pour compatibilité iPhone -->
     </section>
 
     <section id="benevolesScreen" class="screen">
@@ -2991,21 +2989,65 @@ function gmOfficielsPour(role){
   return out.sort((a,b) => a.localeCompare(b, "fr"));
 }
 
-function gmFillDatalist(id, values){
-  const dl = document.getElementById(id);
-  if (!dl) return;
-  dl.innerHTML = "";
-  (values || []).forEach(v => {
+function gmFillOfficielSelect(id, values, label){
+  const sel = document.getElementById(id);
+  if (!sel) return;
+
+  const current = String(sel.value || "").trim();
+  const list = Array.from(new Set((values || []).map(v => String(v || "").trim()).filter(Boolean)));
+
+  sel.innerHTML = "";
+
+  const empty = document.createElement("option");
+  empty.value = "";
+  empty.textContent = label || "Facultatif";
+  sel.appendChild(empty);
+
+  list.forEach(v => {
     const opt = document.createElement("option");
     opt.value = v;
-    dl.appendChild(opt);
+    opt.textContent = v;
+    sel.appendChild(opt);
   });
+
+  // Si le match contenait déjà une personne saisie avant la liste OFFICIELS, on la conserve.
+  if (current && !list.some(v => normalize(v) === normalize(current))) {
+    const opt = document.createElement("option");
+    opt.value = current;
+    opt.textContent = current + " (déjà saisi)";
+    sel.appendChild(opt);
+  }
+
+  sel.value = current;
 }
 
-function gmRenderOfficielsDatalists(){
-  gmFillDatalist("gmListArbitres", gmOfficielsPour("arbitre"));
-  gmFillDatalist("gmListChrono", gmOfficielsPour("chrono"));
-  gmFillDatalist("gmListTable", gmOfficielsPour("table"));
+function gmSetOfficielSelectValue(id, value){
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const val = String(value || "").trim();
+  if (val && !Array.from(sel.options).some(o => normalize(o.value) === normalize(val))) {
+    const opt = document.createElement("option");
+    opt.value = val;
+    opt.textContent = val + " (déjà saisi)";
+    sel.appendChild(opt);
+  }
+  sel.value = val;
+}
+
+function gmRenderOfficielsSelects(){
+  const arbitres = gmOfficielsPour("arbitre");
+  const chronos = gmOfficielsPour("chrono");
+  const tables = gmOfficielsPour("table");
+
+  ["gmAddArbitre1", "gmAddArbitre2", "gmEditArbitre1", "gmEditArbitre2"].forEach(id => {
+    gmFillOfficielSelect(id, arbitres, "Facultatif");
+  });
+  ["gmAddChrono", "gmEditChrono"].forEach(id => {
+    gmFillOfficielSelect(id, chronos, "Facultatif");
+  });
+  ["gmAddTable", "gmEditTable"].forEach(id => {
+    gmFillOfficielSelect(id, tables, "Facultatif");
+  });
 }
 
 function gmValidateOfficiels(prefix){
@@ -3034,7 +3076,7 @@ function renderGestionMatchs(){
   gmFillSelect("gmEditEquipe", gmEquipesActives(), "Choisir une équipe", false);
   gmFillSelect("gmEditAdversaire", [], "Choisir un adversaire", false);
   gmFillSelect("gmEditMatch", [], "Choisir un match", false);
-  gmRenderOfficielsDatalists();
+  gmRenderOfficielsSelects();
   gmSetMode("add");
 }
 
@@ -3152,10 +3194,10 @@ function gmEditMatchChange(){
   document.getElementById("gmEditHeure").value = gmHeureDisplayToInput(m.heure);
   document.getElementById("gmEditAdversaireLocked").value = m.adversaire || "";
   document.getElementById("gmEditLieu").value = badgeForType(m.type).label || m.type || "";
-  document.getElementById("gmEditArbitre1").value = m.arbitre1 || "";
-  document.getElementById("gmEditArbitre2").value = m.arbitre2 || "";
-  document.getElementById("gmEditChrono").value = m.chrono || "";
-  document.getElementById("gmEditTable").value = m.table || "";
+  gmSetOfficielSelectValue("gmEditArbitre1", m.arbitre1 || "");
+  gmSetOfficielSelectValue("gmEditArbitre2", m.arbitre2 || "");
+  gmSetOfficielSelectValue("gmEditChrono", m.chrono || "");
+  gmSetOfficielSelectValue("gmEditTable", m.table || "");
   document.getElementById("gmEditMotif").value = gmStatutToAction(m.statut);
   document.getElementById("gmEditFields").classList.remove("gm-hidden");
   gmEditLieuChange();
@@ -3464,7 +3506,7 @@ function renderWeekend() {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  // V60.44 : accueil léger, paramétrable et cliquable.
+  // V60.45 : accueil léger, paramétrable et cliquable.
   // CONFIG possible : accueil_matchs_actif / accueil_matchs_jours / accueil_matchs_nb
   if (!cfgBool("accueil_matchs_actif", true)) {
     card.style.display = "none";
@@ -3990,12 +4032,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.44</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.45</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.44 — OFFICIELS finalisé : listes Arbitre / Chrono / Table + contrôle doublon</li>
+        <li>V60.45 — OFFICIELS : vrais menus déroulants Arbitre / Chrono / Table compatibles iPhone + contrôle doublon</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
