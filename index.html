@@ -406,6 +406,36 @@
       font-size: 11px;
       text-align: center;
     }
+    #homeScreen .card h2{
+      margin-top:0;
+      margin-bottom:8px;
+    }
+    #homeScreen #weekendCard{
+      display:none;
+    }
+    .home-info-card{
+      display:none;
+    }
+    .home-info-title{
+      color:var(--accent);
+      font-size:18px;
+      font-weight:900;
+      margin-bottom:6px;
+    }
+    .home-info-text{
+      color:#fff;
+      font-size:15px;
+      line-height:1.4;
+      white-space:pre-line;
+    }
+    .weekend-match[data-home-match-idx]{
+      cursor:pointer;
+      transition:transform .12s ease, border-color .12s ease;
+    }
+    .weekend-match[data-home-match-idx]:active{
+      transform:scale(.98);
+      border-color:rgba(255,212,0,.55);
+    }
 
     .modal-overlay{
       position:fixed;
@@ -1190,7 +1220,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.41</button>
+    ">V60.42</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1215,22 +1245,35 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       </div>
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
-        <button id="btn-teams" class="btn-light active" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
+        <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
+        <button id="btn-teams" class="btn-outline" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
         <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
         <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
-        <button id="btn-update" class="btn-outline" onclick="setActiveButton(null); reloadData()">Mettre à jour</button>
+        <button id="btn-update" class="btn-outline" onclick="setActiveButton('home'); reloadData()">Mettre à jour</button>
       </div>
       <div id="status" class="status">Chargement…</div>
     </div>
   </header>
 
   <main>
-    <section id="teamsScreen" class="screen active">
-      <!-- Card Ce week-end -->
+    <section id="homeScreen" class="screen active">
+      <div class="card">
+        <h2>Accueil <span id="homeSeasonBadge" class="pill"></span></h2>
+        <div class="muted">Vue rapide du club et des prochains matchs.</div>
+      </div>
+
       <div id="weekendCard" class="card">
-        <div class="weekend-title"><span>🏀 Week-end</span><span>Matchs à venir</span></div>
+        <div class="weekend-title"><span>🏀 Matchs à venir</span><span id="homeUpcomingLabel">7 jours</span></div>
         <div id="weekendList"></div>
       </div>
+
+      <div id="homeInfoCard" class="card home-info-card">
+        <div id="homeInfoTitle" class="home-info-title">Info club</div>
+        <div id="homeInfoText" class="home-info-text"></div>
+      </div>
+    </section>
+
+    <section id="teamsScreen" class="screen">
       <div class="card">
         <h2>Équipes <span id="seasonBadge" class="pill"></span></h2>
         <div class="muted">Saison active uniquement.</div>
@@ -1278,7 +1321,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     </section>
 
     <section id="matchDetailScreen" class="screen">
-      <button class="back" onclick="showScreen('matchesScreen')">← Retour aux matchs</button>
+      <button class="back" onclick="goBackFromMatchDetail()">← Retour</button>
       <div class="card">
         <div class="match-detail-header">
           <div class="match-top-line">
@@ -1440,7 +1483,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
 
     <section id="bureauScreen"  class="screen">
-      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <button class="back" onclick="setActiveButton('home'); showScreen('homeScreen')">← Retour à l'accueil</button>
       <div class="card">
         <h2>Bureau</h2>
         <div class="muted">Membres du bureau de l’association.</div>
@@ -1541,7 +1584,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     </section>
 
     <section id="benevolesScreen" class="screen">
-      <button class="back" onclick="setActiveButton('teams'); showScreen('teamsScreen')">← Retour à l'accueil</button>
+      <button class="back" onclick="setActiveButton('home'); showScreen('homeScreen')">← Retour à l'accueil</button>
       <div class="card">
         <h2>Bénévoles</h2>
         <div class="muted">Bénévoles du club.</div>
@@ -1582,7 +1625,9 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       adversaires: [],
       selectedTeam: null,
       currentMatchRows: [],
-      currentOpenMatch: null
+      currentOpenMatch: null,
+      homeUpcomingRows: [],
+      detailBackScreen: "matchesScreen"
     };
 
 
@@ -1620,7 +1665,15 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
     function showScreen(id){
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
+      const target = document.getElementById(id);
+      if (target) target.classList.add("active");
+    }
+
+    function goBackFromMatchDetail(){
+      const target = state.detailBackScreen || "matchesScreen";
+      showScreen(target);
+      if (target === "homeScreen") setActiveButton("home");
+      if (target === "teamsScreen" || target === "matchesScreen" || target === "teamMenuScreen") setActiveButton("teams");
     }
 
     function setStatus(text){ document.getElementById("status").textContent = text; }
@@ -1874,7 +1927,10 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         });
         console.log("CONFIG finale:", JSON.stringify(state.config));
 
-        document.getElementById("seasonBadge").textContent = state.season || "Saison non trouvée";
+        const seasonBadge = document.getElementById("seasonBadge");
+        const homeSeasonBadge = document.getElementById("homeSeasonBadge");
+        if (seasonBadge) seasonBadge.textContent = state.season || "Saison non trouvée";
+        if (homeSeasonBadge) homeSeasonBadge.textContent = state.season || "Saison non trouvée";
         renderTeams();
         renderBureau();
         renderBenevoles();
@@ -2179,7 +2235,10 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           renderGroup("Matchs passés", passes, futurs.length, true);
 
         el.querySelectorAll(".item").forEach(node => {
-          node.addEventListener("click", () => openMatchDetail(Number(node.dataset.idx)));
+          node.addEventListener("click", () => {
+            state.detailBackScreen = "matchesScreen";
+            openMatchDetail(Number(node.dataset.idx));
+          });
         });
       }
       showScreen("matchesScreen");
@@ -3137,7 +3196,7 @@ function renderBenevoles(){
 
 
     function setActiveButton(name){
-      const buttons = ['btn-teams','btn-bureau','btn-benevoles'];
+      const buttons = ['btn-home','btn-teams','btn-bureau','btn-benevoles'];
       const c = (state.config && state.config['couleur_principale']) || '';
 
       buttons.forEach(id => {
@@ -3304,10 +3363,17 @@ function renderWeekend() {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  // V60.41 : carte légère et paramétrable.
-  // CONFIG possible : weekend_jours = 7 / weekend_nb_max = 6
-  const nbJours = cfgInt("weekend_jours", 7);
-  const nbMax = cfgInt("weekend_nb_max", 6);
+  // V60.42 : accueil léger, paramétrable et cliquable.
+  // CONFIG possible : accueil_matchs_actif / accueil_matchs_jours / accueil_matchs_nb
+  if (!cfgBool("accueil_matchs_actif", true)) {
+    card.style.display = "none";
+    list.innerHTML = "";
+    return;
+  }
+  const nbJours = cfgInt("accueil_matchs_jours", cfgInt("weekend_jours", 7));
+  const nbMax = cfgInt("accueil_matchs_nb", cfgInt("weekend_nb_max", 6));
+  const label = document.getElementById("homeUpcomingLabel");
+  if (label) label.textContent = nbJours <= 1 ? "Aujourd’hui" : nbJours + " jours";
 
   const limitDate = new Date(now);
   limitDate.setDate(now.getDate() + Math.max(1, nbJours));
@@ -3324,6 +3390,7 @@ function renderWeekend() {
   if (state.weekendCacheKey === cacheKey && state.weekendCacheHtml) {
     card.style.display = state.weekendCacheVisible ? "block" : "none";
     list.innerHTML = state.weekendCacheHtml;
+    attachHomeMatchListeners();
     return;
   }
 
@@ -3396,22 +3463,24 @@ function renderWeekend() {
     state.weekendCacheKey = cacheKey;
     state.weekendCacheHtml = "";
     state.weekendCacheVisible = false;
+    state.homeUpcomingRows = [];
     return;
   }
 
   const visibles = matchsWE.slice(0, Math.max(1, nbMax));
+  state.homeUpcomingRows = visibles;
   const restant = matchsWE.length - visibles.length;
 
   const html = `
     <div class="weekend-list-compact">
-      ${visibles.map(m => {
+      ${visibles.map((m, i) => {
         const d = parseWeekendDate(m.date);
         const isDom = isHomeType(m.type);
         const typeClass = isDom ? "type-dom" : "type-ext";
         const typeLabel = isDom ? "Dom" : "Ext";
         const adversaire = m.adversaire || buildMatchDisplay(m);
         return `
-          <div class="weekend-match">
+          <div class="weekend-match" data-home-match-idx="${i}" title="Ouvrir le détail du match">
             <div class="weekend-date">${escapeHtml(d ? jourCourt(d) : "?")}<small>${escapeHtml(m.heure || "?")}</small></div>
             <div class="weekend-main">
               <div class="weekend-match-equipe">${escapeHtml(m.equipe || "Équipe ?")}</div>
@@ -3426,9 +3495,24 @@ function renderWeekend() {
 
   card.style.display = "block";
   list.innerHTML = html;
+  attachHomeMatchListeners();
   state.weekendCacheKey = cacheKey;
   state.weekendCacheHtml = html;
   state.weekendCacheVisible = true;
+}
+
+function attachHomeMatchListeners() {
+  document.querySelectorAll("#weekendList .weekend-match[data-home-match-idx]").forEach(node => {
+    node.addEventListener("click", () => openHomeMatchDetail(Number(node.dataset.homeMatchIdx)));
+  });
+}
+
+function openHomeMatchDetail(idx) {
+  const m = (state.homeUpcomingRows || [])[idx];
+  if (!m) return;
+  state.currentMatchRows = [m];
+  state.detailBackScreen = "homeScreen";
+  openMatchDetail(0);
 }
 
 function _refreshMatchResponses() {
@@ -3803,11 +3887,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.41</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.42</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
         <li>Gestion matchs intégrée protégée par code bureau</li>
@@ -3935,6 +4020,19 @@ function appliquerConfig() {
   // Sections
   if (cfg["activer_bureau"]    === "non") { const b = document.getElementById("btn-bureau");    if (b) b.style.display = "none"; }
   if (cfg["activer_benevoles"] === "non") { const b = document.getElementById("btn-benevoles"); if (b) b.style.display = "none"; }
+
+  // Accueil : bloc info club paramétrable
+  const infoCard = document.getElementById("homeInfoCard");
+  const infoTitle = document.getElementById("homeInfoTitle");
+  const infoText = document.getElementById("homeInfoText");
+  if (infoCard && infoTitle && infoText) {
+    const actif = cfgBool("accueil_infos_actif", false);
+    const titre = cfgValue("accueil_infos_titre", "Info club");
+    const texte = cfgValue("accueil_infos_texte", "");
+    infoTitle.textContent = titre || "Info club";
+    infoText.textContent = texte;
+    infoCard.style.display = (actif && texte) ? "block" : "none";
+  }
 
   // Logo
   const logoSrc = cfg["logo_url"] || "Image PNG.png";
