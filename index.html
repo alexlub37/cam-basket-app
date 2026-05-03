@@ -310,7 +310,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ CARD CE WEEK-END COMPACTE V60.41 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.43 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -337,45 +337,30 @@
     }
     .weekend-list-compact {
       display: grid;
-      gap: 5px;
+      gap: 7px;
     }
     .weekend-match {
       display: grid;
-      grid-template-columns: 54px 1fr auto;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
       align-items: center;
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,212,0,.18);
-      border-radius: 10px;
-      padding: 7px 8px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,212,0,.20);
+      border-radius: 12px;
+      padding: 9px 10px;
       margin-bottom: 0;
-      border-left: 3px solid var(--accent);
-    }
-    .weekend-date {
-      color: var(--accent);
-      font-size: 11px;
-      font-weight: 900;
-      line-height: 1.15;
-      text-align: center;
-      white-space: nowrap;
-    }
-    .weekend-date small {
-      display: block;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      margin-top: 2px;
+      border-left: 4px solid var(--accent);
     }
     .weekend-main {
       min-width: 0;
       line-height: 1.15;
     }
     .weekend-match-equipe {
-      font-size: 11px;
-      color: var(--accent);
-      font-weight: 900;
+      font-size: 18px;
+      color: #fff;
+      font-weight: 950;
       text-transform: uppercase;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -383,17 +368,39 @@
     .weekend-match-adversaire {
       font-size: 13px;
       font-weight: 800;
-      color: #fff;
+      color: var(--muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .weekend-meta {
+      display: grid;
+      gap: 5px;
+      justify-items: end;
+      align-items: center;
+      min-width: 64px;
+    }
+    .weekend-date {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.05;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .weekend-date small {
+      display: block;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 950;
+      margin-top: 2px;
+    }
     .weekend-match-type {
       display: inline-block;
-      min-width: 32px;
+      min-width: 38px;
       text-align: center;
       font-size: 10px;
-      padding: 3px 6px;
+      padding: 3px 7px;
       border-radius: 999px;
       font-weight: 900;
       white-space: nowrap;
@@ -1220,7 +1227,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.42</button>
+    ">V60.43</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1257,9 +1264,9 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
   <main>
     <section id="homeScreen" class="screen active">
-      <div class="card">
-        <h2>Accueil <span id="homeSeasonBadge" class="pill"></span></h2>
-        <div class="muted">Vue rapide du club et des prochains matchs.</div>
+      <div id="homeIntroCard" class="card">
+        <h2 id="homeIntroTitle">Accueil <span id="homeSeasonBadge" class="pill"></span></h2>
+        <div id="homeIntroText" class="muted">Vue rapide du club et des prochains matchs.</div>
       </div>
 
       <div id="weekendCard" class="card">
@@ -1531,11 +1538,11 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           </select>
         </div>
         <div id="gmAddOfficiels" class="gm-hidden">
-          <div class="gm-field"><label>Arbitre 1</label><input id="gmAddArbitre1" type="text" placeholder="Facultatif"></div>
-          <div class="gm-field"><label>Arbitre 2</label><input id="gmAddArbitre2" type="text" placeholder="Facultatif"></div>
+          <div class="gm-field"><label>Arbitre 1</label><input id="gmAddArbitre1" type="text" list="gmListArbitres" placeholder="Facultatif"></div>
+          <div class="gm-field"><label>Arbitre 2</label><input id="gmAddArbitre2" type="text" list="gmListArbitres" placeholder="Facultatif"></div>
           <div class="gm-row">
-            <div class="gm-field"><label>Chrono</label><input id="gmAddChrono" type="text" placeholder="Facultatif"></div>
-            <div class="gm-field"><label>Table</label><input id="gmAddTable" type="text" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Chrono</label><input id="gmAddChrono" type="text" list="gmListChrono" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Table</label><input id="gmAddTable" type="text" list="gmListTable" placeholder="Facultatif"></div>
           </div>
         </div>
         <div class="gm-action-bar"><button id="gmAddBtn" class="gm-submit" onclick="gmAjouterMatch()">Ajouter le match</button></div>
@@ -1571,16 +1578,19 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
             </select>
           </div>
           <div id="gmEditOfficiels" class="gm-hidden">
-            <div class="gm-field"><label>Arbitre 1</label><input id="gmEditArbitre1" type="text" placeholder="Facultatif"></div>
-            <div class="gm-field"><label>Arbitre 2</label><input id="gmEditArbitre2" type="text" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Arbitre 1</label><input id="gmEditArbitre1" type="text" list="gmListArbitres" placeholder="Facultatif"></div>
+            <div class="gm-field"><label>Arbitre 2</label><input id="gmEditArbitre2" type="text" list="gmListArbitres" placeholder="Facultatif"></div>
             <div class="gm-row">
-              <div class="gm-field"><label>Chrono</label><input id="gmEditChrono" type="text" placeholder="Facultatif"></div>
-              <div class="gm-field"><label>Table</label><input id="gmEditTable" type="text" placeholder="Facultatif"></div>
+              <div class="gm-field"><label>Chrono</label><input id="gmEditChrono" type="text" list="gmListChrono" placeholder="Facultatif"></div>
+              <div class="gm-field"><label>Table</label><input id="gmEditTable" type="text" list="gmListTable" placeholder="Facultatif"></div>
             </div>
           </div>
           <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
+      <datalist id="gmListArbitres"></datalist>
+      <datalist id="gmListChrono"></datalist>
+      <datalist id="gmListTable"></datalist>
     </section>
 
     <section id="benevolesScreen" class="screen">
@@ -1604,6 +1614,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       benevoles: "BENEVOLES",
       convocations: "CONVOCATIONS",
       adversaires: "ADVERSAIRES",
+      officiels: "OFFICIELS",
       config: "CONFIG"
     };
 
@@ -1623,6 +1634,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       benevoles: [],
       convocations: [],
       adversaires: [],
+      officiels: [],
       selectedTeam: null,
       currentMatchRows: [],
       currentOpenMatch: null,
@@ -1758,6 +1770,15 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       return out;
     }
 
+    async function fetchRowsOptional(sheetName){
+      try {
+        return await fetchRows(sheetName);
+      } catch(e) {
+        console.warn("Feuille optionnelle introuvable ou illisible:", sheetName, e);
+        return [];
+      }
+    }
+
     async function fetchRowsCsv(sheetName){
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
       const res = await fetch(url);
@@ -1811,7 +1832,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           const svgBg = document.getElementById("camSvgBackground");
           if (svgBg) svgBg.style.opacity = "1";
         }, 800);
-        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, adversaireRows, configRows] = await Promise.all([
+        const [paramRows, eqRows, jrRows, mtRows, bureauRows, benevoleRows, convocationRows, adversaireRows, officielsRows, configRows] = await Promise.all([
           fetchRows(SHEETS.parametres),
           fetchRows(SHEETS.equipes),
           fetchRowsCsv(SHEETS.joueurs),
@@ -1820,6 +1841,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           fetchRows(SHEETS.benevoles),
           fetchRowsCsv(SHEETS.convocations),
           fetchRows(SHEETS.adversaires),
+          fetchRowsOptional(SHEETS.officiels),
           (async () => {
             try {
               const ctrl = new AbortController();
@@ -1915,6 +1937,20 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           codePostal: String(r[3] || "").trim(),
           ville: String(r[4] || "").trim()
         })).filter(x => x.club && normalize(x.club) !== "club");
+
+        // OFFICIELS attendu :
+        // A Saison | B Nom | C Téléphone | D Équipe liée | E Arbitre | F Chrono | G Table | H Actif | I Commentaire
+        state.officiels = (officielsRows || []).map(r => ({
+          saison: String(r[0] || "").trim(),
+          nom: String(r[1] || "").trim(),
+          telephone: String(r[2] || "").trim(),
+          equipeLiee: String(r[3] || "").trim(),
+          arbitre: String(r[4] || "").trim(),
+          chrono: String(r[5] || "").trim(),
+          table: String(r[6] || "").trim(),
+          actif: String(r[7] || "Oui").trim() || "Oui",
+          commentaire: String(r[8] || "").trim()
+        })).filter(x => x.nom && normalize(x.nom) !== "nom");
 
         // Parser CONFIG
         state.config = {};
@@ -2929,6 +2965,68 @@ async function showGestionMatchsScreen(){
   showScreen("gestionMatchsScreen");
 }
 
+function gmOui(v){
+  return ["oui","true","vrai","1","x","ok","yes"].includes(normalize(v));
+}
+
+function gmOfficielsPour(role){
+  const key = normalize(role);
+  const seen = new Set();
+  const out = [];
+  (state.officiels || []).forEach(o => {
+    if (!o.nom) return;
+    if (state.season && o.saison && !sameSeason(o.saison, state.season)) return;
+    if (normalize(o.actif) === "non" || normalize(o.actif) === "false") return;
+    let allowed = false;
+    if (key === "arbitre") allowed = gmOui(o.arbitre);
+    if (key === "chrono") allowed = gmOui(o.chrono);
+    if (key === "table") allowed = gmOui(o.table);
+    if (!allowed) return;
+    const n = String(o.nom || "").trim();
+    const k = normalize(n);
+    if (!k || seen.has(k)) return;
+    seen.add(k);
+    out.push(n);
+  });
+  return out.sort((a,b) => a.localeCompare(b, "fr"));
+}
+
+function gmFillDatalist(id, values){
+  const dl = document.getElementById(id);
+  if (!dl) return;
+  dl.innerHTML = "";
+  (values || []).forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v;
+    dl.appendChild(opt);
+  });
+}
+
+function gmRenderOfficielsDatalists(){
+  gmFillDatalist("gmListArbitres", gmOfficielsPour("arbitre"));
+  gmFillDatalist("gmListChrono", gmOfficielsPour("chrono"));
+  gmFillDatalist("gmListTable", gmOfficielsPour("table"));
+}
+
+function gmValidateOfficiels(prefix){
+  const ids = ["Arbitre1", "Arbitre2", "Chrono", "Table"];
+  const values = [];
+  ids.forEach(suffix => {
+    const el = document.getElementById(prefix + suffix);
+    const val = el ? String(el.value || "").trim() : "";
+    if (val) values.push({role:suffix, value:val, key:normalize(val)});
+  });
+  const seen = new Map();
+  for (const item of values) {
+    if (seen.has(item.key)) {
+      gmShowMessage(item.value + " est déjà sélectionné(e) sur ce match. Une personne ne peut pas faire deux postes sur le même match.", false);
+      return false;
+    }
+    seen.set(item.key, item.role);
+  }
+  return true;
+}
+
 function renderGestionMatchs(){
   document.getElementById("gmAddSaison").value = state.season || "";
   gmFillSelect("gmAddEquipe", gmEquipesActives(), "Choisir une équipe", false);
@@ -2936,6 +3034,7 @@ function renderGestionMatchs(){
   gmFillSelect("gmEditEquipe", gmEquipesActives(), "Choisir une équipe", false);
   gmFillSelect("gmEditAdversaire", [], "Choisir un adversaire", false);
   gmFillSelect("gmEditMatch", [], "Choisir un match", false);
+  gmRenderOfficielsDatalists();
   gmSetMode("add");
 }
 
@@ -3000,6 +3099,7 @@ async function gmAjouterMatch(){
   };
   if (!data.adversaire && !data.nouveauClubNom) { gmShowMessage("Choisis un adversaire ou indique le nouveau club.", false); return; }
   if (!data.lieu) { gmShowMessage("Choisis Domicile ou Extérieur.", false); return; }
+  if (!gmValidateOfficiels("gmAdd")) return;
   const btn = document.getElementById("gmAddBtn");
   const oldTxt = btn ? btn.textContent : "";
   try{
@@ -3097,6 +3197,7 @@ async function gmModifierMatch(){
     chrono: document.getElementById("gmEditChrono").value.trim(),
     table: document.getElementById("gmEditTable").value.trim()
   };
+  if (!gmValidateOfficiels("gmEdit")) return;
   const btn = document.getElementById("gmEditBtn");
   const oldTxt = btn ? btn.textContent : "";
   try{
@@ -3363,7 +3464,7 @@ function renderWeekend() {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  // V60.42 : accueil léger, paramétrable et cliquable.
+  // V60.43 : accueil léger, paramétrable et cliquable.
   // CONFIG possible : accueil_matchs_actif / accueil_matchs_jours / accueil_matchs_nb
   if (!cfgBool("accueil_matchs_actif", true)) {
     card.style.display = "none";
@@ -3481,12 +3582,14 @@ function renderWeekend() {
         const adversaire = m.adversaire || buildMatchDisplay(m);
         return `
           <div class="weekend-match" data-home-match-idx="${i}" title="Ouvrir le détail du match">
-            <div class="weekend-date">${escapeHtml(d ? jourCourt(d) : "?")}<small>${escapeHtml(m.heure || "?")}</small></div>
             <div class="weekend-main">
               <div class="weekend-match-equipe">${escapeHtml(m.equipe || "Équipe ?")}</div>
               <div class="weekend-match-adversaire">vs ${escapeHtml(adversaire || "Adversaire ?")}</div>
             </div>
-            <span class="weekend-match-type ${typeClass}">${typeLabel}</span>
+            <div class="weekend-meta">
+              <div class="weekend-date">${escapeHtml(d ? jourCourt(d) : "?")}<small>${escapeHtml(m.heure || "?")}</small></div>
+              <span class="weekend-match-type ${typeClass}">${typeLabel}</span>
+            </div>
           </div>`;
       }).join("")}
     </div>
@@ -3887,11 +3990,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.42</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.43</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V60.43 — Accueil paramétrable CONFIG + matchs à venir lisibles + OFFICIELS pour gestion matchs</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4020,6 +4124,19 @@ function appliquerConfig() {
   // Sections
   if (cfg["activer_bureau"]    === "non") { const b = document.getElementById("btn-bureau");    if (b) b.style.display = "none"; }
   if (cfg["activer_benevoles"] === "non") { const b = document.getElementById("btn-benevoles"); if (b) b.style.display = "none"; }
+
+  // Accueil : carte principale paramétrable
+  const introCard = document.getElementById("homeIntroCard");
+  const introTitle = document.getElementById("homeIntroTitle");
+  const introText = document.getElementById("homeIntroText");
+  if (introCard && introTitle && introText) {
+    const actifIntro = cfgBool("accueil_carte_actif", true);
+    const titreAccueil = cfgValue("accueil_titre", "Accueil");
+    const texteAccueil = cfgValue("accueil_texte", cfgValue("accueil_intro_texte", "Vue rapide du club et des prochains matchs."));
+    introTitle.innerHTML = escapeHtml(titreAccueil || "Accueil") + ' <span id="homeSeasonBadge" class="pill">' + escapeHtml(state.season || "Saison non trouvée") + '</span>';
+    introText.textContent = texteAccueil || "";
+    introCard.style.display = actifIntro ? "block" : "none";
+  }
 
   // Accueil : bloc info club paramétrable
   const infoCard = document.getElementById("homeInfoCard");
