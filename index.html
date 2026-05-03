@@ -909,7 +909,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     #domicileOfficialsBlock { display: none; }
 
 
-/* Gestion matchs intégrée V60.26 */
+/* Gestion matchs intégrée V60.30 */
 .gm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .gm-tab.active{background:var(--accent)!important;color:#000!important}
 .gm-field{margin-top:12px}
@@ -970,7 +970,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   #gestionMatchsScreen select{font-size:16px!important}
 }
 
-/* Protection Gestion matchs V60.28 */
+/* Protection Gestion matchs V60.30 */
 .gm-lock-card{
   border:1px solid rgba(255,212,0,.42)!important;
   background:rgba(0,0,0,.42)!important;
@@ -980,6 +980,18 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   font-size:14px;
   line-height:1.35;
   margin-top:6px;
+}
+
+.gm-reconfirm-note{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,212,0,.35);
+  background:rgba(255,212,0,.08);
+  color:var(--accent);
+  font-size:13px;
+  font-weight:800;
+  line-height:1.35;
 }
 
 </style>
@@ -1073,7 +1085,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.29</button>
+    ">V60.30</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1395,6 +1407,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
             <option value="forfait_cam">Forfait CAM — notre équipe déclare forfait</option>
           </select>
           <small>Le motif mettra à jour automatiquement la colonne Statut match.</small>
+          <div class="gm-reconfirm-note">Si la date, l’heure, le lieu ou l’équipe changent, les anciennes réponses seront marquées “À reconfirmer”.</div>
         </div>
 
         <div id="gmEditFields" class="gm-hidden">
@@ -2473,7 +2486,7 @@ showScreen("matchDetailScreen");
 
 
 // ═══════════════════════════════════════
-// Gestion matchs intégrée V60.26
+// Gestion matchs intégrée V60.30
 // ═══════════════════════════════════════
 const GM_NEW_CLUB = "__NOUVEAU_CLUB__";
 let gmCurrentMatch = null;
@@ -2739,6 +2752,14 @@ function gmEditLieuChange(){
   document.getElementById("gmEditOfficiels").classList.toggle("gm-hidden", lieu !== "Domicile");
 }
 
+
+function gmExtraNumber(retour, key){
+  const txt = String(retour || "");
+  const re = new RegExp(key + "=(\\d+)");
+  const m = txt.match(re);
+  return m ? Number(m[1] || 0) : 0;
+}
+
 async function gmModifierMatch(){
   if (!gmCurrentMatch) { gmShowMessage("Aucun match sélectionné.", false); return; }
   const data = {
@@ -2758,8 +2779,13 @@ async function gmModifierMatch(){
   const oldTxt = btn ? btn.textContent : "";
   try{
     if (btn) { btn.disabled = true; btn.textContent = "Mise à jour en cours..."; }
-    await gmPost(data);
-    gmShowMessage("Match mis à jour ✅", true);
+    const retour = await gmPost(data);
+    const reconfirm = gmExtraNumber(retour, "RECONFIRM");
+    const annulees = gmExtraNumber(retour, "ANNULEES");
+    let msg = "Match mis à jour ✅";
+    if (reconfirm > 0) msg += " — " + reconfirm + " réponse(s) à reconfirmer";
+    if (annulees > 0) msg += " — " + annulees + " réponse(s) annulée(s)";
+    gmShowMessage(msg, true);
     await reloadData();
     showGestionMatchsScreen();
     gmSetMode("edit");
@@ -3461,12 +3487,13 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.29</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.30</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 24/04/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
         <li>Gestion matchs intégrée protégée par code bureau</li>
+        <li>Réponses joueurs à reconfirmer si date / heure / lieu modifié</li>
         <li>Validation serveur du code avant ajout/modification</li>
         <li>Correction mobile du bouton de mise à jour match</li>
       </ul>
