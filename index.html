@@ -253,7 +253,7 @@
       .team-training-line{font-size:14px;}
     }
 
-    /* V60.53 - Page équipe harmonisée + Espace coach */
+    /* V60.54 - Page équipe harmonisée + Espace coach */
     .team-actions-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -505,7 +505,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.53 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.54 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1422,7 +1422,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.53</button>
+    ">V60.54</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -4524,12 +4524,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.53</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.54</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.53 — cartes Équipes compactées : coach sur la ligne du nom et infos entraînement lisibles</li>
+        <li>V60.54 — Espace coach : le code coach est conservé pour générer la convocation sans deuxième demande</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4557,13 +4557,13 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       e.preventDefault();
       e.stopPropagation();
 
-      const codeCoach = prompt("Code coach ?");
-
-      if (!codeCoach || !String(codeCoach).trim()){
-        return;
+      // V60.54 : si le coach est déjà entré dans l’Espace coach,
+      // on réutilise le code coach mémorisé pour éviter une deuxième demande.
+      if (!state.codeCoach || !String(state.codeCoach).trim()) {
+        const codeCoach = prompt("Code coach ?");
+        if (!codeCoach || !String(codeCoach).trim()) return;
+        state.codeCoach = String(codeCoach).trim();
       }
-
-      state.codeCoach = String(codeCoach).trim();
 
       if (typeof ouvrirSelectionConvocation === "function") {
         ouvrirSelectionConvocation();
@@ -4686,7 +4686,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.53
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.54
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
