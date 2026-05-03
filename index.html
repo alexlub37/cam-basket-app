@@ -310,7 +310,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.45 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.47 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1227,7 +1227,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.45</button>
+    ">V60.47</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1250,7 +1250,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           white-space: nowrap;
         ">Tous<br>en Jaune&nbsp;!</div>
       </div>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
         <button id="btn-teams" class="btn-outline" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
@@ -1270,7 +1270,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       </div>
 
       <div id="weekendCard" class="card">
-        <div class="weekend-title"><span>🏀 Matchs à venir</span><span id="homeUpcomingLabel">7 jours</span></div>
+        <div class="weekend-title"><span id="homeUpcomingTitle">🏀 Matchs à venir</span><span id="homeUpcomingLabel">7 jours</span></div>
         <div id="weekendList"></div>
       </div>
 
@@ -1282,8 +1282,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
     <section id="teamsScreen" class="screen">
       <div class="card">
-        <h2>Équipes <span id="seasonBadge" class="pill"></span></h2>
-        <div class="muted">Saison active uniquement.</div>
+        <h2 id="teamsCardTitle">Équipes <span id="seasonBadge" class="pill"></span></h2>
+        <div id="teamsCardText" class="muted">Saison active uniquement.</div>
       </div>
       <div class="toolbar">
         <input id="teamSearch" class="search" type="text" placeholder="Rechercher une équipe" oninput="renderTeams()">
@@ -1300,11 +1300,11 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <div class="grid-2">
         <button class="menu-btn" onclick="openPlayers()">
           <span class="big">👥 Joueurs</span>
-          <span class="small">Voir l’effectif de l’équipe</span>
+          <span id="menuPlayersText" class="small">Voir l’effectif de l’équipe</span>
         </button>
         <button class="menu-btn" onclick="openMatches()">
           <span class="big">📅 Matchs</span>
-          <span class="small">Voir les matchs de l’équipe</span>
+          <span id="menuMatchesText" class="small">Voir les matchs de l’équipe</span>
         </button>
       </div>
     </section>
@@ -1313,7 +1313,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
       <div class="card">
         <h2 id="playersTitle">Joueurs</h2>
-        <div class="muted">Liste filtrée sur l’équipe sélectionnée et la saison active.</div>
+        <div id="playersCardText" class="muted">Liste filtrée sur l’équipe sélectionnée et la saison active.</div>
       </div>
       <div id="playersList" class="list"></div>
     </section>
@@ -1322,7 +1322,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <button class="back" onclick="showScreen('teamMenuScreen')">← Retour au menu équipe</button>
       <div class="card">
         <h2 id="matchesTitle">Matchs</h2>
-        <div class="muted">Clique sur un match pour voir le détail et ouvrir l’itinéraire.</div>
+        <div id="matchesCardText" class="muted">Clique sur un match pour voir le détail et ouvrir l’itinéraire.</div>
       </div>
       <div id="matchesList" class="list"></div>
     </section>
@@ -1345,7 +1345,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         </div>
 
 <div id="matchConvocationCard" class="match-convoc-card">
-        <h2>Convocation</h2>
+        <h2 id="matchConvocationTitle">Convocation</h2>
         <div id="matchConvocationSub" class="match-convoc-sub"></div>
         <div id="matchConvocationList" class="match-convoc-list"></div>
 
@@ -1354,7 +1354,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       
         <div id="pastMatchNotice" class="empty" style="display:none;margin-bottom:12px;">Match passé — réponses et convocation désactivées.</div>
         <div id="matchApportsCard" class="apports-card">
-        <div class="apports-title">🏀 🏀 Merci à vous</div>
+        <div id="apportsMainTitle" class="apports-title">🏀 🏀 Merci à vous</div>
         <div id="apportsSubtitle" class="apports-subtitle">Objectif : 2 boissons / 2 nourritures</div>
 
         <div class="apports-grid">
@@ -1389,7 +1389,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
                 <div class="detail-row"><span class="detail-label">Saison</span><span id="detailSeason"></span></div>
         <div id="domicileOfficialsBlock">
           <div class="domicile-officials-pro">
-            <div class="officials-thanks">👏 Merci aux officiels</div>
+            <div id="officialsThanksTitle" class="officials-thanks">👏 Merci aux officiels</div>
             <div class="officials-arbitres">
               <div class="officials-label">👨‍⚖️ Arbitres</div>
               <div id="detailArbitres" class="officials-names">-</div>
@@ -1414,7 +1414,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
       <!-- MOVED CONVOCATION BLOCK -->
 <div id="coachResponsesCard" class="card coach-card">
-        <h2>Réponses coach</h2>
+        <h2 id="coachResponsesTitle">Réponses coach</h2>
         <div id="coachMsg" class="coach-msg">Aucune réponse chargée.</div>
 
         <div class="coach-block">
@@ -1430,7 +1430,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
         <div id="convocationSelectionCard" class="convoc-card">
           <span class="convoc-title">Sélection des joueurs convoqués</span>
-          <div class="muted">Les joueurs présents sont pré-cochés. Tu peux ajuster.</div>
+          <div id="convocationSelectionText" class="muted">Les joueurs présents sont pré-cochés. Tu peux ajuster.</div>
           <div id="convocationList" class="convoc-list"></div>
 
           <label for="convocationCommentaire" style="display:block;margin-top:12px;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;">
@@ -1492,8 +1492,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     <section id="bureauScreen"  class="screen">
       <button class="back" onclick="setActiveButton('home'); showScreen('homeScreen')">← Retour à l'accueil</button>
       <div class="card">
-        <h2>Bureau</h2>
-        <div class="muted">Membres du bureau de l’association.</div>
+        <h2 id="bureauCardTitle">Bureau</h2>
+        <div id="bureauCardText" class="muted">Membres du bureau de l’association.</div>
       </div>
       <div id="bureauList" class="list"></div>
     </section>
@@ -1503,8 +1503,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     <section id="gestionMatchsScreen" class="screen">
       <button class="back" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">← Retour au bureau</button>
       <div class="card">
-        <h2>🏀 Gestion matchs</h2>
-        <div class="muted">Ajouter ou modifier un match sans sortir de l’application.</div>
+        <h2 id="gmMainTitle">🏀 Gestion matchs</h2>
+        <div id="gmMainText" class="muted">Ajouter ou modifier un match sans sortir de l’application.</div>
       </div>
 
       <div class="gm-tabs">
@@ -1515,7 +1515,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <div id="gmMessage" class="gm-message"></div>
 
       <div id="gmAddPanel" class="card">
-        <h2>Ajouter un match</h2>
+        <h2 id="gmAddTitle">Ajouter un match</h2>
         <div class="gm-field"><label>Saison</label><input id="gmAddSaison" type="text" readonly></div>
         <div class="gm-field"><label>Équipe</label><select id="gmAddEquipe"></select></div>
         <div class="gm-row">
@@ -1549,7 +1549,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       </div>
 
       <div id="gmEditPanel" class="card gm-hidden">
-        <h2>Modifier un match</h2>
+        <h2 id="gmEditTitle">Modifier un match</h2>
         <div class="gm-field"><label>1. Équipe</label><select id="gmEditEquipe" onchange="gmEditEquipeChange()"></select></div>
         <div class="gm-field"><label>2. Adversaire</label><select id="gmEditAdversaire" onchange="gmEditAdversaireChange()"></select></div>
         <div class="gm-field"><label>3. Match</label><select id="gmEditMatch" onchange="gmEditMatchChange()"></select></div>
@@ -1561,8 +1561,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
             <option value="forfait_adverse">Forfait adverse — l’adversaire déclare forfait</option>
             <option value="forfait_cam">Forfait CAM — notre équipe déclare forfait</option>
           </select>
-          <small>Le motif mettra à jour automatiquement la colonne Statut match.</small>
-          <div class="gm-reconfirm-note">Si la date, l’heure, le lieu ou l’équipe changent, les anciennes réponses seront marquées “À reconfirmer”.</div>
+          <small id="gmMotifHelp">Le motif mettra à jour automatiquement la colonne Statut match.</small>
+          <div id="gmReconfirmNote" class="gm-reconfirm-note">Si la date, l’heure, le lieu ou l’équipe changent, les anciennes réponses seront marquées “À reconfirmer”.</div>
         </div>
 
         <div id="gmEditFields" class="gm-hidden">
@@ -1588,14 +1588,14 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <div class="gm-action-bar"><button id="gmEditBtn" class="gm-submit" onclick="gmModifierMatch()">Mettre à jour le match</button></div>
         </div>
       </div>
-      <!-- V60.45 : listes OFFICIELS en vrais menus déroulants <select> pour compatibilité iPhone -->
+      <!-- V60.47 : textes des cartes pilotables depuis CONFIG + activation des petites phrases + OFFICIELS menus déroulants -->
     </section>
 
     <section id="benevolesScreen" class="screen">
       <button class="back" onclick="setActiveButton('home'); showScreen('homeScreen')">← Retour à l'accueil</button>
       <div class="card">
-        <h2>Bénévoles</h2>
-        <div class="muted">Bénévoles du club.</div>
+        <h2 id="benevolesCardTitle">Bénévoles</h2>
+        <div id="benevolesCardText" class="muted">Bénévoles du club.</div>
       </div>
       <div id="benevolesList" class="list"></div>
     </section>
@@ -4032,12 +4032,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.45</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.47</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.45 — OFFICIELS : vrais menus déroulants Arbitre / Chrono / Table compatibles iPhone + contrôle doublon</li>
+        <li>V60.47 — textes des cartes pilotables depuis CONFIG + activation des petites phrases</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4177,6 +4177,7 @@ function appliquerConfig() {
     const texteAccueil = cfgValue("accueil_texte", cfgValue("accueil_intro_texte", "Vue rapide du club et des prochains matchs."));
     introTitle.innerHTML = escapeHtml(titreAccueil || "Accueil") + ' <span id="homeSeasonBadge" class="pill">' + escapeHtml(state.season || "Saison non trouvée") + '</span>';
     introText.textContent = texteAccueil || "";
+    introText.style.display = cfgBool("accueil_texte_actif", true) ? "" : "none";
     introCard.style.display = actifIntro ? "block" : "none";
   }
 
@@ -4192,6 +4193,52 @@ function appliquerConfig() {
     infoText.textContent = texte;
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
+
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.47
+  // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
+  function setCfgText(id, key, fallback, activeKey) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (activeKey && !cfgBool(activeKey, true)) {
+      el.style.display = "none";
+      return;
+    }
+    el.style.display = "";
+    const value = cfgValue(key, fallback || el.textContent || "");
+    el.textContent = value;
+  }
+
+  function setCfgTitleWithSeason(id, key, fallback) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const value = cfgValue(key, fallback || "Équipes");
+    el.innerHTML = escapeHtml(value) + ' <span id="seasonBadge" class="pill">' + escapeHtml(state.season || "") + '</span>';
+  }
+
+  setCfgText("appSubtitle", "app_sous_titre", "Équipes • Joueurs • Matchs • Bureau • Bénévoles", "app_sous_titre_actif");
+  setCfgText("homeUpcomingTitle", "accueil_matchs_titre", "🏀 Matchs à venir", "accueil_matchs_titre_actif");
+  setCfgTitleWithSeason("teamsCardTitle", "equipes_titre", "Équipes");
+  setCfgText("teamsCardText", "equipes_texte", "Saison active uniquement.", "equipes_texte_actif");
+  setCfgText("menuPlayersText", "menu_joueurs_texte", "Voir l’effectif de l’équipe", "menu_joueurs_texte_actif");
+  setCfgText("menuMatchesText", "menu_matchs_texte", "Voir les matchs de l’équipe", "menu_matchs_texte_actif");
+  setCfgText("playersCardText", "joueurs_texte", "Liste filtrée sur l’équipe sélectionnée et la saison active.", "joueurs_texte_actif");
+  setCfgText("matchesCardText", "matchs_texte", "Clique sur un match pour voir le détail et ouvrir l’itinéraire.", "matchs_texte_actif");
+  setCfgText("matchConvocationTitle", "convocation_titre", "Convocation");
+  setCfgText("apportsMainTitle", "apports_titre", "🏀 🏀 Merci à vous");
+  setCfgText("apportsSubtitle", "apports_sous_titre", "Objectif : 2 boissons / 2 nourritures", "apports_sous_titre_actif");
+  setCfgText("officialsThanksTitle", "officiels_titre", "👏 Merci aux officiels", "officiels_titre_actif");
+  setCfgText("coachResponsesTitle", "coach_reponses_titre", "Réponses coach", "coach_reponses_titre_actif");
+  setCfgText("convocationSelectionText", "convocation_selection_texte", "Les joueurs présents sont pré-cochés. Tu peux ajuster.", "convocation_selection_texte_actif");
+  setCfgText("bureauCardTitle", "bureau_titre", "Bureau");
+  setCfgText("bureauCardText", "bureau_texte", "Membres du bureau de l’association.", "bureau_texte_actif");
+  setCfgText("gmMainTitle", "gestion_matchs_titre", "🏀 Gestion matchs");
+  setCfgText("gmMainText", "gestion_matchs_texte", "Ajouter ou modifier un match sans sortir de l’application.", "gestion_matchs_texte_actif");
+  setCfgText("gmAddTitle", "gestion_matchs_ajouter_titre", "Ajouter un match");
+  setCfgText("gmEditTitle", "gestion_matchs_modifier_titre", "Modifier un match");
+  setCfgText("gmMotifHelp", "gestion_matchs_motif_aide", "Le motif mettra à jour automatiquement la colonne Statut match.", "gestion_matchs_motif_aide_actif");
+  setCfgText("gmReconfirmNote", "gestion_matchs_reconfirmation_texte", "Si la date, l’heure, le lieu ou l’équipe changent, les anciennes réponses seront marquées “À reconfirmer”.", "gestion_matchs_reconfirmation_texte_actif");
+  setCfgText("benevolesCardTitle", "benevoles_titre", "Bénévoles");
+  setCfgText("benevolesCardText", "benevoles_texte", "Bénévoles du club.", "benevoles_texte_actif");
 
   // Logo
   const logoSrc = cfg["logo_url"] || "Image PNG.png";
