@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V60.67 - Gestion Joueurs ajout/modification clarifiés -->
+<!-- CAM Basket V60.70 - Gestion Joueurs : séparation claire Modifier / Créer -->
 
 <html lang="fr">
 <head>
@@ -1508,6 +1508,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 .gj-empty-action{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .gj-empty-action button{font-size:13px;padding:8px 10px;border-radius:14px}
 .gj-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gj-actions-single{grid-template-columns:1fr!important}
 .gj-form-card input,.gj-form-card select,.gj-form-card textarea{
   width:100%!important;min-height:48px!important;padding:12px 14px!important;border-radius:16px!important;font-size:16px!important;
 }
@@ -1526,6 +1527,12 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 .gj-mode-badge{display:inline-block;margin:2px 0 8px 0;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,212,0,.45);color:var(--accent);font-size:12px;font-weight:900}
 .gj-cancel{width:100%;margin-top:10px;min-height:48px!important;border:2px solid var(--accent)!important;border-radius:18px!important;background:transparent!important;color:#fff!important;font-size:16px!important;font-weight:900!important}
 .gj-help-warning{margin-top:10px;color:#ffd08a;font-size:13px;line-height:1.35}
+.gj-mode-choice-card,
+.gj-create-card{padding:18px!important}
+.gj-choice-title{color:#fff;font-size:22px;font-weight:950;line-height:1.1;margin-bottom:6px}
+.gj-choice-text{color:var(--muted);font-size:15px;line-height:1.35;margin-bottom:12px}
+.gj-toolbar-compact{margin-bottom:0!important}
+.gj-create-main{width:100%;min-height:50px!important;border-radius:18px!important;font-size:16px!important;font-weight:950!important}
 @media(max-width:600px){.gj-row,.gj-actions{grid-template-columns:1fr!important}}
 
 </style>
@@ -1619,7 +1626,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.67</button>
+    ">V60.70</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1972,21 +1979,30 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
       <div id="gjMessage" class="gj-message"></div>
 
-      <div class="card gj-toolbar">
-        <input id="gjSearch" class="search" type="text" placeholder="Rechercher un joueur, une équipe, une licence…" oninput="gjRenderList()">
-        <div id="gjSearchNote" class="gj-search-note">Tape au moins 2 caractères pour afficher les résultats. La liste complète est volontairement masquée.</div>
-        <div class="gj-actions">
-          <button class="btn-light" onclick="gjNewPlayer()">➕ Ajouter un joueur</button>
-          <button class="btn-outline" onclick="gjClearSearch()">Effacer recherche</button>
+      <div class="card gj-mode-choice-card">
+        <div class="gj-choice-title">Modifier un joueur</div>
+        <div class="gj-choice-text">Recherche un joueur existant, puis clique sur sa carte pour ouvrir le formulaire en mode modification.</div>
+        <div class="gj-toolbar gj-toolbar-compact">
+          <input id="gjSearch" class="search" type="text" placeholder="Rechercher un joueur, une équipe, une licence…" oninput="gjRenderList()">
+          <div id="gjSearchNote" class="gj-search-note">Tape au moins 2 caractères pour afficher les résultats. La liste complète est volontairement masquée.</div>
+          <div class="gj-actions gj-actions-single">
+            <button class="btn-outline" onclick="gjClearSearch()">Effacer recherche</button>
+          </div>
         </div>
       </div>
 
       <div id="gjList" class="list"></div>
 
+      <div id="gjCreateBlock" class="card gj-create-card">
+        <div class="gj-choice-title">Créer un nouveau joueur</div>
+        <div class="gj-choice-text">À utiliser uniquement si le joueur n’existe pas encore dans la saison et l’équipe.</div>
+        <button class="btn-light gj-create-main" onclick="gjNewPlayer()">➕ Créer un nouveau joueur</button>
+      </div>
+
       <div id="gjFormCard" class="card gj-form-card">
         <h2 id="gjFormTitle">Ajouter un joueur</h2>
         <div id="gjModeBadge" class="gj-mode-badge">Mode ajout</div>
-        <div class="gj-help-warning">Pour modifier un joueur existant : recherche-le, puis clique sur sa carte. Le bouton “Nouveau joueur” sert uniquement à créer un nouveau joueur.</div>
+        <div class="gj-help-warning">Mode clair : une modification vient toujours d’une carte joueur recherchée. Une création sert uniquement à ajouter un joueur absent de la liste.</div>
         <input id="gjRow" type="hidden">
         <div class="gj-row">
           <div class="gj-field"><label>Saison</label><input id="gjSaison" type="text"></div>
@@ -3943,6 +3959,7 @@ async function gmEnsureAccess(){
 // ══════════════════════════════════
 // 👥 GESTION JOUEURS / LICENCES — V60.64
 // ══════════════════════════════════
+let gjOriginalJoueurData = null;
 async function showGestionJoueursScreen(){
   const ok = await gmEnsureAccess();
   if (!ok) return;
@@ -3997,6 +4014,7 @@ function gjCancelForm(){
 }
 
 function gjNewPlayer(scroll){
+  gjOriginalJoueurData = null;
   gjShowForm();
   const ids = ["gjRow","gjJoueur","gjLicence","gjNumero","gjPoste","gjCode","gjStatutLicence","gjDateNaissance","gjTelephoneParent","gjEmailParent","gjCommentaire"];
   ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
@@ -4026,9 +4044,8 @@ function gjRenderList(){
 
   if (!q && !allowFullList) {
     list.innerHTML = `<div class="empty">
-      Recherche un joueur pour afficher les résultats.<br>
+      Recherche un joueur pour le modifier.<br>
       <span class="muted">La liste complète est masquée pour éviter d’avoir tout le club à l’écran.</span>
-      <div class="gj-empty-action"><button class="btn-light" onclick="gjNewPlayer()">➕ Créer un nouveau joueur</button></div>
     </div>`;
     return;
   }
@@ -4083,6 +4100,13 @@ function gjRenderList(){
 function gjEditPlayer(row){
   const j = (state.joueurs || []).find(x => Number(x.row) === Number(row));
   if (!j) return;
+  gjOriginalJoueurData = {
+    row: j.row || "",
+    saison: j.saison || "",
+    equipe: j.equipe || "",
+    joueur: j.joueur || "",
+    licence: j.licence || ""
+  };
   gjPrepareFormOptions();
   gjShowForm();
   const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value || ""; };
@@ -4125,7 +4149,12 @@ function gjPayload(){
     telephoneParent: val("gjTelephoneParent"),
     emailParent: val("gjEmailParent"),
     actif: val("gjActif") || "Oui",
-    commentaire: val("gjCommentaire")
+    commentaire: val("gjCommentaire"),
+    originalRow: gjOriginalJoueurData ? String(gjOriginalJoueurData.row || "") : "",
+    originalSaison: gjOriginalJoueurData ? String(gjOriginalJoueurData.saison || "") : "",
+    originalEquipe: gjOriginalJoueurData ? String(gjOriginalJoueurData.equipe || "") : "",
+    originalJoueur: gjOriginalJoueurData ? String(gjOriginalJoueurData.joueur || "") : "",
+    originalLicence: gjOriginalJoueurData ? String(gjOriginalJoueurData.licence || "") : ""
   };
 }
 
@@ -5412,11 +5441,14 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.67</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.70</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V60.70 — Gestion Joueurs : séparation claire Modifier un joueur / Créer un nouveau joueur</li>
+        <li>V60.69 — Gestion Joueurs : suppression du doublon Ajouter / Créer un joueur, un seul bouton de création visible</li>
+        <li>V60.68 — Gestion Joueurs : correction modification Actif Oui/Non sans erreur de doublon</li>
         <li>V60.67 — Gestion Joueurs : séparation claire entre Ajouter et Modifier, formulaire masqué par défaut</li>
         <li>V60.65 — Gestion Équipes ajoutée dans l’espace Gestion</li>
         <li>V60.64 — Gestion Joueurs : recherche obligatoire avant affichage des joueurs</li>
