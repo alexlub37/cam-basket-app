@@ -1612,7 +1612,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.64</button>
+    ">V60.65</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1936,9 +1936,9 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <span class="big">👥 Joueurs / Licences</span>
           <span class="small">Ajouter, modifier ou désactiver les joueurs.</span>
         </button>
-        <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion équipes prévue dans une prochaine version.')">
+        <button class="menu-btn role-menu-card" onclick="showGestionEquipesScreen()">
           <span class="big">🏷️ Équipes</span>
-          <span class="small">Préparé pour gérer les équipes et catégories.</span>
+          <span class="small">Gérer équipes, coachs et entraînements.</span>
         </button>
         <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion adversaires prévue dans une prochaine version.')">
           <span class="big">📍 Adversaires</span>
@@ -2003,6 +2003,60 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         <div class="gj-field"><label>Actif</label><select id="gjActif"><option>Oui</option><option>Non</option></select></div>
         <div class="gj-field"><label>Commentaire</label><textarea id="gjCommentaire" placeholder="Info interne facultative"></textarea></div>
         <button id="gjSaveBtn" class="gj-save" onclick="gjSavePlayer()">Enregistrer le joueur</button>
+      </div>
+    </section>
+
+    <section id="gestionEquipesScreen" class="screen">
+      <button class="back" onclick="setActiveButton('gestion'); showScreen('gestionClubScreen')">← Retour gestion club</button>
+      <div class="card">
+        <h2 id="geMainTitle">🏷️ Équipes</h2>
+        <div id="geMainText" class="muted">Ajouter ou modifier les équipes, coachs et entraînements.</div>
+      </div>
+
+      <div id="geMessage" class="gj-message"></div>
+
+      <div class="card gj-toolbar">
+        <input id="geSearch" class="search" type="text" placeholder="Rechercher une équipe ou un coach…" oninput="geRenderList()">
+        <div class="gj-search-note">Les équipes sans saison restent dans la feuille, mais ne s’affichent pas dans l’app publique.</div>
+        <div class="gj-actions">
+          <button class="btn-light" onclick="geNewTeam()">➕ Nouvelle équipe</button>
+          <button class="btn-outline" onclick="geClearSearch()">Effacer recherche</button>
+        </div>
+      </div>
+
+      <div id="geList" class="list"></div>
+
+      <div class="card gj-form-card ge-form-card">
+        <h2 id="geFormTitle">Nouvelle équipe</h2>
+        <input id="geRow" type="hidden">
+        <div class="gj-row">
+          <div class="gj-field"><label>Saison</label><input id="geSaison" type="text" placeholder="Ex : 2026/2027"></div>
+          <div class="gj-field"><label>Équipe</label><input id="geEquipe" type="text" placeholder="Ex : U18M"></div>
+        </div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Catégorie</label><input id="geCategorie" type="text" placeholder="Ex : D3, Jeune, Senior"></div>
+          <div class="gj-field"><label>Afficher infos équipe</label><select id="geAfficherInfosEquipe"><option>Oui</option><option>Non</option></select></div>
+        </div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Coach</label><input id="geCoach" type="text" placeholder="Nom du coach"></div>
+          <div class="gj-field"><label>Code coach</label><input id="geCodeCoach" type="text" placeholder="Code espace coach"></div>
+        </div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Entraînement 1 jour</label><input id="geEntr1Jour" type="text" placeholder="Ex : Mardi"></div>
+          <div class="gj-field"><label>Entraînement 1 heure</label><input id="geEntr1Heure" type="text" placeholder="Ex : 20h00-21h30"></div>
+        </div>
+        <div class="gj-field"><label>Entraînement 1 lieu</label><input id="geEntr1Lieu" type="text" placeholder="Ex : Com Com"></div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Entraînement 2 jour</label><input id="geEntr2Jour" type="text" placeholder="Facultatif"></div>
+          <div class="gj-field"><label>Entraînement 2 heure</label><input id="geEntr2Heure" type="text" placeholder="Facultatif"></div>
+        </div>
+        <div class="gj-field"><label>Entraînement 2 lieu</label><input id="geEntr2Lieu" type="text" placeholder="Facultatif"></div>
+        <div class="gj-field"><label>Info équipe</label><textarea id="geInfoEquipe" placeholder="Ex : Prévoir gourde, chaussures propres..."></textarea></div>
+        <div class="gj-actions">
+          <button class="btn-outline" onclick="geUseActiveSeason()">Mettre saison active</button>
+          <button class="btn-outline" onclick="geClearSeason()">Mettre hors saison</button>
+        </div>
+        <button id="geSaveBtn" class="gj-save" onclick="geSaveTeam()">Enregistrer l’équipe</button>
       </div>
     </section>
 
@@ -2405,7 +2459,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         // F Entraînement 1 jour | G Entraînement 1 heure | H Entraînement 1 lieu
         // I Entraînement 2 jour | J Entraînement 2 heure | K Entraînement 2 lieu
         // L Info équipe | M Afficher infos équipe
-        state.equipes = eqRows.map(r => ({
+        state.equipes = eqRows.map((r, i) => ({
+          row: i + 2,
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
           categorie: String(r[2] || "").trim(),
@@ -4069,6 +4124,182 @@ async function gjSavePlayer(){
   }
 }
 
+
+// ══════════════════════════════════
+// 🏷️ GESTION ÉQUIPES — V60.65
+// ══════════════════════════════════
+async function showGestionEquipesScreen(){
+  const ok = await gmEnsureAccess();
+  if (!ok) return;
+  geNewTeam(false);
+  const search = document.getElementById("geSearch");
+  if (search) search.value = "";
+  geRenderList();
+  showScreen("gestionEquipesScreen");
+}
+
+function geMessage(txt, ok){
+  const el = document.getElementById("geMessage");
+  if (!el) return;
+  el.textContent = txt;
+  el.className = ok ? "gj-message ok" : "gj-message err";
+  el.style.display = "block";
+  el.scrollIntoView({behavior:"smooth", block:"center"});
+  setTimeout(() => { el.style.display = "none"; }, 6000);
+}
+
+function geClearSearch(){
+  const search = document.getElementById("geSearch");
+  if (search) search.value = "";
+  geRenderList();
+}
+
+function geIsActiveTeam(t){
+  return !!(t && t.saison && (!state.season || sameSeason(t.saison, state.season)));
+}
+
+function geNewTeam(scroll){
+  const ids = ["geRow","geEquipe","geCategorie","geCoach","geCodeCoach","geEntr1Jour","geEntr1Heure","geEntr1Lieu","geEntr2Jour","geEntr2Heure","geEntr2Lieu","geInfoEquipe"];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  const saison = document.getElementById("geSaison");
+  if (saison) saison.value = state.season || "";
+  const afficher = document.getElementById("geAfficherInfosEquipe");
+  if (afficher) afficher.value = "Oui";
+  const title = document.getElementById("geFormTitle");
+  if (title) title.textContent = "Nouvelle équipe";
+  if (scroll !== false) document.querySelector("#gestionEquipesScreen .ge-form-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function geUseActiveSeason(){
+  const saison = document.getElementById("geSaison");
+  if (saison) saison.value = state.season || "";
+}
+
+function geClearSeason(){
+  const saison = document.getElementById("geSaison");
+  if (saison) saison.value = "";
+}
+
+function geRenderList(){
+  const list = document.getElementById("geList");
+  if (!list) return;
+  const q = normalize(document.getElementById("geSearch")?.value || "");
+
+  let rows = (state.equipes || []).slice();
+  if (q) {
+    rows = rows.filter(t =>
+      normalize(t.equipe).includes(q) ||
+      normalize(t.categorie).includes(q) ||
+      normalize(t.coach).includes(q) ||
+      normalize(t.codeCoach).includes(q) ||
+      normalize(t.saison).includes(q)
+    );
+  }
+
+  rows.sort((a,b) => {
+    const aa = geIsActiveTeam(a) ? 0 : 1;
+    const bb = geIsActiveTeam(b) ? 0 : 1;
+    return aa - bb || String(a.equipe).localeCompare(String(b.equipe), "fr");
+  });
+
+  if (!rows.length) {
+    list.innerHTML = '<div class="empty">Aucune équipe trouvée.</div>';
+    return;
+  }
+
+  list.innerHTML = rows.map(t => {
+    const active = geIsActiveTeam(t);
+    const badge = active ? '<span class="gj-badge">Saison active</span>' : '<span class="gj-badge gj-badge-off">Hors saison</span>';
+    const infos = [t.categorie, t.coach ? "Coach : " + t.coach : "", t.saison ? "Saison : " + t.saison : "Sans saison"].filter(Boolean).join(" • ");
+    const entr = [
+      [t.entrainement1Jour, t.entrainement1Heure, t.entrainement1Lieu].filter(Boolean).join(" · "),
+      [t.entrainement2Jour, t.entrainement2Heure, t.entrainement2Lieu].filter(Boolean).join(" · ")
+    ].filter(Boolean).join(" / ");
+    return `<div class="item gj-player-card ${active ? "" : "inactive"}" data-row="${escapeHtml(t.row)}">
+      <div class="item-title">${escapeHtml(t.equipe)} ${badge}</div>
+      <div class="item-sub">${escapeHtml(infos || "Aucune info")}</div>
+      ${entr ? `<div class="item-sub">Entraînement : ${escapeHtml(entr)}</div>` : ""}
+      ${t.infoEquipe ? `<div class="item-sub">${escapeHtml(t.infoEquipe)}</div>` : ""}
+    </div>`;
+  }).join("");
+
+  list.querySelectorAll(".gj-player-card").forEach(node => {
+    node.addEventListener("click", () => geEditTeam(Number(node.dataset.row)));
+  });
+}
+
+function geEditTeam(row){
+  const t = (state.equipes || []).find(x => Number(x.row) === Number(row));
+  if (!t) return;
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value || ""; };
+  set("geRow", t.row);
+  set("geSaison", t.saison);
+  set("geEquipe", t.equipe);
+  set("geCategorie", t.categorie);
+  set("geCoach", t.coach);
+  set("geCodeCoach", t.codeCoach);
+  set("geEntr1Jour", t.entrainement1Jour);
+  set("geEntr1Heure", t.entrainement1Heure);
+  set("geEntr1Lieu", t.entrainement1Lieu);
+  set("geEntr2Jour", t.entrainement2Jour);
+  set("geEntr2Heure", t.entrainement2Heure);
+  set("geEntr2Lieu", t.entrainement2Lieu);
+  set("geInfoEquipe", t.infoEquipe);
+  set("geAfficherInfosEquipe", t.afficherInfosEquipe || "Oui");
+  const title = document.getElementById("geFormTitle");
+  if (title) title.textContent = "Modifier équipe — " + (t.equipe || "");
+  document.querySelector("#gestionEquipesScreen .ge-form-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function gePayload(){
+  const val = id => String(document.getElementById(id)?.value || "").trim();
+  return {
+    row: val("geRow"),
+    saison: val("geSaison"),
+    equipe: val("geEquipe"),
+    categorie: val("geCategorie"),
+    coach: val("geCoach"),
+    codeCoach: val("geCodeCoach"),
+    entrainement1Jour: val("geEntr1Jour"),
+    entrainement1Heure: val("geEntr1Heure"),
+    entrainement1Lieu: val("geEntr1Lieu"),
+    entrainement2Jour: val("geEntr2Jour"),
+    entrainement2Heure: val("geEntr2Heure"),
+    entrainement2Lieu: val("geEntr2Lieu"),
+    infoEquipe: val("geInfoEquipe"),
+    afficherInfosEquipe: val("geAfficherInfosEquipe") || "Oui"
+  };
+}
+
+async function geSaveTeam(){
+  const code = gmGetStoredCode();
+  if (!code) { geMessage("Code gestion non disponible. Rentre à nouveau dans Gestion.", false); return; }
+  const data = gePayload();
+  if (!data.equipe) {
+    geMessage("Le nom de l’équipe est obligatoire.", false);
+    return;
+  }
+
+  const action = data.row ? "modifierEquipe" : "ajouterEquipe";
+  const btn = document.getElementById("geSaveBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "Enregistrement…"; }
+  try{
+    const res = await fetch(getScriptUrl(), { method:"POST", body: JSON.stringify({ action, codeGestionMatchs: code, ...data }) });
+    const txt = String(await res.text() || "").trim();
+    if (txt === "CODE_GESTION_MATCHS_INVALIDE") { geMessage("Code gestion incorrect.", false); return; }
+    if (txt === "EQUIPE_DEJA_EXISTANTE") { geMessage("Cette équipe existe déjà pour cette saison.", false); return; }
+    if (!txt.startsWith("OK")) { geMessage("Erreur : " + txt, false); return; }
+    geMessage(data.row ? "Équipe modifiée ✅" : "Équipe ajoutée ✅", true);
+    await reloadData();
+    geRenderList();
+    if (!data.row) geNewTeam(false);
+  }catch(e){
+    geMessage("Erreur réseau : " + (e.message || e), false);
+  }finally{
+    if (btn) { btn.disabled = false; btn.textContent = "Enregistrer l’équipe"; }
+  }
+}
+
 async function showGestionMatchsScreen(){
   const ok = await gmEnsureAccess();
   if (!ok) return;
@@ -5354,6 +5585,8 @@ function appliquerConfig() {
   setCfgText("gestionClubText", "gestion_club_texte", "Espace privé pour gérer les données du club.", "gestion_club_texte_actif");
   setCfgText("gjMainTitle", "gestion_joueurs_titre", "👥 Joueurs / Licences");
   setCfgText("gjMainText", "gestion_joueurs_texte", "Ajouter, modifier ou désactiver un joueur sans toucher directement au tableau.", "gestion_joueurs_texte_actif");
+  setCfgText("geMainTitle", "gestion_equipes_titre", "🏷️ Équipes");
+  setCfgText("geMainText", "gestion_equipes_texte", "Ajouter ou modifier les équipes, coachs et entraînements.", "gestion_equipes_texte_actif");
   setCfgText("gmMainTitle", "gestion_matchs_titre", "🏀 Gestion matchs");
   setCfgText("gmMainText", "gestion_matchs_texte", "Ajouter ou modifier un match sans sortir de l’application.", "gestion_matchs_texte_actif");
   setCfgText("gmAddTitle", "gestion_matchs_ajouter_titre", "Ajouter un match");
