@@ -253,7 +253,7 @@
       .team-training-line{font-size:14px;}
     }
 
-    /* V60.60 - Page équipe harmonisée + Espace coach simplifié */
+    /* V60.61 - Espace coach convocation directe simplifiée */
     .team-actions-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -576,7 +576,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.60 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.61 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1402,6 +1402,57 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   font-weight:800;
 }
 
+
+
+/* V60.61 - Espace coach : convocation directe et compacte */
+#coachMatchScreen #coachResponsesCard{
+  display:block;
+}
+#coachMatchScreen #coachResponsesTitle{
+  margin-bottom:8px;
+}
+#coachMatchScreen .coach-convoc-summary{
+  font-size:18px;
+  color:var(--muted);
+  margin-bottom:12px;
+}
+#coachMatchScreen .coach-hidden-list{
+  display:none !important;
+}
+#coachMatchScreen #convocationSelectionCard{
+  display:none;
+  margin-top:10px;
+  padding:0 !important;
+  border:none !important;
+  background:transparent !important;
+}
+#coachMatchScreen #convocationSelectionCard .convoc-title{
+  color:var(--accent);
+  font-size:14px;
+  line-height:1.2;
+  margin-bottom:6px;
+}
+#coachMatchScreen #convocationSelectionText{
+  font-size:15px;
+  line-height:1.3;
+  margin-bottom:10px;
+}
+#coachMatchScreen .convoc-list{
+  gap:7px;
+}
+#coachMatchScreen .convoc-item{
+  min-height:48px;
+  padding:9px 12px;
+  border-radius:14px;
+}
+#coachMatchScreen .convoc-item input{
+  transform:scale(1.12);
+}
+#coachMatchScreen .convoc-action{
+  min-height:50px;
+  padding:11px 14px;
+}
+
 </style>
 
 
@@ -1493,7 +1544,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.60</button>
+    ">V60.61</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1704,10 +1755,10 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <div id="coachMatchHeader" class="card coach-match-header"></div>
       <!-- MOVED CONVOCATION BLOCK -->
 <div id="coachResponsesCard" class="card coach-card">
-        <h2 id="coachResponsesTitle">Réponses coach</h2>
-        <div id="coachMsg" class="coach-msg">Aucune réponse chargée.</div>
+        <h2 id="coachResponsesTitle">Convocation</h2>
+        <div id="coachMsg" class="coach-msg coach-convoc-summary">Chargement des réponses…</div>
 
-        <div class="coach-block">
+        <div class="coach-block coach-hidden-list">
           <span class="coach-title">Présents</span>
           <div id="coachPresents" class="coach-list"><div class="muted">Aucun</div></div>
         </div>
@@ -1719,8 +1770,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
 
         <div id="convocationSelectionCard" class="convoc-card">
-          <span class="convoc-title">Sélection des joueurs convoqués</span>
-          <div id="convocationSelectionText" class="muted">Les joueurs présents sont pré-cochés. Tu peux ajuster.</div>
+          <span class="convoc-title">Joueurs à convoquer</span>
+          <div id="convocationSelectionText" class="muted">Les joueurs présents sont déjà cochés. Décoche si besoin.</div>
           <div id="convocationList" class="convoc-list"></div>
 
           <label for="convocationCommentaire" style="display:block;margin-top:12px;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;">
@@ -1764,12 +1815,12 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           ">🗑 Annuler la convocation</button>
         </div>
 
-        <div class="coach-block">
+        <div class="coach-block coach-hidden-list">
           <span class="coach-title">Absents</span>
           <div id="coachAbsents" class="coach-list"><div class="muted">Aucun</div></div>
         </div>
 
-        <div class="coach-block">
+        <div class="coach-block coach-hidden-list">
           <span class="coach-title">Transport</span>
           <div id="coachTransport" class="coach-list"><div class="muted">Aucun</div></div>
         </div>
@@ -2610,7 +2661,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       coachCardReset();
       showScreen("coachMatchScreen");
 
-      // V60.60 : depuis l'Espace coach, le clic sur le match ouvre directement
+      // V60.61 : depuis l'Espace coach, le clic sur le match ouvre directement
       // la sélection de convocation, sans passer par le bouton intermédiaire.
       await loadCoachResponses(getCurrentMatchTextForForm(m));
       chargerConvocationEnregistree(m);
@@ -2621,7 +2672,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       if (lastCoachPresentPlayers && lastCoachPresentPlayers.length) {
         ouvrirSelectionConvocation();
         setTimeout(function(){
-          const card = document.getElementById("convocationSelectionCard");
+          const card = document.getElementById("coachResponsesCard") || document.getElementById("convocationSelectionCard");
           if (card && card.style.display !== "none") {
             try { card.scrollIntoView({ behavior: "smooth", block: "start" }); }
             catch(e) { card.scrollIntoView(); }
@@ -3283,7 +3334,7 @@ showScreen("matchDetailScreen");
         });
 
         msg.textContent = filtered.length
-          ? `${cleanRows.length} réponse(s) active(s)` + (reconfirmRows.length ? ` — ${reconfirmRows.length} à reconfirmer` : "")
+          ? `${cleanRows.length} réponse(s) • ${lastCoachPresentPlayers.length} joueur(s) prêt(s) à convoquer` + (reconfirmRows.length ? ` • ${reconfirmRows.length} à reconfirmer` : "")
           : "Aucune réponse reçue pour ce match.";
         presents.innerHTML = presentItems.length ? presentItems.join("") : '<div class="muted">Aucun</div>';
         absents.innerHTML = absentItems.length ? absentItems.join("") : '<div class="muted">Aucun</div>';
@@ -4632,12 +4683,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.60</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.61</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.60 — Espace coach : ouverture directe de la sélection convocation</li>
+        <li>V60.61 — Espace coach : écran convocation direct et simplifié</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4665,7 +4716,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       e.preventDefault();
       e.stopPropagation();
 
-      // V60.60 : si le coach est déjà entré dans l’Espace coach,
+      // V60.61 : si le coach est déjà entré dans l’Espace coach,
       // on réutilise le code coach mémorisé pour éviter une deuxième demande.
       if (!state.codeCoach || !String(state.codeCoach).trim()) {
         const codeCoach = prompt("Code coach ?");
@@ -4794,7 +4845,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.60
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.61
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
