@@ -253,7 +253,7 @@
       .team-training-line{font-size:14px;}
     }
 
-    /* V60.59 - Page équipe harmonisée + Espace coach simplifié */
+    /* V60.60 - Page équipe harmonisée + Espace coach simplifié */
     .team-actions-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -576,7 +576,7 @@
       font-weight:900;
       font-size:15px
     }
-    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.59 ══ */
+    /* ══ ACCUEIL + MATCHS À VENIR COMPACT V60.60 ══ */
     #weekendCard {
       display: none;
       margin-bottom: 12px;
@@ -1493,7 +1493,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.59</button>
+    ">V60.60</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2596,7 +2596,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       });
     }
 
-    function openCoachMatchDetail(idx){
+    async function openCoachMatchDetail(idx){
       const m = (state.coachMatchRows || [])[idx];
       if (!m) return;
       state.currentOpenMatch = m;
@@ -2609,8 +2609,25 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       }
       coachCardReset();
       showScreen("coachMatchScreen");
-      loadCoachResponses(getCurrentMatchTextForForm(m));
+
+      // V60.60 : depuis l'Espace coach, le clic sur le match ouvre directement
+      // la sélection de convocation, sans passer par le bouton intermédiaire.
+      await loadCoachResponses(getCurrentMatchTextForForm(m));
       chargerConvocationEnregistree(m);
+
+      const btnConvoc = document.getElementById("btnFaireConvocationCoach");
+      if (btnConvoc) btnConvoc.style.display = "none";
+
+      if (lastCoachPresentPlayers && lastCoachPresentPlayers.length) {
+        ouvrirSelectionConvocation();
+        setTimeout(function(){
+          const card = document.getElementById("convocationSelectionCard");
+          if (card && card.style.display !== "none") {
+            try { card.scrollIntoView({ behavior: "smooth", block: "start" }); }
+            catch(e) { card.scrollIntoView(); }
+          }
+        }, 150);
+      }
     }
 
     function openPlayers(){
@@ -3273,7 +3290,7 @@ showScreen("matchDetailScreen");
         transport.innerHTML = transportItems.length ? transportItems.join("") : '<div class="muted">Aucun</div>';
 
         const btnConvoc = document.getElementById("btnFaireConvocationCoach");
-        if (btnConvoc) btnConvoc.style.display = lastCoachPresentPlayers.length ? "block" : "none";
+        if (btnConvoc) btnConvoc.style.display = "none";
 
         const selectCard = document.getElementById("convocationSelectionCard");
         if (selectCard && !lastCoachPresentPlayers.length) selectCard.style.display = "none";
@@ -4615,12 +4632,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.59</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.60</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 03/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.59 — Espace coach simplifié : convocation accessible depuis chaque match</li>
+        <li>V60.60 — Espace coach : ouverture directe de la sélection convocation</li>
         <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
         <li>V60.41 — carte week-end compacte et plus légère</li>
         <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
@@ -4648,7 +4665,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       e.preventDefault();
       e.stopPropagation();
 
-      // V60.59 : si le coach est déjà entré dans l’Espace coach,
+      // V60.60 : si le coach est déjà entré dans l’Espace coach,
       // on réutilise le code coach mémorisé pour éviter une deuxième demande.
       if (!state.codeCoach || !String(state.codeCoach).trim()) {
         const codeCoach = prompt("Code coach ?");
@@ -4777,7 +4794,7 @@ function appliquerConfig() {
     infoCard.style.display = (actif && texte) ? "block" : "none";
   }
 
-  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.59
+  // Textes des cartes et petites phrases pilotables depuis CONFIG — V60.60
   // Règle : texte vide ou clé absente = texte de secours ; clé *_actif = Non = phrase masquée.
   function setCfgText(id, key, fallback, activeKey) {
     const el = document.getElementById(id);
