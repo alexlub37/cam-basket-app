@@ -1500,8 +1500,11 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
 
 
-/* V60.63 - Gestion Joueurs / Licences */
+/* V60.64 - Gestion Joueurs / Licences */
 .gj-toolbar{display:grid;gap:10px;margin-bottom:14px}
+.gj-search-note{color:var(--muted);font-size:13px;line-height:1.35;margin-top:-2px}
+.gj-empty-action{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.gj-empty-action button{font-size:13px;padding:8px 10px;border-radius:14px}
 .gj-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .gj-form-card input,.gj-form-card select,.gj-form-card textarea{
   width:100%!important;min-height:48px!important;padding:12px 14px!important;border-radius:16px!important;font-size:16px!important;
@@ -1609,7 +1612,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.63</button>
+    ">V60.64</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1963,10 +1966,11 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       <div id="gjMessage" class="gj-message"></div>
 
       <div class="card gj-toolbar">
-        <input id="gjSearch" class="search" type="text" placeholder="Rechercher un joueur" oninput="gjRenderList()">
+        <input id="gjSearch" class="search" type="text" placeholder="Rechercher un joueur, une équipe, une licence…" oninput="gjRenderList()">
+        <div id="gjSearchNote" class="gj-search-note">Tape au moins 2 caractères pour afficher les résultats. La liste complète est volontairement masquée.</div>
         <div class="gj-actions">
           <button class="btn-light" onclick="gjNewPlayer()">➕ Nouveau joueur</button>
-          <button class="btn-outline" onclick="gjRenderList()">↻ Actualiser la liste</button>
+          <button class="btn-outline" onclick="gjClearSearch()">Effacer recherche</button>
         </div>
       </div>
 
@@ -3872,13 +3876,15 @@ async function gmEnsureAccess(){
 
 
 // ══════════════════════════════════
-// 👥 GESTION JOUEURS / LICENCES — V60.63
+// 👥 GESTION JOUEURS / LICENCES — V60.64
 // ══════════════════════════════════
 async function showGestionJoueursScreen(){
   const ok = await gmEnsureAccess();
   if (!ok) return;
   gjPrepareFormOptions();
   gjNewPlayer(false);
+  const search = document.getElementById("gjSearch");
+  if (search) search.value = "";
   gjRenderList();
   showScreen("gestionJoueursScreen");
 }
@@ -3904,6 +3910,12 @@ function gjPrepareFormOptions(){
   sel.innerHTML = '<option value="">Choisir une équipe</option>' + uniq.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join("");
 }
 
+function gjClearSearch(){
+  const search = document.getElementById("gjSearch");
+  if (search) search.value = "";
+  gjRenderList();
+}
+
 function gjNewPlayer(scroll){
   const ids = ["gjRow","gjJoueur","gjLicence","gjNumero","gjPoste","gjCode","gjStatutLicence","gjDateNaissance","gjTelephoneParent","gjEmailParent","gjCommentaire"];
   ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
@@ -3921,7 +3933,26 @@ function gjNewPlayer(scroll){
 function gjRenderList(){
   const list = document.getElementById("gjList");
   if (!list) return;
-  const q = normalize(document.getElementById("gjSearch")?.value || "");
+
+  const qRaw = String(document.getElementById("gjSearch")?.value || "").trim();
+  const q = normalize(qRaw);
+  const minChars = cfgInt("gestion_joueurs_recherche_min", 2);
+  const allowFullList = cfgBool("gestion_joueurs_afficher_liste_complete", false);
+
+  if (!q && !allowFullList) {
+    list.innerHTML = `<div class="empty">
+      Recherche un joueur pour afficher les résultats.<br>
+      <span class="muted">La liste complète est masquée pour éviter d’avoir tout le club à l’écran.</span>
+      <div class="gj-empty-action"><button class="btn-light" onclick="gjNewPlayer()">➕ Ajouter un joueur</button></div>
+    </div>`;
+    return;
+  }
+
+  if (q && q.length < minChars) {
+    list.innerHTML = `<div class="empty">Tape encore ${minChars - q.length} caractère(s) pour lancer la recherche.</div>`;
+    return;
+  }
+
   let rows = (state.joueurs || [])
     .filter(j => !state.season || sameSeason(j.saison, state.season));
 
@@ -3930,18 +3961,26 @@ function gjRenderList(){
       normalize(j.joueur).includes(q) ||
       normalize(j.equipe).includes(q) ||
       normalize(j.licence).includes(q) ||
-      normalize(j.code).includes(q)
+      normalize(j.numero).includes(q) ||
+      normalize(j.code).includes(q) ||
+      normalize(j.telephoneParent).includes(q)
     );
   }
 
   rows.sort((a,b) => String(a.equipe).localeCompare(String(b.equipe)) || Number(a.numero||999) - Number(b.numero||999) || String(a.joueur).localeCompare(String(b.joueur)));
 
+  const max = cfgInt("gestion_joueurs_resultats_max", 25);
+  const total = rows.length;
+  if (max > 0) rows = rows.slice(0, max);
+
   if (!rows.length) {
-    list.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette saison.</div>';
+    list.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette recherche.</div>';
     return;
   }
 
-  list.innerHTML = rows.map(j => {
+  const more = total > rows.length ? `<div class="empty">${total} résultat(s) trouvé(s). Affichage limité aux ${rows.length} premiers. Affine ta recherche.</div>` : "";
+
+  list.innerHTML = more + rows.map(j => {
     const actif = isJoueurActif(j);
     const badge = actif ? '<span class="gj-badge">Actif</span>' : '<span class="gj-badge gj-badge-off">Inactif</span>';
     const infos = [j.equipe, j.numero ? "#" + j.numero : "", j.licence ? "Licence : " + j.licence : "", j.code ? "Code : " + j.code : ""].filter(Boolean).join(" • ");
@@ -3956,7 +3995,6 @@ function gjRenderList(){
     node.addEventListener("click", () => gjEditPlayer(Number(node.dataset.row)));
   });
 }
-
 function gjEditPlayer(row){
   const j = (state.joueurs || []).find(x => Number(x.row) === Number(row));
   if (!j) return;
