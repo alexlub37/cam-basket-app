@@ -1453,6 +1453,51 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   padding:11px 14px;
 }
 
+
+/* V60.62 - Navigation par rôle : Coach + Gestion club */
+.header-mini-actions{
+  display:flex;
+  justify-content:center;
+  margin-top:10px;
+}
+.mini-update{
+  min-height:auto!important;
+  padding:6px 12px!important;
+  border-radius:999px!important;
+  font-size:12px!important;
+  opacity:.86;
+}
+.role-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.role-menu-card{
+  text-align:left;
+}
+.role-menu-card .big{
+  display:block;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  margin-bottom:6px;
+}
+.role-menu-card .small{
+  display:block;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.35;
+}
+.role-menu-card.disabled{
+  opacity:.55;
+}
+.coach-team-choice .item-sub{
+  font-size:14px;
+}
+@media(max-width:600px){
+  .role-grid{grid-template-columns:1fr!important;}
+}
+
 </style>
 
 
@@ -1544,7 +1589,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.61</button>
+    ">V60.62</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1567,14 +1612,16 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           white-space: nowrap;
         ">Tous<br>en Jaune&nbsp;!</div>
       </div>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Équipes • Joueurs • Matchs • Bureau • Bénévoles</div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Équipes • Coach • Gestion • Bureau • Bénévoles</div>
       <div class="top-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
         <button id="btn-teams" class="btn-outline" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
+        <button id="btn-coach" class="btn-outline" onclick="openCoachMain()">Coach</button>
+        <button id="btn-gestion" class="btn-outline" onclick="openGestionClubMain()">Gestion</button>
         <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
         <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
-        <button id="btn-update" class="btn-outline" onclick="setActiveButton('home'); reloadData()">Mettre à jour</button>
       </div>
+      <div class="header-mini-actions"><button id="btn-update" class="btn-outline mini-update" onclick="reloadData()">↻ Mettre à jour</button></div>
       <div id="status" class="status">Chargement…</div>
     </div>
   </header>
@@ -1606,6 +1653,15 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         <input id="teamSearch" class="search" type="text" placeholder="Rechercher une équipe" oninput="renderTeams()">
       </div>
       <div id="teamsList" class="list"></div>
+    </section>
+
+    <section id="coachTeamsScreen" class="screen">
+      <button class="back" onclick="setActiveButton('home'); showScreen('homeScreen')">← Retour à l'accueil</button>
+      <div class="card">
+        <h2>Coach</h2>
+        <div class="muted">Choisis l’équipe à gérer avec ton code coach.</div>
+      </div>
+      <div id="coachTeamsList" class="list coach-team-choice"></div>
     </section>
 
     <section id="teamMenuScreen" class="screen">
@@ -1737,7 +1793,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
 
     <section id="coachSpaceScreen" class="screen">
-      <button class="back" onclick="showScreen('teamMenuScreen'); setActiveButton('teams')">← Retour à l’équipe</button>
+      <button class="back" onclick="goBackFromCoachSpace()">← Retour</button>
       <div class="card">
         <h2 id="coachSpaceTitle">Espace coach</h2>
         <div id="coachSpaceText" class="muted">Suivi des réponses et convocations de l’équipe.</div>
@@ -1751,7 +1807,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     </section>
 
     <section id="coachMatchScreen" class="screen">
-      <button class="back" onclick="showScreen('coachSpaceScreen'); setActiveButton('teams')">← Retour espace coach</button>
+      <button class="back" onclick="showScreen('coachSpaceScreen'); setActiveButton('coach')">← Retour espace coach</button>
       <div id="coachMatchHeader" class="card coach-match-header"></div>
       <!-- MOVED CONVOCATION BLOCK -->
 <div id="coachResponsesCard" class="card coach-card">
@@ -1842,8 +1898,42 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
 
 
+    <section id="gestionClubScreen" class="screen">
+      <button class="back" onclick="setActiveButton('home'); showScreen('homeScreen')">← Retour à l'accueil</button>
+      <div class="card">
+        <h2 id="gestionClubTitle">Gestion club</h2>
+        <div id="gestionClubText" class="muted">Espace privé pour gérer les données du club.</div>
+      </div>
+      <div class="role-grid">
+        <button class="menu-btn role-menu-card" onclick="showGestionMatchsScreen()">
+          <span class="big">🏀 Matchs</span>
+          <span class="small">Ajouter ou modifier les matchs.</span>
+        </button>
+        <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion joueurs prévue dans une prochaine version.')">
+          <span class="big">👥 Joueurs / Licences</span>
+          <span class="small">Préparé pour ajouter ou modifier les joueurs plus tard.</span>
+        </button>
+        <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion équipes prévue dans une prochaine version.')">
+          <span class="big">🏷️ Équipes</span>
+          <span class="small">Préparé pour gérer les équipes et catégories.</span>
+        </button>
+        <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion adversaires prévue dans une prochaine version.')">
+          <span class="big">📍 Adversaires</span>
+          <span class="small">Préparé pour gérer clubs et gymnases.</span>
+        </button>
+        <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion officiels prévue dans une prochaine version.')">
+          <span class="big">👨‍⚖️ Officiels</span>
+          <span class="small">Préparé pour arbitres, chrono et table.</span>
+        </button>
+        <button class="menu-btn role-menu-card disabled" onclick="alert('Réglages CONFIG prévus plus tard.')">
+          <span class="big">⚙️ Réglages</span>
+          <span class="small">Préparé pour modifier CONFIG depuis l’app.</span>
+        </button>
+      </div>
+    </section>
+
     <section id="gestionMatchsScreen" class="screen">
-      <button class="back" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">← Retour au bureau</button>
+      <button class="back" onclick="setActiveButton('gestion'); showScreen('gestionClubScreen')">← Retour gestion club</button>
       <div class="card">
         <h2 id="gmMainTitle">🏀 Gestion matchs</h2>
         <div id="gmMainText" class="muted">Ajouter ou modifier un match sans sortir de l’application.</div>
@@ -2497,6 +2587,91 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       return state.equipes.find(x => cleanCompare(x.equipe) === cleanCompare(name)) || state.selectedTeam || null;
     }
 
+    function getCoachTeamsByCode(code){
+      const c = String(code || "").trim();
+      if (!c) return [];
+      return (state.equipes || []).filter(t =>
+        (!state.season || sameSeason(t.saison, state.season)) &&
+        String(t.codeCoach || "").trim() === c
+      );
+    }
+
+    function setSelectedCoachTeam(t){
+      state.selectedTeam = Object.assign({}, t, { team: t.equipe, cat: t.categorie });
+      state.coachAccessTeam = t.equipe || t.team;
+      const summary = document.getElementById("teamMenuSummary");
+      if (summary) summary.innerHTML = renderTeamMenuSummary(t);
+    }
+
+    function renderCoachTeamChoice(teams){
+      const el = document.getElementById("coachTeamsList");
+      if (!el) return;
+      if (!teams.length) {
+        el.innerHTML = '<div class="empty">Aucune équipe liée à ce code coach.</div>';
+        return;
+      }
+      el.innerHTML = teams.map(t => `
+        <div class="item" data-coach-team="${escapeHtml(t.equipe)}">
+          <div class="item-title">${escapeHtml(t.equipe || "Équipe")}</div>
+          <div class="item-sub">${escapeHtml([t.categorie, t.coach ? "Coach : " + t.coach : ""].filter(Boolean).join(" • "))}</div>
+        </div>
+      `).join("");
+      el.querySelectorAll(".item").forEach(node => {
+        node.addEventListener("click", () => {
+          const teamName = node.dataset.coachTeam || "";
+          const t = teams.find(x => x.equipe === teamName) || state.equipes.find(x => x.equipe === teamName);
+          if (!t) return;
+          state.coachBackScreen = teams.length > 1 ? "coachTeamsScreen" : "homeScreen";
+          setSelectedCoachTeam(t);
+          renderCoachSpace();
+          showScreen("coachSpaceScreen");
+          setActiveButton("coach");
+        });
+      });
+    }
+
+    function openCoachMain(){
+      let code = String(sessionStorage.getItem("cam_coach_code") || state.codeCoach || "").trim();
+      if (!code) {
+        code = prompt("Code coach ?") || "";
+      }
+      code = String(code || "").trim();
+      if (!code) return;
+
+      const teams = getCoachTeamsByCode(code);
+      if (!teams.length) {
+        sessionStorage.removeItem("cam_coach_code");
+        state.codeCoach = "";
+        alert("Code coach incorrect ou aucune équipe active liée à ce code ❌");
+        return;
+      }
+
+      state.codeCoach = code;
+      sessionStorage.setItem("cam_coach_code", code);
+
+      if (teams.length === 1) {
+        state.coachBackScreen = "homeScreen";
+        setSelectedCoachTeam(teams[0]);
+        renderCoachSpace();
+        showScreen("coachSpaceScreen");
+        setActiveButton("coach");
+        return;
+      }
+
+      state.coachBackScreen = "coachTeamsScreen";
+      renderCoachTeamChoice(teams);
+      showScreen("coachTeamsScreen");
+      setActiveButton("coach");
+    }
+
+    function goBackFromCoachSpace(){
+      const target = state.coachBackScreen || "teamMenuScreen";
+      showScreen(target);
+      if (target === "coachTeamsScreen") setActiveButton("coach");
+      else if (target === "homeScreen") setActiveButton("home");
+      else setActiveButton("teams");
+    }
+
     function openCoachSpace(){
       const t = getSelectedTeamData();
       if (!t || !(t.equipe || t.team)) {
@@ -2513,12 +2688,14 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           return;
         }
         state.codeCoach = String(code).trim();
+        sessionStorage.setItem("cam_coach_code", state.codeCoach);
         state.coachAccessTeam = t.equipe || t.team;
       }
 
+      state.coachBackScreen = "teamMenuScreen";
       renderCoachSpace();
       showScreen("coachSpaceScreen");
-      setActiveButton("teams");
+      setActiveButton("coach");
     }
 
     function getConvocationsForMatch(m){
@@ -3520,6 +3697,13 @@ function gmFillSelect(id, values, label, includeNew){
   }
 }
 
+async function openGestionClubMain(){
+  const ok = await gmEnsureAccess();
+  if (!ok) return;
+  showScreen("gestionClubScreen");
+  setActiveButton("gestion");
+}
+
 function gmEquipesActives(){
   return (state.equipes || [])
     .filter(e => !state.season || sameSeason(e.saison, state.season))
@@ -3908,15 +4092,8 @@ function renderBureau(){
       const el = document.getElementById("bureauList");
       if (!el) return;
 
-      const gestionMatchsHtml = `
-        <div class="bureau-member-card">
-          <div class="bureau-member-name">🏀 Gestion matchs</div>
-          <div class="bureau-member-role">Ajouter ou modifier les matchs</div>
-          <div class="bureau-actions">
-            <button class="bureau-action-btn" onclick="showGestionMatchsScreen()" style="border:none;cursor:pointer;">🔐 Ouvrir la gestion matchs</button>
-          </div>
-        </div>
-      `;
+      // V60.62 : le Bureau reste public. La gestion privée passe par le bouton principal "Gestion".
+      const gestionMatchsHtml = "";
 
       const rows = (state.bureau || []).filter(m => {
         const nom = String(m.nom || "").trim();
@@ -3982,7 +4159,7 @@ function renderBenevoles(){
 
 
     function setActiveButton(name){
-      const buttons = ['btn-home','btn-teams','btn-bureau','btn-benevoles'];
+      const buttons = ['btn-home','btn-teams','btn-coach','btn-gestion','btn-bureau','btn-benevoles'];
       const c = (state.config && state.config['couleur_principale']) || '';
 
       buttons.forEach(id => {
@@ -4817,6 +4994,8 @@ function appliquerConfig() {
   // Sections
   if (cfg["activer_bureau"]    === "non") { const b = document.getElementById("btn-bureau");    if (b) b.style.display = "none"; }
   if (cfg["activer_benevoles"] === "non") { const b = document.getElementById("btn-benevoles"); if (b) b.style.display = "none"; }
+  if (cfgBool("activer_coach", true) === false) { const b = document.getElementById("btn-coach"); if (b) b.style.display = "none"; }
+  if (cfgBool("activer_gestion_club", true) === false) { const b = document.getElementById("btn-gestion"); if (b) b.style.display = "none"; }
 
   // Accueil : carte principale paramétrable
   const introCard = document.getElementById("homeIntroCard");
@@ -4866,7 +5045,7 @@ function appliquerConfig() {
     el.innerHTML = escapeHtml(value) + ' <span id="seasonBadge" class="pill">' + escapeHtml(state.season || "") + '</span>';
   }
 
-  setCfgText("appSubtitle", "app_sous_titre", "Équipes • Joueurs • Matchs • Bureau • Bénévoles", "app_sous_titre_actif");
+  setCfgText("appSubtitle", "app_sous_titre", "Équipes • Coach • Gestion • Bureau • Bénévoles", "app_sous_titre_actif");
   setCfgText("homeUpcomingTitle", "accueil_matchs_titre", "🏀 Matchs à venir", "accueil_matchs_titre_actif");
   setCfgTitleWithSeason("teamsCardTitle", "equipes_titre", "Équipes");
   setCfgText("teamsCardText", "equipes_texte", "Saison active uniquement.", "equipes_texte_actif");
@@ -4885,6 +5064,8 @@ function appliquerConfig() {
   setCfgText("convocationSelectionText", "convocation_selection_texte", "Les joueurs présents sont pré-cochés. Tu peux ajuster.", "convocation_selection_texte_actif");
   setCfgText("bureauCardTitle", "bureau_titre", "Bureau");
   setCfgText("bureauCardText", "bureau_texte", "Membres du bureau de l’association.", "bureau_texte_actif");
+  setCfgText("gestionClubTitle", "gestion_club_titre", "Gestion club");
+  setCfgText("gestionClubText", "gestion_club_texte", "Espace privé pour gérer les données du club.", "gestion_club_texte_actif");
   setCfgText("gmMainTitle", "gestion_matchs_titre", "🏀 Gestion matchs");
   setCfgText("gmMainText", "gestion_matchs_texte", "Ajouter ou modifier un match sans sortir de l’application.", "gestion_matchs_texte_actif");
   setCfgText("gmAddTitle", "gestion_matchs_ajouter_titre", "Ajouter un match");
