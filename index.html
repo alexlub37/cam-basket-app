@@ -1498,6 +1498,26 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
   .role-grid{grid-template-columns:1fr!important;}
 }
 
+
+
+/* V60.63 - Gestion Joueurs / Licences */
+.gj-toolbar{display:grid;gap:10px;margin-bottom:14px}
+.gj-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gj-form-card input,.gj-form-card select,.gj-form-card textarea{
+  width:100%!important;min-height:48px!important;padding:12px 14px!important;border-radius:16px!important;font-size:16px!important;
+}
+.gj-field{margin-top:12px}
+.gj-field label{display:block;color:#fff;font-weight:900;margin-bottom:6px;font-size:14px}
+.gj-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gj-message{display:none;margin:12px 0;padding:12px;border-radius:14px;font-weight:900;text-align:center}
+.gj-message.ok{display:block;background:#1f8f3a;color:#fff}
+.gj-message.err{display:block;background:#b00020;color:#fff}
+.gj-player-card.inactive{opacity:.58}
+.gj-badge{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;border:1px solid rgba(255,212,0,.45);color:var(--accent)}
+.gj-badge-off{border-color:#e04040;color:#ff9b9b}
+.gj-save{width:100%;margin-top:14px;min-height:54px!important;border:3px solid #fff!important;border-radius:18px!important;background:#ffd400!important;color:#000!important;font-size:18px!important;font-weight:900!important}
+@media(max-width:600px){.gj-row,.gj-actions{grid-template-columns:1fr!important}}
+
 </style>
 
 
@@ -1589,7 +1609,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.62</button>
+    ">V60.63</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1909,9 +1929,9 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <span class="big">🏀 Matchs</span>
           <span class="small">Ajouter ou modifier les matchs.</span>
         </button>
-        <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion joueurs prévue dans une prochaine version.')">
+        <button class="menu-btn role-menu-card" onclick="showGestionJoueursScreen()">
           <span class="big">👥 Joueurs / Licences</span>
-          <span class="small">Préparé pour ajouter ou modifier les joueurs plus tard.</span>
+          <span class="small">Ajouter, modifier ou désactiver les joueurs.</span>
         </button>
         <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion équipes prévue dans une prochaine version.')">
           <span class="big">🏷️ Équipes</span>
@@ -1929,6 +1949,56 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <span class="big">⚙️ Réglages</span>
           <span class="small">Préparé pour modifier CONFIG depuis l’app.</span>
         </button>
+      </div>
+    </section>
+
+
+    <section id="gestionJoueursScreen" class="screen">
+      <button class="back" onclick="setActiveButton('gestion'); showScreen('gestionClubScreen')">← Retour gestion club</button>
+      <div class="card">
+        <h2 id="gjMainTitle">👥 Joueurs / Licences</h2>
+        <div id="gjMainText" class="muted">Ajouter, modifier ou désactiver un joueur sans toucher directement au tableau.</div>
+      </div>
+
+      <div id="gjMessage" class="gj-message"></div>
+
+      <div class="card gj-toolbar">
+        <input id="gjSearch" class="search" type="text" placeholder="Rechercher un joueur" oninput="gjRenderList()">
+        <div class="gj-actions">
+          <button class="btn-light" onclick="gjNewPlayer()">➕ Nouveau joueur</button>
+          <button class="btn-outline" onclick="gjRenderList()">↻ Actualiser la liste</button>
+        </div>
+      </div>
+
+      <div id="gjList" class="list"></div>
+
+      <div class="card gj-form-card">
+        <h2 id="gjFormTitle">Nouveau joueur</h2>
+        <input id="gjRow" type="hidden">
+        <div class="gj-row">
+          <div class="gj-field"><label>Saison</label><input id="gjSaison" type="text"></div>
+          <div class="gj-field"><label>Équipe</label><select id="gjEquipe"></select></div>
+        </div>
+        <div class="gj-field"><label>Joueur</label><input id="gjJoueur" type="text" placeholder="Prénom.N ou Nom"></div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Numéro licence</label><input id="gjLicence" type="text" placeholder="BC... ou licence"></div>
+          <div class="gj-field"><label>Numéro maillot</label><input id="gjNumero" type="text" placeholder="Ex : 7"></div>
+        </div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Poste</label><input id="gjPoste" type="text" placeholder="Facultatif"></div>
+          <div class="gj-field"><label>Code accès</label><input id="gjCode" type="text" placeholder="Code joueur"></div>
+        </div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Statut licence</label><input id="gjStatutLicence" type="text" placeholder="Validée / En attente"></div>
+          <div class="gj-field"><label>Date naissance</label><input id="gjDateNaissance" type="text" placeholder="JJ/MM/AAAA"></div>
+        </div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Téléphone parent</label><input id="gjTelephoneParent" type="tel" placeholder="06..."></div>
+          <div class="gj-field"><label>Email parent</label><input id="gjEmailParent" type="email" placeholder="email@..."></div>
+        </div>
+        <div class="gj-field"><label>Actif</label><select id="gjActif"><option>Oui</option><option>Non</option></select></div>
+        <div class="gj-field"><label>Commentaire</label><textarea id="gjCommentaire" placeholder="Info interne facultative"></textarea></div>
+        <button id="gjSaveBtn" class="gj-save" onclick="gjSavePlayer()">Enregistrer le joueur</button>
       </div>
     </section>
 
@@ -2182,6 +2252,13 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       return false;
     }
 
+
+
+    function isJoueurActif(j){
+      const a = normalize(j && j.actif);
+      return !a || a === "oui" || a === "actif" || a === "active" || a === "true" || a === "1";
+    }
+
     function badgeForType(type){
       const t = normalize(type);
       const isHome = ["d","dom","domicile"].includes(t);
@@ -2340,14 +2417,23 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           afficherInfosEquipe: String(r[12] || "Oui").trim() || "Oui"
         })).filter(x => x.equipe && normalize(x.saison) !== "saison");
 
-        state.joueurs = jrRows.map(r => ({
+        state.joueurs = jrRows.map((r, i) => ({
+          row: i + 2,
           saison: String(r[0] || "").trim(),
           equipe: String(r[1] || "").trim(),
           joueur: String(r[2] || "").trim(),
           licence: String(r[3] || "").trim(),
           numero: String(r[4] || "").trim(),
           poste: String(r[5] || "").trim(),
-          code: String(r[6] || "").trim()
+          code: String(r[6] || "").trim(),
+          statutLicence: String(r[7] || "").trim(),
+          dateNaissance: String(r[8] || "").trim(),
+          telephoneParent: String(r[9] || "").trim(),
+          emailParent: String(r[10] || "").trim(),
+          actif: String(r[11] || "").trim(),
+          commentaire: String(r[12] || "").trim(),
+          dateCreation: String(r[13] || "").trim(),
+          derniereModification: String(r[14] || "").trim()
         })).filter(x => x.joueur && normalize(x.saison) !== "saison");
 
         // MATCHS attendu :
@@ -2861,7 +2947,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
     function openPlayers(){
       const team = state.selectedTeam?.team || "";
       document.getElementById("playersTitle").textContent = "Joueurs — " + team;
-      const rows = state.joueurs.filter(j => j.equipe === team && (!state.season || sameSeason(j.saison, state.season)));
+      const rows = state.joueurs.filter(j => isJoueurActif(j) && j.equipe === team && (!state.season || sameSeason(j.saison, state.season)));
 
       const el = document.getElementById("playersList");
       if(!rows.length){
@@ -3783,6 +3869,168 @@ async function gmEnsureAccess(){
   }
 }
 
+
+
+// ══════════════════════════════════
+// 👥 GESTION JOUEURS / LICENCES — V60.63
+// ══════════════════════════════════
+async function showGestionJoueursScreen(){
+  const ok = await gmEnsureAccess();
+  if (!ok) return;
+  gjPrepareFormOptions();
+  gjNewPlayer(false);
+  gjRenderList();
+  showScreen("gestionJoueursScreen");
+}
+
+function gjMessage(txt, ok){
+  const el = document.getElementById("gjMessage");
+  if (!el) return;
+  el.textContent = txt;
+  el.className = ok ? "gj-message ok" : "gj-message err";
+  el.style.display = "block";
+  el.scrollIntoView({behavior:"smooth", block:"center"});
+  setTimeout(() => { el.style.display = "none"; }, 6000);
+}
+
+function gjPrepareFormOptions(){
+  const sel = document.getElementById("gjEquipe");
+  if (!sel) return;
+  const equipes = (state.equipes || [])
+    .filter(e => !state.season || sameSeason(e.saison, state.season))
+    .map(e => e.equipe)
+    .filter(Boolean);
+  const uniq = Array.from(new Set(equipes)).sort();
+  sel.innerHTML = '<option value="">Choisir une équipe</option>' + uniq.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join("");
+}
+
+function gjNewPlayer(scroll){
+  const ids = ["gjRow","gjJoueur","gjLicence","gjNumero","gjPoste","gjCode","gjStatutLicence","gjDateNaissance","gjTelephoneParent","gjEmailParent","gjCommentaire"];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  const saison = document.getElementById("gjSaison");
+  if (saison) saison.value = state.season || "";
+  const actif = document.getElementById("gjActif");
+  if (actif) actif.value = "Oui";
+  const equipe = document.getElementById("gjEquipe");
+  if (equipe) equipe.value = "";
+  const title = document.getElementById("gjFormTitle");
+  if (title) title.textContent = "Nouveau joueur";
+  if (scroll !== false) document.querySelector("#gestionJoueursScreen .gj-form-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function gjRenderList(){
+  const list = document.getElementById("gjList");
+  if (!list) return;
+  const q = normalize(document.getElementById("gjSearch")?.value || "");
+  let rows = (state.joueurs || [])
+    .filter(j => !state.season || sameSeason(j.saison, state.season));
+
+  if (q) {
+    rows = rows.filter(j =>
+      normalize(j.joueur).includes(q) ||
+      normalize(j.equipe).includes(q) ||
+      normalize(j.licence).includes(q) ||
+      normalize(j.code).includes(q)
+    );
+  }
+
+  rows.sort((a,b) => String(a.equipe).localeCompare(String(b.equipe)) || Number(a.numero||999) - Number(b.numero||999) || String(a.joueur).localeCompare(String(b.joueur)));
+
+  if (!rows.length) {
+    list.innerHTML = '<div class="empty">Aucun joueur trouvé pour cette saison.</div>';
+    return;
+  }
+
+  list.innerHTML = rows.map(j => {
+    const actif = isJoueurActif(j);
+    const badge = actif ? '<span class="gj-badge">Actif</span>' : '<span class="gj-badge gj-badge-off">Inactif</span>';
+    const infos = [j.equipe, j.numero ? "#" + j.numero : "", j.licence ? "Licence : " + j.licence : "", j.code ? "Code : " + j.code : ""].filter(Boolean).join(" • ");
+    return `<div class="item gj-player-card ${actif ? "" : "inactive"}" data-row="${escapeHtml(j.row)}">
+      <div class="item-title">${escapeHtml(j.joueur)} ${badge}</div>
+      <div class="item-sub">${escapeHtml(infos || "Aucune info")}</div>
+      ${j.commentaire ? `<div class="item-sub">${escapeHtml(j.commentaire)}</div>` : ""}
+    </div>`;
+  }).join("");
+
+  list.querySelectorAll(".gj-player-card").forEach(node => {
+    node.addEventListener("click", () => gjEditPlayer(Number(node.dataset.row)));
+  });
+}
+
+function gjEditPlayer(row){
+  const j = (state.joueurs || []).find(x => Number(x.row) === Number(row));
+  if (!j) return;
+  gjPrepareFormOptions();
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value || ""; };
+  set("gjRow", j.row);
+  set("gjSaison", j.saison || state.season || "");
+  set("gjEquipe", j.equipe);
+  set("gjJoueur", j.joueur);
+  set("gjLicence", j.licence);
+  set("gjNumero", j.numero);
+  set("gjPoste", j.poste);
+  set("gjCode", j.code);
+  set("gjStatutLicence", j.statutLicence);
+  set("gjDateNaissance", j.dateNaissance);
+  set("gjTelephoneParent", j.telephoneParent);
+  set("gjEmailParent", j.emailParent);
+  set("gjActif", isJoueurActif(j) ? "Oui" : "Non");
+  set("gjCommentaire", j.commentaire);
+  const title = document.getElementById("gjFormTitle");
+  if (title) title.textContent = "Modifier joueur — " + (j.joueur || "");
+  document.querySelector("#gestionJoueursScreen .gj-form-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function gjPayload(){
+  const val = id => String(document.getElementById(id)?.value || "").trim();
+  return {
+    row: val("gjRow"),
+    saison: val("gjSaison") || state.season || "",
+    equipe: val("gjEquipe"),
+    joueur: val("gjJoueur"),
+    licence: val("gjLicence"),
+    numero: val("gjNumero"),
+    poste: val("gjPoste"),
+    code: val("gjCode"),
+    statutLicence: val("gjStatutLicence"),
+    dateNaissance: val("gjDateNaissance"),
+    telephoneParent: val("gjTelephoneParent"),
+    emailParent: val("gjEmailParent"),
+    actif: val("gjActif") || "Oui",
+    commentaire: val("gjCommentaire")
+  };
+}
+
+async function gjSavePlayer(){
+  const code = gmGetStoredCode();
+  if (!code) { gjMessage("Code gestion non disponible. Rentre à nouveau dans Gestion.", false); return; }
+  const data = gjPayload();
+  if (!data.saison || !data.equipe || !data.joueur) {
+    gjMessage("Saison, équipe et joueur sont obligatoires.", false);
+    return;
+  }
+
+  const action = data.row ? "modifierJoueur" : "ajouterJoueur";
+  const btn = document.getElementById("gjSaveBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "Enregistrement…"; }
+  try{
+    const res = await fetch(getScriptUrl(), { method:"POST", body: JSON.stringify({ action, codeGestionMatchs: code, ...data }) });
+    const txt = String(await res.text() || "").trim();
+    if (txt === "CODE_GESTION_MATCHS_INVALIDE") { gjMessage("Code gestion incorrect.", false); return; }
+    if (txt === "JOUEUR_DEJA_EXISTANT") { gjMessage("Ce joueur existe déjà pour cette équipe et cette saison.", false); return; }
+    if (!txt.startsWith("OK")) { gjMessage("Erreur : " + txt, false); return; }
+    gjMessage(data.row ? "Joueur modifié ✅" : "Joueur ajouté ✅", true);
+    await reloadData();
+    gjPrepareFormOptions();
+    gjRenderList();
+    if (!data.row) gjNewPlayer(false);
+  }catch(e){
+    gjMessage("Erreur réseau : " + (e.message || e), false);
+  }finally{
+    if (btn) { btn.disabled = false; btn.textContent = "Enregistrer le joueur"; }
+  }
+}
+
 async function showGestionMatchsScreen(){
   const ok = await gmEnsureAccess();
   if (!ok) return;
@@ -4204,7 +4452,7 @@ function openInfoModal(){
 
 function ouvrirFormulaire(match, equipe, typeMatch, displayMatch) {
   const joueurs = state.joueurs
-    .filter(j => j.equipe === equipe)
+    .filter(j => isJoueurActif(j) && j.equipe === equipe && (!state.season || sameSeason(j.saison, state.season)))
     .map(j => {
       const nom = String(j.joueur || "").trim();
       const code = String(j.code || "").trim();
@@ -5066,6 +5314,8 @@ function appliquerConfig() {
   setCfgText("bureauCardText", "bureau_texte", "Membres du bureau de l’association.", "bureau_texte_actif");
   setCfgText("gestionClubTitle", "gestion_club_titre", "Gestion club");
   setCfgText("gestionClubText", "gestion_club_texte", "Espace privé pour gérer les données du club.", "gestion_club_texte_actif");
+  setCfgText("gjMainTitle", "gestion_joueurs_titre", "👥 Joueurs / Licences");
+  setCfgText("gjMainText", "gestion_joueurs_texte", "Ajouter, modifier ou désactiver un joueur sans toucher directement au tableau.", "gestion_joueurs_texte_actif");
   setCfgText("gmMainTitle", "gestion_matchs_titre", "🏀 Gestion matchs");
   setCfgText("gmMainText", "gestion_matchs_texte", "Ajouter ou modifier un match sans sortir de l’application.", "gestion_matchs_texte_actif");
   setCfgText("gmAddTitle", "gestion_matchs_ajouter_titre", "Ajouter un match");
