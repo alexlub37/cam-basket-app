@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V60.71 - Gestion Joueurs : modification forcée de la ligne sélectionnée -->
+<!-- CAM Basket V60.73 - Corrections Coach matchs passés + retour Gestion matchs + création joueur sans code obligatoire -->
 
 <html lang="fr">
 <head>
@@ -1626,7 +1626,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.71</button>
+    ">V60.73</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2936,12 +2936,16 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       list.innerHTML = '<div class="empty">Chargement des matchs coach…</div>';
 
       const matchs = (state.matchs || [])
-        .filter(m => cleanCompare(m.equipe) === cleanCompare(team) && (!state.season || sameSeason(m.saison, state.season)))
+        .filter(m =>
+          cleanCompare(m.equipe) === cleanCompare(team) &&
+          (!state.season || sameSeason(m.saison, state.season)) &&
+          !isPastMatch(m)
+        )
         .sort((a,b) => parseMatchDateTime(a) - parseMatchDateTime(b));
       state.coachMatchRows = matchs;
 
       if (!matchs.length) {
-        list.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe.</div>';
+        list.innerHTML = '<div class="empty">Aucun match à venir à gérer pour cette équipe.</div>';
         return;
       }
 
@@ -4660,8 +4664,9 @@ async function gmModifierMatch(){
     if (annulees > 0) msg += " — " + annulees + " réponse(s) annulée(s)";
     gmShowMessage(msg, true);
     await reloadData();
-    showGestionMatchsScreen();
-    gmSetMode("edit");
+    gmCurrentMatch = null;
+    showScreen("gestionClubScreen");
+    setActiveButton("gestion");
   }catch(e){
     gmShowMessage("Erreur modification : " + (e.message || e), false);
   }finally{
@@ -5441,12 +5446,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.71</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.73</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.71 — Gestion Joueurs : correction serveur, modification de la ligne sélectionnée sans blocage doublon</li>
+        <li>V60.73 — Coach : matchs passés masqués ; Gestion matchs : retour propre après modification ; joueur : code accès non obligatoire à la création</li>
         <li>V60.70 — Gestion Joueurs : séparation claire Modifier un joueur / Créer un nouveau joueur</li>
         <li>V60.69 — Gestion Joueurs : suppression du doublon Ajouter / Créer un joueur, un seul bouton de création visible</li>
         <li>V60.68 — Gestion Joueurs : correction modification Actif Oui/Non sans erreur de doublon</li>
