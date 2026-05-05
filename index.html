@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V60.75 - Correctif Gestion Équipes + base V60.74 -->
+<!-- CAM Basket V60.76 - Correctif modification Equipes + base V60.74 -->
 
 <html lang="fr">
 <head>
@@ -1620,7 +1620,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.75</button>
+    ">V60.76</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -4263,11 +4263,16 @@ function geNewTeam(scroll){
   const title = document.getElementById("geFormTitle");
   if (title) title.textContent = "Nouvelle équipe";
 
-  // V60.75 — correction : le formulaire équipe était rempli mais restait masqué.
+  // V60.76 — à l’ouverture de Gestion Équipes, on prépare le formulaire mais on le garde masqué.
+  // Il s’affiche seulement quand on clique sur "Nouvelle équipe" ou sur une carte équipe.
   const form = document.querySelector("#gestionEquipesScreen .ge-form-card");
-  if (form) form.classList.add("active");
+  if (scroll === false) {
+    if (form) form.classList.remove("active");
+    return;
+  }
 
-  if (scroll !== false) form?.scrollIntoView({behavior:"smooth", block:"start"});
+  if (form) form.classList.add("active");
+  form?.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 function geUseActiveSeason(){
@@ -5631,11 +5636,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.75</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.76</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V60.76 — Correctif Gestion Équipes : modification autorisée sans blocage doublon + formulaire création masqué au départ</li>
         <li>V60.75 — Correctif Gestion Équipes : ouverture du formulaire modification après clic sur une équipe</li>
         <li>V60.69 — Gestion Joueurs : suppression du doublon Ajouter / Créer un joueur, un seul bouton de création visible</li>
         <li>V60.68 — Gestion Joueurs : correction modification Actif Oui/Non sans erreur de doublon</li>
