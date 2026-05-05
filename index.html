@@ -1534,6 +1534,10 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 .gj-toolbar-compact{margin-bottom:0!important}
 .gj-create-main{width:100%;min-height:50px!important;border-radius:18px!important;font-size:16px!important;font-weight:950!important}
 @media(max-width:600px){.gj-row,.gj-actions{grid-template-columns:1fr!important}}
+.ge-form-card.active{display:block!important}
+#geList .gj-player-card{cursor:pointer;touch-action:manipulation}
+#geList .gj-player-card:active{transform:scale(.985)}
+
 
 </style>
 
@@ -1626,7 +1630,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.78</button>
+    ">V60.79</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -4276,7 +4280,17 @@ function geNewTeam(scroll){
   if (afficher) afficher.value = "Oui";
   const title = document.getElementById("geFormTitle");
   if (title) title.textContent = "Nouvelle équipe";
-  if (scroll !== false) document.querySelector("#gestionEquipesScreen .ge-form-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+
+  const form = document.querySelector("#gestionEquipesScreen .ge-form-card");
+  if (scroll === false) {
+    if (form) form.classList.remove("active");
+    return;
+  }
+
+  if (form) {
+    form.classList.add("active");
+    form.scrollIntoView({behavior:"auto", block:"start"});
+  }
 }
 
 function geUseActiveSeason(){
@@ -4362,7 +4376,12 @@ function geEditTeam(row){
   set("geAfficherInfosEquipe", t.afficherInfosEquipe || "Oui");
   const title = document.getElementById("geFormTitle");
   if (title) title.textContent = "Modifier équipe — " + (t.equipe || "");
-  document.querySelector("#gestionEquipesScreen .ge-form-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+
+  const form = document.querySelector("#gestionEquipesScreen .ge-form-card");
+  if (form) {
+    form.classList.add("active");
+    form.scrollIntoView({behavior:"auto", block:"start"});
+  }
 }
 
 function gePayload(){
