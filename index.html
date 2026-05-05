@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V60.74 - Gestion Adversaires / Gymnases -->
+<!-- CAM Basket V60.75 - Correctif Gestion Équipes + base V60.74 -->
 
 <html lang="fr">
 <head>
@@ -1527,12 +1527,6 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 .gj-mode-badge{display:inline-block;margin:2px 0 8px 0;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,212,0,.45);color:var(--accent);font-size:12px;font-weight:900}
 .gj-cancel{width:100%;margin-top:10px;min-height:48px!important;border:2px solid var(--accent)!important;border-radius:18px!important;background:transparent!important;color:#fff!important;font-size:16px!important;font-weight:900!important}
 .gj-help-warning{margin-top:10px;color:#ffd08a;font-size:13px;line-height:1.35}
-.gj-mode-choice-card,
-.gj-create-card{padding:18px!important}
-.gj-choice-title{color:#fff;font-size:22px;font-weight:950;line-height:1.1;margin-bottom:6px}
-.gj-choice-text{color:var(--muted);font-size:15px;line-height:1.35;margin-bottom:12px}
-.gj-toolbar-compact{margin-bottom:0!important}
-.gj-create-main{width:100%;min-height:50px!important;border-radius:18px!important;font-size:16px!important;font-weight:950!important}
 @media(max-width:600px){.gj-row,.gj-actions{grid-template-columns:1fr!important}}
 
 </style>
@@ -1626,7 +1620,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.74</button>
+    ">V60.75</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2015,7 +2009,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
         </div>
         <div class="gj-row">
           <div class="gj-field"><label>Poste</label><input id="gjPoste" type="text" placeholder="Facultatif"></div>
-          <div class="gj-field"><label>Code accès</label><input id="gjCode" type="text" placeholder="Code joueur"></div>
+          <div class="gj-field"><label>Code accès</label><input id="gjCode" type="text" placeholder="Code choisi par le joueur à sa première réponse"></div>
         </div>
         <div class="gj-row">
           <div class="gj-field"><label>Statut licence</label><input id="gjStatutLicence" type="text" placeholder="Validée / En attente"></div>
@@ -2106,18 +2100,18 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 
       <div id="gaList" class="list"></div>
 
-      <div class="card gj-form-card ga-form-card">
+      <div id="gaFormCard" class="card gj-form-card">
         <h2 id="gaFormTitle">Nouvel adversaire</h2>
         <input id="gaRow" type="hidden">
         <div class="gj-field"><label>Club adverse</label><input id="gaClub" type="text" placeholder="Ex : Bourges"></div>
-        <div class="gj-field"><label>Gymnase</label><input id="gaGymnase" type="text" placeholder="Ex : Gymnase Jules Ladoumègue"></div>
-        <div class="gj-field"><label>Adresse</label><input id="gaAdresse" type="text" placeholder="Rue, avenue, lieu-dit…"></div>
+        <div class="gj-field"><label>Gymnase</label><input id="gaGymnase" type="text" placeholder="Nom du gymnase"></div>
+        <div class="gj-field"><label>Adresse</label><input id="gaAdresse" type="text" placeholder="Rue, avenue..."></div>
         <div class="gj-row">
-          <div class="gj-field"><label>Code postal</label><input id="gaCodePostal" type="text" inputmode="numeric" placeholder="Ex : 18000"></div>
-          <div class="gj-field"><label>Ville</label><input id="gaVille" type="text" placeholder="Ex : Bourges"></div>
+          <div class="gj-field"><label>Code postal</label><input id="gaCodePostal" type="text" placeholder="41000"></div>
+          <div class="gj-field"><label>Ville</label><input id="gaVille" type="text" placeholder="Ville"></div>
         </div>
-        <button id="gaSaveBtn" class="gj-save" onclick="gaSaveAdversaire()">Enregistrer l’adversaire</button>
-        <button id="gaCancelBtn" class="gj-cancel" onclick="gaHideForm()">Annuler</button>
+        <button id="gaSaveBtn" class="gj-save" onclick="gaSaveAdversaire()">Créer l’adversaire</button>
+        <button class="gj-cancel" onclick="gaHideForm()">Annuler</button>
       </div>
     </section>
 
@@ -2610,14 +2604,14 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           codeCoach: String(r[6] || "").trim()
         })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
 
-        state.adversaires = (adversaireRows || []).map((r, i) => ({
-          row: i + 1,
+        state.adversaires = (adversaireRows || []).map((r, idx) => ({
+          row: idx + 1,
           club: String(r[0] || "").trim(),
           gymnase: String(r[1] || "").trim(),
           adresse: String(r[2] || "").trim(),
           codePostal: String(r[3] || "").trim(),
           ville: String(r[4] || "").trim()
-        })).filter(x => x.club && normalize(x.club) !== "club");
+        })).filter(x => x.club && normalize(x.club) !== "club" && normalize(x.club) !== "club adverse");
 
         // OFFICIELS attendu :
         // A Saison | B Nom | C Téléphone | D Équipe liée | E Arbitre | F Chrono | G Table | H Actif | I Commentaire
@@ -2972,16 +2966,12 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       list.innerHTML = '<div class="empty">Chargement des matchs coach…</div>';
 
       const matchs = (state.matchs || [])
-        .filter(m =>
-          cleanCompare(m.equipe) === cleanCompare(team) &&
-          (!state.season || sameSeason(m.saison, state.season)) &&
-          !isPastMatch(m)
-        )
+        .filter(m => cleanCompare(m.equipe) === cleanCompare(team) && (!state.season || sameSeason(m.saison, state.season)) && !isPastMatch(m))
         .sort((a,b) => parseMatchDateTime(a) - parseMatchDateTime(b));
       state.coachMatchRows = matchs;
 
       if (!matchs.length) {
-        list.innerHTML = '<div class="empty">Aucun match à venir à gérer pour cette équipe.</div>';
+        list.innerHTML = '<div class="empty">Aucun match trouvé pour cette équipe.</div>';
         return;
       }
 
@@ -4084,8 +4074,9 @@ function gjRenderList(){
 
   if (!q && !allowFullList) {
     list.innerHTML = `<div class="empty">
-      Recherche un joueur pour le modifier.<br>
+      Recherche un joueur pour afficher les résultats.<br>
       <span class="muted">La liste complète est masquée pour éviter d’avoir tout le club à l’écran.</span>
+      <div class="gj-empty-action"><button class="btn-light" onclick="gjNewPlayer()">➕ Créer un nouveau joueur</button></div>
     </div>`;
     return;
   }
@@ -4271,7 +4262,12 @@ function geNewTeam(scroll){
   if (afficher) afficher.value = "Oui";
   const title = document.getElementById("geFormTitle");
   if (title) title.textContent = "Nouvelle équipe";
-  if (scroll !== false) document.querySelector("#gestionEquipesScreen .ge-form-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+
+  // V60.75 — correction : le formulaire équipe était rempli mais restait masqué.
+  const form = document.querySelector("#gestionEquipesScreen .ge-form-card");
+  if (form) form.classList.add("active");
+
+  if (scroll !== false) form?.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 function geUseActiveSeason(){
@@ -4352,7 +4348,12 @@ function geEditTeam(row){
   set("geAfficherInfosEquipe", t.afficherInfosEquipe || "Oui");
   const title = document.getElementById("geFormTitle");
   if (title) title.textContent = "Modifier équipe — " + (t.equipe || "");
-  document.querySelector("#gestionEquipesScreen .ge-form-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+
+  // V60.75 — correction : affiche le formulaire après clic sur une carte équipe.
+  const form = document.querySelector("#gestionEquipesScreen .ge-form-card");
+  if (form) form.classList.add("active");
+
+  form?.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 function gePayload(){
@@ -4405,6 +4406,7 @@ async function geSaveTeam(){
 }
 
 
+
 // ══════════════════════════════════
 // 📍 GESTION ADVERSAIRES / GYMNASES — V60.74
 // ══════════════════════════════════
@@ -4428,23 +4430,21 @@ function gaMessage(txt, ok){
   setTimeout(() => { el.style.display = "none"; }, 6000);
 }
 
+function gaShowForm(){
+  const card = document.getElementById("gaFormCard");
+  if (card) card.classList.add("active");
+  card?.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function gaHideForm(){
+  const card = document.getElementById("gaFormCard");
+  if (card) card.classList.remove("active");
+}
+
 function gaClearSearch(){
   const search = document.getElementById("gaSearch");
   if (search) search.value = "";
   gaRenderList();
-}
-
-function gaHideForm(){
-  const form = document.querySelector("#gestionAdversairesScreen .ga-form-card");
-  if (form) form.classList.remove("active");
-}
-
-function gaShowForm(){
-  const form = document.querySelector("#gestionAdversairesScreen .ga-form-card");
-  if (form) {
-    form.classList.add("active");
-    form.scrollIntoView({behavior:"smooth", block:"start"});
-  }
 }
 
 function gaNewAdversaire(){
@@ -5631,14 +5631,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.74</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.75</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V60.74 — Gestion Adversaires / Gymnases ajoutée : recherche, ajout et modification des clubs adverses</li>
-        <li>V60.73 — Coach : matchs passés masqués ; Gestion matchs : retour propre après modification ; joueur : code accès non obligatoire à la création</li>
-        <li>V60.70 — Gestion Joueurs : séparation claire Modifier un joueur / Créer un nouveau joueur</li>
+        <li>V60.75 — Correctif Gestion Équipes : ouverture du formulaire modification après clic sur une équipe</li>
         <li>V60.69 — Gestion Joueurs : suppression du doublon Ajouter / Créer un joueur, un seul bouton de création visible</li>
         <li>V60.68 — Gestion Joueurs : correction modification Actif Oui/Non sans erreur de doublon</li>
         <li>V60.67 — Gestion Joueurs : séparation claire entre Ajouter et Modifier, formulaire masqué par défaut</li>
