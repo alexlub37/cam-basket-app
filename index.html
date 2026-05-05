@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V60.73 - Corrections Coach matchs passés + retour Gestion matchs + création joueur sans code obligatoire -->
+<!-- CAM Basket V60.74 - Gestion Adversaires / Gymnases -->
 
 <html lang="fr">
 <head>
@@ -1626,7 +1626,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.73</button>
+    ">V60.74</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1954,9 +1954,9 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <span class="big">🏷️ Équipes</span>
           <span class="small">Gérer équipes, coachs et entraînements.</span>
         </button>
-        <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion adversaires prévue dans une prochaine version.')">
-          <span class="big">📍 Adversaires</span>
-          <span class="small">Préparé pour gérer clubs et gymnases.</span>
+        <button class="menu-btn role-menu-card" onclick="showGestionAdversairesScreen()">
+          <span class="big">📍 Adversaires / Gymnases</span>
+          <span class="small">Ajouter ou modifier les clubs adverses et leurs adresses.</span>
         </button>
         <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion officiels prévue dans une prochaine version.')">
           <span class="big">👨‍⚖️ Officiels</span>
@@ -2083,6 +2083,41 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           <button class="btn-outline" onclick="geClearSeason()">Mettre hors saison</button>
         </div>
         <button id="geSaveBtn" class="gj-save" onclick="geSaveTeam()">Enregistrer l’équipe</button>
+      </div>
+    </section>
+
+    <section id="gestionAdversairesScreen" class="screen">
+      <button class="back" onclick="setActiveButton('gestion'); showScreen('gestionClubScreen')">← Retour gestion club</button>
+      <div class="card">
+        <h2 id="gaMainTitle">📍 Adversaires / Gymnases</h2>
+        <div id="gaMainText" class="muted">Ajouter ou modifier les clubs adverses, gymnases et adresses.</div>
+      </div>
+
+      <div id="gaMessage" class="gj-message"></div>
+
+      <div class="card gj-toolbar">
+        <input id="gaSearch" class="search" type="text" placeholder="Rechercher un club, une ville, un gymnase…" oninput="gaRenderList()">
+        <div class="gj-search-note">Clique sur une carte pour modifier un adversaire existant. Utilise “Nouvel adversaire” uniquement si le club n’existe pas encore.</div>
+        <div class="gj-actions">
+          <button class="btn-light" onclick="gaNewAdversaire()">➕ Nouvel adversaire</button>
+          <button class="btn-outline" onclick="gaClearSearch()">Effacer recherche</button>
+        </div>
+      </div>
+
+      <div id="gaList" class="list"></div>
+
+      <div class="card gj-form-card ga-form-card">
+        <h2 id="gaFormTitle">Nouvel adversaire</h2>
+        <input id="gaRow" type="hidden">
+        <div class="gj-field"><label>Club adverse</label><input id="gaClub" type="text" placeholder="Ex : Bourges"></div>
+        <div class="gj-field"><label>Gymnase</label><input id="gaGymnase" type="text" placeholder="Ex : Gymnase Jules Ladoumègue"></div>
+        <div class="gj-field"><label>Adresse</label><input id="gaAdresse" type="text" placeholder="Rue, avenue, lieu-dit…"></div>
+        <div class="gj-row">
+          <div class="gj-field"><label>Code postal</label><input id="gaCodePostal" type="text" inputmode="numeric" placeholder="Ex : 18000"></div>
+          <div class="gj-field"><label>Ville</label><input id="gaVille" type="text" placeholder="Ex : Bourges"></div>
+        </div>
+        <button id="gaSaveBtn" class="gj-save" onclick="gaSaveAdversaire()">Enregistrer l’adversaire</button>
+        <button id="gaCancelBtn" class="gj-cancel" onclick="gaHideForm()">Annuler</button>
       </div>
     </section>
 
@@ -2575,7 +2610,8 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
           codeCoach: String(r[6] || "").trim()
         })).filter(x => x.joueur && normalize(x.joueur) !== "joueur");
 
-        state.adversaires = (adversaireRows || []).map(r => ({
+        state.adversaires = (adversaireRows || []).map((r, i) => ({
+          row: i + 1,
           club: String(r[0] || "").trim(),
           gymnase: String(r[1] || "").trim(),
           adresse: String(r[2] || "").trim(),
@@ -4368,6 +4404,155 @@ async function geSaveTeam(){
   }
 }
 
+
+// ══════════════════════════════════
+// 📍 GESTION ADVERSAIRES / GYMNASES — V60.74
+// ══════════════════════════════════
+async function showGestionAdversairesScreen(){
+  const ok = await gmEnsureAccess();
+  if (!ok) return;
+  gaHideForm();
+  const search = document.getElementById("gaSearch");
+  if (search) search.value = "";
+  gaRenderList();
+  showScreen("gestionAdversairesScreen");
+}
+
+function gaMessage(txt, ok){
+  const el = document.getElementById("gaMessage");
+  if (!el) return;
+  el.textContent = txt;
+  el.className = ok ? "gj-message ok" : "gj-message err";
+  el.style.display = "block";
+  el.scrollIntoView({behavior:"smooth", block:"center"});
+  setTimeout(() => { el.style.display = "none"; }, 6000);
+}
+
+function gaClearSearch(){
+  const search = document.getElementById("gaSearch");
+  if (search) search.value = "";
+  gaRenderList();
+}
+
+function gaHideForm(){
+  const form = document.querySelector("#gestionAdversairesScreen .ga-form-card");
+  if (form) form.classList.remove("active");
+}
+
+function gaShowForm(){
+  const form = document.querySelector("#gestionAdversairesScreen .ga-form-card");
+  if (form) {
+    form.classList.add("active");
+    form.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+}
+
+function gaNewAdversaire(){
+  ["gaRow","gaClub","gaGymnase","gaAdresse","gaCodePostal","gaVille"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  const title = document.getElementById("gaFormTitle");
+  if (title) title.textContent = "Nouvel adversaire";
+  const btn = document.getElementById("gaSaveBtn");
+  if (btn) btn.textContent = "Créer l’adversaire";
+  gaShowForm();
+}
+
+function gaRenderList(){
+  const list = document.getElementById("gaList");
+  if (!list) return;
+  const q = normalize(document.getElementById("gaSearch")?.value || "");
+
+  let rows = (state.adversaires || []).slice();
+  if (q) {
+    rows = rows.filter(a =>
+      normalize(a.club).includes(q) ||
+      normalize(a.gymnase).includes(q) ||
+      normalize(a.adresse).includes(q) ||
+      normalize(a.codePostal).includes(q) ||
+      normalize(a.ville).includes(q)
+    );
+  }
+
+  rows.sort((a,b) => String(a.club).localeCompare(String(b.club), "fr"));
+
+  if (!rows.length) {
+    list.innerHTML = '<div class="empty">Aucun adversaire trouvé.<div class="gj-empty-action"><button class="btn-light" onclick="gaNewAdversaire()">➕ Créer un adversaire</button></div></div>';
+    return;
+  }
+
+  list.innerHTML = rows.map(a => {
+    const ligne = [a.gymnase, a.adresse, [a.codePostal, a.ville].filter(Boolean).join(" ")].filter(Boolean).join(" • ");
+    return `<div class="item gj-player-card" data-row="${escapeHtml(a.row)}">
+      <div class="item-title">${escapeHtml(a.club)}</div>
+      <div class="item-sub">${escapeHtml(ligne || "Adresse non renseignée")}</div>
+    </div>`;
+  }).join("");
+
+  list.querySelectorAll(".gj-player-card").forEach(node => {
+    node.addEventListener("click", () => gaEditAdversaire(Number(node.dataset.row)));
+  });
+}
+
+function gaEditAdversaire(row){
+  const a = (state.adversaires || []).find(x => Number(x.row) === Number(row));
+  if (!a) return;
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value || ""; };
+  set("gaRow", a.row);
+  set("gaClub", a.club);
+  set("gaGymnase", a.gymnase);
+  set("gaAdresse", a.adresse);
+  set("gaCodePostal", a.codePostal);
+  set("gaVille", a.ville);
+  const title = document.getElementById("gaFormTitle");
+  if (title) title.textContent = "Modifier adversaire — " + (a.club || "");
+  const btn = document.getElementById("gaSaveBtn");
+  if (btn) btn.textContent = "Modifier l’adversaire";
+  gaShowForm();
+}
+
+function gaPayload(){
+  const val = id => String(document.getElementById(id)?.value || "").trim();
+  return {
+    row: val("gaRow"),
+    club: val("gaClub"),
+    gymnase: val("gaGymnase"),
+    adresse: val("gaAdresse"),
+    codePostal: val("gaCodePostal"),
+    ville: val("gaVille")
+  };
+}
+
+async function gaSaveAdversaire(){
+  const code = gmGetStoredCode();
+  if (!code) { gaMessage("Code gestion non disponible. Rentre à nouveau dans Gestion.", false); return; }
+  const data = gaPayload();
+  if (!data.club) {
+    gaMessage("Le nom du club adverse est obligatoire.", false);
+    return;
+  }
+
+  const action = data.row ? "modifierAdversaire" : "ajouterAdversaire";
+  const btn = document.getElementById("gaSaveBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "Enregistrement…"; }
+  try{
+    const res = await fetch(getScriptUrl(), { method:"POST", body: JSON.stringify({ action, codeGestionMatchs: code, ...data }) });
+    const txt = String(await res.text() || "").trim();
+    if (txt === "CODE_GESTION_MATCHS_INVALIDE") { gaMessage("Code gestion incorrect.", false); return; }
+    if (txt === "ADVERSAIRE_DEJA_EXISTANT") { gaMessage("Ce club adverse existe déjà. Recherche-le puis clique sur sa carte pour le modifier.", false); return; }
+    if (!txt.startsWith("OK")) { gaMessage("Erreur : " + txt, false); return; }
+    gaMessage(data.row ? "Adversaire modifié ✅" : "Adversaire ajouté ✅", true);
+    await reloadData();
+    gaRenderList();
+    gaHideForm();
+  }catch(e){
+    gaMessage("Erreur réseau : " + (e.message || e), false);
+  }finally{
+    if (btn) { btn.disabled = false; btn.textContent = data.row ? "Modifier l’adversaire" : "Créer l’adversaire"; }
+  }
+}
+
 async function showGestionMatchsScreen(){
   const ok = await gmEnsureAccess();
   if (!ok) return;
@@ -5446,11 +5631,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V60.73</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V60.74</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V60.74 — Gestion Adversaires / Gymnases ajoutée : recherche, ajout et modification des clubs adverses</li>
         <li>V60.73 — Coach : matchs passés masqués ; Gestion matchs : retour propre après modification ; joueur : code accès non obligatoire à la création</li>
         <li>V60.70 — Gestion Joueurs : séparation claire Modifier un joueur / Créer un nouveau joueur</li>
         <li>V60.69 — Gestion Joueurs : suppression du doublon Ajouter / Créer un joueur, un seul bouton de création visible</li>
