@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V60.78 - Gestion Equipes identite origine securisee -->
+<!-- CAM Basket V60.80 - Retour tactile boutons -->
 
 <html lang="fr">
 <head>
@@ -1539,6 +1539,67 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
 #geList .gj-player-card:active{transform:scale(.985)}
 
 
+
+/* V60.80 - Retour tactile mobile boutons / cartes */
+button,
+.menu-btn,
+.role-menu-card,
+.item,
+.weekend-match,
+.gj-player-card,
+.ge-team-card,
+.gm-tab,
+.bureau-action-btn,
+.link-btn {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    filter 0.08s ease,
+    background-color 0.08s ease,
+    border-color 0.08s ease,
+    opacity 0.08s ease;
+}
+
+button:active,
+.menu-btn:active,
+.role-menu-card:active,
+.item:active,
+.weekend-match:active,
+.gj-player-card:active,
+.ge-team-card:active,
+.gm-tab:active,
+.bureau-action-btn:active,
+.link-btn:active,
+.tap-active {
+  transform: scale(0.965);
+  filter: brightness(1.18);
+}
+
+button:disabled,
+.is-loading {
+  opacity: 0.72 !important;
+  pointer-events: none;
+}
+
+.tap-loading {
+  position: relative;
+}
+
+.tap-loading::after {
+  content: "Ouverture...";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--accent);
+  opacity: .9;
+}
+
 </style>
 
 
@@ -1630,7 +1691,7 @@ hr,.separator{border-color:rgba(255,212,0,.18)!important;background:transparent!
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.79</button>
+    ">V60.80</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -5674,6 +5735,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V60.80 — Retour tactile : boutons et cartes plus réactifs au toucher</li>
         <li>V60.78 — Gestion Équipes sécurisée : identité d’origine envoyée au serveur</li>
         <li>V60.74 — Gestion Adversaires / Gymnases ajoutée : recherche, ajout et modification des clubs adverses</li>
         <li>V60.73 — Coach : matchs passés masqués ; Gestion matchs : retour propre après modification ; joueur : code accès non obligatoire à la création</li>
@@ -5906,6 +5968,49 @@ function appliquerConfig() {
   if (ml) ml.src = logoSrc;
   if (sl) sl.src = logoSrc;
 }
+
+
+/* V60.80 - Feedback tactile immédiat */
+(function(){
+  const TAP_SELECTOR = [
+    "button",
+    ".menu-btn",
+    ".role-menu-card",
+    ".item",
+    ".weekend-match",
+    ".gj-player-card",
+    ".ge-team-card",
+    ".gm-tab",
+    ".bureau-action-btn",
+    ".link-btn"
+  ].join(",");
+
+  function addTapFeedback(el){
+    if (!el || el.classList.contains("is-loading")) return;
+    el.classList.add("tap-active");
+    window.setTimeout(function(){
+      el.classList.remove("tap-active");
+    }, 140);
+  }
+
+  document.addEventListener("pointerdown", function(e){
+    const el = e.target && e.target.closest ? e.target.closest(TAP_SELECTOR) : null;
+    if (!el) return;
+    addTapFeedback(el);
+  }, {passive:true});
+
+  document.addEventListener("click", function(e){
+    const el = e.target && e.target.closest ? e.target.closest(TAP_SELECTOR) : null;
+    if (!el) return;
+
+    if (el.classList.contains("role-menu-card") || el.classList.contains("menu-btn")) {
+      el.classList.add("tap-loading");
+      window.setTimeout(function(){
+        el.classList.remove("tap-loading");
+      }, 260);
+    }
+  }, true);
+})();
 
 </script>
 
