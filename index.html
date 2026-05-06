@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V60.80 - Retour tactile boutons -->
+<!-- CAM Basket V60.82 - Mode modification adversaires fiabilise -->
 
 <html lang="fr">
 <head>
@@ -1691,7 +1691,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.80</button>
+    ">V60.82</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2178,7 +2178,14 @@ button:disabled,
 
       <div class="card gj-form-card ga-form-card">
         <h2 id="gaFormTitle">Nouvel adversaire</h2>
+        <div id="gaModeBadge" class="gj-mode-badge" style="display:none">Mode modification</div>
         <input id="gaRow" type="hidden">
+        <input id="gaOrigRow" type="hidden">
+        <input id="gaOrigClub" type="hidden">
+        <input id="gaOrigGymnase" type="hidden">
+        <input id="gaOrigAdresse" type="hidden">
+        <input id="gaOrigCodePostal" type="hidden">
+        <input id="gaOrigVille" type="hidden">
         <div class="gj-field"><label>Club adverse</label><input id="gaClub" type="text" placeholder="Ex : Bourges"></div>
         <div class="gj-field"><label>Gymnase</label><input id="gaGymnase" type="text" placeholder="Ex : Gymnase Jules Ladoumègue"></div>
         <div class="gj-field"><label>Adresse</label><input id="gaAdresse" type="text" placeholder="Rue, avenue, lieu-dit…"></div>
@@ -4546,11 +4553,19 @@ function gaShowForm(){
   }
 }
 
+
+let gaEditingRow = "";
+let gaEditingClub = "";
+
 function gaNewAdversaire(){
-  ["gaRow","gaClub","gaGymnase","gaAdresse","gaCodePostal","gaVille"].forEach(id => {
+  gaEditingRow = "";
+  gaEditingClub = "";
+  ["gaRow","gaOrigRow","gaOrigClub","gaOrigGymnase","gaOrigAdresse","gaOrigCodePostal","gaOrigVille","gaClub","gaGymnase","gaAdresse","gaCodePostal","gaVille"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
+  const badge = document.getElementById("gaModeBadge");
+  if (badge) { badge.style.display = "none"; badge.textContent = "Mode création"; }
   const title = document.getElementById("gaFormTitle");
   if (title) title.textContent = "Nouvel adversaire";
   const btn = document.getElementById("gaSaveBtn");
@@ -4597,8 +4612,16 @@ function gaRenderList(){
 function gaEditAdversaire(row){
   const a = (state.adversaires || []).find(x => Number(x.row) === Number(row));
   if (!a) return;
+  gaEditingRow = String(a.row || row || "");
+  gaEditingClub = String(a.club || "");
   const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value || ""; };
   set("gaRow", a.row);
+  set("gaOrigRow", a.row);
+  set("gaOrigClub", a.club);
+  set("gaOrigGymnase", a.gymnase);
+  set("gaOrigAdresse", a.adresse);
+  set("gaOrigCodePostal", a.codePostal);
+  set("gaOrigVille", a.ville);
   set("gaClub", a.club);
   set("gaGymnase", a.gymnase);
   set("gaAdresse", a.adresse);
@@ -4608,13 +4631,25 @@ function gaEditAdversaire(row){
   if (title) title.textContent = "Modifier adversaire — " + (a.club || "");
   const btn = document.getElementById("gaSaveBtn");
   if (btn) btn.textContent = "Modifier l’adversaire";
+  const badge = document.getElementById("gaModeBadge");
+  if (badge) { badge.style.display = "inline-block"; badge.textContent = "Mode modification — ligne " + (a.row || row); }
   gaShowForm();
 }
 
 function gaPayload(){
   const val = id => String(document.getElementById(id)?.value || "").trim();
+  const row = val("gaRow") || gaEditingRow || "";
+  const originalRow = val("gaOrigRow") || gaEditingRow || "";
+  const originalClub = val("gaOrigClub") || gaEditingClub || "";
   return {
-    row: val("gaRow"),
+    mode: (row || originalRow || originalClub) ? "edit" : "add",
+    row: row,
+    originalRow: originalRow,
+    originalClub: originalClub,
+    originalGymnase: val("gaOrigGymnase"),
+    originalAdresse: val("gaOrigAdresse"),
+    originalCodePostal: val("gaOrigCodePostal"),
+    originalVille: val("gaOrigVille"),
     club: val("gaClub"),
     gymnase: val("gaGymnase"),
     adresse: val("gaAdresse"),
@@ -4632,7 +4667,7 @@ async function gaSaveAdversaire(){
     return;
   }
 
-  const action = data.row ? "modifierAdversaire" : "ajouterAdversaire";
+  const action = (data.mode === "edit" || data.row || data.originalRow || data.originalClub) ? "modifierAdversaire" : "ajouterAdversaire";
   const btn = document.getElementById("gaSaveBtn");
   if (btn) { btn.disabled = true; btn.textContent = "Enregistrement…"; }
   try{
@@ -4640,6 +4675,9 @@ async function gaSaveAdversaire(){
     const txt = String(await res.text() || "").trim();
     if (txt === "CODE_GESTION_MATCHS_INVALIDE") { gaMessage("Code gestion incorrect.", false); return; }
     if (txt === "ADVERSAIRE_DEJA_EXISTANT") { gaMessage("Ce club adverse existe déjà. Recherche-le puis clique sur sa carte pour le modifier.", false); return; }
+    if (txt === "ADVERSAIRE_SOURCE_INTROUVABLE") { gaMessage("Adversaire source introuvable. Recharge les données puis recommence.", false); return; }
+    if (txt === "ADVERSAIRE_SOURCE_AMBIGU") { gaMessage("Plusieurs adversaires correspondent. Modification bloquée pour éviter d'écraser une mauvaise ligne.", false); return; }
+    if (txt === "LIGNE_ADVERSAIRE_NE_CORRESPOND_PAS") { gaMessage("Sécurité : la ligne ne correspond pas à l'adversaire sélectionné. Recharge puis recommence.", false); return; }
     if (!txt.startsWith("OK")) { gaMessage("Erreur : " + txt, false); return; }
     gaMessage(data.row ? "Adversaire modifié ✅" : "Adversaire ajouté ✅", true);
     await reloadData();
@@ -5735,6 +5773,8 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V60.82 — Mode modification adversaires fiabilisé : clic carte force le mode modification</li>
+        <li>V60.81 — Correctif modification adversaires : renommer un club modifie la ligne existante au lieu de créer un doublon</li>
         <li>V60.80 — Retour tactile : boutons et cartes plus réactifs au toucher</li>
         <li>V60.78 — Gestion Équipes sécurisée : identité d’origine envoyée au serveur</li>
         <li>V60.74 — Gestion Adversaires / Gymnases ajoutée : recherche, ajout et modification des clubs adverses</li>
