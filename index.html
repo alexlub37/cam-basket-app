@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V61.00 - Base stabilisee apres V60.82 -->
+<!-- CAM Basket V61.01 - Badge forfait sur cartes week-end -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V61.00" />
+  <meta name="cam-basket-version" content="V61.01" />
   <style>
     :root{
       --bg:#050505;
@@ -1607,6 +1607,34 @@ button:disabled,
    Les blocs V60.x conserves restent actifs car plusieurs corrections validées en dépendent.
    Nettoyage destructif reporte apres tests complets. */
 
+
+/* V61.01 - Badges forfait sur carte week-end */
+.weekend-status{
+  display:inline-block;
+  min-width:38px;
+  text-align:center;
+  font-size:10px;
+  padding:3px 7px;
+  border-radius:999px;
+  font-weight:950;
+  white-space:nowrap;
+  margin-top:2px;
+}
+.weekend-status.forfait-adverse{
+  background:rgba(255,159,28,0.18);
+  color:#ffd08a;
+  border:1px solid rgba(255,159,28,.65);
+}
+.weekend-status.forfait-cam{
+  background:rgba(224,64,64,0.18);
+  color:#ffaaaa;
+  border:1px solid rgba(224,64,64,.72);
+}
+.weekend-match.has-forfait{
+  opacity:.82;
+  border-left-color:#ff9f1c;
+}
+
 </style>
 
 
@@ -1698,7 +1726,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V61.00</button>
+    ">V61.01</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -5317,6 +5345,17 @@ function renderWeekend() {
     return jours[d.getDay()] || "";
   }
 
+  function statutWeekendInfo(m) {
+    const s = normalize(m && m.statut);
+    if (s === "forfait adverse") {
+      return { label: "Forfait adv.", cls: "forfait-adverse" };
+    }
+    if (s === "forfait cam") {
+      return { label: "Forfait CAM", cls: "forfait-cam" };
+    }
+    return null;
+  }
+
   const matchsWE = (state.matchs || []).filter(m => {
     if (!m.date) return false;
     if (state.season && !sameSeason(m.saison, state.season)) return false;
@@ -5360,9 +5399,10 @@ function renderWeekend() {
         const isDom = isHomeType(m.type);
         const typeClass = isDom ? "type-dom" : "type-ext";
         const typeLabel = isDom ? "Dom" : "Ext";
+        const statutInfo = statutWeekendInfo(m);
         const adversaire = m.adversaire || buildMatchDisplay(m);
         return `
-          <div class="weekend-match" data-home-match-idx="${i}" title="Ouvrir le détail du match">
+          <div class="weekend-match ${statutInfo ? "has-forfait" : ""}" data-home-match-idx="${i}" title="Ouvrir le détail du match">
             <div class="weekend-main">
               <div class="weekend-match-equipe">${escapeHtml(m.equipe || "Équipe ?")}</div>
               <div class="weekend-match-adversaire">vs ${escapeHtml(adversaire || "Adversaire ?")}</div>
@@ -5370,6 +5410,7 @@ function renderWeekend() {
             <div class="weekend-meta">
               <div class="weekend-date">${escapeHtml(d ? jourCourt(d) : "?")}<small>${escapeHtml(m.heure || "?")}</small></div>
               <span class="weekend-match-type ${typeClass}">${typeLabel}</span>
+              ${statutInfo ? `<span class="weekend-status ${statutInfo.cls}">${escapeHtml(statutInfo.label)}</span>` : ""}
             </div>
           </div>`;
       }).join("")}
@@ -5780,6 +5821,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V61.01 — Cartes week-end : affichage Forfait CAM / Forfait adversaire</li>
         <li>V61.00 — Base stabilisée : aucune nouvelle fonction, conservation de V60.82 validée</li>
         <li>V60.82 — Mode modification adversaires fiabilisé : clic carte force le mode modification</li>
         <li>V60.81 — Correctif modification adversaires : renommer un club modifie la ligne existante au lieu de créer un doublon</li>
@@ -6062,7 +6104,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V61.00";
+window.CAM_BASKET_VERSION = "V61.01";
 
 </script>
 
