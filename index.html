@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V60.82 - Mode modification adversaires fiabilise -->
+<!-- CAM Basket V61.00 - Base stabilisee apres V60.82 -->
 
 <html lang="fr">
 <head>
@@ -13,6 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
+  <meta name="cam-basket-version" content="V61.00" />
   <style>
     :root{
       --bg:#050505;
@@ -1600,6 +1601,12 @@ button:disabled,
   opacity: .9;
 }
 
+
+/* V61.00 - Note nettoyage
+   Base stabilisee sans suppression agressive des anciennes couches CSS.
+   Les blocs V60.x conserves restent actifs car plusieurs corrections validées en dépendent.
+   Nettoyage destructif reporte apres tests complets. */
+
 </style>
 
 
@@ -1691,7 +1698,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V60.82</button>
+    ">V61.00</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -5773,6 +5780,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V61.00 — Base stabilisée : aucune nouvelle fonction, conservation de V60.82 validée</li>
         <li>V60.82 — Mode modification adversaires fiabilisé : clic carte force le mode modification</li>
         <li>V60.81 — Correctif modification adversaires : renommer un club modifie la ligne existante au lieu de créer un doublon</li>
         <li>V60.80 — Retour tactile : boutons et cartes plus réactifs au toucher</li>
@@ -6051,6 +6059,10 @@ function appliquerConfig() {
     }
   }, true);
 })();
+
+
+/* V61.00 - Marqueur de version stabilisee */
+window.CAM_BASKET_VERSION = "V61.00";
 
 </script>
 
