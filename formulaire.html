@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+<!-- CAM Basket formulaire V61.05 - message connexion instable au lieu de Failed to fetch -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Formulaire Match V60.39</title>
+<title>Formulaire Match V61.05</title>
 
 <style>
 body{
@@ -595,7 +596,24 @@ async function envoyerFormulaire() {
     } else if (msg.includes("QUOTA_NOURRITURE_COMPLET")) {
       alert("Le quota Nourriture est déjà complet.");
     } else {
-      alert("Erreur d'envoi ❌ : " + msg);
+      const isNetworkError =
+        msg.includes("Failed to fetch") ||
+        msg.includes("NetworkError") ||
+        msg.includes("Load failed") ||
+        msg.includes("Failed to load") ||
+        msg.includes("fetch");
+
+      if (isNetworkError) {
+        alert(
+          "Connexion instable ⚠️\n\n" +
+          "Ta réponse a peut-être bien été enregistrée.\n" +
+          "Avant de recommencer, vérifie dans le détail du match si ton nom apparaît bien.\n\n" +
+          "Si ton nom apparaît : ne renvoie pas la réponse.\n" +
+          "Si ton nom n’apparaît pas : tu peux réessayer."
+        );
+      } else {
+        alert("Erreur d'envoi ❌ : " + msg);
+      }
     }
   });
 }
