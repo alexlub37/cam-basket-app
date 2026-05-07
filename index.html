@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V61.03 - WhatsApp bouton manuel + vidage formulaire match -->
+<!-- CAM Basket V61.04 - WhatsApp avant vidage formulaire match -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V61.03" />
+  <meta name="cam-basket-version" content="V61.04" />
   <style>
     :root{
       --bg:#050505;
@@ -1775,7 +1775,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V61.03</button>
+    ">V61.04</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -3412,13 +3412,22 @@ button:disabled,
 
       const text = document.createElement("div");
       text.className = "gm-share-prompt-text";
-      text.textContent = "Le match est enregistré. Appuie sur le bouton pour ouvrir WhatsApp avec le message et le lien direct vers le match.";
+      text.textContent = mode === "ajout"
+        ? "Le match est enregistré. Appuie sur WhatsApp, puis le formulaire sera vidé."
+        : "Le match est enregistré. Appuie sur WhatsApp pour prévenir l’équipe avec le lien direct vers le match.";
 
       const btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = "Envoyer l’info WhatsApp";
       btn.onclick = function(){
         ouvrirWhatsappEquipeMatch(m, mode);
+        if (mode === "ajout") {
+          gmResetAddFormAfterSave();
+          gmShowMessage("WhatsApp ouvert ✅ — formulaire vidé", true);
+        } else {
+          gmShowMessage("WhatsApp ouvert ✅", true);
+        }
+        cacherWhatsappMatchPrompt();
       };
 
       box.appendChild(title);
@@ -5154,9 +5163,9 @@ async function gmAjouterMatch(){
     gmShowMessage("Match ajouté ✅", true);
     await reloadData();
     const matchPourWhatsapp = findMatchForShareFromData(data, null);
-    showGestionMatchsScreen();
+    renderGestionMatchs();
+    showScreen("gestionMatchsScreen");
     gmSetMode("add");
-    gmResetAddFormAfterSave();
     afficherWhatsappMatchPrompt(matchPourWhatsapp, "ajout");
   }catch(e){
     gmShowMessage("Erreur ajout : " + (e.message || e), false);
@@ -5263,7 +5272,8 @@ async function gmModifierMatch(){
     await reloadData();
     const matchPourWhatsapp = findMatchForShareFromData(data, ancienMatchPourPartage);
     gmCurrentMatch = null;
-    showGestionMatchsScreen();
+    renderGestionMatchs();
+    showScreen("gestionMatchsScreen");
     gmSetMode("edit");
     afficherWhatsappMatchPrompt(matchPourWhatsapp, "modif");
   }catch(e){
@@ -6063,6 +6073,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V61.04 — WhatsApp avant vidage : le formulaire ajout match se vide après clic WhatsApp</li>
         <li>V61.03 — WhatsApp : bouton manuel après enregistrement + vidage du formulaire ajout match</li>
         <li>V61.02 — WhatsApp : lien direct vers le détail du match après ajout ou modification</li>
         <li>V61.01 — Cartes week-end : affichage Forfait CAM / Forfait adversaire</li>
@@ -6348,7 +6359,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V61.03";
+window.CAM_BASKET_VERSION = "V61.04";
 
 </script>
 
