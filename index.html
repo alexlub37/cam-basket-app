@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V61.01 - Badge forfait sur cartes week-end -->
+<!-- CAM Basket V61.02 - Lien direct WhatsApp vers match -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V61.01" />
+  <meta name="cam-basket-version" content="V61.02" />
   <style>
     :root{
       --bg:#050505;
@@ -1635,6 +1635,20 @@ button:disabled,
   border-left-color:#ff9f1c;
 }
 
+
+/* V61.02 - Lien direct match WhatsApp */
+.gm-share-note{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,212,0,.35);
+  background:rgba(255,212,0,.08);
+  color:var(--accent);
+  font-size:13px;
+  font-weight:800;
+  line-height:1.35;
+}
+
 </style>
 
 
@@ -1726,7 +1740,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V61.01</button>
+    ">V61.02</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2764,6 +2778,8 @@ button:disabled,
         renderBureau();
         renderBenevoles();
         renderWeekend();
+        // V61.02 : si l'app est ouverte avec un lien direct WhatsApp, ouvrir le match après chargement.
+        setTimeout(handleDirectMatchLinkOnce, 350);
         // Appliquer CONFIG après rendu
         // CONFIG déjà appliquée au début du chargement
         setTimeout(appliquerConfig, 300);
@@ -3236,6 +3252,130 @@ button:disabled,
         m.date || "",
         m.heure || ""
       ].map(x => normalize(x)).join("|");
+    }
+
+    // V61.02 — lien direct partageable vers un match.
+    function normaliserDateLienMatch(value){
+      const txt = String(value || "").trim();
+      if (!txt) return "";
+      const iso = txt.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (iso) return iso[3] + "/" + iso[2] + "/" + iso[1];
+      const fr = txt.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+      if (fr) {
+        let y = fr[3];
+        if (y.length === 2) y = "20" + y;
+        return String(fr[1]).padStart(2,"0") + "/" + String(fr[2]).padStart(2,"0") + "/" + y;
+      }
+      return txt;
+    }
+
+    function normaliserHeureLienMatch(value){
+      let txt = String(value || "").trim().toLowerCase().replace(":", "h").replace(/\s+/g, "");
+      if (!txt) return "";
+      const hm = txt.match(/^(\d{1,2})h(\d{1,2})$/);
+      if (hm) return String(Number(hm[1])).padStart(2,"0") + "h" + String(Number(hm[2])).padStart(2,"0");
+      const h = txt.match(/^(\d{1,2})h?$/);
+      if (h) return String(Number(h[1])).padStart(2,"0") + "h00";
+      return txt;
+    }
+
+    function buildMatchKeyFromPartsLienMatch(equipe, adversaire, type, date, heure){
+      return [
+        equipe || "",
+        adversaire || "",
+        badgeForType(type).label || type || "",
+        normaliserDateLienMatch(date),
+        normaliserHeureLienMatch(heure)
+      ].map(x => normalize(x)).join("|");
+    }
+
+    function buildDirectMatchUrl(m){
+      const url = new URL(window.location.origin + window.location.pathname);
+      url.searchParams.set("matchKey", buildMatchKey(m));
+      if (m && m.row) url.searchParams.set("matchRow", String(m.row));
+      return url.toString();
+    }
+
+    function findMatchByDirectParams(matchKey, matchRow){
+      const rows = state.matchs || [];
+      const rowNum = Number(matchRow || 0);
+      if (rowNum) {
+        const byRow = rows.find(m => Number(m.row) === rowNum);
+        if (byRow) return byRow;
+      }
+      const key = String(matchKey || "").trim();
+      if (!key) return null;
+      return rows.find(m => buildMatchKey(m) === key) || null;
+    }
+
+    function findMatchForShareFromData(data, fallback){
+      data = data || {};
+      const adversaire = data.adversaire || data.nouveauClubNom || (fallback && fallback.adversaire) || "";
+      const key = buildMatchKeyFromPartsLienMatch(
+        data.equipe || (fallback && fallback.equipe) || "",
+        adversaire,
+        data.lieu || (fallback && fallback.type) || "",
+        data.date || (fallback && fallback.date) || "",
+        data.heure || (fallback && fallback.heure) || ""
+      );
+      const rows = state.matchs || [];
+      return rows.find(m => buildMatchKey(m) === key) ||
+             rows.find(m => normalize(m.equipe) === normalize(data.equipe || (fallback && fallback.equipe)) &&
+                            normalize(m.adversaire) === normalize(adversaire) &&
+                            normalize(m.date) === normalize(normaliserDateLienMatch(data.date || (fallback && fallback.date))) &&
+                            normalize(m.heure) === normalize(normaliserHeureLienMatch(data.heure || (fallback && fallback.heure)))) ||
+             null;
+    }
+
+    function buildWhatsAppMatchMessage(m, mode){
+      const directUrl = buildDirectMatchUrl(m);
+      const titre = mode === "modif" ? "🏀 Match modifié" : "🏀 Nouveau match ajouté";
+      const ligneMatch = buildMatchDisplay(m);
+      const lieu = [m.gymnase, m.ville].filter(Boolean).join(" — ");
+      return [
+        titre,
+        "",
+        "Équipe : " + (m.equipe || "-"),
+        "Match : " + (ligneMatch || "-"),
+        "Date : " + (m.date || "-"),
+        "Heure : " + (m.heure || "-"),
+        "Lieu : " + (lieu || badgeForType(m.type).label || "-"),
+        "",
+        "Merci de répondre dans l’application :",
+        directUrl
+      ].join("\n");
+    }
+
+    function proposerWhatsappEquipeMatch(m, mode){
+      if (!m) return;
+      const question = mode === "modif"
+        ? "Prévenir l’équipe de la modification sur WhatsApp ?"
+        : "Prévenir l’équipe du nouveau match sur WhatsApp ?";
+      if (!window.confirm(question)) return;
+      const text = encodeURIComponent(buildWhatsAppMatchMessage(m, mode));
+      window.open("https://wa.me/?text=" + text, "_blank");
+    }
+
+    function handleDirectMatchLinkOnce(){
+      const params = new URLSearchParams(window.location.search || "");
+      const key = params.get("matchKey") || "";
+      const row = params.get("matchRow") || "";
+      if (!key && !row) return;
+
+      const token = row + "|" + key;
+      if (state.directMatchToken === token) return;
+      state.directMatchToken = token;
+
+      const m = findMatchByDirectParams(key, row);
+      if (!m) {
+        setStatus("Lien match reçu, mais match introuvable");
+        return;
+      }
+
+      state.currentMatchRows = [m];
+      state.detailBackScreen = "homeScreen";
+      setActiveButton("home");
+      openMatchDetail(0);
     }
 
     function rowArrayToObject(headers, row){
@@ -4918,7 +5058,9 @@ async function gmAjouterMatch(){
     await gmPost(data);
     gmShowMessage("Match ajouté ✅", true);
     await reloadData();
+    const matchPourWhatsapp = findMatchForShareFromData(data, null);
     showGestionMatchsScreen();
+    setTimeout(() => proposerWhatsappEquipeMatch(matchPourWhatsapp, "ajout"), 250);
   }catch(e){
     gmShowMessage("Erreur ajout : " + (e.message || e), false);
   }finally{
@@ -5020,10 +5162,13 @@ async function gmModifierMatch(){
     if (reconfirm > 0) msg += " — " + reconfirm + " réponse(s) à reconfirmer";
     if (annulees > 0) msg += " — " + annulees + " réponse(s) annulée(s)";
     gmShowMessage(msg, true);
+    const ancienMatchPourPartage = gmCurrentMatch;
     await reloadData();
+    const matchPourWhatsapp = findMatchForShareFromData(data, ancienMatchPourPartage);
     gmCurrentMatch = null;
     showScreen("gestionClubScreen");
     setActiveButton("gestion");
+    setTimeout(() => proposerWhatsappEquipeMatch(matchPourWhatsapp, "modif"), 250);
   }catch(e){
     gmShowMessage("Erreur modification : " + (e.message || e), false);
   }finally{
@@ -5821,6 +5966,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V61.02 — WhatsApp : lien direct vers le détail du match après ajout ou modification</li>
         <li>V61.01 — Cartes week-end : affichage Forfait CAM / Forfait adversaire</li>
         <li>V61.00 — Base stabilisée : aucune nouvelle fonction, conservation de V60.82 validée</li>
         <li>V60.82 — Mode modification adversaires fiabilisé : clic carte force le mode modification</li>
@@ -6104,7 +6250,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V61.01";
+window.CAM_BASKET_VERSION = "V61.02";
 
 </script>
 
