@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V61.02 - Lien direct WhatsApp vers match -->
+<!-- CAM Basket V61.03 - WhatsApp bouton manuel + vidage formulaire match -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V61.02" />
+  <meta name="cam-basket-version" content="V61.03" />
   <style>
     :root{
       --bg:#050505;
@@ -1649,6 +1649,41 @@ button:disabled,
   line-height:1.35;
 }
 
+
+/* V61.03 - Bouton WhatsApp manuel après ajout/modif match */
+.gm-share-prompt{
+  display:none;
+  margin:12px 0;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(255,212,0,.45);
+  background:rgba(255,212,0,.08);
+  color:#fff;
+}
+.gm-share-prompt.active{display:block}
+.gm-share-prompt-title{
+  color:var(--accent);
+  font-weight:950;
+  font-size:15px;
+  margin-bottom:6px;
+}
+.gm-share-prompt-text{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
+  margin-bottom:10px;
+}
+.gm-share-prompt button{
+  width:100%;
+  min-height:50px!important;
+  border-radius:18px!important;
+  background:#ffd400!important;
+  color:#000!important;
+  border:2px solid #fff!important;
+  font-weight:950!important;
+  font-size:16px!important;
+}
+
 </style>
 
 
@@ -1740,7 +1775,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V61.02</button>
+    ">V61.03</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2260,6 +2295,7 @@ button:disabled,
       </div>
 
       <div id="gmMessage" class="gm-message"></div>
+      <div id="gmSharePrompt" class="gm-share-prompt"></div>
 
       <div id="gmAddPanel" class="card">
         <h2 id="gmAddTitle">Ajouter un match</h2>
@@ -3346,14 +3382,49 @@ button:disabled,
       ].join("\n");
     }
 
-    function proposerWhatsappEquipeMatch(m, mode){
+    function ouvrirWhatsappEquipeMatch(m, mode){
       if (!m) return;
-      const question = mode === "modif"
-        ? "Prévenir l’équipe de la modification sur WhatsApp ?"
-        : "Prévenir l’équipe du nouveau match sur WhatsApp ?";
-      if (!window.confirm(question)) return;
       const text = encodeURIComponent(buildWhatsAppMatchMessage(m, mode));
       window.open("https://wa.me/?text=" + text, "_blank");
+    }
+
+    function cacherWhatsappMatchPrompt(){
+      const box = document.getElementById("gmSharePrompt");
+      if (!box) return;
+      box.className = "gm-share-prompt";
+      box.innerHTML = "";
+    }
+
+    function afficherWhatsappMatchPrompt(m, mode){
+      const box = document.getElementById("gmSharePrompt");
+      if (!box || !m) return;
+
+      const titre = mode === "modif"
+        ? "Prévenir l’équipe de la modification"
+        : "Prévenir l’équipe du nouveau match";
+
+      box.className = "gm-share-prompt active";
+      box.innerHTML = "";
+
+      const title = document.createElement("div");
+      title.className = "gm-share-prompt-title";
+      title.textContent = "📲 " + titre;
+
+      const text = document.createElement("div");
+      text.className = "gm-share-prompt-text";
+      text.textContent = "Le match est enregistré. Appuie sur le bouton pour ouvrir WhatsApp avec le message et le lien direct vers le match.";
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "Envoyer l’info WhatsApp";
+      btn.onclick = function(){
+        ouvrirWhatsappEquipeMatch(m, mode);
+      };
+
+      box.appendChild(title);
+      box.appendChild(text);
+      box.appendChild(btn);
+      box.scrollIntoView({behavior:"smooth", block:"center"});
     }
 
     function handleDirectMatchLinkOnce(){
@@ -4990,6 +5061,7 @@ function renderGestionMatchs(){
 }
 
 function gmSetMode(mode){
+  cacherWhatsappMatchPrompt();
   const add = mode === "add";
   document.getElementById("gmAddPanel").classList.toggle("gm-hidden", !add);
   document.getElementById("gmEditPanel").classList.toggle("gm-hidden", add);
@@ -5005,6 +5077,29 @@ function gmOnAddAdversaireChange(){
 function gmOnAddLieuChange(){
   const lieu = document.getElementById("gmAddLieu").value;
   document.getElementById("gmAddOfficiels").classList.toggle("gm-hidden", lieu !== "Domicile");
+}
+
+function gmResetAddFormAfterSave(){
+  const ids = [
+    "gmAddDate","gmAddHeure","gmAddArbitre1","gmAddArbitre2","gmAddChrono","gmAddTable",
+    "gmNewClubNom","gmNewClubGymnase","gmNewClubAdresse","gmNewClubCP","gmNewClubVille"
+  ];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  const adv = document.getElementById("gmAddAdversaire");
+  if (adv) adv.value = "";
+
+  const lieu = document.getElementById("gmAddLieu");
+  if (lieu) lieu.value = "";
+
+  const newBox = document.getElementById("gmNewClubBox");
+  if (newBox) newBox.classList.add("gm-hidden");
+
+  const officiels = document.getElementById("gmAddOfficiels");
+  if (officiels) officiels.classList.add("gm-hidden");
 }
 
 async function gmPost(data){
@@ -5060,7 +5155,9 @@ async function gmAjouterMatch(){
     await reloadData();
     const matchPourWhatsapp = findMatchForShareFromData(data, null);
     showGestionMatchsScreen();
-    setTimeout(() => proposerWhatsappEquipeMatch(matchPourWhatsapp, "ajout"), 250);
+    gmSetMode("add");
+    gmResetAddFormAfterSave();
+    afficherWhatsappMatchPrompt(matchPourWhatsapp, "ajout");
   }catch(e){
     gmShowMessage("Erreur ajout : " + (e.message || e), false);
   }finally{
@@ -5166,9 +5263,9 @@ async function gmModifierMatch(){
     await reloadData();
     const matchPourWhatsapp = findMatchForShareFromData(data, ancienMatchPourPartage);
     gmCurrentMatch = null;
-    showScreen("gestionClubScreen");
-    setActiveButton("gestion");
-    setTimeout(() => proposerWhatsappEquipeMatch(matchPourWhatsapp, "modif"), 250);
+    showGestionMatchsScreen();
+    gmSetMode("edit");
+    afficherWhatsappMatchPrompt(matchPourWhatsapp, "modif");
   }catch(e){
     gmShowMessage("Erreur modification : " + (e.message || e), false);
   }finally{
@@ -5966,6 +6063,7 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V61.03 — WhatsApp : bouton manuel après enregistrement + vidage du formulaire ajout match</li>
         <li>V61.02 — WhatsApp : lien direct vers le détail du match après ajout ou modification</li>
         <li>V61.01 — Cartes week-end : affichage Forfait CAM / Forfait adversaire</li>
         <li>V61.00 — Base stabilisée : aucune nouvelle fonction, conservation de V60.82 validée</li>
@@ -6250,7 +6348,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V61.02";
+window.CAM_BASKET_VERSION = "V61.03";
 
 </script>
 
