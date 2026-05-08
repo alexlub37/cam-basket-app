@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V61.04 - WhatsApp avant vidage formulaire match -->
+<!-- CAM Basket V61.06 - Masquage réel modules Gestion via CONFIG -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V61.04" />
+  <meta name="cam-basket-version" content="V61.06" />
   <style>
     :root{
       --bg:#050505;
@@ -1650,6 +1650,9 @@ button:disabled,
 }
 
 
+/* V61.06 - Masquage réel des modules Gestion via CONFIG */
+.gestion-menu-hidden{display:none!important;}
+
 /* V61.03 - Bouton WhatsApp manuel après ajout/modif match */
 .gm-share-prompt{
   display:none;
@@ -1775,7 +1778,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V61.04</button>
+    ">V61.06</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2091,29 +2094,29 @@ button:disabled,
         <div id="gestionClubText" class="muted">Espace privé pour gérer les données du club.</div>
       </div>
       <div class="role-grid">
-        <button class="menu-btn role-menu-card" onclick="showGestionMatchsScreen()">
-          <span class="big">🏀 Matchs</span>
-          <span class="small">Ajouter ou modifier les matchs.</span>
+        <button id="gestionMenuMatchs" class="menu-btn role-menu-card" onclick="showGestionMatchsScreen()">
+          <span id="gestionMenuMatchsTitle" class="big">🏀 Matchs</span>
+          <span id="gestionMenuMatchsText" class="small">Ajouter ou modifier les matchs.</span>
         </button>
-        <button class="menu-btn role-menu-card" onclick="showGestionJoueursScreen()">
-          <span class="big">👥 Joueurs / Licences</span>
-          <span class="small">Ajouter, modifier ou désactiver les joueurs.</span>
+        <button id="gestionMenuJoueurs" class="menu-btn role-menu-card" onclick="showGestionJoueursScreen()">
+          <span id="gestionMenuJoueursTitle" class="big">👥 Joueurs / Licences</span>
+          <span id="gestionMenuJoueursText" class="small">Ajouter, modifier ou désactiver les joueurs.</span>
         </button>
-        <button class="menu-btn role-menu-card" onclick="showGestionEquipesScreen()">
-          <span class="big">🏷️ Équipes</span>
-          <span class="small">Gérer équipes, coachs et entraînements.</span>
+        <button id="gestionMenuEquipes" class="menu-btn role-menu-card" onclick="showGestionEquipesScreen()">
+          <span id="gestionMenuEquipesTitle" class="big">🏷️ Équipes</span>
+          <span id="gestionMenuEquipesText" class="small">Gérer équipes, coachs et entraînements.</span>
         </button>
-        <button class="menu-btn role-menu-card" onclick="showGestionAdversairesScreen()">
-          <span class="big">📍 Adversaires / Gymnases</span>
-          <span class="small">Ajouter ou modifier les clubs adverses et leurs adresses.</span>
+        <button id="gestionMenuAdversaires" class="menu-btn role-menu-card" onclick="showGestionAdversairesScreen()">
+          <span id="gestionMenuAdversairesTitle" class="big">📍 Adversaires / Gymnases</span>
+          <span id="gestionMenuAdversairesText" class="small">Ajouter ou modifier les clubs adverses et leurs adresses.</span>
         </button>
-        <button class="menu-btn role-menu-card disabled" onclick="alert('Gestion officiels prévue dans une prochaine version.')">
-          <span class="big">👨‍⚖️ Officiels</span>
-          <span class="small">Préparé pour arbitres, chrono et table.</span>
+        <button id="gestionMenuOfficiels" class="menu-btn role-menu-card disabled" onclick="alert('Gestion officiels prévue dans une prochaine version.')">
+          <span id="gestionMenuOfficielsTitle" class="big">👨‍⚖️ Officiels</span>
+          <span id="gestionMenuOfficielsText" class="small">Préparé pour arbitres, chrono et table.</span>
         </button>
-        <button class="menu-btn role-menu-card disabled" onclick="alert('Réglages CONFIG prévus plus tard.')">
-          <span class="big">⚙️ Réglages</span>
-          <span class="small">Préparé pour modifier CONFIG depuis l’app.</span>
+        <button id="gestionMenuReglages" class="menu-btn role-menu-card disabled" onclick="alert('Réglages CONFIG prévus plus tard.')">
+          <span id="gestionMenuReglagesTitle" class="big">⚙️ Réglages</span>
+          <span id="gestionMenuReglagesText" class="small">Préparé pour modifier CONFIG depuis l’app.</span>
         </button>
       </div>
     </section>
@@ -6293,6 +6296,36 @@ function appliquerConfig() {
   setCfgText("bureauCardText", "bureau_texte", "Membres du bureau de l’association.", "bureau_texte_actif");
   setCfgText("gestionClubTitle", "gestion_club_titre", "Gestion club");
   setCfgText("gestionClubText", "gestion_club_texte", "Espace privé pour gérer les données du club.", "gestion_club_texte_actif");
+
+  // V61.06 — Menu Gestion piloté par CONFIG.
+  // Les cartes sont gardées dans le code, mais totalement masquées si la clé vaut Non.
+  function applyGestionMenuVisibility(id, key, fallbackVisible) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const visible = cfgBool(key, fallbackVisible);
+    el.classList.toggle("gestion-menu-hidden", !visible);
+  }
+
+  applyGestionMenuVisibility("gestionMenuMatchs", "gestion_menu_matchs_actif", true);
+  applyGestionMenuVisibility("gestionMenuJoueurs", "gestion_menu_joueurs_actif", true);
+  applyGestionMenuVisibility("gestionMenuEquipes", "gestion_menu_equipes_actif", true);
+  applyGestionMenuVisibility("gestionMenuAdversaires", "gestion_menu_adversaires_actif", true);
+  applyGestionMenuVisibility("gestionMenuOfficiels", "gestion_menu_officiels_actif", false);
+  applyGestionMenuVisibility("gestionMenuReglages", "gestion_menu_reglages_actif", false);
+
+  setCfgText("gestionMenuMatchsTitle", "gestion_menu_matchs_titre", "🏀 Matchs");
+  setCfgText("gestionMenuJoueursTitle", "gestion_menu_joueurs_titre", "👥 Joueurs / Licences");
+  setCfgText("gestionMenuEquipesTitle", "gestion_menu_equipes_titre", "🏷️ Équipes");
+  setCfgText("gestionMenuAdversairesTitle", "gestion_menu_adversaires_titre", "📍 Adversaires / Gymnases");
+  setCfgText("gestionMenuOfficielsTitle", "gestion_menu_officiels_titre", "👨‍⚖️ Officiels");
+  setCfgText("gestionMenuReglagesTitle", "gestion_menu_reglages_titre", "⚙️ Réglages");
+
+  setCfgText("gestionMenuMatchsText", "gestion_menu_matchs_texte", "Ajouter ou modifier les matchs.");
+  setCfgText("gestionMenuJoueursText", "gestion_menu_joueurs_texte", "Ajouter, modifier ou désactiver les joueurs.");
+  setCfgText("gestionMenuEquipesText", "gestion_menu_equipes_texte", "Gérer équipes, coachs et entraînements.");
+  setCfgText("gestionMenuAdversairesText", "gestion_menu_adversaires_texte", "Ajouter ou modifier les clubs adverses et leurs adresses.");
+  setCfgText("gestionMenuOfficielsText", "gestion_menu_officiels_texte", "Préparé pour arbitres, chrono et table.");
+  setCfgText("gestionMenuReglagesText", "gestion_menu_reglages_texte", "Préparé pour modifier CONFIG depuis l’app.");
   setCfgText("gjMainTitle", "gestion_joueurs_titre", "👥 Joueurs / Licences");
   setCfgText("gjMainText", "gestion_joueurs_texte", "Ajouter, modifier ou désactiver un joueur sans toucher directement au tableau.", "gestion_joueurs_texte_actif");
   setCfgText("geMainTitle", "gestion_equipes_titre", "🏷️ Équipes");
