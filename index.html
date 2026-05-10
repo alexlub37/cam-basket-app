@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.01 - Joueurs - Bureau visible + menu joueur simplifié -->
+<!-- CAM Basket V62.02 - Joueurs - Bureau visible + menu joueur simplifié -->
 
 <html lang="fr">
 <head>
@@ -1689,10 +1689,13 @@ button:disabled,
 
 
 
-/* V62.01 JOUEURS - interface allégée + Bureau visible */
+/* V62.02 JOUEURS - interface allégée + Bureau visible */
 .player-actions{grid-template-columns:repeat(2,minmax(0,170px))!important;}
 .player-favorite-card{display:block;}
 .player-favorite-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.player-team-select-actions{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0 14px;}
+.player-team-card-selected{border-color:#ffd400!important;background:rgba(255,212,0,.12)!important;}
+.player-team-check{display:inline-block;margin-top:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,212,0,.45);color:#ffd400;font-size:12px;font-weight:950;}
 body.player-app #btn-coach,
 body.player-app #btn-gestion,
 body.player-app #btn-benevoles{display:none!important;}
@@ -1799,7 +1802,7 @@ body.player-app .team-actions-grid button{width:100%;}
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V62.01 JOUEURS</button>
+    ">V62.02 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1825,7 +1828,7 @@ body.player-app .team-actions-grid button{width:100%;}
       <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Matchs du week-end • Mon équipe • Réponses • Convocations</div>
       <div class="top-actions player-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
-        <button id="btn-teams" class="btn-outline" onclick="openMyTeamPlayer()">Mon équipe</button>
+        <button id="btn-teams" class="btn-outline" onclick="openMyTeamPlayer()">Mes équipes</button>
         <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
       </div>
       <div class="header-mini-actions"><button id="btn-update" class="btn-outline mini-update" onclick="reloadData()">↻ Mettre à jour</button></div>
@@ -1851,11 +1854,11 @@ body.player-app .team-actions-grid button{width:100%;}
       </div>
 
       <div id="playerFavoriteCard" class="card player-favorite-card">
-        <div class="home-info-title">Mon équipe</div>
-        <div id="playerFavoriteText" class="muted">Choisis ton équipe une fois. L’app la garde sur ce téléphone.</div>
+        <div class="home-info-title">Mes équipes</div>
+        <div id="playerFavoriteText" class="muted">Choisis une ou plusieurs équipes. L’app les garde sur ce téléphone.</div>
         <div class="player-favorite-actions">
           <button class="btn-light" onclick="openMyTeamPlayer()">Voir mes matchs</button>
-          <button class="btn-outline" onclick="changeMyTeamPlayer()">Changer mon équipe</button>
+          <button class="btn-outline" onclick="changeMyTeamPlayer()">Modifier mes équipes</button>
         </div>
       </div>
     </section>
@@ -6097,45 +6100,83 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 
 // ═══════════════════════════════════════
-// V62.00 JOUEURS — équipe favorite locale
-// Objectif : accueil club + mon équipe + mes matchs, sans gestion visible.
+// V62.02 JOUEURS — Mes équipes suivies localement
+// Objectif : accueil club + matchs de mes équipes, sans toucher au moteur réponses/quotas.
 // ═══════════════════════════════════════
-const PLAYER_FAV_KEY = "cam_basket_equipe_favorite";
+const PLAYER_FAV_KEY = "cam_basket_equipes_suivies_v62";
+const PLAYER_FAV_KEY_OLD = "cam_basket_equipe_favorite";
 state.playerSelectingTeam = false;
+state.playerTempTeams = [];
 
-function getPlayerFavoriteTeam(){
-  return String(localStorage.getItem(PLAYER_FAV_KEY) || "").trim();
+function normalizeTeamList_(arr){
+  const seen = {};
+  const out = [];
+  (arr || []).forEach(v => {
+    const t = String(v || "").trim();
+    const k = cleanCompare(t);
+    if (!k || seen[k]) return;
+    seen[k] = true;
+    out.push(t);
+  });
+  return out;
 }
 
-function setPlayerFavoriteTeam(teamName){
-  const t = String(teamName || "").trim();
-  if (t) localStorage.setItem(PLAYER_FAV_KEY, t);
+function getPlayerFollowedTeams(){
+  try {
+    const raw = localStorage.getItem(PLAYER_FAV_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return normalizeTeamList_(parsed);
+    }
+  } catch(e) {}
+
+  // Migration douce depuis l'ancienne version V62.01 : une seule équipe favorite.
+  const old = String(localStorage.getItem(PLAYER_FAV_KEY_OLD) || "").trim();
+  if (old) {
+    const list = normalizeTeamList_([old]);
+    setPlayerFollowedTeams(list);
+    return list;
+  }
+  return [];
 }
 
-function getPlayerFavoriteTeamData(){
-  const fav = getPlayerFavoriteTeam();
-  if (!fav) return null;
-  return (state.equipes || []).find(t => cleanCompare(t.equipe) === cleanCompare(fav)) || null;
+function setPlayerFollowedTeams(list){
+  const cleanList = normalizeTeamList_(list);
+  localStorage.setItem(PLAYER_FAV_KEY, JSON.stringify(cleanList));
+  if (cleanList.length) localStorage.setItem(PLAYER_FAV_KEY_OLD, cleanList[0]);
+}
+
+function isPlayerFollowedTeam(teamName){
+  const k = cleanCompare(teamName);
+  return getPlayerFollowedTeams().some(t => cleanCompare(t) === k);
+}
+
+function getPlayerFollowedTeamData(){
+  const followed = getPlayerFollowedTeams();
+  return followed
+    .map(name => (state.equipes || []).find(t => cleanCompare(t.equipe) === cleanCompare(name)) || { equipe:name })
+    .filter(t => t && t.equipe);
 }
 
 function renderPlayerFavoriteHome(){
   const text = document.getElementById("playerFavoriteText");
   if (!text) return;
-  const fav = getPlayerFavoriteTeamData();
-  if (fav) {
-    text.innerHTML = "Équipe suivie sur ce téléphone : <strong>" + escapeHtml(fav.equipe) + "</strong><br><span class='muted'>Tu verras ses matchs plus vite, sans chercher dans toute la liste.</span>";
+  const teams = getPlayerFollowedTeamData();
+  if (teams.length) {
+    text.innerHTML = "Équipes suivies sur ce téléphone : <strong>" +
+      teams.map(t => escapeHtml(t.equipe)).join("</strong>, <strong>") +
+      "</strong><br><span class='muted'>Tu verras leurs matchs sans chercher dans toute la liste.</span>";
   } else {
-    text.textContent = "Aucune équipe choisie. Choisis ton équipe une fois, l’app la garde sur ce téléphone.";
+    text.textContent = "Aucune équipe choisie. Choisis une ou plusieurs équipes, l’app les garde sur ce téléphone.";
   }
 }
 
 function openMyTeamPlayer(){
   state.playerSelectingTeam = false;
-  const fav = getPlayerFavoriteTeamData();
-  if (fav) {
+  const teams = getPlayerFollowedTeamData();
+  if (teams.length) {
     setActiveButton("teams");
-    state.selectedTeam = Object.assign({}, fav, { team: fav.equipe, cat: fav.categorie });
-    openMatches();
+    openMyFollowedMatches();
     return;
   }
   changeMyTeamPlayer();
@@ -6143,58 +6184,155 @@ function openMyTeamPlayer(){
 
 function changeMyTeamPlayer(){
   state.playerSelectingTeam = true;
+  state.playerTempTeams = getPlayerFollowedTeams();
   setActiveButton("teams");
   renderTeams();
   showScreen("teamsScreen");
 }
 
-// Surcharge volontaire V62 joueurs : la page Équipes devient un choix d'équipe favorite.
+function togglePlayerTempTeam(teamName){
+  const k = cleanCompare(teamName);
+  const current = normalizeTeamList_(state.playerTempTeams || []);
+  const exists = current.some(t => cleanCompare(t) === k);
+  state.playerTempTeams = exists ? current.filter(t => cleanCompare(t) !== k) : current.concat([teamName]);
+  renderTeams();
+}
+
+function savePlayerTempTeams(){
+  const selected = normalizeTeamList_(state.playerTempTeams || []);
+  if (!selected.length) {
+    alert("Choisis au moins une équipe à suivre.");
+    return;
+  }
+  setPlayerFollowedTeams(selected);
+  state.playerSelectingTeam = false;
+  renderPlayerFavoriteHome();
+  openMyFollowedMatches();
+}
+
+function renderPlayerTeamCard(t, selected){
+  const base = renderTeamCard(t).replace('class="item team-item"', 'class="item team-item ' + (selected ? 'player-team-card-selected' : '') + '"');
+  return base.replace('</div>\n      ', '<div class="player-team-check">' + (selected ? '✓ Suivie' : '+ Ajouter à mes équipes') + '</div></div>\n      ');
+}
+
+// Surcharge volontaire V62 joueurs : la page Équipes devient un choix de mes équipes suivies.
 function renderTeams(){
   const el = document.getElementById("teamsList");
   const qEl = document.getElementById("teamSearch");
   const q = qEl ? (qEl.value || "").toLowerCase().trim() : "";
   const title = document.getElementById("teamsCardTitle");
   const text = document.getElementById("teamsCardText");
-  const fav = getPlayerFavoriteTeamData();
 
-  if (title) title.innerHTML = state.playerSelectingTeam ? "Choisir mon équipe <span id='seasonBadge' class='pill'>" + escapeHtml(state.season || "") + "</span>" : "Mon équipe <span id='seasonBadge' class='pill'>" + escapeHtml(state.season || "") + "</span>";
-  if (text) text.textContent = state.playerSelectingTeam ? "Sélectionne l’équipe à suivre sur ce téléphone." : "Affichage simplifié joueur / parent.";
+  if (title) title.innerHTML = (state.playerSelectingTeam ? "Choisir mes équipes" : "Mes équipes") + " <span id='seasonBadge' class='pill'>" + escapeHtml(state.season || "") + "</span>";
+  if (text) text.textContent = state.playerSelectingTeam ? "Sélectionne une ou plusieurs équipes à suivre sur ce téléphone." : "Affichage simplifié joueur / parent.";
 
   let teams = (state.equipes || []).filter(t => !state.season || sameSeason(t.saison, state.season));
-  if (!state.playerSelectingTeam && fav) teams = teams.filter(t => cleanCompare(t.equipe) === cleanCompare(fav.equipe));
+  if (!state.playerSelectingTeam) {
+    const followed = getPlayerFollowedTeams();
+    teams = teams.filter(t => followed.some(name => cleanCompare(name) === cleanCompare(t.equipe)));
+  }
   if(q){ teams = teams.filter(t => String(t.equipe || "").toLowerCase().includes(q)); }
 
   if(!teams.length){
-    el.innerHTML = '<div class="empty">Aucune équipe trouvée. Utilise “Changer mon équipe” depuis l’accueil.</div>';
+    el.innerHTML = '<div class="empty">Aucune équipe suivie. Utilise “Modifier mes équipes” depuis l’accueil.</div>';
     return;
   }
 
-  el.innerHTML = teams.map(renderTeamCard).join("");
+  if (state.playerSelectingTeam) {
+    el.innerHTML = '<div class="player-team-select-actions"><button class="btn-light" onclick="savePlayerTempTeams()">Valider mes équipes</button></div>' +
+      teams.map(t => renderPlayerTeamCard(t, normalizeTeamList_(state.playerTempTeams).some(name => cleanCompare(name) === cleanCompare(t.equipe)))).join("") +
+      '<div class="player-team-select-actions"><button class="btn-light" onclick="savePlayerTempTeams()">Valider mes équipes</button></div>';
+
+    el.querySelectorAll(".item").forEach(node => {
+      node.addEventListener("click", () => togglePlayerTempTeam(node.dataset.team || ""));
+    });
+    return;
+  }
+
+  el.innerHTML = teams.map(t => renderPlayerTeamCard(t, true)).join("");
   el.querySelectorAll(".item").forEach(node => {
     node.addEventListener("click", () => {
       const teamName = node.dataset.team || "";
       const t = (state.equipes || []).find(x => x.equipe === teamName) || { equipe: teamName };
-      setPlayerFavoriteTeam(t.equipe || teamName);
-      state.playerSelectingTeam = false;
-      renderPlayerFavoriteHome();
       state.selectedTeam = Object.assign({}, t, { team: t.equipe, cat: t.categorie });
       openMatches();
     });
   });
 }
 
-// Surcharge V62 joueurs : sélection équipe => ouverture directe des matchs.
+// Surcharge V62 joueurs : sélection équipe => ajout dans les équipes suivies puis ouverture des matchs.
 function selectTeam(teamData, cat, coach){
   const t = (typeof teamData === "object" && teamData !== null)
     ? teamData
     : (state.equipes.find(x => x.equipe === teamData) || { equipe: teamData, categorie: cat, coach: coach });
-  setPlayerFavoriteTeam(t.equipe || t.team || "");
+  setPlayerFollowedTeams([t.equipe || t.team || ""]);
   state.selectedTeam = Object.assign({}, t, { team: t.equipe, cat: t.categorie });
   renderPlayerFavoriteHome();
   openMatches();
 }
 
-// Surcharge V62 joueurs : titre plus clair.
+function openMyFollowedMatches(){
+  const followed = getPlayerFollowedTeams();
+  if (!followed.length) {
+    changeMyTeamPlayer();
+    return;
+  }
+
+  const title = document.getElementById("matchesTitle");
+  const text = document.getElementById("matchesCardText");
+  if (title) title.textContent = "Mes matchs";
+  if (text) text.textContent = "Matchs des équipes suivies. Clique sur un match pour répondre, voir la convocation, les apports et l’itinéraire.";
+
+  const allRows = (state.matchs || [])
+    .filter(m => followed.some(name => cleanCompare(name) === cleanCompare(m.equipe)) && (!state.season || sameSeason(m.saison, state.season)))
+    .sort((a, b) => parseMatchDateTime(a) - parseMatchDateTime(b));
+
+  const futurs = allRows.filter(m => !isPastMatch(m));
+  const passes = allRows.filter(m => isPastMatch(m));
+  state.currentMatchRows = [...futurs, ...passes];
+
+  const el = document.getElementById("matchesList");
+  if (!el) return;
+
+  if(!state.currentMatchRows.length){
+    el.innerHTML = '<div class="empty">Aucun match trouvé pour tes équipes suivies.</div>';
+  } else {
+    function renderGroup(titleGroup, rows, startIndex, past){
+      if (!rows.length) return "";
+      return `
+        <div class="match-section-title">${titleGroup}</div>
+        ${rows.map((m, idx) => {
+          const realIdx = startIndex + idx;
+          const typeInfo = badgeForType(m.type);
+          const lieuLigne = [m.gymnase, m.ville].filter(Boolean).join(" • ");
+          const pastBadge = past ? '<span class="match-lock">PASSÉ 🔒</span>' : "";
+          return `
+            <div class="item ${past ? "match-past" : ""}" data-idx="${realIdx}">
+              <div class="item-title">${escapeHtml(m.equipe || "Équipe")} — ${escapeHtml(m.date)} ${typeInfo.badge}${pastBadge}</div>
+              <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(buildMatchDisplay(m))}</div>
+              ${!isHomeType(m.type) ? `<div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>` : ""}
+            </div>
+          `;
+        }).join("")}
+      `;
+    }
+
+    el.innerHTML =
+      renderGroup("Matchs à venir", futurs, 0, false) +
+      renderGroup("Matchs passés", passes, futurs.length, true);
+
+    el.querySelectorAll(".item").forEach(node => {
+      node.addEventListener("click", () => {
+        state.detailBackScreen = "matchesScreen";
+        openMatchDetail(Number(node.dataset.idx));
+      });
+    });
+  }
+
+  showScreen("matchesScreen");
+}
+
+// Surcharge V62 joueurs : titre plus clair pour un seul groupe équipe.
 const openMatchesV61 = openMatches;
 openMatches = function(){
   openMatchesV61();
@@ -6210,11 +6348,13 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.01 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.02 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.02 — Joueurs : choix de plusieurs équipes suivies sur le téléphone</li>
+        <li>V62.01 — Joueurs : Bureau visible côté parents/joueurs</li>
         <li>V61.04 — WhatsApp avant vidage : le formulaire ajout match se vide après clic WhatsApp</li>
         <li>V61.03 — WhatsApp : bouton manuel après enregistrement + vidage du formulaire ajout match</li>
         <li>V61.02 — WhatsApp : lien direct vers le détail du match après ajout ou modification</li>
