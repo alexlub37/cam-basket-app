@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.02 - Joueurs - Bureau visible + menu joueur simplifié -->
+<!-- CAM Basket V62.04 - Joueurs - Version corrigée + accueil club / espaces joueur séparés -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.01-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.04-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1802,7 +1802,7 @@ body.player-app .team-actions-grid button{width:100%;}
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V62.02 JOUEURS</button>
+    ">V62.04 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -6345,11 +6345,12 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.03 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.04 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.04 — Joueurs : correction affichage version, badge, meta et popup</li>
         <li>V62.03 — Joueurs : accueil club conservé, Mes matchs et Mes équipes séparés</li>
         <li>V62.02 — Joueurs : choix de plusieurs équipes suivies sur le téléphone</li>
         <li>V62.01 — Joueurs : Bureau visible côté parents/joueurs</li>
@@ -6669,7 +6670,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V61.04";
+window.CAM_BASKET_VERSION = "V62.04-JOUEURS";
 
 </script>
 
