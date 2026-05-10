@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.00 - Joueurs - Masquage réel modules Gestion via CONFIG -->
+<!-- CAM Basket V62.00 - Gestion - Masquage réel modules Gestion via CONFIG -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.00-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.00-GESTION" />
   <style>
     :root{
       --bg:#050505;
@@ -1687,29 +1687,6 @@ button:disabled,
   font-size:16px!important;
 }
 
-
-
-/* V62.00 JOUEURS - interface allégée */
-.player-actions{grid-template-columns:repeat(2,minmax(0,170px))!important;}
-.player-favorite-card{display:block;}
-.player-favorite-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
-body.player-app #btn-coach,
-body.player-app #btn-gestion,
-body.player-app #btn-bureau,
-body.player-app #btn-benevoles{display:none!important;}
-body.player-app #btnCoachSpace,
-body.player-app #playersScreen,
-body.player-app #coachTeamsScreen,
-body.player-app #coachSpaceScreen,
-body.player-app #gestionClubScreen,
-body.player-app #bureauScreen,
-body.player-app #benevolesScreen{display:none!important;}
-body.player-app .team-actions-grid{grid-template-columns:1fr!important;}
-body.player-app .team-actions-grid button:first-child,
-body.player-app .team-actions-grid .coach-action{display:none!important;}
-body.player-app .team-actions-grid button{width:100%;}
-@media(max-width:600px){.player-favorite-actions{grid-template-columns:1fr!important;}}
-
 </style>
 
 
@@ -1723,7 +1700,7 @@ body.player-app .team-actions-grid button{width:100%;}
 
 <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNBTSBCYXNrZXQgTW9udHJpY2hhcmQiLAogICJzaG9ydF9uYW1lIjogIkNBTSBCYXNrZXQiLAogICJzdGFydF91cmwiOiAiLi9pbmRleC5odG1sIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDAwMDAwIiwKICAidGhlbWVfY29sb3IiOiAiI2ZmZDQwMCIsCiAgImljb25zIjogWwogICAgeyJzcmMiOiAibG9nb18xOTIucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmcifSwKICAgIHsic3JjIjogImxvZ29fNTEyLnBuZyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIn0KICBdCn0=">
 </head>
-<body class="loading player-app">
+<body class="loading">
 
 <!-- ══ SPLASH SCREEN ══ -->
 <div id="splashScreen" style="
@@ -1801,7 +1778,7 @@ body.player-app .team-actions-grid button{width:100%;}
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V62.00 JOUEURS</button>
+    ">V62.00 GESTION</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1824,10 +1801,14 @@ body.player-app .team-actions-grid button{width:100%;}
           white-space: nowrap;
         ">Tous<br>en Jaune&nbsp;!</div>
       </div>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Matchs du week-end • Mon équipe • Réponses • Convocations</div>
-      <div class="top-actions player-actions">
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Gestion club • Coach • Matchs • Joueurs • Équipes</div>
+      <div class="top-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
-        <button id="btn-teams" class="btn-outline" onclick="openMyTeamPlayer()">Mon équipe</button>
+        <button id="btn-teams" class="btn-outline" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
+        <button id="btn-coach" class="btn-outline" onclick="openCoachMain()">Coach</button>
+        <button id="btn-gestion" class="btn-outline" onclick="openGestionClubMain()">Gestion</button>
+        <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
+        <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
       </div>
       <div class="header-mini-actions"><button id="btn-update" class="btn-outline mini-update" onclick="reloadData()">↻ Mettre à jour</button></div>
       <div id="status" class="status">Chargement…</div>
@@ -1849,15 +1830,6 @@ body.player-app .team-actions-grid button{width:100%;}
       <div id="homeInfoCard" class="card home-info-card">
         <div id="homeInfoTitle" class="home-info-title">Info club</div>
         <div id="homeInfoText" class="home-info-text"></div>
-      </div>
-
-      <div id="playerFavoriteCard" class="card player-favorite-card">
-        <div class="home-info-title">Mon équipe</div>
-        <div id="playerFavoriteText" class="muted">Choisis ton équipe une fois. L’app la garde sur ce téléphone.</div>
-        <div class="player-favorite-actions">
-          <button class="btn-light" onclick="openMyTeamPlayer()">Voir mes matchs</button>
-          <button class="btn-outline" onclick="changeMyTeamPlayer()">Changer mon équipe</button>
-        </div>
       </div>
     </section>
 
@@ -2845,7 +2817,6 @@ body.player-app .team-actions-grid button{width:100%;}
         renderBureau();
         renderBenevoles();
         renderWeekend();
-        renderPlayerFavoriteHome();
         // V61.02 : si l'app est ouverte avec un lien direct WhatsApp, ouvrir le match après chargement.
         setTimeout(handleDirectMatchLinkOnce, 350);
         // Appliquer CONFIG après rendu
@@ -6095,123 +6066,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
     });
 
 
-
-
-// ═══════════════════════════════════════
-// V62.00 JOUEURS — équipe favorite locale
-// Objectif : accueil club + mon équipe + mes matchs, sans gestion visible.
-// ═══════════════════════════════════════
-const PLAYER_FAV_KEY = "cam_basket_equipe_favorite";
-state.playerSelectingTeam = false;
-
-function getPlayerFavoriteTeam(){
-  return String(localStorage.getItem(PLAYER_FAV_KEY) || "").trim();
-}
-
-function setPlayerFavoriteTeam(teamName){
-  const t = String(teamName || "").trim();
-  if (t) localStorage.setItem(PLAYER_FAV_KEY, t);
-}
-
-function getPlayerFavoriteTeamData(){
-  const fav = getPlayerFavoriteTeam();
-  if (!fav) return null;
-  return (state.equipes || []).find(t => cleanCompare(t.equipe) === cleanCompare(fav)) || null;
-}
-
-function renderPlayerFavoriteHome(){
-  const text = document.getElementById("playerFavoriteText");
-  if (!text) return;
-  const fav = getPlayerFavoriteTeamData();
-  if (fav) {
-    text.innerHTML = "Équipe suivie sur ce téléphone : <strong>" + escapeHtml(fav.equipe) + "</strong><br><span class='muted'>Tu verras ses matchs plus vite, sans chercher dans toute la liste.</span>";
-  } else {
-    text.textContent = "Aucune équipe choisie. Choisis ton équipe une fois, l’app la garde sur ce téléphone.";
-  }
-}
-
-function openMyTeamPlayer(){
-  state.playerSelectingTeam = false;
-  const fav = getPlayerFavoriteTeamData();
-  if (fav) {
-    setActiveButton("teams");
-    state.selectedTeam = Object.assign({}, fav, { team: fav.equipe, cat: fav.categorie });
-    openMatches();
-    return;
-  }
-  changeMyTeamPlayer();
-}
-
-function changeMyTeamPlayer(){
-  state.playerSelectingTeam = true;
-  setActiveButton("teams");
-  renderTeams();
-  showScreen("teamsScreen");
-}
-
-// Surcharge volontaire V62 joueurs : la page Équipes devient un choix d'équipe favorite.
-function renderTeams(){
-  const el = document.getElementById("teamsList");
-  const qEl = document.getElementById("teamSearch");
-  const q = qEl ? (qEl.value || "").toLowerCase().trim() : "";
-  const title = document.getElementById("teamsCardTitle");
-  const text = document.getElementById("teamsCardText");
-  const fav = getPlayerFavoriteTeamData();
-
-  if (title) title.innerHTML = state.playerSelectingTeam ? "Choisir mon équipe <span id='seasonBadge' class='pill'>" + escapeHtml(state.season || "") + "</span>" : "Mon équipe <span id='seasonBadge' class='pill'>" + escapeHtml(state.season || "") + "</span>";
-  if (text) text.textContent = state.playerSelectingTeam ? "Sélectionne l’équipe à suivre sur ce téléphone." : "Affichage simplifié joueur / parent.";
-
-  let teams = (state.equipes || []).filter(t => !state.season || sameSeason(t.saison, state.season));
-  if (!state.playerSelectingTeam && fav) teams = teams.filter(t => cleanCompare(t.equipe) === cleanCompare(fav.equipe));
-  if(q){ teams = teams.filter(t => String(t.equipe || "").toLowerCase().includes(q)); }
-
-  if(!teams.length){
-    el.innerHTML = '<div class="empty">Aucune équipe trouvée. Utilise “Changer mon équipe” depuis l’accueil.</div>';
-    return;
-  }
-
-  el.innerHTML = teams.map(renderTeamCard).join("");
-  el.querySelectorAll(".item").forEach(node => {
-    node.addEventListener("click", () => {
-      const teamName = node.dataset.team || "";
-      const t = (state.equipes || []).find(x => x.equipe === teamName) || { equipe: teamName };
-      setPlayerFavoriteTeam(t.equipe || teamName);
-      state.playerSelectingTeam = false;
-      renderPlayerFavoriteHome();
-      state.selectedTeam = Object.assign({}, t, { team: t.equipe, cat: t.categorie });
-      openMatches();
-    });
-  });
-}
-
-// Surcharge V62 joueurs : sélection équipe => ouverture directe des matchs.
-function selectTeam(teamData, cat, coach){
-  const t = (typeof teamData === "object" && teamData !== null)
-    ? teamData
-    : (state.equipes.find(x => x.equipe === teamData) || { equipe: teamData, categorie: cat, coach: coach });
-  setPlayerFavoriteTeam(t.equipe || t.team || "");
-  state.selectedTeam = Object.assign({}, t, { team: t.equipe, cat: t.categorie });
-  renderPlayerFavoriteHome();
-  openMatches();
-}
-
-// Surcharge V62 joueurs : titre plus clair.
-const openMatchesV61 = openMatches;
-openMatches = function(){
-  openMatchesV61();
-  const team = state.selectedTeam?.team || "";
-  const title = document.getElementById("matchesTitle");
-  const text = document.getElementById("matchesCardText");
-  if (title) title.textContent = "Mes matchs — " + team;
-  if (text) text.textContent = "Clique sur un match pour répondre, voir la convocation, les apports et l’itinéraire.";
-};
-
     reloadData();
   </script>
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.00 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.00 GESTION</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
@@ -6415,7 +6275,7 @@ function appliquerConfig() {
     el.innerHTML = escapeHtml(value) + ' <span id="seasonBadge" class="pill">' + escapeHtml(state.season || "") + '</span>';
   }
 
-  setCfgText("appSubtitle", "app_sous_titre", "Matchs du week-end • Mon équipe • Réponses • Convocations", "app_sous_titre_actif");
+  setCfgText("appSubtitle", "app_sous_titre", "Gestion club • Coach • Matchs • Joueurs • Équipes", "app_sous_titre_actif");
   setCfgText("homeUpcomingTitle", "accueil_matchs_titre", "🏀 Matchs à venir", "accueil_matchs_titre_actif");
   setCfgTitleWithSeason("teamsCardTitle", "equipes_titre", "Équipes");
   setCfgText("teamsCardText", "equipes_texte", "Saison active uniquement.", "equipes_texte_actif");
