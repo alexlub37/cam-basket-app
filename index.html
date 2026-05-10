@@ -1825,10 +1825,11 @@ body.player-app .team-actions-grid button{width:100%;}
           white-space: nowrap;
         ">Tous<br>en Jaune&nbsp;!</div>
       </div>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Matchs du week-end • Mon équipe • Réponses • Convocations</div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Matchs du week-end • Mes matchs • Bureau</div>
       <div class="top-actions player-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
-        <button id="btn-teams" class="btn-outline" onclick="openMyTeamPlayer()">Mes équipes</button>
+        <button id="btn-teams" class="btn-outline" onclick="openMyTeamPlayer()">Mes matchs</button>
+        <button id="btn-myteams" class="btn-outline" onclick="openMyTeamsSettingsPlayer()">Mes équipes</button>
         <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
       </div>
       <div class="header-mini-actions"><button id="btn-update" class="btn-outline mini-update" onclick="reloadData()">↻ Mettre à jour</button></div>
@@ -1853,14 +1854,6 @@ body.player-app .team-actions-grid button{width:100%;}
         <div id="homeInfoText" class="home-info-text"></div>
       </div>
 
-      <div id="playerFavoriteCard" class="card player-favorite-card">
-        <div class="home-info-title">Mes équipes</div>
-        <div id="playerFavoriteText" class="muted">Choisis une ou plusieurs équipes. L’app les garde sur ce téléphone.</div>
-        <div class="player-favorite-actions">
-          <button class="btn-light" onclick="openMyTeamPlayer()">Voir mes matchs</button>
-          <button class="btn-outline" onclick="changeMyTeamPlayer()">Modifier mes équipes</button>
-        </div>
-      </div>
     </section>
 
     <section id="teamsScreen" class="screen">
@@ -5388,7 +5381,7 @@ function renderBenevoles(){
 
 
     function setActiveButton(name){
-      const buttons = ['btn-home','btn-teams','btn-coach','btn-gestion','btn-bureau','btn-benevoles'];
+      const buttons = ['btn-home','btn-teams','btn-myteams','btn-coach','btn-gestion','btn-bureau','btn-benevoles'];
       const c = (state.config && state.config['couleur_principale']) || '';
 
       buttons.forEach(id => {
@@ -6100,8 +6093,8 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 
 
 // ═══════════════════════════════════════
-// V62.02 JOUEURS — Mes équipes suivies localement
-// Objectif : accueil club + matchs de mes équipes, sans toucher au moteur réponses/quotas.
+// V62.03 JOUEURS — Accueil club + mes espaces séparés
+// Objectif : accueil = club complet, Mes matchs/Mes équipes = filtrage local joueur.
 // ═══════════════════════════════════════
 const PLAYER_FAV_KEY = "cam_basket_equipes_suivies_v62";
 const PLAYER_FAV_KEY_OLD = "cam_basket_equipe_favorite";
@@ -6185,9 +6178,13 @@ function openMyTeamPlayer(){
 function changeMyTeamPlayer(){
   state.playerSelectingTeam = true;
   state.playerTempTeams = getPlayerFollowedTeams();
-  setActiveButton("teams");
+  setActiveButton("myteams");
   renderTeams();
   showScreen("teamsScreen");
+}
+
+function openMyTeamsSettingsPlayer(){
+  changeMyTeamPlayer();
 }
 
 function togglePlayerTempTeam(teamName){
@@ -6234,7 +6231,7 @@ function renderTeams(){
   if(q){ teams = teams.filter(t => String(t.equipe || "").toLowerCase().includes(q)); }
 
   if(!teams.length){
-    el.innerHTML = '<div class="empty">Aucune équipe suivie. Utilise “Modifier mes équipes” depuis l’accueil.</div>';
+    el.innerHTML = '<div class="empty">Aucune équipe suivie. Va dans “Mes équipes” pour choisir les équipes à suivre.</div>';
     return;
   }
 
@@ -6348,11 +6345,12 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.02 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.03 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.03 — Joueurs : accueil club conservé, Mes matchs et Mes équipes séparés</li>
         <li>V62.02 — Joueurs : choix de plusieurs équipes suivies sur le téléphone</li>
         <li>V62.01 — Joueurs : Bureau visible côté parents/joueurs</li>
         <li>V61.04 — WhatsApp avant vidage : le formulaire ajout match se vide après clic WhatsApp</li>
@@ -6554,7 +6552,7 @@ function appliquerConfig() {
     el.innerHTML = escapeHtml(value) + ' <span id="seasonBadge" class="pill">' + escapeHtml(state.season || "") + '</span>';
   }
 
-  setCfgText("appSubtitle", "app_sous_titre", "Matchs du week-end • Mon équipe • Réponses • Convocations", "app_sous_titre_actif");
+  setCfgText("appSubtitle", "app_sous_titre", "Matchs du week-end • Mes matchs • Bureau", "app_sous_titre_actif");
   setCfgText("homeUpcomingTitle", "accueil_matchs_titre", "🏀 Matchs à venir", "accueil_matchs_titre_actif");
   setCfgTitleWithSeason("teamsCardTitle", "equipes_titre", "Équipes");
   setCfgText("teamsCardText", "equipes_texte", "Saison active uniquement.", "equipes_texte_actif");
