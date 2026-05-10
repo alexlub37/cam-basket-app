@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.00 - Joueurs - Masquage réel modules Gestion via CONFIG -->
+<!-- CAM Basket V62.01 - Joueurs - Bureau visible + menu joueur simplifié -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.00-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.01-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1689,20 +1689,18 @@ button:disabled,
 
 
 
-/* V62.00 JOUEURS - interface allégée */
+/* V62.01 JOUEURS - interface allégée + Bureau visible */
 .player-actions{grid-template-columns:repeat(2,minmax(0,170px))!important;}
 .player-favorite-card{display:block;}
 .player-favorite-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
 body.player-app #btn-coach,
 body.player-app #btn-gestion,
-body.player-app #btn-bureau,
 body.player-app #btn-benevoles{display:none!important;}
 body.player-app #btnCoachSpace,
 body.player-app #playersScreen,
 body.player-app #coachTeamsScreen,
 body.player-app #coachSpaceScreen,
 body.player-app #gestionClubScreen,
-body.player-app #bureauScreen,
 body.player-app #benevolesScreen{display:none!important;}
 body.player-app .team-actions-grid{grid-template-columns:1fr!important;}
 body.player-app .team-actions-grid button:first-child,
@@ -1801,7 +1799,7 @@ body.player-app .team-actions-grid button{width:100%;}
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V62.00 JOUEURS</button>
+    ">V62.01 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1828,6 +1826,7 @@ body.player-app .team-actions-grid button{width:100%;}
       <div class="top-actions player-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
         <button id="btn-teams" class="btn-outline" onclick="openMyTeamPlayer()">Mon équipe</button>
+        <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
       </div>
       <div class="header-mini-actions"><button id="btn-update" class="btn-outline mini-update" onclick="reloadData()">↻ Mettre à jour</button></div>
       <div id="status" class="status">Chargement…</div>
@@ -6211,7 +6210,7 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.00 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.01 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
