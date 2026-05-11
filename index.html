@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.04 - Joueurs - Version corrigée + accueil club / espaces joueur séparés -->
+<!-- CAM Basket V62.05 - Joueurs - Stabilisation parcours joueur -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.04-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.05-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1689,6 +1689,35 @@ button:disabled,
 
 
 
+
+/* V62.05 JOUEURS - stabilisation parcours */
+.player-help-card{
+  border:1px solid rgba(255,212,0,.34)!important;
+  background:rgba(0,0,0,.32)!important;
+  padding:14px!important;
+}
+.player-help-title{
+  color:var(--accent);
+  font-size:16px;
+  font-weight:950;
+  margin-bottom:6px;
+}
+.player-help-text{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.35;
+}
+.player-inline-action{
+  margin-top:12px;
+  width:100%;
+  min-height:46px!important;
+  border-radius:16px!important;
+  background:#ffd400!important;
+  color:#000!important;
+  border:2px solid #fff!important;
+  font-weight:950!important;
+}
+
 /* V62.02 JOUEURS - interface allégée + Bureau visible */
 .player-actions{grid-template-columns:repeat(2,minmax(0,170px))!important;}
 .player-favorite-card{display:block;}
@@ -1802,7 +1831,7 @@ body.player-app .team-actions-grid button{width:100%;}
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V62.04 JOUEURS</button>
+    ">V62.05 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1852,6 +1881,11 @@ body.player-app .team-actions-grid button{width:100%;}
       <div id="homeInfoCard" class="card home-info-card">
         <div id="homeInfoTitle" class="home-info-title">Info club</div>
         <div id="homeInfoText" class="home-info-text"></div>
+      </div>
+
+      <div id="playerHelpCard" class="card player-help-card">
+        <div class="player-help-title">Simple pour les joueurs / parents</div>
+        <div class="player-help-text">Accueil = tous les matchs du club. Mes équipes = les équipes à suivre sur ce téléphone. Mes matchs = uniquement les matchs sélectionnés pour répondre, voir la convocation, les apports et l’itinéraire.</div>
       </div>
 
     </section>
@@ -6231,7 +6265,7 @@ function renderTeams(){
   if(q){ teams = teams.filter(t => String(t.equipe || "").toLowerCase().includes(q)); }
 
   if(!teams.length){
-    el.innerHTML = '<div class="empty">Aucune équipe suivie. Va dans “Mes équipes” pour choisir les équipes à suivre.</div>';
+    el.innerHTML = '<div class="empty">Aucune équipe suivie. Va dans “Mes équipes” pour choisir les équipes à suivre.<br><button class="player-inline-action" onclick="openMyTeamsSettingsPlayer()">Choisir mes équipes</button></div>';
     return;
   }
 
@@ -6292,7 +6326,7 @@ function openMyFollowedMatches(){
   if (!el) return;
 
   if(!state.currentMatchRows.length){
-    el.innerHTML = '<div class="empty">Aucun match trouvé pour tes équipes suivies.</div>';
+    el.innerHTML = '<div class="empty">Aucun match trouvé pour tes équipes suivies.<br><button class="player-inline-action" onclick="openMyTeamsSettingsPlayer()">Modifier mes équipes</button></div>';
   } else {
     function renderGroup(titleGroup, rows, startIndex, past){
       if (!rows.length) return "";
@@ -6345,11 +6379,12 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.04 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.05 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
-      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
+      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 11/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.05 — Joueurs : stabilisation du parcours Accueil / Mes équipes / Mes matchs et messages d’aide</li>
         <li>V62.04 — Joueurs : correction affichage version, badge, meta et popup</li>
         <li>V62.03 — Joueurs : accueil club conservé, Mes matchs et Mes équipes séparés</li>
         <li>V62.02 — Joueurs : choix de plusieurs équipes suivies sur le téléphone</li>
