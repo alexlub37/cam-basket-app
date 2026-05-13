@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.08 - Joueurs - Accueil nettoyé réseaux compacts -->
+<!-- CAM Basket V62.09 - Joueurs - Accueil nettoyé réseaux compacts -->
 
 <html lang="fr">
 <head>
@@ -1690,7 +1690,7 @@ button:disabled,
 
 
 
-/* V62.08 JOUEURS - Accueil nettoyé : événement + réseaux compacts */
+/* V62.09 JOUEURS - Accueil nettoyé : événement + réseaux compacts */
 .club-event-card,
 .club-social-card{
   display:none;
@@ -1911,7 +1911,7 @@ body.player-app .team-actions-grid button{width:100%;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.08 JOUEURS</button>
+    ">V62.09 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -5688,7 +5688,7 @@ function renderWeekend() {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  // V60.45 : accueil léger, paramétrable et cliquable.
+  // V62.09 : accueil week-end en lecture seule (non cliquable).
   // CONFIG possible : accueil_matchs_actif / accueil_matchs_jours / accueil_matchs_nb
   if (!cfgBool("accueil_matchs_actif", true)) {
     card.style.display = "none";
@@ -5715,7 +5715,7 @@ function renderWeekend() {
   if (state.weekendCacheKey === cacheKey && state.weekendCacheHtml) {
     card.style.display = state.weekendCacheVisible ? "block" : "none";
     list.innerHTML = state.weekendCacheHtml;
-    attachHomeMatchListeners();
+    // V62.09 : pas de clic sur la carte week-end accueil.
     return;
   }
 
@@ -5817,7 +5817,7 @@ function renderWeekend() {
         const statutInfo = statutWeekendInfo(m);
         const adversaire = m.adversaire || buildMatchDisplay(m);
         return `
-          <div class="weekend-match ${statutInfo ? "has-forfait" : ""}" data-home-match-idx="${i}" title="Ouvrir le détail du match">
+          <div class="weekend-match ${statutInfo ? "has-forfait" : ""}">
             <div class="weekend-main">
               <div class="weekend-match-equipe">${escapeHtml(m.equipe || "Équipe ?")}</div>
               <div class="weekend-match-adversaire">vs ${escapeHtml(adversaire || "Adversaire ?")}</div>
@@ -5835,24 +5835,20 @@ function renderWeekend() {
 
   card.style.display = "block";
   list.innerHTML = html;
-  attachHomeMatchListeners();
+  // V62.09 : pas de clic sur la carte week-end accueil.
   state.weekendCacheKey = cacheKey;
   state.weekendCacheHtml = html;
   state.weekendCacheVisible = true;
 }
 
 function attachHomeMatchListeners() {
-  document.querySelectorAll("#weekendList .weekend-match[data-home-match-idx]").forEach(node => {
-    node.addEventListener("click", () => openHomeMatchDetail(Number(node.dataset.homeMatchIdx)));
-  });
+  // V62.09 : volontairement désactivé.
+  // Accueil = information / Mes matchs = action.
 }
 
 function openHomeMatchDetail(idx) {
-  const m = (state.homeUpcomingRows || [])[idx];
-  if (!m) return;
-  state.currentMatchRows = [m];
-  state.detailBackScreen = "homeScreen";
-  openMatchDetail(0);
+  // V62.09 : les cartes week-end accueil ne doivent plus ouvrir le détail.
+  return;
 }
 
 function _refreshMatchResponses() {
@@ -6481,11 +6477,13 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.08 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.09 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 11/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.09 — Joueurs : carte week-end en lecture seule, seuls Mes matchs restent interactifs
+        </li>
         <li>V62.08 — Joueurs : accueil nettoyé, réseaux sociaux compacts avec icônes, bouton événement masqué si lien vide</li>
         <li>V62.06 — Joueurs : ajout carte Événement du club et réseaux sociaux via CONFIG</li>
         <li>V62.07 — Joueurs : header compact, badge version discret, suppression du sous-titre et masquage de la carte Accueil</li>
