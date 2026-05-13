@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.07 - Joueurs - Header compact -->
+<!-- CAM Basket V62.08 - Joueurs - Accueil nettoyé réseaux compacts -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.07-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.08-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1690,7 +1690,7 @@ button:disabled,
 
 
 
-/* V62.07 JOUEURS - Vie du club : événement + réseaux */
+/* V62.08 JOUEURS - Accueil nettoyé : événement + réseaux compacts */
 .club-event-card,
 .club-social-card{
   display:none;
@@ -1724,36 +1724,56 @@ button:disabled,
   text-decoration:none;
   background:#ffd400;
   color:#000;
-  border-radius:14px;
-  padding:10px 13px;
+  border-radius:999px;
+  padding:9px 14px;
   font-weight:950;
-  font-size:14px;
+  font-size:13px;
+}
+.club-social-card{
+  padding:14px 16px!important;
 }
 .club-social-title{
   color:var(--accent);
-  font-size:17px;
+  font-size:15px;
   font-weight:950;
   margin-bottom:10px;
 }
 .club-social-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
+  display:flex;
+  align-items:center;
   gap:10px;
+  flex-wrap:wrap;
 }
 .club-social-btn{
-  display:block;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:38px;
   text-align:center;
   text-decoration:none;
-  border-radius:16px;
-  padding:12px 10px;
-  background:rgba(255,212,0,.12);
-  border:1px solid rgba(255,212,0,.42);
+  border-radius:999px;
+  padding:8px 13px;
+  background:rgba(255,212,0,.08);
+  border:1px solid rgba(255,212,0,.34);
   color:#fff;
-  font-weight:950;
+  font-weight:900;
+  font-size:13px;
+}
+.club-social-btn svg{
+  width:18px;
+  height:18px;
+  display:block;
+  flex:0 0 auto;
+}
+.club-social-btn:active{
+  transform:scale(.97);
 }
 @media(max-width:420px){
   .club-event-img{max-height:220px;}
-  .club-social-actions{grid-template-columns:1fr;}
+  .club-social-card{padding:13px 14px!important;}
+  .club-social-actions{gap:8px;}
+  .club-social-btn{font-size:12px;padding:7px 11px;min-height:36px;}
 }
 
 /* V62.05 JOUEURS - stabilisation parcours */
@@ -1890,24 +1910,11 @@ body.player-app .team-actions-grid button{width:100%;}
   <header>
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
-      position:absolute;
-      top:8px;
-      left:10px;
-      background:rgba(255,212,0,0.06);
-      border:1px solid rgba(255,212,0,0.22);
-      color:rgba(255,212,0,0.72);
-      font-size:8px;
-      font-weight:700;
-      padding:2px 7px;
-      border-radius:999px;
-      cursor:pointer;
-      z-index:10;
-      letter-spacing:0.2px;
-      opacity:.72;
-    ">V62.07 JOUEURS</button>
+      display:none;
+    ">V62.08 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
-        <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
+        <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
           <img src="Image PNG.png" alt="Logo" class="hero-logo" id="mainLogo">
         </button>
         <div id="heroSlogan" style="
@@ -1956,8 +1963,14 @@ body.player-app .team-actions-grid button{width:100%;}
       <div id="clubSocialCard" class="card club-social-card">
         <div id="clubSocialTitle" class="club-social-title">Suivre le club</div>
         <div class="club-social-actions">
-          <a id="clubFacebookLink" class="club-social-btn" href="#" target="_blank" rel="noopener">Facebook</a>
-          <a id="clubInstagramLink" class="club-social-btn" href="#" target="_blank" rel="noopener">Instagram</a>
+          <a id="clubFacebookLink" class="club-social-btn" href="#" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.49-3.91 3.77-3.91 1.09 0 2.23.2 2.23.2v2.47h-1.25c-1.23 0-1.62.77-1.62 1.56v1.9h2.76l-.44 2.91h-2.32V22C18.34 21.24 22 17.08 22 12.06z"/></svg>
+            <span>Facebook</span>
+          </a>
+          <a id="clubInstagramLink" class="club-social-btn" href="#" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8zm8.85 1.55a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4zM12 7.35A4.65 4.65 0 1 1 12 16.65 4.65 4.65 0 0 1 12 7.35zm0 2A2.65 2.65 0 1 0 12 14.65 2.65 2.65 0 0 0 12 9.35z"/></svg>
+            <span>Instagram</span>
+          </a>
         </div>
       </div>
 
@@ -1972,7 +1985,7 @@ body.player-app .team-actions-grid button{width:100%;}
         <div id="homeInfoText" class="home-info-text"></div>
       </div>
 
-      <div id="playerHelpCard" class="card player-help-card">
+      <div id="playerHelpCard" class="card player-help-card" style="display:none">
         <div class="player-help-title">Simple pour les joueurs / parents</div>
         <div class="player-help-text">Accueil = tous les matchs du club. Mes équipes = les équipes à suivre sur ce téléphone. Mes matchs = uniquement les matchs sélectionnés pour répondre, voir la convocation, les apports et l’itinéraire.</div>
       </div>
@@ -6468,11 +6481,12 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.07 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.08 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 11/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.08 — Joueurs : accueil nettoyé, réseaux sociaux compacts avec icônes, bouton événement masqué si lien vide</li>
         <li>V62.06 — Joueurs : ajout carte Événement du club et réseaux sociaux via CONFIG</li>
         <li>V62.07 — Joueurs : header compact, badge version discret, suppression du sous-titre et masquage de la carte Accueil</li>
         <li>V62.05 — Joueurs : stabilisation du parcours Accueil / Mes équipes / Mes matchs et messages d’aide</li>
@@ -6647,6 +6661,16 @@ function appliquerConfig() {
 
 
 
+  function isUsableExternalOrLocalUrl_(url) {
+    const u = String(url || "").trim();
+    if (!u) return false;
+    if (u === "#") return false;
+    if (u.indexOf("...") !== -1) return false;
+    if (/^https?:\/\/$/i.test(u)) return false;
+    if (/^https?:\/\/\.\.\.?$/i.test(u)) return false;
+    return true;
+  }
+
   // V62.06 — Accueil joueur : événement club piloté par CONFIG
   const eventCard = document.getElementById("clubEventCard");
   const eventImg = document.getElementById("clubEventImage");
@@ -6665,14 +6689,15 @@ function appliquerConfig() {
     const text = cfgValue("evenement_club_texte", [date, lieu, texte].filter(Boolean).join("\n") || defaultText);
     const link = cfgValue("club_event_lien", cfgValue("evenement_club_lien", ""));
     const btn = cfgValue("club_event_bouton", cfgValue("evenement_club_bouton", "Voir l’événement"));
+    const hasEventLink = isUsableExternalOrLocalUrl_(link);
 
     eventTitle.textContent = title;
     eventText.textContent = text;
     eventImg.src = imgUrl;
     eventImg.style.display = imgUrl ? "" : "none";
     eventLink.textContent = btn || "Voir";
-    eventLink.href = link || "#";
-    eventLink.style.display = link ? "inline-block" : "none";
+    eventLink.href = hasEventLink ? link : "#";
+    eventLink.style.display = hasEventLink ? "inline-block" : "none";
     eventCard.style.display = (active && (title || text || imgUrl)) ? "block" : "none";
   }
 
@@ -6684,13 +6709,15 @@ function appliquerConfig() {
   if (socialCard && socialTitle && fb && insta) {
     const facebookUrl = cfgValue("facebook_url", cfgValue("reseaux_facebook_url", ""));
     const instagramUrl = cfgValue("instagram_url", cfgValue("reseaux_instagram_url", ""));
-    const active = cfgBool("reseaux_actif", Boolean(facebookUrl || instagramUrl));
+    const hasFacebook = isUsableExternalOrLocalUrl_(facebookUrl);
+    const hasInstagram = isUsableExternalOrLocalUrl_(instagramUrl);
+    const active = cfgBool("reseaux_actif", Boolean(hasFacebook || hasInstagram));
     socialTitle.textContent = cfgValue("reseaux_titre", "Suivre le club");
-    fb.href = facebookUrl || "#";
-    insta.href = instagramUrl || "#";
-    fb.style.display = facebookUrl ? "block" : "none";
-    insta.style.display = instagramUrl ? "block" : "none";
-    socialCard.style.display = (active && (facebookUrl || instagramUrl)) ? "block" : "none";
+    fb.href = hasFacebook ? facebookUrl : "#";
+    insta.href = hasInstagram ? instagramUrl : "#";
+    fb.style.display = hasFacebook ? "inline-flex" : "none";
+    insta.style.display = hasInstagram ? "inline-flex" : "none";
+    socialCard.style.display = (active && (hasFacebook || hasInstagram)) ? "block" : "none";
   }
 
   // Accueil : bloc info club paramétrable
@@ -6844,7 +6871,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.07-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.08-JOUEURS";
 
 </script>
 
