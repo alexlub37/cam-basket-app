@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.10 - Joueurs - Icônes réseaux + popup version courte -->
+<!-- CAM Basket V62.11 - Joueurs - Détail match intelligent -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.10-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.11-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -553,6 +553,17 @@
       padding:12px 14px;
       font-size:15px;
       font-weight:900;
+    }
+    .detail-back{
+      padding:8px 12px!important;
+      font-size:13px!important;
+      border-radius:999px!important;
+      margin-bottom:10px!important;
+      opacity:.88;
+      width:auto!important;
+      display:inline-flex!important;
+      align-items:center;
+      gap:4px;
     }
     .status{
       margin-top:14px;
@@ -1928,7 +1939,7 @@ body.player-app .team-actions-grid button{width:100%;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.10 JOUEURS</button>
+    ">V62.11 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -2069,7 +2080,7 @@ body.player-app .team-actions-grid button{width:100%;}
     </section>
 
     <section id="matchDetailScreen" class="screen">
-      <button class="back" onclick="goBackFromMatchDetail()">← Retour</button>
+      <button class="back detail-back" onclick="goBackFromMatchDetail()">← Retour</button>
       <div class="card">
         <div class="match-detail-header">
           <div class="match-top-line">
@@ -3853,6 +3864,12 @@ body.player-app .team-actions-grid button{width:100%;}
       const matchPast = isPastMatch(m);
       const typeInfo = badgeForType(m.type);
       const fullAddress = [m.gymnase, m.adresse, m.codePostal, m.ville].filter(Boolean).join(", ");
+      const hasText = (v) => String(v || "").trim() !== "";
+      const setDetailRowVisible = (id, visible) => {
+        const el = document.getElementById(id);
+        const row = el ? el.closest(".detail-row") : null;
+        if (row) row.style.display = visible ? "" : "none";
+      };
 
       document.getElementById("detailTitle").innerHTML = buildMatchTitleHtml(m);
       document.getElementById("detailSeasonTop").textContent = badgeForType(m.type).label || "-";
@@ -3877,34 +3894,48 @@ body.player-app .team-actions-grid button{width:100%;}
       document.getElementById("detailScore").textContent = m.score || "-";
       document.getElementById("detailSeason").textContent = m.saison || "-";
 
+      // V62.11 — Détail match intelligent : les lignes vides disparaissent au lieu d'afficher "-".
+      setDetailRowVisible("detailGym", hasText(m.gymnase));
+      setDetailRowVisible("detailCompetition", hasText(m.competition));
+      setDetailRowVisible("detailTour", hasText(m.tour));
+      setDetailRowVisible("detailScore", hasText(m.score));
+      setDetailRowVisible("detailSeason", hasText(m.saison));
+
       const isHome = ["d","dom","domicile"].includes(normalize(m.type));
 
       const addressRow = document.getElementById("detailAddress")?.closest(".detail-row");
       const mapsBlock = document.getElementById("mapsBlock");
 
-      if (addressRow) addressRow.style.display = isHome ? "none" : "block";
-      if (mapsBlock) mapsBlock.style.display = isHome ? "none" : "block";
+      const hasAwayAddress = !isHome && hasText(fullAddress);
+      if (addressRow) addressRow.style.display = hasAwayAddress ? "" : "none";
+      if (mapsBlock) mapsBlock.style.display = hasAwayAddress ? "" : "none";
 
       const officialsBlock = document.getElementById("domicileOfficialsBlock");
-      if (isHome) {
-        officialsBlock.style.display = "block";
+      const arbitres = [m.arbitre1, m.arbitre2]
+        .map(x => String(x || "").trim())
+        .filter(Boolean)
+        .join("<br>");
+      const chrono = String(m.chrono || "").trim();
+      const table = String(m.table || "").trim();
+      const hasOfficials = isHome && (hasText(arbitres) || hasText(chrono) || hasText(table));
 
-        const arbitres = [m.arbitre1, m.arbitre2]
-          .map(x => String(x || "").trim())
-          .filter(Boolean)
-          .join("<br>");
+      if (officialsBlock) officialsBlock.style.display = hasOfficials ? "block" : "none";
+      const arbitresEl = document.getElementById("detailArbitres");
+      const chronoEl = document.getElementById("detailChrono");
+      const tableEl = document.getElementById("detailTable");
 
-        const chrono = String(m.chrono || "").trim();
-        const table = String(m.table || "").trim();
-
-        document.getElementById("detailArbitres").innerHTML = arbitres || "-";
-        document.getElementById("detailChrono").textContent = chrono || "-";
-        document.getElementById("detailTable").innerHTML = table ? table.replace(/[,;]/g, "<br>") : "-";
-      } else {
-        officialsBlock.style.display = "none";
-        document.getElementById("detailArbitres").innerHTML = "";
-        document.getElementById("detailChrono").textContent = "";
-        document.getElementById("detailTable").innerHTML = "";
+      if (arbitresEl) {
+        arbitresEl.innerHTML = arbitres;
+        const box = arbitresEl.closest(".officials-arbitres");
+        if (box) box.style.display = hasText(arbitres) ? "" : "none";
+      }
+      if (chronoEl) {
+        chronoEl.textContent = chrono;
+        if (chronoEl.parentElement) chronoEl.parentElement.style.display = hasText(chrono) ? "" : "none";
+      }
+      if (tableEl) {
+        tableEl.innerHTML = table ? table.replace(/[,;]/g, "<br>") : "";
+        if (tableEl.parentElement) tableEl.parentElement.style.display = hasText(table) ? "" : "none";
       }
 
       document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
@@ -6494,16 +6525,16 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.10 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.11 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.11 — Joueurs : détail match intelligent, blocs vides masqués, bouton retour plus discret</li>
         <li>V62.10 — Joueurs : icônes réseaux réintégrées et popup version limitée aux 5 dernières modifications</li>
         <li>V62.09 — Joueurs : carte week-end en lecture seule, seuls Mes matchs restent interactifs</li>
         <li>V62.08 — Joueurs : accueil nettoyé, réseaux sociaux compacts avec icônes, bouton événement masqué si lien vide</li>
         <li>V62.07 — Joueurs : header compact, badge version discret, suppression du sous-titre et masquage de la carte Accueil</li>
-        <li>V62.06 — Joueurs : ajout carte Événement du club et réseaux sociaux via CONFIG</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
