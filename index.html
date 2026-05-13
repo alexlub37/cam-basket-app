@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.06 - Joueurs - Vie du club : evenement + reseaux -->
+<!-- CAM Basket V62.07 - Joueurs - Header compact -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.06-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.07-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1690,7 +1690,7 @@ button:disabled,
 
 
 
-/* V62.06 JOUEURS - Vie du club : événement + réseaux */
+/* V62.07 JOUEURS - Vie du club : événement + réseaux */
 .club-event-card,
 .club-social-card{
   display:none;
@@ -1806,6 +1806,12 @@ body.player-app .team-actions-grid .coach-action{display:none!important;}
 body.player-app .team-actions-grid button{width:100%;}
 @media(max-width:600px){.player-favorite-actions{grid-template-columns:1fr!important;}}
 
+
+/* V62.07 - Header joueur plus propre */
+#appSubtitle{display:none!important;}
+#homeIntroCard{display:none;}
+#versionBadge:hover{opacity:1;}
+
 </style>
 
 
@@ -1885,19 +1891,20 @@ body.player-app .team-actions-grid button{width:100%;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       position:absolute;
-      top:10px;
-      left:12px;
-      background:rgba(255,212,0,0.15);
-      border:1px solid rgba(255,212,0,0.40);
-      color:#ffd400;
-      font-size:10px;
-      font-weight:800;
-      padding:3px 9px;
-      border-radius:12px;
+      top:8px;
+      left:10px;
+      background:rgba(255,212,0,0.06);
+      border:1px solid rgba(255,212,0,0.22);
+      color:rgba(255,212,0,0.72);
+      font-size:8px;
+      font-weight:700;
+      padding:2px 7px;
+      border-radius:999px;
       cursor:pointer;
       z-index:10;
-      letter-spacing:0.3px;
-    ">V62.06 JOUEURS</button>
+      letter-spacing:0.2px;
+      opacity:.72;
+    ">V62.07 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1920,7 +1927,7 @@ body.player-app .team-actions-grid button{width:100%;}
           white-space: nowrap;
         ">Tous<br>en Jaune&nbsp;!</div>
       </div>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Matchs du week-end • Mes matchs • Bureau</div>
+      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub" style="display:none"></div>
       <div class="top-actions player-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
         <button id="btn-teams" class="btn-outline" onclick="openMyTeamPlayer()">Mes matchs</button>
@@ -1934,7 +1941,7 @@ body.player-app .team-actions-grid button{width:100%;}
 
   <main>
     <section id="homeScreen" class="screen active">
-      <div id="homeIntroCard" class="card">
+      <div id="homeIntroCard" class="card" style="display:none">
         <h2 id="homeIntroTitle">Accueil <span id="homeSeasonBadge" class="pill"></span></h2>
         <div id="homeIntroText" class="muted">Vue rapide du club et des prochains matchs.</div>
       </div>
@@ -6461,12 +6468,13 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.06 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.07 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 11/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
         <li>V62.06 — Joueurs : ajout carte Événement du club et réseaux sociaux via CONFIG</li>
+        <li>V62.07 — Joueurs : header compact, badge version discret, suppression du sous-titre et masquage de la carte Accueil</li>
         <li>V62.05 — Joueurs : stabilisation du parcours Accueil / Mes équipes / Mes matchs et messages d’aide</li>
         <li>V62.04 — Joueurs : correction affichage version, badge, meta et popup</li>
         <li>V62.03 — Joueurs : accueil club conservé, Mes matchs et Mes équipes séparés</li>
@@ -6628,7 +6636,7 @@ function appliquerConfig() {
   const introTitle = document.getElementById("homeIntroTitle");
   const introText = document.getElementById("homeIntroText");
   if (introCard && introTitle && introText) {
-    const actifIntro = cfgBool("accueil_carte_actif", true);
+    const actifIntro = cfgBool("accueil_carte_actif", false);
     const titreAccueil = cfgValue("accueil_titre", "Accueil");
     const texteAccueil = cfgValue("accueil_texte", cfgValue("accueil_intro_texte", "Vue rapide du club et des prochains matchs."));
     introTitle.innerHTML = escapeHtml(titreAccueil || "Accueil") + ' <span id="homeSeasonBadge" class="pill">' + escapeHtml(state.season || "Saison non trouvée") + '</span>';
@@ -6648,12 +6656,15 @@ function appliquerConfig() {
   if (eventCard && eventImg && eventTitle && eventText && eventLink) {
     const defaultTitle = "1/2 Finale Coupe du Loir-et-Cher U13M";
     const defaultText = "Samedi 16 mai à 14h\nGymnase communautaire de Montrichard\nCAM Basket-Ball Montrichard vs ADA Blois";
-    const active = cfgBool("evenement_club_actif", true);
-    const imgUrl = cfgValue("evenement_club_image_url", "evenement_club.jpg");
-    const title = cfgValue("evenement_club_titre", defaultTitle);
-    const text = cfgValue("evenement_club_texte", defaultText);
-    const link = cfgValue("evenement_club_lien", "");
-    const btn = cfgValue("evenement_club_bouton", "Voir l’événement");
+    const active = cfgBool("club_event_actif", cfgBool("evenement_club_actif", true));
+    const imgUrl = cfgValue("club_event_image", cfgValue("evenement_club_image_url", "evenement_club.jpg"));
+    const title = cfgValue("club_event_titre", cfgValue("evenement_club_titre", defaultTitle));
+    const date = cfgValue("club_event_date", "");
+    const lieu = cfgValue("club_event_lieu", "");
+    const texte = cfgValue("club_event_texte", "");
+    const text = cfgValue("evenement_club_texte", [date, lieu, texte].filter(Boolean).join("\n") || defaultText);
+    const link = cfgValue("club_event_lien", cfgValue("evenement_club_lien", ""));
+    const btn = cfgValue("club_event_bouton", cfgValue("evenement_club_bouton", "Voir l’événement"));
 
     eventTitle.textContent = title;
     eventText.textContent = text;
@@ -6716,7 +6727,7 @@ function appliquerConfig() {
     el.innerHTML = escapeHtml(value) + ' <span id="seasonBadge" class="pill">' + escapeHtml(state.season || "") + '</span>';
   }
 
-  setCfgText("appSubtitle", "app_sous_titre", "Matchs du week-end • Mes matchs • Bureau", "app_sous_titre_actif");
+  setCfgText("appSubtitle", "app_sous_titre", "", "app_sous_titre_actif");
   setCfgText("homeUpcomingTitle", "accueil_matchs_titre", "🏀 Matchs à venir", "accueil_matchs_titre_actif");
   setCfgTitleWithSeason("teamsCardTitle", "equipes_titre", "Équipes");
   setCfgText("teamsCardText", "equipes_texte", "Saison active uniquement.", "equipes_texte_actif");
@@ -6833,7 +6844,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.06-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.07-JOUEURS";
 
 </script>
 
