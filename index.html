@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.11 - Joueurs - Détail match intelligent -->
+<!-- CAM Basket V62.12 - Joueurs - Itinéraire extérieur restauré -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.11-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.12-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1939,7 +1939,7 @@ body.player-app .team-actions-grid button{width:100%;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.11 JOUEURS</button>
+    ">V62.12 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -3906,9 +3906,14 @@ body.player-app .team-actions-grid button{width:100%;}
       const addressRow = document.getElementById("detailAddress")?.closest(".detail-row");
       const mapsBlock = document.getElementById("mapsBlock");
 
+      // V62.12 — Itinéraire extérieur restauré :
+      // le bouton doit rester visible pour un match extérieur dès qu'on a au moins
+      // une piste exploitable (adresse complète, gymnase/ville, adversaire/ville, adversaire).
+      const mapsQuery = fullAddress || [m.gymnase, m.ville].filter(Boolean).join(", ") || [m.adversaire, m.ville].filter(Boolean).join(", ") || m.adversaire || "";
       const hasAwayAddress = !isHome && hasText(fullAddress);
+      const hasAwayRoute = !isHome && hasText(mapsQuery);
       if (addressRow) addressRow.style.display = hasAwayAddress ? "" : "none";
-      if (mapsBlock) mapsBlock.style.display = hasAwayAddress ? "" : "none";
+      if (mapsBlock) mapsBlock.style.display = hasAwayRoute ? "" : "none";
 
       const officialsBlock = document.getElementById("domicileOfficialsBlock");
       const arbitres = [m.arbitre1, m.arbitre2]
@@ -3938,7 +3943,7 @@ body.player-app .team-actions-grid button{width:100%;}
         if (tableEl.parentElement) tableEl.parentElement.style.display = hasText(table) ? "" : "none";
       }
 
-      document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(fullAddress || m.adversaire || "");
+      document.getElementById("mapsLink").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent((typeof mapsQuery !== "undefined" ? mapsQuery : (fullAddress || m.adversaire || "")));
       
 const blocageReponse = raisonReponseMatchBloquee(m);
 const reponseOuverte = !matchPast && !blocageReponse;
@@ -6525,16 +6530,16 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.11 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.12 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.12 — Joueurs : itinéraire extérieur restauré même si l’adresse complète est incomplète</li>
         <li>V62.11 — Joueurs : détail match intelligent, blocs vides masqués, bouton retour plus discret</li>
         <li>V62.10 — Joueurs : icônes réseaux réintégrées et popup version limitée aux 5 dernières modifications</li>
         <li>V62.09 — Joueurs : carte week-end en lecture seule, seuls Mes matchs restent interactifs</li>
         <li>V62.08 — Joueurs : accueil nettoyé, réseaux sociaux compacts avec icônes, bouton événement masqué si lien vide</li>
-        <li>V62.07 — Joueurs : header compact, badge version discret, suppression du sous-titre et masquage de la carte Accueil</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -6885,7 +6890,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.08-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.12-JOUEURS";
 
 </script>
 
