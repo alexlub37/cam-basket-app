@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.05 - Joueurs - Stabilisation parcours joueur -->
+<!-- CAM Basket V62.06 - Joueurs - Vie du club : evenement + reseaux -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.05-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.06-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1690,6 +1690,72 @@ button:disabled,
 
 
 
+/* V62.06 JOUEURS - Vie du club : événement + réseaux */
+.club-event-card,
+.club-social-card{
+  display:none;
+  overflow:hidden;
+}
+.club-event-img{
+  display:block;
+  width:100%;
+  max-height:260px;
+  object-fit:cover;
+  border-radius:18px;
+  margin-bottom:12px;
+  border:1px solid rgba(255,212,0,.35);
+}
+.club-event-title{
+  color:var(--accent);
+  font-size:20px;
+  font-weight:950;
+  line-height:1.1;
+  margin-bottom:6px;
+}
+.club-event-text{
+  color:#fff;
+  font-size:15px;
+  line-height:1.35;
+  white-space:pre-line;
+}
+.club-event-link{
+  display:inline-block;
+  margin-top:12px;
+  text-decoration:none;
+  background:#ffd400;
+  color:#000;
+  border-radius:14px;
+  padding:10px 13px;
+  font-weight:950;
+  font-size:14px;
+}
+.club-social-title{
+  color:var(--accent);
+  font-size:17px;
+  font-weight:950;
+  margin-bottom:10px;
+}
+.club-social-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.club-social-btn{
+  display:block;
+  text-align:center;
+  text-decoration:none;
+  border-radius:16px;
+  padding:12px 10px;
+  background:rgba(255,212,0,.12);
+  border:1px solid rgba(255,212,0,.42);
+  color:#fff;
+  font-weight:950;
+}
+@media(max-width:420px){
+  .club-event-img{max-height:220px;}
+  .club-social-actions{grid-template-columns:1fr;}
+}
+
 /* V62.05 JOUEURS - stabilisation parcours */
 .player-help-card{
   border:1px solid rgba(255,212,0,.34)!important;
@@ -1831,7 +1897,7 @@ body.player-app .team-actions-grid button{width:100%;}
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V62.05 JOUEURS</button>
+    ">V62.06 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1872,6 +1938,22 @@ body.player-app .team-actions-grid button{width:100%;}
         <h2 id="homeIntroTitle">Accueil <span id="homeSeasonBadge" class="pill"></span></h2>
         <div id="homeIntroText" class="muted">Vue rapide du club et des prochains matchs.</div>
       </div>
+
+      <div id="clubEventCard" class="card club-event-card">
+        <img id="clubEventImage" class="club-event-img" src="" alt="Événement du club">
+        <div id="clubEventTitle" class="club-event-title">Événement du club</div>
+        <div id="clubEventText" class="club-event-text"></div>
+        <a id="clubEventLink" class="club-event-link" href="#" target="_blank" rel="noopener">Voir l’événement</a>
+      </div>
+
+      <div id="clubSocialCard" class="card club-social-card">
+        <div id="clubSocialTitle" class="club-social-title">Suivre le club</div>
+        <div class="club-social-actions">
+          <a id="clubFacebookLink" class="club-social-btn" href="#" target="_blank" rel="noopener">Facebook</a>
+          <a id="clubInstagramLink" class="club-social-btn" href="#" target="_blank" rel="noopener">Instagram</a>
+        </div>
+      </div>
+
 
       <div id="weekendCard" class="card">
         <div class="weekend-title"><span id="homeUpcomingTitle">🏀 Matchs à venir</span><span id="homeUpcomingLabel">7 jours</span></div>
@@ -6379,11 +6461,12 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.05 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.06 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 11/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.06 — Joueurs : ajout carte Événement du club et réseaux sociaux via CONFIG</li>
         <li>V62.05 — Joueurs : stabilisation du parcours Accueil / Mes équipes / Mes matchs et messages d’aide</li>
         <li>V62.04 — Joueurs : correction affichage version, badge, meta et popup</li>
         <li>V62.03 — Joueurs : accueil club conservé, Mes matchs et Mes équipes séparés</li>
@@ -6554,6 +6637,51 @@ function appliquerConfig() {
     introCard.style.display = actifIntro ? "block" : "none";
   }
 
+
+
+  // V62.06 — Accueil joueur : événement club piloté par CONFIG
+  const eventCard = document.getElementById("clubEventCard");
+  const eventImg = document.getElementById("clubEventImage");
+  const eventTitle = document.getElementById("clubEventTitle");
+  const eventText = document.getElementById("clubEventText");
+  const eventLink = document.getElementById("clubEventLink");
+  if (eventCard && eventImg && eventTitle && eventText && eventLink) {
+    const defaultTitle = "1/2 Finale Coupe du Loir-et-Cher U13M";
+    const defaultText = "Samedi 16 mai à 14h\nGymnase communautaire de Montrichard\nCAM Basket-Ball Montrichard vs ADA Blois";
+    const active = cfgBool("evenement_club_actif", true);
+    const imgUrl = cfgValue("evenement_club_image_url", "evenement_club.jpg");
+    const title = cfgValue("evenement_club_titre", defaultTitle);
+    const text = cfgValue("evenement_club_texte", defaultText);
+    const link = cfgValue("evenement_club_lien", "");
+    const btn = cfgValue("evenement_club_bouton", "Voir l’événement");
+
+    eventTitle.textContent = title;
+    eventText.textContent = text;
+    eventImg.src = imgUrl;
+    eventImg.style.display = imgUrl ? "" : "none";
+    eventLink.textContent = btn || "Voir";
+    eventLink.href = link || "#";
+    eventLink.style.display = link ? "inline-block" : "none";
+    eventCard.style.display = (active && (title || text || imgUrl)) ? "block" : "none";
+  }
+
+  // V62.06 — Accueil joueur : réseaux sociaux pilotés par CONFIG
+  const socialCard = document.getElementById("clubSocialCard");
+  const socialTitle = document.getElementById("clubSocialTitle");
+  const fb = document.getElementById("clubFacebookLink");
+  const insta = document.getElementById("clubInstagramLink");
+  if (socialCard && socialTitle && fb && insta) {
+    const facebookUrl = cfgValue("facebook_url", cfgValue("reseaux_facebook_url", ""));
+    const instagramUrl = cfgValue("instagram_url", cfgValue("reseaux_instagram_url", ""));
+    const active = cfgBool("reseaux_actif", Boolean(facebookUrl || instagramUrl));
+    socialTitle.textContent = cfgValue("reseaux_titre", "Suivre le club");
+    fb.href = facebookUrl || "#";
+    insta.href = instagramUrl || "#";
+    fb.style.display = facebookUrl ? "block" : "none";
+    insta.style.display = instagramUrl ? "block" : "none";
+    socialCard.style.display = (active && (facebookUrl || instagramUrl)) ? "block" : "none";
+  }
+
   // Accueil : bloc info club paramétrable
   const infoCard = document.getElementById("homeInfoCard");
   const infoTitle = document.getElementById("homeInfoTitle");
@@ -6705,7 +6833,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.04-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.06-JOUEURS";
 
 </script>
 
