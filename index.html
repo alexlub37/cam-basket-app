@@ -427,82 +427,6 @@
       font-size:11px;
       font-weight:900;
     }
-    /* V62.13 — Cartes Mes matchs compactes */
-    .player-match-card{
-      padding:14px 15px !important;
-      border-radius:18px !important;
-      display:grid;
-      gap:8px;
-      position:relative;
-      overflow:hidden;
-    }
-    .player-match-card:before{
-      content:"";
-      position:absolute;
-      left:0; top:12px; bottom:12px;
-      width:5px;
-      border-radius:0 999px 999px 0;
-      background:var(--accent);
-      opacity:.95;
-    }
-    .player-match-card.ext:before{background:#ff9f1c}
-    .player-match-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      padding-left:8px;
-    }
-    .player-match-team{
-      font-size:24px;
-      line-height:1;
-      color:#fff;
-      font-weight:950;
-      letter-spacing:.01em;
-    }
-    .player-match-badge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:999px;
-      padding:5px 10px;
-      font-size:12px;
-      font-weight:950;
-      white-space:nowrap;
-      border:1px solid rgba(255,255,255,.16);
-    }
-    .player-match-badge.dom{background:rgba(31,170,89,.16);color:#9effb8;border-color:rgba(31,170,89,.55)}
-    .player-match-badge.ext{background:rgba(255,159,28,.15);color:#ffd08a;border-color:rgba(255,159,28,.55)}
-    .player-match-versus{
-      padding-left:8px;
-      color:#fff;
-      font-size:20px;
-      line-height:1.18;
-      font-weight:900;
-    }
-    .player-match-versus .vs{
-      color:var(--accent);
-      font-size:13px;
-      font-weight:950;
-      text-transform:uppercase;
-      margin-right:5px;
-    }
-    .player-match-meta{
-      padding-left:8px;
-      color:var(--muted);
-      font-size:15px;
-      line-height:1.25;
-      font-weight:750;
-    }
-    .player-match-place{
-      padding-left:8px;
-      color:#aaa;
-      font-size:13px;
-      line-height:1.25;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
     .match-detail-header{
       margin-bottom:14px;
       padding-bottom:14px;
@@ -2015,7 +1939,7 @@ body.player-app .team-actions-grid button{width:100%;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.14 JOUEURS</button>
+    ">V62.12 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -6529,25 +6453,6 @@ function selectTeam(teamData, cat, coach){
   openMatches();
 }
 
-
-function formatPlayerMatchDateShort_(value){
-  const d = parseMatchDate(value);
-  if (!d) return cleanText(value || "");
-  const jours = ["Dim.","Lun.","Mar.","Mer.","Jeu.","Ven.","Sam."];
-  const mois = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
-  return jours[d.getDay()] + " " + d.getDate() + " " + mois[d.getMonth()];
-}
-function adversaireForPlayerCard_(m){
-  const equipe = cleanText(m.equipe || "");
-  const adv = cleanText(m.adversaire || "");
-  if (adv) return adv;
-  const display = cleanText(buildMatchDisplay(m));
-  let out = display;
-  out = out.replace(new RegExp("Montrichard\\s*" + equipe, "i"), "").replace(new RegExp(equipe, "i"), "");
-  out = out.replace(/\bvs\b/ig, "").trim();
-  return out || "Adversaire ?";
-}
-
 function openMyFollowedMatches(){
   const followed = getPlayerFollowedTeams();
   if (!followed.length) {
@@ -6580,22 +6485,14 @@ function openMyFollowedMatches(){
         <div class="match-section-title">${titleGroup}</div>
         ${rows.map((m, idx) => {
           const realIdx = startIndex + idx;
-          const isDom = isHomeType(m.type);
+          const typeInfo = badgeForType(m.type);
           const lieuLigne = [m.gymnase, m.ville].filter(Boolean).join(" • ");
           const pastBadge = past ? '<span class="match-lock">PASSÉ 🔒</span>' : "";
-          const adv = adversaireForPlayerCard_(m);
-          const dateShort = formatPlayerMatchDateShort_(m.date) || m.date || "Date ?";
-          const typeLabel = isDom ? "Domicile" : "Extérieur";
-          const typeCls = isDom ? "dom" : "ext";
           return `
-            <div class="item player-match-card ${typeCls} ${past ? "match-past" : ""}" data-idx="${realIdx}">
-              <div class="player-match-top">
-                <div class="player-match-team">${escapeHtml(m.equipe || "Équipe")}</div>
-                <span class="player-match-badge ${typeCls}">${escapeHtml(typeLabel)}</span>
-              </div>
-              <div class="player-match-versus"><span class="vs">vs</span>${escapeHtml(adv)}</div>
-              <div class="player-match-meta">${escapeHtml(dateShort)} • ${escapeHtml(m.heure || "Heure ?")} ${pastBadge}</div>
-              ${!isDom && (lieuLigne || m.adresse) ? `<div class="player-match-place">📍 ${escapeHtml(lieuLigne || m.adresse)}</div>` : ""}
+            <div class="item ${past ? "match-past" : ""}" data-idx="${realIdx}">
+              <div class="item-title">${escapeHtml(m.equipe || "Équipe")} — ${escapeHtml(m.date)} ${typeInfo.badge}${pastBadge}</div>
+              <div class="item-sub">${escapeHtml(m.heure)} • ${escapeHtml(buildMatchDisplay(m))}</div>
+              ${!isHomeType(m.type) ? `<div class="item-sub">${escapeHtml(lieuLigne || m.adresse)}</div>` : ""}
             </div>
           `;
         }).join("")}
@@ -6633,16 +6530,16 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.14 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.12 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V62.14 — Joueurs : correction boutons Mes équipes / Mes matchs après cartes compactes</li>
-        <li>V62.13 — Joueurs : cartes Mes matchs compactes et lecture plus rapide</li>
         <li>V62.12 — Joueurs : itinéraire extérieur restauré même si l’adresse complète est incomplète</li>
         <li>V62.11 — Joueurs : détail match intelligent, blocs vides masqués, bouton retour plus discret</li>
         <li>V62.10 — Joueurs : icônes réseaux réintégrées et popup version limitée aux 5 dernières modifications</li>
+        <li>V62.09 — Joueurs : carte week-end en lecture seule, seuls Mes matchs restent interactifs</li>
+        <li>V62.08 — Joueurs : accueil nettoyé, réseaux sociaux compacts avec icônes, bouton événement masqué si lien vide</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
