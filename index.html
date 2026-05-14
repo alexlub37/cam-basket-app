@@ -2015,7 +2015,7 @@ body.player-app .team-actions-grid button{width:100%;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.13 JOUEURS</button>
+    ">V62.14 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -6532,16 +6532,16 @@ function selectTeam(teamData, cat, coach){
 
 function formatPlayerMatchDateShort_(value){
   const d = parseMatchDate(value);
-  if (!d) return clean_(value || "");
+  if (!d) return cleanText(value || "");
   const jours = ["Dim.","Lun.","Mar.","Mer.","Jeu.","Ven.","Sam."];
   const mois = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
   return jours[d.getDay()] + " " + d.getDate() + " " + mois[d.getMonth()];
 }
 function adversaireForPlayerCard_(m){
-  const equipe = clean_(m.equipe || "");
-  const adv = clean_(m.adversaire || "");
+  const equipe = cleanText(m.equipe || "");
+  const adv = cleanText(m.adversaire || "");
   if (adv) return adv;
-  const display = clean_(buildMatchDisplay(m));
+  const display = cleanText(buildMatchDisplay(m));
   let out = display;
   out = out.replace(new RegExp("Montrichard\\s*" + equipe, "i"), "").replace(new RegExp(equipe, "i"), "");
   out = out.replace(/\bvs\b/ig, "").trim();
@@ -6633,16 +6633,16 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.13 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.14 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.14 — Joueurs : correction boutons Mes équipes / Mes matchs après cartes compactes</li>
         <li>V62.13 — Joueurs : cartes Mes matchs compactes et lecture plus rapide</li>
         <li>V62.12 — Joueurs : itinéraire extérieur restauré même si l’adresse complète est incomplète</li>
         <li>V62.11 — Joueurs : détail match intelligent, blocs vides masqués, bouton retour plus discret</li>
         <li>V62.10 — Joueurs : icônes réseaux réintégrées et popup version limitée aux 5 dernières modifications</li>
-        <li>V62.09 — Joueurs : carte week-end en lecture seule, seuls Mes matchs restent interactifs</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
