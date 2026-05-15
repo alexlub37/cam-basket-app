@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.00 - Gestion - Masquage réel modules Gestion via CONFIG -->
+<!-- CAM Basket V64.00 - Gestion - Accueil gestion simplifié -->
 
 <html lang="fr">
 <head>
@@ -11,9 +11,9 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>CAM Basket Montrichard</title>
+  <title>CAM Gestion Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.00-GESTION" />
+  <meta name="cam-basket-version" content="V64.00-GESTION" />
   <style>
     :root{
       --bg:#050505;
@@ -1687,6 +1687,66 @@ button:disabled,
   font-size:16px!important;
 }
 
+
+/* V64.00 GESTION - Accueil gestion simplifié */
+.gestion-top-actions{
+  grid-template-columns:repeat(2,minmax(0,170px))!important;
+}
+#btn-teams,
+#btn-coach,
+#btn-bureau,
+#btn-benevoles{
+  display:none!important;
+}
+#teamsScreen,
+#coachTeamsScreen,
+#teamMenuScreen,
+#playersScreen,
+#matchesScreen,
+#bureauScreen,
+#benevolesScreen{
+  display:none!important;
+}
+.gestion-home-hero{
+  text-align:left;
+}
+.gestion-home-kicker{
+  color:var(--accent);
+  font-size:12px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:6px;
+}
+.gestion-home-hero h2{
+  margin:0 0 8px;
+  font-size:30px;
+  line-height:1.05;
+}
+.gestion-home-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:14px;
+}
+.gestion-home-tile{
+  min-height:112px;
+}
+.gestion-home-footer{
+  padding:14px!important;
+}
+.gestion-home-footer button{
+  width:100%;
+  min-height:48px;
+}
+@media(max-width:600px){
+  .gestion-top-actions{grid-template-columns:1fr 1fr!important;}
+  .gestion-home-grid{grid-template-columns:1fr 1fr!important;gap:10px;}
+  .gestion-home-tile{padding:14px!important;min-height:105px;}
+  .gestion-home-tile .big{font-size:16px!important;}
+  .gestion-home-tile .small{font-size:12px!important;}
+}
+
 </style>
 
 
@@ -1778,7 +1838,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V62.00 GESTION</button>
+    ">V64.00 GESTION</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1801,14 +1861,10 @@ button:disabled,
           white-space: nowrap;
         ">Tous<br>en Jaune&nbsp;!</div>
       </div>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Gestion club • Coach • Matchs • Joueurs • Équipes</div>
-      <div class="top-actions">
+      <h1 class="hero-title">CAM Gestion<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Outil interne club</div>
+      <div class="top-actions gestion-top-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
-        <button id="btn-teams" class="btn-outline" onclick="setActiveButton('teams'); showScreen('teamsScreen')">Équipes</button>
-        <button id="btn-coach" class="btn-outline" onclick="openCoachMain()">Coach</button>
         <button id="btn-gestion" class="btn-outline" onclick="openGestionClubMain()">Gestion</button>
-        <button id="btn-bureau" class="btn-outline" onclick="setActiveButton('bureau'); showScreen('bureauScreen')">Bureau</button>
-        <button id="btn-benevoles" class="btn-outline" onclick="setActiveButton('benevoles'); showScreen('benevolesScreen')">Bénévoles</button>
       </div>
       <div class="header-mini-actions"><button id="btn-update" class="btn-outline mini-update" onclick="reloadData()">↻ Mettre à jour</button></div>
       <div id="status" class="status">Chargement…</div>
@@ -1817,19 +1873,33 @@ button:disabled,
 
   <main>
     <section id="homeScreen" class="screen active">
-      <div id="homeIntroCard" class="card">
-        <h2 id="homeIntroTitle">Accueil <span id="homeSeasonBadge" class="pill"></span></h2>
-        <div id="homeIntroText" class="muted">Vue rapide du club et des prochains matchs.</div>
+      <div class="card gestion-home-hero">
+        <div class="gestion-home-kicker">Outil interne</div>
+        <h2>Gestion club</h2>
+        <div class="muted">Accès rapide aux modules de gestion. Les données restent connectées au même Google Sheets.</div>
       </div>
 
-      <div id="weekendCard" class="card">
-        <div class="weekend-title"><span id="homeUpcomingTitle">🏀 Matchs à venir</span><span id="homeUpcomingLabel">7 jours</span></div>
-        <div id="weekendList"></div>
+      <div class="gestion-home-grid">
+        <button class="menu-btn gestion-home-tile" onclick="openGestionClubMain()">
+          <span class="big">🏀 Matchs</span>
+          <span class="small">Ajouter ou modifier les matchs</span>
+        </button>
+        <button class="menu-btn gestion-home-tile" onclick="openGestionClubMain()">
+          <span class="big">👥 Joueurs</span>
+          <span class="small">Licences, codes et infos joueurs</span>
+        </button>
+        <button class="menu-btn gestion-home-tile" onclick="openGestionClubMain()">
+          <span class="big">🟡 Équipes</span>
+          <span class="small">Coach, codes et entraînements</span>
+        </button>
+        <button class="menu-btn gestion-home-tile" onclick="openGestionClubMain()">
+          <span class="big">📍 Adversaires</span>
+          <span class="small">Gymnases et adresses</span>
+        </button>
       </div>
 
-      <div id="homeInfoCard" class="card home-info-card">
-        <div id="homeInfoTitle" class="home-info-title">Info club</div>
-        <div id="homeInfoText" class="home-info-text"></div>
+      <div class="card gestion-home-footer">
+        <button class="btn-light" onclick="openGestionClubMain()">Ouvrir le menu gestion</button>
       </div>
     </section>
 
@@ -6071,38 +6141,16 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.00 GESTION</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V64.00 GESTION</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V61.04 — WhatsApp avant vidage : le formulaire ajout match se vide après clic WhatsApp</li>
-        <li>V61.03 — WhatsApp : bouton manuel après enregistrement + vidage du formulaire ajout match</li>
-        <li>V61.02 — WhatsApp : lien direct vers le détail du match après ajout ou modification</li>
-        <li>V61.01 — Cartes week-end : affichage Forfait CAM / Forfait adversaire</li>
-        <li>V61.00 — Base stabilisée : aucune nouvelle fonction, conservation de V60.82 validée</li>
-        <li>V60.82 — Mode modification adversaires fiabilisé : clic carte force le mode modification</li>
-        <li>V60.81 — Correctif modification adversaires : renommer un club modifie la ligne existante au lieu de créer un doublon</li>
-        <li>V60.80 — Retour tactile : boutons et cartes plus réactifs au toucher</li>
-        <li>V60.78 — Gestion Équipes sécurisée : identité d’origine envoyée au serveur</li>
-        <li>V60.74 — Gestion Adversaires / Gymnases ajoutée : recherche, ajout et modification des clubs adverses</li>
-        <li>V60.73 — Coach : matchs passés masqués ; Gestion matchs : retour propre après modification ; joueur : code accès non obligatoire à la création</li>
-        <li>V60.70 — Gestion Joueurs : séparation claire Modifier un joueur / Créer un nouveau joueur</li>
-        <li>V60.69 — Gestion Joueurs : suppression du doublon Ajouter / Créer un joueur, un seul bouton de création visible</li>
-        <li>V60.68 — Gestion Joueurs : correction modification Actif Oui/Non sans erreur de doublon</li>
-        <li>V60.67 — Gestion Joueurs : séparation claire entre Ajouter et Modifier, formulaire masqué par défaut</li>
-        <li>V60.65 — Gestion Équipes ajoutée dans l’espace Gestion</li>
-        <li>V60.64 — Gestion Joueurs : recherche obligatoire avant affichage des joueurs</li>
-        <li>V60.63 — Gestion Joueurs / Licences ajoutée</li>
-        <li>V60.62 — navigation par rôles : Coach et Gestion club</li>
-        <li>V60.61 — Espace coach : écran convocation direct et simplifié</li>
-        <li>V60.42 — page Accueil avec matchs à venir cliquables et infos club CONFIG</li>
-        <li>V60.41 — carte week-end compacte et plus légère</li>
-        <li>V60.39 — correction Maillots avec codes joueurs partagés</li>
-        <li>Gestion matchs intégrée protégée par code bureau</li>
-        <li>Réponses joueurs à reconfirmer si date / heure / lieu modifié</li>
-        <li>Validation serveur du code avant ajout/modification</li>
-        <li>Correction mobile du bouton de mise à jour match</li>
+        <li>V64.00 — Gestion : accueil simplifié avec accès Matchs / Joueurs / Équipes / Adversaires</li>
+        <li>V62.00 — Gestion : séparation initiale de l’application Gestion</li>
+        <li>V61.06 — Gestion : masquage modules Gestion via CONFIG</li>
+        <li>V61.04 — WhatsApp avant vidage formulaire match</li>
+        <li>V61.00 — Base stabilisée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -6275,7 +6323,7 @@ function appliquerConfig() {
     el.innerHTML = escapeHtml(value) + ' <span id="seasonBadge" class="pill">' + escapeHtml(state.season || "") + '</span>';
   }
 
-  setCfgText("appSubtitle", "app_sous_titre", "Gestion club • Coach • Matchs • Joueurs • Équipes", "app_sous_titre_actif");
+  setCfgText("appSubtitle", "app_sous_titre", "Outil interne club", "app_sous_titre_actif");
   setCfgText("homeUpcomingTitle", "accueil_matchs_titre", "🏀 Matchs à venir", "accueil_matchs_titre_actif");
   setCfgTitleWithSeason("teamsCardTitle", "equipes_titre", "Équipes");
   setCfgText("teamsCardText", "equipes_texte", "Saison active uniquement.", "equipes_texte_actif");
