@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.12 - Joueurs - Itinéraire extérieur restauré -->
+<!-- CAM Basket V63.02 - Coach - Interface coach propre -->
 
 <html lang="fr">
 <head>
@@ -11,9 +11,9 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>CAM Basket Montrichard</title>
+  <title>CAM Coach Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.12-JOUEURS" />
+  <meta name="cam-basket-version" content="V63.02-COACH" />
   <style>
     :root{
       --bg:#050505;
@@ -1861,13 +1861,30 @@ body.player-app .team-actions-grid button{width:100%;}
 #versionBadge:hover{opacity:1;}
 
 
-/* V63.01 COACH - Bureau retiré de l'interface coach */
+/* V63.02 COACH - séparation propre, sans mélange joueur */
+body.coach-app #btn-teams,
+body.coach-app #btn-myteams,
 body.coach-app #btn-bureau,
-body.coach-app #bureauScreen{
+body.coach-app #teamsScreen,
+body.coach-app #teamMenuScreen,
+body.coach-app #matchesScreen,
+body.coach-app #myTeamsSettingsScreen,
+body.coach-app #playersScreen,
+body.coach-app #gestionClubScreen,
+body.coach-app #bureauScreen,
+body.coach-app #benevolesScreen{
   display:none!important;
 }
 body.coach-app .coach-actions{
   grid-template-columns:repeat(2,minmax(0,170px))!important;
+}
+body.coach-app #homeIntroCard{display:none!important;}
+body.coach-app .club-event-card,
+body.coach-app .club-social-card{
+  display:none!important;
+}
+body.coach-app #weekendCard{
+  display:block;
 }
 @media(max-width:600px){
   body.coach-app .coach-actions{
@@ -1888,7 +1905,7 @@ body.coach-app .coach-actions{
 
 <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNBTSBCYXNrZXQgTW9udHJpY2hhcmQiLAogICJzaG9ydF9uYW1lIjogIkNBTSBCYXNrZXQiLAogICJzdGFydF91cmwiOiAiLi9pbmRleC5odG1sIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDAwMDAwIiwKICAidGhlbWVfY29sb3IiOiAiI2ZmZDQwMCIsCiAgImljb25zIjogWwogICAgeyJzcmMiOiAibG9nb18xOTIucG5nIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmcifSwKICAgIHsic3JjIjogImxvZ29fNTEyLnBuZyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIn0KICBdCn0=">
 </head>
-<body class="loading player-app">
+<body class="loading coach-app">
 
 <!-- ══ SPLASH SCREEN ══ -->
 <div id="splashScreen" style="
@@ -1954,7 +1971,7 @@ body.coach-app .coach-actions{
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.12 JOUEURS</button>
+    ">V63.02 COACH</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -1977,11 +1994,10 @@ body.coach-app .coach-actions{
           white-space: nowrap;
         ">Tous<br>en Jaune&nbsp;!</div>
       </div>
-      <h1 class="hero-title">CAM Basket<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub" style="display:none"></div>
-      <div class="top-actions player-actions">
+      <h1 class="hero-title">CAM Coach<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub" style="display:none"></div>
+      <div class="top-actions coach-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
-        <button id="btn-teams" class="btn-outline" onclick="openMyTeamPlayer()">Mes matchs</button>
-        <button id="btn-myteams" class="btn-outline" onclick="openMyTeamsSettingsPlayer()">Mes équipes</button>
+        <button id="btn-coach" class="btn-outline" onclick="openCoachMain()">Coach</button>
       </div>
       <div class="header-mini-actions"><button id="btn-update" class="btn-outline mini-update" onclick="reloadData()">↻ Mettre à jour</button></div>
       <div id="status" class="status">Chargement…</div>
@@ -6544,15 +6560,15 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.12 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V63.02 COACH</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V63.01 — Coach : bouton Bureau retiré de l’interface coach</li>
+        <li>V63.02 — Coach : interface coach propre, suppression du mélange avec Joueurs</li>
+        <li>V63.01 — Coach : bouton Bureau retiré</li>
         <li>V63.00 — Coach : première page séparée dédiée aux coachs</li>
         <li>Base reprise depuis V62.12 joueur stable</li>
-        <li>Accès coach conservé par code coach</li>
         <li>Aucune modification Code.gs / réponses / quotas / convocations</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
@@ -6904,7 +6920,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.12-JOUEURS";
+window.CAM_BASKET_VERSION = "V63.02-COACH";
 
 </script>
 
