@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.12 - Joueurs - Itinéraire extérieur restauré -->
+<!-- CAM Basket V62.16 - Joueurs - Bureau piloté par CONFIG -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.12-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.16-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1939,7 +1939,7 @@ body.player-app .team-actions-grid button{width:100%;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.12 JOUEURS</button>
+    ">V62.16 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -6530,16 +6530,16 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.12 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.16 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V62.12 — Joueurs : itinéraire extérieur restauré même si l’adresse complète est incomplète</li>
-        <li>V62.11 — Joueurs : détail match intelligent, blocs vides masqués, bouton retour plus discret</li>
-        <li>V62.10 — Joueurs : icônes réseaux réintégrées et popup version limitée aux 5 dernières modifications</li>
-        <li>V62.09 — Joueurs : carte week-end en lecture seule, seuls Mes matchs restent interactifs</li>
-        <li>V62.08 — Joueurs : accueil nettoyé, réseaux sociaux compacts avec icônes, bouton événement masqué si lien vide</li>
+        <li>V62.16 — Joueurs : bouton Bureau piloté par CONFIG avec activer_bureau = Oui/Non</li>
+        <li>V62.12 — Joueurs : itinéraire extérieur restauré</li>
+        <li>V62.11 — Joueurs : détail match intelligent, blocs vides masqués</li>
+        <li>V62.10 — Joueurs : icônes réseaux et popup version courte</li>
+        <li>V62.09 — Joueurs : carte week-end en lecture seule</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -6659,8 +6659,8 @@ function appliquerConfig() {
   }
 
   // Sections
-  if (cfg["activer_bureau"]    === "non") { const b = document.getElementById("btn-bureau");    if (b) b.style.display = "none"; }
-  if (cfg["activer_benevoles"] === "non") { const b = document.getElementById("btn-benevoles"); if (b) b.style.display = "none"; }
+  if (cfgBool("activer_bureau", true) === false) { const b = document.getElementById("btn-bureau"); if (b) b.style.display = "none"; }
+  if (cfgBool("activer_benevoles", true) === false) { const b = document.getElementById("btn-benevoles"); if (b) b.style.display = "none"; }
   if (cfgBool("activer_coach", true) === false) { const b = document.getElementById("btn-coach"); if (b) b.style.display = "none"; }
   if (cfgBool("activer_gestion_club", true) === false) { const b = document.getElementById("btn-gestion"); if (b) b.style.display = "none"; }
 
@@ -6890,7 +6890,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.12-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.16-JOUEURS";
 
 </script>
 
