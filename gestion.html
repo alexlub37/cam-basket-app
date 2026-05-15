@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V64.00 - Gestion - Accueil gestion simplifié -->
+<!-- CAM Basket V64.01 - Gestion - Accueil menu principal sans doublon -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Gestion Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V64.00-GESTION" />
+  <meta name="cam-basket-version" content="V64.01-GESTION" />
   <style>
     :root{
       --bg:#050505;
@@ -1688,12 +1688,13 @@ button:disabled,
 }
 
 
-/* V64.00 GESTION - Accueil gestion simplifié */
+/* V64.01 GESTION - Accueil = menu principal, sans bouton Gestion doublon */
 .gestion-top-actions{
-  grid-template-columns:repeat(2,minmax(0,170px))!important;
+  grid-template-columns:minmax(0,220px)!important;
 }
 #btn-teams,
 #btn-coach,
+#btn-gestion,
 #btn-bureau,
 #btn-benevoles{
   display:none!important;
@@ -1732,15 +1733,8 @@ button:disabled,
 .gestion-home-tile{
   min-height:112px;
 }
-.gestion-home-footer{
-  padding:14px!important;
-}
-.gestion-home-footer button{
-  width:100%;
-  min-height:48px;
-}
 @media(max-width:600px){
-  .gestion-top-actions{grid-template-columns:1fr 1fr!important;}
+  .gestion-top-actions{grid-template-columns:1fr!important;}
   .gestion-home-grid{grid-template-columns:1fr 1fr!important;gap:10px;}
   .gestion-home-tile{padding:14px!important;min-height:105px;}
   .gestion-home-tile .big{font-size:16px!important;}
@@ -1838,7 +1832,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V64.00 GESTION</button>
+    ">V64.01 GESTION</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1864,7 +1858,6 @@ button:disabled,
       <h1 class="hero-title">CAM Gestion<br>Montrichard</h1>      <div id="appSubtitle" class="hero-sub">Outil interne club</div>
       <div class="top-actions gestion-top-actions">
         <button id="btn-home" class="btn-light active" onclick="setActiveButton('home'); showScreen('homeScreen')">Accueil</button>
-        <button id="btn-gestion" class="btn-outline" onclick="openGestionClubMain()">Gestion</button>
       </div>
       <div class="header-mini-actions"><button id="btn-update" class="btn-outline mini-update" onclick="reloadData()">↻ Mettre à jour</button></div>
       <div id="status" class="status">Chargement…</div>
@@ -1876,30 +1869,26 @@ button:disabled,
       <div class="card gestion-home-hero">
         <div class="gestion-home-kicker">Outil interne</div>
         <h2>Gestion club</h2>
-        <div class="muted">Accès rapide aux modules de gestion. Les données restent connectées au même Google Sheets.</div>
+        <div class="muted">Choisis directement le module à modifier.</div>
       </div>
 
       <div class="gestion-home-grid">
-        <button class="menu-btn gestion-home-tile" onclick="openGestionClubMain()">
+        <button class="menu-btn gestion-home-tile" onclick="openGestionModuleDirect('matchs')">
           <span class="big">🏀 Matchs</span>
           <span class="small">Ajouter ou modifier les matchs</span>
         </button>
-        <button class="menu-btn gestion-home-tile" onclick="openGestionClubMain()">
+        <button class="menu-btn gestion-home-tile" onclick="openGestionModuleDirect('joueurs')">
           <span class="big">👥 Joueurs</span>
           <span class="small">Licences, codes et infos joueurs</span>
         </button>
-        <button class="menu-btn gestion-home-tile" onclick="openGestionClubMain()">
+        <button class="menu-btn gestion-home-tile" onclick="openGestionModuleDirect('equipes')">
           <span class="big">🟡 Équipes</span>
           <span class="small">Coach, codes et entraînements</span>
         </button>
-        <button class="menu-btn gestion-home-tile" onclick="openGestionClubMain()">
+        <button class="menu-btn gestion-home-tile" onclick="openGestionModuleDirect('adversaires')">
           <span class="big">📍 Adversaires</span>
           <span class="small">Gymnases et adresses</span>
         </button>
-      </div>
-
-      <div class="card gestion-home-footer">
-        <button class="btn-light" onclick="openGestionClubMain()">Ouvrir le menu gestion</button>
       </div>
     </section>
 
@@ -6141,15 +6130,15 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V64.00 GESTION</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V64.01 GESTION</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V64.01 — Gestion : suppression du bouton Gestion doublon, accueil = menu principal</li>
         <li>V64.00 — Gestion : accueil simplifié avec accès Matchs / Joueurs / Équipes / Adversaires</li>
         <li>V62.00 — Gestion : séparation initiale de l’application Gestion</li>
-        <li>V61.06 — Gestion : masquage modules Gestion via CONFIG</li>
-        <li>V61.04 — WhatsApp avant vidage formulaire match</li>
+        <li>V61.06 — Gestion : masquage modules via CONFIG</li>
         <li>V61.00 — Base stabilisée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
@@ -6442,6 +6431,34 @@ function appliquerConfig() {
 /* V61.00 - Marqueur de version stabilisee */
 window.CAM_BASKET_VERSION = "V61.04";
 
+</script>
+
+
+<script>
+(function(){
+  window.openGestionModuleDirect = function(moduleKey){
+    try {
+      if (typeof openGestionClubMain === "function") openGestionClubMain();
+      setTimeout(function(){
+        const map = {
+          matchs: [/\bmatchs?\b/i],
+          joueurs: [/joueurs/i, /licences/i],
+          equipes: [/équipes/i, /equipes/i],
+          adversaires: [/adversaires/i, /gymnases/i]
+        };
+        const patterns = map[moduleKey] || [];
+        const candidates = Array.from(document.querySelectorAll("button, .menu-btn, .role-menu-card, .item"));
+        const btn = candidates.find(el => {
+          const txt = (el.textContent || "").trim();
+          return patterns.some(rx => rx.test(txt)) && el.offsetParent !== null;
+        });
+        if (btn) btn.click();
+      }, 180);
+    } catch(e) {
+      console.warn("openGestionModuleDirect", e);
+    }
+  };
+})();
 </script>
 
 </body>
