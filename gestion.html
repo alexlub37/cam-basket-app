@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V64.01 - Gestion - Accueil menu principal sans doublon -->
+<!-- CAM Basket V64.02 - Gestion - Accueil ouvre directement les modules -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Gestion Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V64.01-GESTION" />
+  <meta name="cam-basket-version" content="V64.02-GESTION" />
   <style>
     :root{
       --bg:#050505;
@@ -1688,9 +1688,12 @@ button:disabled,
 }
 
 
-/* V64.01 GESTION - Accueil = menu principal, sans bouton Gestion doublon */
+/* V64.02 GESTION - Accueil ouvre directement les modules */
 .gestion-top-actions{
   grid-template-columns:minmax(0,220px)!important;
+}
+#appSubtitle{
+  display:none!important;
 }
 #btn-teams,
 #btn-coach,
@@ -1705,7 +1708,8 @@ button:disabled,
 #playersScreen,
 #matchesScreen,
 #bureauScreen,
-#benevolesScreen{
+#benevolesScreen,
+#gestionClubScreen{
   display:none!important;
 }
 .gestion-home-hero{
@@ -1732,6 +1736,12 @@ button:disabled,
 }
 .gestion-home-tile{
   min-height:112px;
+}
+.gestion-home-tile .big{
+  font-size:18px;
+}
+.gestion-home-tile .small{
+  font-size:13px;
 }
 @media(max-width:600px){
   .gestion-top-actions{grid-template-columns:1fr!important;}
@@ -1832,7 +1842,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V64.01 GESTION</button>
+    ">V64.02 GESTION</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1873,19 +1883,19 @@ button:disabled,
       </div>
 
       <div class="gestion-home-grid">
-        <button class="menu-btn gestion-home-tile" onclick="openGestionModuleDirect('matchs')">
+        <button class="menu-btn gestion-home-tile" onclick="showGestionMatchsScreen()">
           <span class="big">🏀 Matchs</span>
           <span class="small">Ajouter ou modifier les matchs</span>
         </button>
-        <button class="menu-btn gestion-home-tile" onclick="openGestionModuleDirect('joueurs')">
+        <button class="menu-btn gestion-home-tile" onclick="showGestionJoueursScreen()">
           <span class="big">👥 Joueurs</span>
           <span class="small">Licences, codes et infos joueurs</span>
         </button>
-        <button class="menu-btn gestion-home-tile" onclick="openGestionModuleDirect('equipes')">
+        <button class="menu-btn gestion-home-tile" onclick="showGestionEquipesScreen()">
           <span class="big">🟡 Équipes</span>
           <span class="small">Coach, codes et entraînements</span>
         </button>
-        <button class="menu-btn gestion-home-tile" onclick="openGestionModuleDirect('adversaires')">
+        <button class="menu-btn gestion-home-tile" onclick="showGestionAdversairesScreen()">
           <span class="big">📍 Adversaires</span>
           <span class="small">Gymnases et adresses</span>
         </button>
@@ -6130,15 +6140,15 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V64.01 GESTION</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V64.02 GESTION</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V64.01 — Gestion : suppression du bouton Gestion doublon, accueil = menu principal</li>
-        <li>V64.00 — Gestion : accueil simplifié avec accès Matchs / Joueurs / Équipes / Adversaires</li>
+        <li>V64.02 — Gestion : les 4 cartes Accueil ouvrent directement les modules</li>
+        <li>V64.01 — Gestion : suppression du bouton Gestion doublon</li>
+        <li>V64.00 — Gestion : accueil simplifié</li>
         <li>V62.00 — Gestion : séparation initiale de l’application Gestion</li>
-        <li>V61.06 — Gestion : masquage modules via CONFIG</li>
         <li>V61.00 — Base stabilisée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
@@ -6436,27 +6446,11 @@ window.CAM_BASKET_VERSION = "V61.04";
 
 <script>
 (function(){
-  window.openGestionModuleDirect = function(moduleKey){
-    try {
-      if (typeof openGestionClubMain === "function") openGestionClubMain();
-      setTimeout(function(){
-        const map = {
-          matchs: [/\bmatchs?\b/i],
-          joueurs: [/joueurs/i, /licences/i],
-          equipes: [/équipes/i, /equipes/i],
-          adversaires: [/adversaires/i, /gymnases/i]
-        };
-        const patterns = map[moduleKey] || [];
-        const candidates = Array.from(document.querySelectorAll("button, .menu-btn, .role-menu-card, .item"));
-        const btn = candidates.find(el => {
-          const txt = (el.textContent || "").trim();
-          return patterns.some(rx => rx.test(txt)) && el.offsetParent !== null;
-        });
-        if (btn) btn.click();
-      }, 180);
-    } catch(e) {
-      console.warn("openGestionModuleDirect", e);
-    }
+  window.openGestionClubMain = async function(){
+    const ok = (typeof gmEnsureAccess === "function") ? await gmEnsureAccess() : true;
+    if (!ok) return;
+    if (typeof setActiveButton === "function") setActiveButton("home");
+    if (typeof showScreen === "function") showScreen("homeScreen");
   };
 })();
 </script>
