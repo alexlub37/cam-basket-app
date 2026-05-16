@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V64.02 - Gestion - Accueil ouvre directement les modules -->
+<!-- CAM Basket V64.03 - Gestion - Réglages app préparés non connectés -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Gestion Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V64.02-GESTION" />
+  <meta name="cam-basket-version" content="V64.03-GESTION" />
   <style>
     :root{
       --bg:#050505;
@@ -1688,65 +1688,28 @@ button:disabled,
 }
 
 
-/* V64.02 GESTION - Accueil ouvre directement les modules */
-.gestion-top-actions{
-  grid-template-columns:minmax(0,220px)!important;
-}
-#appSubtitle{
-  display:none!important;
-}
-#btn-teams,
-#btn-coach,
-#btn-gestion,
-#btn-bureau,
-#btn-benevoles{
-  display:none!important;
-}
-#teamsScreen,
-#coachTeamsScreen,
-#teamMenuScreen,
-#playersScreen,
-#matchesScreen,
-#bureauScreen,
-#benevolesScreen,
-#gestionClubScreen{
-  display:none!important;
-}
-.gestion-home-hero{
-  text-align:left;
-}
-.gestion-home-kicker{
-  color:var(--accent);
-  font-size:12px;
-  font-weight:950;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  margin-bottom:6px;
-}
-.gestion-home-hero h2{
-  margin:0 0 8px;
-  font-size:30px;
-  line-height:1.05;
-}
-.gestion-home-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-  margin-bottom:14px;
-}
-.gestion-home-tile{
-  min-height:112px;
-}
-.gestion-home-tile .big{
-  font-size:18px;
-}
-.gestion-home-tile .small{
-  font-size:13px;
-}
+/* V64.03 GESTION - Accueil direct + écran Réglages app préparé */
+.gestion-top-actions{grid-template-columns:minmax(0,220px)!important;}
+#appSubtitle{display:none!important;}
+#btn-teams,#btn-coach,#btn-gestion,#btn-bureau,#btn-benevoles{display:none!important;}
+#teamsScreen,#coachTeamsScreen,#teamMenuScreen,#playersScreen,#matchesScreen,#bureauScreen,#benevolesScreen,#gestionClubScreen{display:none!important;}
+.gestion-home-hero{text-align:left;}
+.gestion-home-kicker{color:var(--accent);font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.gestion-home-hero h2{margin:0 0 8px;font-size:30px;line-height:1.05;}
+.gestion-home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.gestion-home-grid-single{grid-template-columns:1fr!important;}
+.gestion-home-tile{min-height:112px;}
+.gestion-settings-tile{min-height:88px;border-color:rgba(255,212,0,.55)!important;}
+.reglages-preview-card h3{margin:0 0 12px;color:var(--accent);font-size:18px;}
+.reglages-preview-card input,.reglages-preview-card select,.reglages-preview-card textarea{width:100%!important;opacity:.78;}
+.reglages-preview-card button:disabled{opacity:.55!important;}
+.reglages-preview-note{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.35;}
 @media(max-width:600px){
   .gestion-top-actions{grid-template-columns:1fr!important;}
   .gestion-home-grid{grid-template-columns:1fr 1fr!important;gap:10px;}
+  .gestion-home-grid-single{grid-template-columns:1fr!important;}
   .gestion-home-tile{padding:14px!important;min-height:105px;}
+  .gestion-settings-tile{min-height:86px;}
   .gestion-home-tile .big{font-size:16px!important;}
   .gestion-home-tile .small{font-size:12px!important;}
 }
@@ -1842,7 +1805,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V64.02 GESTION</button>
+    ">V64.03 GESTION</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1899,6 +1862,79 @@ button:disabled,
           <span class="big">📍 Adversaires</span>
           <span class="small">Gymnases et adresses</span>
         </button>
+      </div>
+
+      <div class="gestion-home-grid gestion-home-grid-single">
+        <button class="menu-btn gestion-home-tile gestion-settings-tile" onclick="openGestionReglagesPreview()">
+          <span class="big">⚙️ Réglages app</span>
+          <span class="small">Écran préparé — raccordement serveur plus tard</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="gestionReglagesPreviewScreen" class="screen">
+      <button class="back" onclick="setActiveButton('home'); showScreen('homeScreen')">← Retour accueil</button>
+
+      <div class="card gestion-home-hero">
+        <div class="gestion-home-kicker">Préparation</div>
+        <h2>Réglages app</h2>
+        <div class="muted">Ces champs sont préparés pour modifier plus tard la CONFIG depuis l’application. L’enregistrement sera raccordé dans Code.gs plus tard.</div>
+      </div>
+
+      <div class="card reglages-preview-card">
+        <h3>Identité club</h3>
+        <div class="gm-field">
+          <label>Nom du club</label>
+          <input id="previewNomClub" type="text" value="CAM Basket Montrichard" disabled>
+        </div>
+        <div class="gm-field">
+          <label>Message accueil</label>
+          <input id="previewMessageAccueil" type="text" value="Tous en jaune ! 🏀" disabled>
+        </div>
+        <div class="gm-field">
+          <label>Sous-titre application</label>
+          <input id="previewSousTitre" type="text" value="Équipes • Joueurs • Matchs" disabled>
+        </div>
+      </div>
+
+      <div class="card reglages-preview-card">
+        <h3>Événement club</h3>
+        <div class="gm-field">
+          <label>Événement actif</label>
+          <select disabled>
+            <option>Oui</option>
+            <option>Non</option>
+          </select>
+        </div>
+        <div class="gm-field">
+          <label>Titre événement</label>
+          <input type="text" value="1/2 Finale Coupe du Loir-et-Cher U13M" disabled>
+        </div>
+        <div class="gm-field">
+          <label>Texte événement</label>
+          <textarea rows="3" disabled>Venez encourager nos U13M !</textarea>
+        </div>
+        <div class="gm-field">
+          <label>Image événement</label>
+          <input type="text" value="evenement_club.jpg" disabled>
+        </div>
+      </div>
+
+      <div class="card reglages-preview-card">
+        <h3>Réseaux sociaux</h3>
+        <div class="gm-field">
+          <label>Facebook</label>
+          <input type="text" value="facebook_url" disabled>
+        </div>
+        <div class="gm-field">
+          <label>Instagram</label>
+          <input type="text" value="instagram_url" disabled>
+        </div>
+      </div>
+
+      <div class="card reglages-preview-card">
+        <button class="btn-light" disabled>Enregistrement à venir</button>
+        <div class="reglages-preview-note">Cet écran ne modifie encore rien. Les connexions existantes Matchs / Joueurs / Équipes / Adversaires restent inchangées.</div>
       </div>
     </section>
 
@@ -6140,15 +6176,15 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V64.02 GESTION</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V64.03 GESTION</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V64.03 — Gestion : écran Réglages app préparé, non connecté</li>
         <li>V64.02 — Gestion : les 4 cartes Accueil ouvrent directement les modules</li>
         <li>V64.01 — Gestion : suppression du bouton Gestion doublon</li>
         <li>V64.00 — Gestion : accueil simplifié</li>
-        <li>V62.00 — Gestion : séparation initiale de l’application Gestion</li>
         <li>V61.00 — Base stabilisée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
@@ -6446,6 +6482,10 @@ window.CAM_BASKET_VERSION = "V61.04";
 
 <script>
 (function(){
+  window.openGestionReglagesPreview = function(){
+    if (typeof setActiveButton === "function") setActiveButton("home");
+    if (typeof showScreen === "function") showScreen("gestionReglagesPreviewScreen");
+  };
   window.openGestionClubMain = async function(){
     const ok = (typeof gmEnsureAccess === "function") ? await gmEnsureAccess() : true;
     if (!ok) return;
