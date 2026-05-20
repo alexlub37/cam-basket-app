@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.18 - Joueurs - Bureau CONFIG + événement texte vide -->
+<!-- CAM Basket V62.12 - Joueurs - Itinéraire extérieur restauré -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.18-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.12-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1856,26 +1856,17 @@ body.player-app .team-actions-grid button{width:100%;}
 
 
 /* V62.07 - Header joueur plus propre */
-#appSubtitle{display:none;}
+#appSubtitle{display:none!important;}
 #homeIntroCard{display:none;}
 #versionBadge:hover{opacity:1;}
 
 
-/* V62.18 JOUEURS - Sous-titre piloté par CONFIG */
-body.player-app #appSubtitle{
-  display:none;
-}
-body.player-app.subtitle-visible #appSubtitle{
-  display:block!important;
-}
-
-
-/* V62.18 JOUEURS - Bureau piloté CONFIG + événement sans texte */
+/* V62.19 JOUEURS - Bureau vraiment dynamique via CONFIG */
 body.player-app #btn-bureau{
   display:none!important;
 }
 body.player-app.bureau-visible #btn-bureau{
-  display:inline-block!important;
+  display:block!important;
 }
 .club-event-title:empty,
 .club-event-text:empty{
@@ -1965,7 +1956,7 @@ body.player-app.bureau-visible #btn-bureau{
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.18 JOUEURS</button>
+    ">V62.12 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -6556,16 +6547,16 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.18 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.12 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.19 — Joueurs : Bureau réapparaît dynamiquement si activer_bureau = Oui</li>
         <li>V62.18 — Joueurs : Bureau respecte activer_bureau + événement accepte les textes vides</li>
         <li>V62.17 — Joueurs : sous-titre application piloté par CONFIG</li>
         <li>V62.16 — Joueurs : bouton Bureau piloté par CONFIG</li>
         <li>V62.12 — Joueurs : itinéraire extérieur restauré</li>
-        <li>V62.10 — Joueurs : icônes réseaux et popup version courte</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -6916,58 +6907,8 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.18-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.12-JOUEURS";
 
-</script>
-
-
-<script>
-(function(){
-  function boolCfgLocal(key, fallback){
-    try{
-      if (typeof cfgBool === "function") return cfgBool(key, fallback);
-      var cfg = window.state && window.state.config ? window.state.config : {};
-      var v = String(cfg[key] || "").trim().toLowerCase();
-      if (!v) return fallback;
-      if (["oui","o","yes","true","1","actif","active"].indexOf(v) !== -1) return true;
-      if (["non","n","no","false","0","inactif","inactive"].indexOf(v) !== -1) return false;
-      return fallback;
-    }catch(e){ return fallback; }
-  }
-
-  function valCfgLocal(key, fallback){
-    try{
-      if (typeof cfgValue === "function") return cfgValue(key, fallback);
-      var cfg = window.state && window.state.config ? window.state.config : {};
-      var v = cfg[key];
-      return v === undefined || v === null || String(v).trim() === "" ? fallback : String(v);
-    }catch(e){ return fallback; }
-  }
-
-  window.applySubtitleConfigJoueur = function(){
-    var sub = document.getElementById("appSubtitle");
-    if (!sub) return;
-    var visible = boolCfgLocal("app_sous_titre_actif", false);
-    sub.textContent = valCfgLocal("app_sous_titre", "");
-    document.body.classList.toggle("subtitle-visible", !!visible);
-    sub.style.display = visible ? "block" : "none";
-  };
-
-  var oldApplyConfig = window.applyConfig || window.appliquerConfig;
-  if (typeof oldApplyConfig === "function") {
-    window.applyConfig = function(){
-      var r = oldApplyConfig.apply(this, arguments);
-      setTimeout(window.applySubtitleConfigJoueur, 0);
-      return r;
-    };
-    window.appliquerConfig = window.applyConfig;
-  }
-
-  window.addEventListener("load", function(){
-    setTimeout(window.applySubtitleConfigJoueur, 800);
-    setTimeout(window.applySubtitleConfigJoueur, 1600);
-  });
-})();
 </script>
 
 
@@ -6995,14 +6936,27 @@ window.CAM_BASKET_VERSION = "V62.18-JOUEURS";
     return fallback;
   }
 
-  window.applyPlayerConfigFixesV6218 = function(){
-    // Bureau : la CONFIG doit gagner contre le CSS.
+  async function refreshConfigForPlayerV6219(){
+    try{
+      if (typeof getScriptUrl !== "function") return;
+      const res = await fetch(getScriptUrl() + "?action=getConfig&t=" + Date.now(), { cache:"no-store" });
+      const cfg = await res.json();
+      if (!window.state) window.state = {};
+      window.state.config = Object.assign({}, window.state.config || {}, cfg || {});
+    }catch(e){
+      console.warn("V62.19 CONFIG non relue", e);
+    }
+  }
+
+  window.applyPlayerConfigFixesV6219 = function(){
     const bureauVisible = cfgBoolLocal("activer_bureau", false);
     document.body.classList.toggle("bureau-visible", !!bureauVisible);
-    const btnBureau = document.getElementById("btn-bureau");
-    if (btnBureau) btnBureau.style.display = bureauVisible ? "" : "none";
 
-    // Événement : si les textes sont vides dans CONFIG, on les masque vraiment.
+    const btnBureau = document.getElementById("btn-bureau");
+    if (btnBureau) {
+      btnBureau.style.setProperty("display", bureauVisible ? "block" : "none", "important");
+    }
+
     const eventCard = document.getElementById("clubEventCard");
     const eventTitle = document.getElementById("clubEventTitle");
     const eventText = document.getElementById("clubEventText");
@@ -7011,7 +6965,7 @@ window.CAM_BASKET_VERSION = "V62.18-JOUEURS";
     if (eventTitle) {
       const t = cfgClean("club_event_titre");
       eventTitle.textContent = t;
-      eventTitle.style.display = t ? "" : "none";
+      eventTitle.style.setProperty("display", t ? "" : "none", "important");
     }
 
     const parts = [
@@ -7022,7 +6976,7 @@ window.CAM_BASKET_VERSION = "V62.18-JOUEURS";
 
     if (eventText) {
       eventText.textContent = parts.join("\n");
-      eventText.style.display = parts.length ? "" : "none";
+      eventText.style.setProperty("display", parts.length ? "" : "none", "important");
     }
 
     if (eventCard) {
@@ -7031,24 +6985,42 @@ window.CAM_BASKET_VERSION = "V62.18-JOUEURS";
 
     if (eventLink) {
       const link = cfgClean("club_event_lien");
-      eventLink.style.display = link ? "" : "none";
+      eventLink.style.setProperty("display", link ? "" : "none", "important");
     }
+  };
+
+  window.refreshAndApplyPlayerConfigV6219 = async function(){
+    await refreshConfigForPlayerV6219();
+    if (typeof applyConfig === "function") {
+      try { applyConfig(); } catch(e) {}
+    }
+    window.applyPlayerConfigFixesV6219();
+    setTimeout(window.applyPlayerConfigFixesV6219, 300);
   };
 
   const oldApplyConfig = window.applyConfig || window.appliquerConfig;
   if (typeof oldApplyConfig === "function") {
     window.applyConfig = function(){
       const r = oldApplyConfig.apply(this, arguments);
-      setTimeout(window.applyPlayerConfigFixesV6218, 0);
-      setTimeout(window.applyPlayerConfigFixesV6218, 300);
+      setTimeout(window.applyPlayerConfigFixesV6219, 0);
+      setTimeout(window.applyPlayerConfigFixesV6219, 300);
       return r;
     };
     window.appliquerConfig = window.applyConfig;
   }
 
+  const oldReloadData = window.reloadData;
+  if (typeof oldReloadData === "function") {
+    window.reloadData = async function(){
+      const r = await oldReloadData.apply(this, arguments);
+      setTimeout(window.refreshAndApplyPlayerConfigV6219, 200);
+      return r;
+    };
+  }
+
   window.addEventListener("load", function(){
-    setTimeout(window.applyPlayerConfigFixesV6218, 900);
-    setTimeout(window.applyPlayerConfigFixesV6218, 1800);
+    setTimeout(window.refreshAndApplyPlayerConfigV6219, 900);
+    setTimeout(window.refreshAndApplyPlayerConfigV6219, 1800);
   });
 })();
 </script>
