@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V65.00 - Gestion - Réglages CONFIG connectés -->
+<!-- CAM Basket V65.02 - Gestion - Réglages CONFIG chargement fiable anti-écrasement -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Gestion Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V65.00-GESTION" />
+  <meta name="cam-basket-version" content="V65.02-GESTION" />
   <style>
     :root{
       --bg:#050505;
@@ -1688,7 +1688,7 @@ button:disabled,
 }
 
 
-/* V65.00 GESTION - Accueil direct + écran Réglages app préparé */
+/* V65.02 GESTION - Accueil direct + écran Réglages app préparé */
 .gestion-top-actions{grid-template-columns:minmax(0,220px)!important;}
 #appSubtitle{display:none!important;}
 #btn-teams,#btn-coach,#btn-gestion,#btn-bureau,#btn-benevoles{display:none!important;}
@@ -1715,7 +1715,7 @@ button:disabled,
 }
 
 
-/* V65.00 GESTION - Réglages CONFIG connectés */
+/* V65.02 GESTION - Réglages CONFIG connectés */
 .reglages-preview-card h3{margin:0 0 12px;color:var(--accent);font-size:18px;}
 .reglages-preview-card input,
 .reglages-preview-card select,
@@ -1822,7 +1822,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V65.00 GESTION</button>
+    ">V65.02 GESTION</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -2033,7 +2033,7 @@ button:disabled,
 
       <div class="card reglages-preview-card">
         <button id="grSaveBtn" class="btn-light" onclick="saveGestionReglagesConfig()">Enregistrer les réglages</button>
-        <div class="reglages-preview-note">Après enregistrement, clique sur “Mettre à jour” ou rouvre l’app pour voir les changements partout.</div>
+        <div class="reglages-preview-note">Après enregistrement, clique sur “Mettre à jour” ou rouvre l’app pour voir les changements partout. Sécurité : seuls les champs réellement modifiés depuis le chargement CONFIG sont enregistrés. Sécurité : seuls les champs réellement modifiés depuis le chargement CONFIG sont enregistrés.</div>
       </div>
     </section>
 
@@ -6275,16 +6275,16 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V65.00 GESTION</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V65.02 GESTION</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V65.02 — Gestion : chargement CONFIG fiable + anti-écrasement multi-appareil</li>
+        <li>V65.01 — Gestion : sécurité champs vides</li>
         <li>V65.00 — Gestion : Réglages app connectés à CONFIG</li>
         <li>V64.03 — Gestion : écran Réglages app préparé</li>
         <li>V64.02 — Gestion : accès direct aux modules</li>
-        <li>V64.01 — Gestion : suppression du doublon Gestion</li>
-        <li>V61.00 — Base stabilisée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -6574,9 +6574,10 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V65.00-GESTION";
+window.CAM_BASKET_VERSION = "V65.02-GESTION";
 
 </script>
+
 
 
 
@@ -6605,6 +6606,9 @@ window.CAM_BASKET_VERSION = "V65.00-GESTION";
     instagram_url: "grInstagramUrl"
   };
 
+  window.grInitialConfigValues = window.grInitialConfigValues || {};
+  window.grConfigLoadedOk = false;
+
   function grSetMessage(text, ok){
     const el = document.getElementById("grMessage");
     if (!el) return;
@@ -6613,20 +6617,53 @@ window.CAM_BASKET_VERSION = "V65.00-GESTION";
     el.style.display = text ? "block" : "none";
   }
 
-  window.loadGestionReglagesConfig = function(){
-    const cfg = window.state && window.state.config ? window.state.config : {};
+  function grNormalizeBoolValue(v){
+    const n = String(v || "").trim().toLowerCase();
+    if (["non","n","no","false","0","inactif","inactive"].includes(n)) return "Non";
+    return "Oui";
+  }
+
+  async function fetchConfigFresh(){
+    const url = getScriptUrl() + "?action=getConfig&t=" + Date.now();
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("CONFIG inaccessible");
+    const cfg = await res.json();
+    return cfg || {};
+  }
+
+  function fillReglagesFieldsFromConfig(cfg){
+    window.grInitialConfigValues = {};
+
     Object.entries(GR_FIELDS).forEach(([key, id]) => {
       const el = document.getElementById(id);
       if (!el) return;
-      const val = cfg[key] !== undefined && cfg[key] !== null ? String(cfg[key]) : "";
-      if (el.tagName === "SELECT") {
-        const n = (typeof normalize === "function") ? normalize(val) : val.toLowerCase();
-        el.value = ["non","no","false","0","inactif"].includes(n) ? "Non" : "Oui";
-      } else {
-        el.value = val;
-      }
+
+      const raw = cfg[key] !== undefined && cfg[key] !== null ? String(cfg[key]) : "";
+      const value = el.tagName === "SELECT" ? grNormalizeBoolValue(raw) : raw;
+
+      el.value = value;
+      window.grInitialConfigValues[key] = value;
     });
-    grSetMessage("", true);
+
+    window.grConfigLoadedOk = true;
+  }
+
+  window.loadGestionReglagesConfig = async function(){
+    try {
+      grSetMessage("Chargement de la CONFIG...", true);
+      const cfg = await fetchConfigFresh();
+
+      if (!window.state) window.state = {};
+      window.state.config = Object.assign({}, window.state.config || {}, cfg);
+
+      fillReglagesFieldsFromConfig(cfg);
+      grSetMessage("CONFIG chargée ✅", true);
+      setTimeout(() => grSetMessage("", true), 1200);
+    } catch(err) {
+      console.error(err);
+      window.grConfigLoadedOk = false;
+      grSetMessage("Erreur chargement CONFIG : " + (err && err.message ? err.message : err), false);
+    }
   };
 
   window.openGestionReglagesPreview = function(){
@@ -6637,16 +6674,40 @@ window.CAM_BASKET_VERSION = "V65.00-GESTION";
 
   window.saveGestionReglagesConfig = async function(){
     const btn = document.getElementById("grSaveBtn");
+
     try {
       const ok = (typeof gmEnsureAccess === "function") ? await gmEnsureAccess() : true;
       if (!ok) return;
 
+      if (!window.grConfigLoadedOk) {
+        grSetMessage("Sécurité : CONFIG non chargée. Ouvre Réglages app à nouveau ou clique Mettre à jour.", false);
+        return;
+      }
+
       const entries = {};
+
       Object.entries(GR_FIELDS).forEach(([key, id]) => {
         const el = document.getElementById(id);
         if (!el) return;
-        entries[key] = String(el.value || "").trim();
+
+        const value = String(el.value || "").trim();
+        const initial = window.grInitialConfigValues && Object.prototype.hasOwnProperty.call(window.grInitialConfigValues, key)
+          ? String(window.grInitialConfigValues[key] || "").trim()
+          : null;
+
+        // V65.02 :
+        // On envoie uniquement ce qui a réellement changé depuis le chargement CONFIG.
+        // Si un champ chargé est volontairement vidé, il est envoyé vide.
+        // Si un champ n'a pas été chargé, il n'est jamais envoyé.
+        if (initial !== null && value !== initial) {
+          entries[key] = value;
+        }
       });
+
+      if (Object.keys(entries).length === 0) {
+        grSetMessage("Aucune modification à enregistrer.", true);
+        return;
+      }
 
       if (btn) {
         btn.disabled = true;
@@ -6670,6 +6731,7 @@ window.CAM_BASKET_VERSION = "V65.00-GESTION";
         if (typeof sessionStorage !== "undefined") sessionStorage.removeItem("cam_gestion_matchs_code");
         throw new Error("Code gestion invalide.");
       }
+
       if (txt !== "OK" && !txt.startsWith("OK")) {
         throw new Error(txt || "Erreur serveur.");
       }
@@ -6677,8 +6739,13 @@ window.CAM_BASKET_VERSION = "V65.00-GESTION";
       if (!window.state) window.state = {};
       window.state.config = Object.assign({}, window.state.config || {}, entries);
 
+      Object.keys(entries).forEach(key => {
+        window.grInitialConfigValues[key] = String(entries[key] || "").trim();
+      });
+
       grSetMessage("Réglages enregistrés ✅", true);
       if (typeof applyConfig === "function") applyConfig();
+      if (typeof appliquerConfig === "function") appliquerConfig();
     } catch(err) {
       console.error(err);
       grSetMessage("Erreur : " + (err && err.message ? err.message : err), false);
