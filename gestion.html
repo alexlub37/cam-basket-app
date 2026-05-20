@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V64.03 - Gestion - Réglages app préparés non connectés -->
+<!-- CAM Basket V65.00 - Gestion - Réglages CONFIG connectés -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Gestion Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V64.03-GESTION" />
+  <meta name="cam-basket-version" content="V65.00-GESTION" />
   <style>
     :root{
       --bg:#050505;
@@ -1688,7 +1688,7 @@ button:disabled,
 }
 
 
-/* V64.03 GESTION - Accueil direct + écran Réglages app préparé */
+/* V65.00 GESTION - Accueil direct + écran Réglages app préparé */
 .gestion-top-actions{grid-template-columns:minmax(0,220px)!important;}
 #appSubtitle{display:none!important;}
 #btn-teams,#btn-coach,#btn-gestion,#btn-bureau,#btn-benevoles{display:none!important;}
@@ -1713,6 +1713,23 @@ button:disabled,
   .gestion-home-tile .big{font-size:16px!important;}
   .gestion-home-tile .small{font-size:12px!important;}
 }
+
+
+/* V65.00 GESTION - Réglages CONFIG connectés */
+.reglages-preview-card h3{margin:0 0 12px;color:var(--accent);font-size:18px;}
+.reglages-preview-card input,
+.reglages-preview-card select,
+.reglages-preview-card textarea{
+  width:100%!important;
+  min-height:48px!important;
+  padding:12px 14px!important;
+  border-radius:16px!important;
+  font-size:16px!important;
+  opacity:1!important;
+}
+.reglages-preview-note{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.35;}
+#grSaveBtn{width:100%;min-height:52px!important;border-radius:18px!important;background:#ffd400!important;color:#000!important;border:2px solid #fff!important;font-weight:950!important;}
+#grSaveBtn:disabled{opacity:.65!important;}
 
 </style>
 
@@ -1805,7 +1822,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V64.03 GESTION</button>
+    ">V65.00 GESTION</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -1876,24 +1893,72 @@ button:disabled,
       <button class="back" onclick="setActiveButton('home'); showScreen('homeScreen')">← Retour accueil</button>
 
       <div class="card gestion-home-hero">
-        <div class="gestion-home-kicker">Préparation</div>
+        <div class="gestion-home-kicker">Configuration</div>
         <h2>Réglages app</h2>
-        <div class="muted">Ces champs sont préparés pour modifier plus tard la CONFIG depuis l’application. L’enregistrement sera raccordé dans Code.gs plus tard.</div>
+        <div class="muted">Modifie les textes principaux sans aller dans Google Sheets. Les changements sont enregistrés dans CONFIG.</div>
       </div>
+
+      <div id="grMessage" class="gm-message"></div>
 
       <div class="card reglages-preview-card">
         <h3>Identité club</h3>
         <div class="gm-field">
-          <label>Nom du club</label>
-          <input id="previewNomClub" type="text" value="CAM Basket Montrichard" disabled>
+          <label>Nom / phrase principale</label>
+          <input id="grNomClub" type="text" placeholder="Nom du club ou phrase principale">
+          <small>CONFIG : nom_club</small>
         </div>
         <div class="gm-field">
           <label>Message accueil</label>
-          <input id="previewMessageAccueil" type="text" value="Tous en jaune ! 🏀" disabled>
+          <input id="grMessageAccueil" type="text" placeholder="Ex : Tous en jaune ! 🏀">
+          <small>CONFIG : message_accueil</small>
+        </div>
+        <div class="gm-field">
+          <label>Sous-titre actif</label>
+          <select id="grAppSousTitreActif">
+            <option value="Oui">Oui</option>
+            <option value="Non">Non</option>
+          </select>
+          <small>CONFIG : app_sous_titre_actif</small>
         </div>
         <div class="gm-field">
           <label>Sous-titre application</label>
-          <input id="previewSousTitre" type="text" value="Équipes • Joueurs • Matchs" disabled>
+          <input id="grAppSousTitre" type="text" placeholder="Ex : Équipes • Joueurs • Matchs">
+          <small>CONFIG : app_sous_titre</small>
+        </div>
+      </div>
+
+      <div class="card reglages-preview-card">
+        <h3>Accueil joueur</h3>
+        <div class="gm-field">
+          <label>Carte accueil active</label>
+          <select id="grAccueilCarteActif">
+            <option value="Oui">Oui</option>
+            <option value="Non">Non</option>
+          </select>
+          <small>CONFIG : accueil_carte_actif</small>
+        </div>
+        <div class="gm-field">
+          <label>Titre accueil</label>
+          <input id="grAccueilTitre" type="text" placeholder="Accueil">
+          <small>CONFIG : accueil_titre</small>
+        </div>
+        <div class="gm-field">
+          <label>Texte accueil</label>
+          <input id="grAccueilTexte" type="text" placeholder="Match du week-end 🎉">
+          <small>CONFIG : accueil_texte</small>
+        </div>
+        <div class="gm-field">
+          <label>Info club active</label>
+          <select id="grAccueilInfosActif">
+            <option value="Oui">Oui</option>
+            <option value="Non">Non</option>
+          </select>
+          <small>CONFIG : accueil_infos_actif</small>
+        </div>
+        <div class="gm-field">
+          <label>Texte info club</label>
+          <textarea id="grAccueilInfosTexte" rows="3" placeholder="Message temporaire du club"></textarea>
+          <small>CONFIG : accueil_infos_texte</small>
         </div>
       </div>
 
@@ -1901,40 +1966,74 @@ button:disabled,
         <h3>Événement club</h3>
         <div class="gm-field">
           <label>Événement actif</label>
-          <select disabled>
-            <option>Oui</option>
-            <option>Non</option>
+          <select id="grClubEventActif">
+            <option value="Oui">Oui</option>
+            <option value="Non">Non</option>
           </select>
+          <small>CONFIG : club_event_actif</small>
         </div>
         <div class="gm-field">
           <label>Titre événement</label>
-          <input type="text" value="1/2 Finale Coupe du Loir-et-Cher U13M" disabled>
+          <input id="grClubEventTitre" type="text" placeholder="Titre événement">
+          <small>CONFIG : club_event_titre</small>
+        </div>
+        <div class="gm-field">
+          <label>Date / heure événement</label>
+          <input id="grClubEventDate" type="text" placeholder="Samedi 16 mai — 14h">
+          <small>CONFIG : club_event_date</small>
+        </div>
+        <div class="gm-field">
+          <label>Lieu événement</label>
+          <input id="grClubEventLieu" type="text" placeholder="Gymnase de Montrichard">
+          <small>CONFIG : club_event_lieu</small>
         </div>
         <div class="gm-field">
           <label>Texte événement</label>
-          <textarea rows="3" disabled>Venez encourager nos U13M !</textarea>
+          <textarea id="grClubEventTexte" rows="3" placeholder="Venez encourager..."></textarea>
+          <small>CONFIG : club_event_texte</small>
         </div>
         <div class="gm-field">
           <label>Image événement</label>
-          <input type="text" value="evenement_club.jpg" disabled>
+          <input id="grClubEventImage" type="text" placeholder="evenement_club.jpg ou URL complète">
+          <small>CONFIG : club_event_image</small>
+        </div>
+        <div class="gm-field">
+          <label>Lien événement</label>
+          <input id="grClubEventLien" type="text" placeholder="Facultatif">
+          <small>CONFIG : club_event_lien</small>
         </div>
       </div>
 
       <div class="card reglages-preview-card">
         <h3>Réseaux sociaux</h3>
         <div class="gm-field">
+          <label>Réseaux actifs</label>
+          <select id="grReseauxActif">
+            <option value="Oui">Oui</option>
+            <option value="Non">Non</option>
+          </select>
+          <small>CONFIG : reseaux_actif</small>
+        </div>
+        <div class="gm-field">
+          <label>Titre réseaux</label>
+          <input id="grReseauxTitre" type="text" placeholder="Suivre le club">
+          <small>CONFIG : reseaux_titre</small>
+        </div>
+        <div class="gm-field">
           <label>Facebook</label>
-          <input type="text" value="facebook_url" disabled>
+          <input id="grFacebookUrl" type="text" placeholder="Lien Facebook">
+          <small>CONFIG : facebook_url</small>
         </div>
         <div class="gm-field">
           <label>Instagram</label>
-          <input type="text" value="instagram_url" disabled>
+          <input id="grInstagramUrl" type="text" placeholder="Lien Instagram">
+          <small>CONFIG : instagram_url</small>
         </div>
       </div>
 
       <div class="card reglages-preview-card">
-        <button class="btn-light" disabled>Enregistrement à venir</button>
-        <div class="reglages-preview-note">Cet écran ne modifie encore rien. Les connexions existantes Matchs / Joueurs / Équipes / Adversaires restent inchangées.</div>
+        <button id="grSaveBtn" class="btn-light" onclick="saveGestionReglagesConfig()">Enregistrer les réglages</button>
+        <div class="reglages-preview-note">Après enregistrement, clique sur “Mettre à jour” ou rouvre l’app pour voir les changements partout.</div>
       </div>
     </section>
 
@@ -6176,15 +6275,15 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V64.03 GESTION</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V65.00 GESTION</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V64.03 — Gestion : écran Réglages app préparé, non connecté</li>
-        <li>V64.02 — Gestion : les 4 cartes Accueil ouvrent directement les modules</li>
-        <li>V64.01 — Gestion : suppression du bouton Gestion doublon</li>
-        <li>V64.00 — Gestion : accueil simplifié</li>
+        <li>V65.00 — Gestion : Réglages app connectés à CONFIG</li>
+        <li>V64.03 — Gestion : écran Réglages app préparé</li>
+        <li>V64.02 — Gestion : accès direct aux modules</li>
+        <li>V64.01 — Gestion : suppression du doublon Gestion</li>
         <li>V61.00 — Base stabilisée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
@@ -6475,22 +6574,120 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V61.04";
+window.CAM_BASKET_VERSION = "V65.00-GESTION";
 
 </script>
 
 
+
 <script>
 (function(){
+  const GR_FIELDS = {
+    nom_club: "grNomClub",
+    message_accueil: "grMessageAccueil",
+    app_sous_titre_actif: "grAppSousTitreActif",
+    app_sous_titre: "grAppSousTitre",
+    accueil_carte_actif: "grAccueilCarteActif",
+    accueil_titre: "grAccueilTitre",
+    accueil_texte: "grAccueilTexte",
+    accueil_infos_actif: "grAccueilInfosActif",
+    accueil_infos_texte: "grAccueilInfosTexte",
+    club_event_actif: "grClubEventActif",
+    club_event_titre: "grClubEventTitre",
+    club_event_date: "grClubEventDate",
+    club_event_lieu: "grClubEventLieu",
+    club_event_texte: "grClubEventTexte",
+    club_event_image: "grClubEventImage",
+    club_event_lien: "grClubEventLien",
+    reseaux_actif: "grReseauxActif",
+    reseaux_titre: "grReseauxTitre",
+    facebook_url: "grFacebookUrl",
+    instagram_url: "grInstagramUrl"
+  };
+
+  function grSetMessage(text, ok){
+    const el = document.getElementById("grMessage");
+    if (!el) return;
+    el.textContent = text || "";
+    el.className = "gm-message " + (ok ? "ok" : "err");
+    el.style.display = text ? "block" : "none";
+  }
+
+  window.loadGestionReglagesConfig = function(){
+    const cfg = window.state && window.state.config ? window.state.config : {};
+    Object.entries(GR_FIELDS).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const val = cfg[key] !== undefined && cfg[key] !== null ? String(cfg[key]) : "";
+      if (el.tagName === "SELECT") {
+        const n = (typeof normalize === "function") ? normalize(val) : val.toLowerCase();
+        el.value = ["non","no","false","0","inactif"].includes(n) ? "Non" : "Oui";
+      } else {
+        el.value = val;
+      }
+    });
+    grSetMessage("", true);
+  };
+
   window.openGestionReglagesPreview = function(){
     if (typeof setActiveButton === "function") setActiveButton("home");
     if (typeof showScreen === "function") showScreen("gestionReglagesPreviewScreen");
+    setTimeout(window.loadGestionReglagesConfig, 80);
   };
-  window.openGestionClubMain = async function(){
-    const ok = (typeof gmEnsureAccess === "function") ? await gmEnsureAccess() : true;
-    if (!ok) return;
-    if (typeof setActiveButton === "function") setActiveButton("home");
-    if (typeof showScreen === "function") showScreen("homeScreen");
+
+  window.saveGestionReglagesConfig = async function(){
+    const btn = document.getElementById("grSaveBtn");
+    try {
+      const ok = (typeof gmEnsureAccess === "function") ? await gmEnsureAccess() : true;
+      if (!ok) return;
+
+      const entries = {};
+      Object.entries(GR_FIELDS).forEach(([key, id]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        entries[key] = String(el.value || "").trim();
+      });
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Enregistrement...";
+      }
+
+      const payload = {
+        action: "saveConfig",
+        codeGestionMatchs: (typeof gmGetStoredCode === "function") ? gmGetStoredCode() : "",
+        entries
+      };
+
+      const res = await fetch(getScriptUrl(), {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      const txt = String(await res.text() || "").trim();
+
+      if (txt === "CODE_GESTION_MATCHS_INVALIDE") {
+        if (typeof sessionStorage !== "undefined") sessionStorage.removeItem("cam_gestion_matchs_code");
+        throw new Error("Code gestion invalide.");
+      }
+      if (txt !== "OK" && !txt.startsWith("OK")) {
+        throw new Error(txt || "Erreur serveur.");
+      }
+
+      if (!window.state) window.state = {};
+      window.state.config = Object.assign({}, window.state.config || {}, entries);
+
+      grSetMessage("Réglages enregistrés ✅", true);
+      if (typeof applyConfig === "function") applyConfig();
+    } catch(err) {
+      console.error(err);
+      grSetMessage("Erreur : " + (err && err.message ? err.message : err), false);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Enregistrer les réglages";
+      }
+    }
   };
 })();
 </script>
