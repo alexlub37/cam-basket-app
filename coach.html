@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V63.04 - Coach - Logistique domicile extérieur propre -->
+<!-- CAM Basket V63.05 - Coach - Transport lisible sans compteurs -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Coach Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V63.04-COACH" />
+  <meta name="cam-basket-version" content="V63.05-COACH" />
   <style>
     :root{
       --bg:#050505;
@@ -1861,7 +1861,7 @@ body.player-app .team-actions-grid button{width:100%;}
 #versionBadge:hover{opacity:1;}
 
 
-/* V63.04 COACH - séparation propre, sans mélange joueur */
+/* V63.05 COACH - séparation propre, sans mélange joueur */
 body.coach-app #btn-teams,
 body.coach-app #btn-myteams,
 body.coach-app #btn-bureau,
@@ -1893,7 +1893,7 @@ body.coach-app #weekendCard{
 }
 
 
-/* V63.04 COACH - Résumé logistique avant convocation */
+/* V63.05 COACH - Résumé logistique avant convocation */
 .coach-logistique-card{
   display:none;
   margin:12px 0 14px;
@@ -1969,7 +1969,7 @@ body.coach-app #weekendCard{
 }
 
 
-/* V63.04 COACH - Logistique propre domicile / extérieur */
+/* V63.05 COACH - Logistique propre domicile / extérieur */
 .coach-logistique-list{
   display:grid;
   gap:5px;
@@ -1988,6 +1988,23 @@ body.coach-app #weekendCard{
 .coach-logistique-alert{
   color:#ffd08a!important;
   font-weight:900;
+}
+
+
+/* V63.05 COACH - logistique utile sans compteurs */
+.coach-logistique-resume{display:none!important;}
+.coach-logistique-card{padding:14px!important;}
+.coach-logistique-title{margin-bottom:4px!important;}
+.coach-transport-list{display:grid;gap:7px;margin-top:7px;}
+.coach-transport-line{
+  display:block;padding:8px 10px;border-radius:12px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.10);color:#fff;font-size:14px;line-height:1.3;
+}
+.coach-transport-line strong{color:#fff;font-weight:950;}
+.coach-transport-place{color:var(--accent);font-weight:900;}
+.coach-transport-section-label{
+  color:var(--accent);font-size:12px;font-weight:950;text-transform:uppercase;
+  letter-spacing:.04em;margin:10px 0 5px;
 }
 
 </style>
@@ -2069,7 +2086,7 @@ body.coach-app #weekendCard{
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V63.04 COACH</button>
+    ">V63.05 COACH</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -4291,21 +4308,16 @@ showScreen("matchDetailScreen");
       if (!card || !resume || !details) return;
 
       const isHome = isHomeType(m && m.type);
-      const presents = [];
-      const absents = [];
-      const direct = [];
       const gymnase = [];
+      const direct = [];
       const besoin = [];
-      const conducteurs = [];
-      let placesTotal = 0;
 
-      const apports = {
-        maillots: [],
-        boisson: [],
-        nourriture: []
-      };
-
+      const apports = { maillots: [], boisson: [], nourriture: [] };
       const commentaires = [];
+
+      function makeTransportItem(prenom, modeLabel, icon, places, commentaire){
+        return { prenom, modeLabel, icon, places, commentaire };
+      }
 
       (cleanRows || []).forEach(row => {
         const prenom = getRowValue(row, "Prénom") || getRowValue(row, "Prenom");
@@ -4319,50 +4331,42 @@ showScreen("matchDetailScreen");
         const commentaire = getRowValue(row, "Commentaire");
 
         if (presence === "present") {
-          presents.push(prenom);
-
-          if (mode.includes("direct")) direct.push(prenom);
-          else if (mode.includes("gymnase")) gymnase.push(prenom);
-          else if (mode.includes("besoin")) besoin.push(prenom);
-
-          if (places > 0) {
-            conducteurs.push({ prenom, places });
-            placesTotal += places;
-          }
+          if (mode.includes("gymnase")) gymnase.push(makeTransportItem(prenom, "départ gymnase", "🚗", places, commentaire));
+          else if (mode.includes("direct")) direct.push(makeTransportItem(prenom, "direct au match", "📍", places, commentaire));
+          else if (mode.includes("besoin")) besoin.push(makeTransportItem(prenom, "besoin transport", "🆘", places, commentaire));
 
           if (apport.includes("maillot")) apports.maillots.push(prenom);
           if (apport.includes("boisson")) apports.boisson.push(prenom);
           if (apport.includes("nourriture")) apports.nourriture.push(prenom);
 
           if (commentaire) commentaires.push(`${prenom} : ${commentaire}`);
-        } else if (presence === "absent") {
-          absents.push(prenom);
-          if (commentaire) commentaires.push(`${prenom} absent : ${commentaire}`);
+        } else if (presence === "absent" && commentaire) {
+          commentaires.push(`${prenom} absent : ${commentaire}`);
         }
       });
 
-      resume.innerHTML = `
-        <div class="coach-logistique-pill"><strong>${presents.length}</strong>Présent(s)</div>
-        <div class="coach-logistique-pill"><strong>${absents.length}</strong>Absent(s)</div>
-        <div class="coach-logistique-pill"><strong>${conducteurs.length}</strong>Conducteur(s)</div>
-        <div class="coach-logistique-pill"><strong>${placesTotal}</strong>Place(s) dispo</div>
-      `;
+      resume.innerHTML = "";
 
-      function listLines(items, type){
-        if (!items || !items.length) return '<span class="coach-logistique-empty">Aucun</span>';
-        if (type === "conducteurs") {
-          return `<div class="coach-logistique-list">${items.map(c => `<span class="coach-logistique-badge-line">🚗 ${escapeHtml(c.prenom)} — ${escapeHtml(c.places)} place(s)</span>`).join("")}</div>`;
-        }
-        return `<div class="coach-logistique-list">${items.map(n => `<span class="coach-logistique-badge-line">${escapeHtml(n)}</span>`).join("")}</div>`;
+      function renderTransportGroup(label, arr){
+        if (!arr || !arr.length) return "";
+        return `
+          <div class="coach-transport-section-label">${label}</div>
+          <div class="coach-transport-list">
+            ${arr.map(p => {
+              const placesTxt = p.places > 0 ? ` — <span class="coach-transport-place">${p.places} place(s)</span>` : "";
+              const commentTxt = p.commentaire ? ` — 💬 ${escapeHtml(p.commentaire)}` : "";
+              return `<div class="coach-transport-line">${p.icon} <strong>${escapeHtml(p.prenom)}</strong> — ${escapeHtml(p.modeLabel)}${placesTxt}${commentTxt}</div>`;
+            }).join("")}
+          </div>
+        `;
       }
 
       const transportHtml = isHome ? "" : `
         <div class="coach-logistique-section">
           <div class="coach-logistique-section-title">🚗 Transport extérieur</div>
-          <div class="coach-logistique-line">Conducteurs : ${listLines(conducteurs, "conducteurs")}</div>
-          <div class="coach-logistique-line">Départ gymnase : ${listLines(gymnase)}</div>
-          <div class="coach-logistique-line">Direct : ${listLines(direct)}</div>
-          <div class="coach-logistique-line">Besoin transport : ${listLines(besoin)}</div>
+          ${renderTransportGroup("Départ gymnase", gymnase)}
+          ${renderTransportGroup("Direct au match", direct)}
+          ${renderTransportGroup("Besoin transport", besoin)}
         </div>
       `;
 
@@ -4372,22 +4376,22 @@ showScreen("matchDetailScreen");
 
       const apportsLines = isHome
         ? `
-          <div class="coach-logistique-line${missingMaillotsClass}">Maillots : ${coachRenderNameList(apports.maillots)}</div>
-          <div class="coach-logistique-line${missingBoissonClass}">Boisson : ${coachRenderNameList(apports.boisson)}</div>
-          <div class="coach-logistique-line${missingNourritureClass}">Nourriture : ${coachRenderNameList(apports.nourriture)}</div>
+          <div class="coach-logistique-line${missingMaillotsClass}">👕 Maillots : ${coachRenderNameList(apports.maillots)}</div>
+          <div class="coach-logistique-line${missingBoissonClass}">🥤 Boisson : ${coachRenderNameList(apports.boisson)}</div>
+          <div class="coach-logistique-line${missingNourritureClass}">🍰 Nourriture : ${coachRenderNameList(apports.nourriture)}</div>
         `
         : `
-          <div class="coach-logistique-line${missingMaillotsClass}">Maillots : ${coachRenderNameList(apports.maillots)}</div>
+          <div class="coach-logistique-line${missingMaillotsClass}">👕 Maillots : ${coachRenderNameList(apports.maillots)}</div>
         `;
 
       const apportsHtml = `
         <div class="coach-logistique-section">
-          <div class="coach-logistique-section-title">${isHome ? "👕🥤🍰 Organisation domicile" : "👕 Organisation extérieur"}</div>
+          <div class="coach-logistique-section-title">${isHome ? "Organisation domicile" : "Organisation extérieur"}</div>
           ${apportsLines}
         </div>
       `;
 
-      const commentsHtml = commentaires.length ? `
+      const commentsHtml = commentaires.length && isHome ? `
         <div class="coach-logistique-section">
           <div class="coach-logistique-section-title">💬 Commentaires</div>
           ${commentaires.map(c => `<div class="coach-logistique-line">${escapeHtml(c)}</div>`).join("")}
@@ -6812,16 +6816,16 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V63.04 COACH</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V63.05 COACH</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
-        <li>V63.04 — Coach : logistique domicile/extérieur propre, conducteurs en lignes</li>
+        <li>V63.05 — Coach : transport lisible par joueur, sans compteurs inutiles</li>
+        <li>V63.04 — Coach : logistique domicile/extérieur propre</li>
         <li>V63.03 — Coach : résumé logistique visible avant convocation</li>
         <li>V63.02 — Coach : interface coach propre</li>
         <li>V62.19 — Joueurs : Bureau dynamique via CONFIG</li>
-        <li>V65.02 — Gestion : Réglages CONFIG chargement fiable</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -7172,7 +7176,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V63.04-COACH";
+window.CAM_BASKET_VERSION = "V63.05-COACH";
 
 </script>
 
