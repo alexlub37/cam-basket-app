@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V63.03 - Coach - Résumé logistique réponses -->
+<!-- CAM Basket V63.04 - Coach - Logistique domicile extérieur propre -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Coach Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V63.03-COACH" />
+  <meta name="cam-basket-version" content="V63.04-COACH" />
   <style>
     :root{
       --bg:#050505;
@@ -1861,7 +1861,7 @@ body.player-app .team-actions-grid button{width:100%;}
 #versionBadge:hover{opacity:1;}
 
 
-/* V63.03 COACH - séparation propre, sans mélange joueur */
+/* V63.04 COACH - séparation propre, sans mélange joueur */
 body.coach-app #btn-teams,
 body.coach-app #btn-myteams,
 body.coach-app #btn-bureau,
@@ -1893,7 +1893,7 @@ body.coach-app #weekendCard{
 }
 
 
-/* V63.03 COACH - Résumé logistique avant convocation */
+/* V63.04 COACH - Résumé logistique avant convocation */
 .coach-logistique-card{
   display:none;
   margin:12px 0 14px;
@@ -1966,6 +1966,28 @@ body.coach-app #weekendCard{
   .coach-logistique-resume{grid-template-columns:1fr 1fr;gap:7px;}
   .coach-logistique-pill{font-size:12px;padding:8px;}
   .coach-logistique-pill strong{font-size:16px;}
+}
+
+
+/* V63.04 COACH - Logistique propre domicile / extérieur */
+.coach-logistique-list{
+  display:grid;
+  gap:5px;
+  margin-top:5px;
+}
+.coach-logistique-badge-line{
+  display:block;
+  padding:5px 8px;
+  border-radius:10px;
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.08);
+  color:#fff;
+  font-size:14px;
+  line-height:1.25;
+}
+.coach-logistique-alert{
+  color:#ffd08a!important;
+  font-weight:900;
 }
 
 </style>
@@ -2047,7 +2069,7 @@ body.coach-app #weekendCard{
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V63.03 COACH</button>
+    ">V63.04 COACH</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -4304,7 +4326,7 @@ showScreen("matchDetailScreen");
           else if (mode.includes("besoin")) besoin.push(prenom);
 
           if (places > 0) {
-            conducteurs.push(`${prenom} (${places})`);
+            conducteurs.push({ prenom, places });
             placesTotal += places;
           }
 
@@ -4326,22 +4348,42 @@ showScreen("matchDetailScreen");
         <div class="coach-logistique-pill"><strong>${placesTotal}</strong>Place(s) dispo</div>
       `;
 
+      function listLines(items, type){
+        if (!items || !items.length) return '<span class="coach-logistique-empty">Aucun</span>';
+        if (type === "conducteurs") {
+          return `<div class="coach-logistique-list">${items.map(c => `<span class="coach-logistique-badge-line">🚗 ${escapeHtml(c.prenom)} — ${escapeHtml(c.places)} place(s)</span>`).join("")}</div>`;
+        }
+        return `<div class="coach-logistique-list">${items.map(n => `<span class="coach-logistique-badge-line">${escapeHtml(n)}</span>`).join("")}</div>`;
+      }
+
       const transportHtml = isHome ? "" : `
         <div class="coach-logistique-section">
           <div class="coach-logistique-section-title">🚗 Transport extérieur</div>
-          <div class="coach-logistique-line">Conducteurs : ${coachRenderNameList(conducteurs)}</div>
-          <div class="coach-logistique-line">Départ gymnase : ${coachRenderNameList(gymnase)}</div>
-          <div class="coach-logistique-line">Direct : ${coachRenderNameList(direct)}</div>
-          <div class="coach-logistique-line">Besoin transport : ${coachRenderNameList(besoin)}</div>
+          <div class="coach-logistique-line">Conducteurs : ${listLines(conducteurs, "conducteurs")}</div>
+          <div class="coach-logistique-line">Départ gymnase : ${listLines(gymnase)}</div>
+          <div class="coach-logistique-line">Direct : ${listLines(direct)}</div>
+          <div class="coach-logistique-line">Besoin transport : ${listLines(besoin)}</div>
         </div>
       `;
 
+      const missingMaillotsClass = apports.maillots.length ? "" : " coach-logistique-alert";
+      const missingBoissonClass = apports.boisson.length ? "" : " coach-logistique-alert";
+      const missingNourritureClass = apports.nourriture.length ? "" : " coach-logistique-alert";
+
+      const apportsLines = isHome
+        ? `
+          <div class="coach-logistique-line${missingMaillotsClass}">Maillots : ${coachRenderNameList(apports.maillots)}</div>
+          <div class="coach-logistique-line${missingBoissonClass}">Boisson : ${coachRenderNameList(apports.boisson)}</div>
+          <div class="coach-logistique-line${missingNourritureClass}">Nourriture : ${coachRenderNameList(apports.nourriture)}</div>
+        `
+        : `
+          <div class="coach-logistique-line${missingMaillotsClass}">Maillots : ${coachRenderNameList(apports.maillots)}</div>
+        `;
+
       const apportsHtml = `
         <div class="coach-logistique-section">
-          <div class="coach-logistique-section-title">👕🥤🍰 Organisation</div>
-          <div class="coach-logistique-line">Maillots : ${coachRenderNameList(apports.maillots)}</div>
-          <div class="coach-logistique-line">Boisson : ${coachRenderNameList(apports.boisson)}</div>
-          <div class="coach-logistique-line">Nourriture : ${coachRenderNameList(apports.nourriture)}</div>
+          <div class="coach-logistique-section-title">${isHome ? "👕🥤🍰 Organisation domicile" : "👕 Organisation extérieur"}</div>
+          ${apportsLines}
         </div>
       `;
 
@@ -4355,6 +4397,7 @@ showScreen("matchDetailScreen");
       details.innerHTML = transportHtml + apportsHtml + commentsHtml;
       card.style.display = "block";
     }
+
 
     function coachBuildPlayerLogistiqueDetail(p){
       const detail = [];
@@ -6769,16 +6812,16 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V63.03 COACH</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V63.04 COACH</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 13/05/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V63.04 — Coach : logistique domicile/extérieur propre, conducteurs en lignes</li>
         <li>V63.03 — Coach : résumé logistique visible avant convocation</li>
         <li>V63.02 — Coach : interface coach propre</li>
         <li>V62.19 — Joueurs : Bureau dynamique via CONFIG</li>
         <li>V65.02 — Gestion : Réglages CONFIG chargement fiable</li>
-        <li>V61.05 — Formulaire : connexion instable mieux gérée</li>
       </ul>
       <button class="modal-close" onclick="closeInfoModal()">Fermer</button>
       <div class="modal-credit">Créé par Alex</div>
@@ -7129,7 +7172,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V63.03-COACH";
+window.CAM_BASKET_VERSION = "V63.04-COACH";
 
 </script>
 
