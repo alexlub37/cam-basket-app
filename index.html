@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.22 - Joueurs - Fond neutre noir stabilise -->
+<!-- CAM Basket V62.23 - Joueurs - Fonds hand et foot propres -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.22-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.23-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1205,8 +1205,10 @@ body::before,body::after{content:none!important;display:none!important;}
 #sportBasketBg,#sportHandBg,#sportFootBg,#sportNeutralBg{display:none;}
 body[data-fond-type="basket"] #sportBasketBg,
 body:not([data-fond-type]) #sportBasketBg{display:block;}
-/* V62.22 : neutre = fond noir propre, sans dessin derrière.
-   Hand/foot sont temporairement affichés en noir neutre pour éviter un rendu brouillon. */
+body[data-fond-type="hand"] #sportHandBg{display:block;}
+body[data-fond-type="foot"] #sportFootBg{display:block;}
+/* V62.23 : neutre = fond noir propre, sans dessin derrière.
+   Basket / hand / foot affichent uniquement le motif sportif choisi. */
 body>*:not(#camSvgBackground){position:relative;z-index:1;}
 header,main,section,.screen,.container,.app,.wrapper,.page,.hero,.top,.app-header,.content,#home,#homeScreen,.home,.home-screen{background:transparent!important;}
 .card,.item,.match-card,.bureau-member-card,.convocation-card,.response-card,.menu-btn,.list-card,.team-card,.player-card{
@@ -1957,19 +1959,20 @@ body.player-app.bureau-visible #btn-bureau{display:block!important;}
       <path d="M40 235 C175 260 350 245 505 155" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
       <path d="M275 50 C290 150 310 260 360 405" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
     </g>
-    <g id="sportHandBg" opacity="0.16" transform="translate(-105 150) scale(1.32)">
-      <ellipse cx="255" cy="220" rx="205" ry="165" fill="#666"/>
-      <path d="M105 120 C170 55 310 42 420 120" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
-      <path d="M78 220 C150 150 275 130 455 188" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
-      <path d="M86 310 C180 260 318 252 448 330" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
-      <path d="M238 58 C205 150 205 280 246 405" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
-      <path d="M334 78 C290 160 286 285 330 390" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
+    <g id="sportHandBg" opacity="0.14" transform="translate(-115 145) scale(1.34)">
+      <ellipse cx="265" cy="220" rx="205" ry="165" fill="#666"/>
+      <path d="M110 105 C190 58 315 65 425 130" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
+      <path d="M78 215 C165 165 310 160 455 220" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
+      <path d="M110 335 C205 280 340 285 430 355" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
+      <path d="M205 70 C185 155 190 292 230 405" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
+      <path d="M345 88 C298 170 295 280 350 395" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
     </g>
-    <g id="sportFootBg" opacity="0.15" transform="translate(-105 145) scale(1.32)">
-      <circle cx="270" cy="220" r="175" fill="#666"/>
-      <path d="M270 118 L342 170 L314 255 L226 255 L198 170 Z" fill="#050505" opacity="0.88"/>
-      <path d="M270 118 L270 48 M342 170 L420 142 M314 255 L365 330 M226 255 L175 330 M198 170 L120 142" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
-      <path d="M158 92 C105 160 94 260 145 338 M382 92 C435 160 446 260 395 338" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
+    <g id="sportFootBg" opacity="0.13" transform="translate(-105 145) scale(1.32)">
+      <circle cx="270" cy="220" r="174" fill="#666"/>
+      <path d="M270 116 L342 168 L314 252 L226 252 L198 168 Z" fill="#050505" opacity="0.9"/>
+      <path d="M270 116 L270 54 M342 168 L410 140 M314 252 L360 322 M226 252 L180 322 M198 168 L130 140" stroke="#050505" stroke-width="23" fill="none" stroke-linecap="round"/>
+      <path d="M155 95 C108 160 98 258 145 335" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
+      <path d="M385 95 C432 160 442 258 395 335" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
     </g>
     <g id="sportNeutralBg" opacity="0.12" transform="translate(-95 130) scale(1.35)">
       <ellipse cx="265" cy="220" rx="215" ry="170" fill="#666"/>
@@ -1994,7 +1997,7 @@ body.player-app.bureau-visible #btn-bureau{display:block!important;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.22 JOUEURS</button>
+    ">V62.23 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -6585,11 +6588,12 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.22 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.23 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 12/06/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.23 — Joueurs : fonds hand et foot propres activés via CONFIG</li>
         <li>V62.22 — Joueurs : fond neutre noir propre via CONFIG, sans dessin en arrière-plan</li>
         <li>V62.21 — Joueurs : fond sport configurable via CONFIG, page Joueurs uniquement</li>
         <li>V62.20 — Joueurs : image événement affichée entière sans découpe</li>
@@ -6663,9 +6667,9 @@ window.addEventListener('focus', () => {
 function normaliserFondType(valeur) {
   const v = String(valeur || "basket").trim().toLowerCase();
   if (["basket", "basketball"].includes(v)) return "basket";
-  // V62.22 : tous les autres choix restent en fond noir neutre, plus propre.
-  // Les dessins hand/foot seront ajoutés seulement après validation visuelle.
-  if (["hand", "handball", "hand-ball", "foot", "football", "soccer", "neutre", "neutral", "simple", "none"].includes(v)) return "neutre";
+  if (["hand", "handball", "hand-ball"].includes(v)) return "hand";
+  if (["foot", "football", "soccer"].includes(v)) return "foot";
+  if (["neutre", "neutral", "simple", "none", "noir", "black"].includes(v)) return "neutre";
   return "basket";
 }
 
@@ -6679,7 +6683,7 @@ function appliquerFondSportConfig(cfg) {
 function appliquerConfig() {
   const cfg = state.config || {};
 
-  // Fond configurable : basket par défaut ; neutre/hand/foot = noir propre en V62.22
+  // Fond configurable : basket / hand / foot / neutre via CONFIG en V62.23
   appliquerFondSportConfig(cfg);
 
   // Couleur principale
@@ -6966,7 +6970,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.22-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.23-JOUEURS";
 
 </script>
 
