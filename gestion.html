@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V65.02 - Gestion - Réglages CONFIG chargement fiable anti-écrasement -->
+<!-- CAM Basket V65.03 - Gestion - Fond sport configurable -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Gestion Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V65.02-GESTION" />
+  <meta name="cam-basket-version" content="V65.03-GESTION" />
   <style>
     :root{
       --bg:#050505;
@@ -1191,6 +1191,12 @@ html,body{min-height:100%;background:#000!important;color:#fff;}
 body::before,body::after{content:none!important;display:none!important;}
 #camSvgBackground{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;background:#000;}
 #camSvgBackground svg{width:100%;height:100%;display:block;position:absolute;top:0;left:0;}
+#sportBasketBg,#sportHandBg,#sportFootBg,#sportNeutralBg{display:none;}
+body[data-fond-type="basket"] #sportBasketBg,
+body:not([data-fond-type]) #sportBasketBg{display:block;}
+body[data-fond-type="hand"] #sportHandBg{display:block;}
+body[data-fond-type="foot"] #sportFootBg{display:block;}
+/* V65.03 : fond sport configurable via CONFIG. Neutre = fond noir propre, sans dessin derrière. */
 body>*:not(#camSvgBackground){position:relative;z-index:1;}
 header,main,section,.screen,.container,.app,.wrapper,.page,.hero,.top,.app-header,.content,#home,#homeScreen,.home,.home-screen{background:transparent!important;}
 .card,.item,.match-card,.bureau-member-card,.convocation-card,.response-card,.menu-btn,.list-card,.team-card,.player-card{
@@ -1786,12 +1792,47 @@ button:disabled,
       <clipPath id="bounds"><rect width="390" height="844"/></clipPath>
     </defs>
     <rect width="390" height="844" fill="url(#g)"/>
-    <g opacity="0.16" transform="translate(-120 135) scale(1.35)">
+    <g id="sportBasketBg" opacity="0.16" transform="translate(-120 135) scale(1.35)">
       <ellipse cx="265" cy="220" rx="210" ry="170" fill="#666"/>
       <path d="M80 345 C170 230 260 120 455 55" stroke="#050505" stroke-width="28" fill="none" stroke-linecap="round"/>
       <path d="M160 410 C205 300 270 185 475 90" stroke="#050505" stroke-width="28" fill="none" stroke-linecap="round"/>
       <path d="M40 235 C175 260 350 245 505 155" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
       <path d="M275 50 C290 150 310 260 360 405" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="sportHandBg" opacity="0.16">
+      <!-- V62.25 : hand = terrain sobre avec zone des 6 m / 9 m, sans gros ballon pour ne pas ressembler au basket -->
+      <g transform="translate(15 95) rotate(-6 180 280)">
+        <!-- contour terrain stylisé -->
+        <rect x="18" y="18" width="354" height="600" rx="34" fill="none" stroke="#666" stroke-width="20" opacity="0.62"/>
+        <path d="M18 318 H372" stroke="#666" stroke-width="13" opacity="0.55" stroke-linecap="round"/>
+
+        <!-- but haut, fin et rectangulaire -->
+        <path d="M118 76 V28 H272 V76" stroke="#666" stroke-width="18" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.88"/>
+        <path d="M132 30 V72 M164 30 V72 M196 30 V72 M228 30 V72 M260 30 V72" stroke="#050505" stroke-width="5" opacity="0.82" stroke-linecap="round"/>
+        <path d="M124 48 H266" stroke="#050505" stroke-width="5" opacity="0.82" stroke-linecap="round"/>
+
+        <!-- zone hand : 6 m plein + 9 m pointillé -->
+        <path d="M86 142 C112 224 278 224 304 142" stroke="#666" stroke-width="18" fill="none" opacity="0.86" stroke-linecap="round"/>
+        <path d="M58 176 C92 294 298 294 332 176" stroke="#666" stroke-width="12" fill="none" opacity="0.68" stroke-linecap="round" stroke-dasharray="28 24"/>
+        <path d="M165 132 H225" stroke="#666" stroke-width="11" opacity="0.6" stroke-linecap="round"/>
+
+        <!-- lignes de profondeur en bas, pour remplir sans créer un ballon -->
+        <path d="M64 470 C120 416 270 416 326 470" stroke="#666" stroke-width="12" fill="none" opacity="0.42" stroke-linecap="round"/>
+        <path d="M44 532 C112 466 278 466 346 532" stroke="#666" stroke-width="10" fill="none" opacity="0.34" stroke-linecap="round" stroke-dasharray="24 22"/>
+      </g>
+    </g>
+    <g id="sportFootBg" opacity="0.13" transform="translate(-105 145) scale(1.32)">
+      <circle cx="270" cy="220" r="174" fill="#666"/>
+      <path d="M270 116 L342 168 L314 252 L226 252 L198 168 Z" fill="#050505" opacity="0.9"/>
+      <path d="M270 116 L270 54 M342 168 L410 140 M314 252 L360 322 M226 252 L180 322 M198 168 L130 140" stroke="#050505" stroke-width="23" fill="none" stroke-linecap="round"/>
+      <path d="M155 95 C108 160 98 258 145 335" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
+      <path d="M385 95 C432 160 442 258 395 335" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="sportNeutralBg" opacity="0.12" transform="translate(-95 130) scale(1.35)">
+      <ellipse cx="265" cy="220" rx="215" ry="170" fill="#666"/>
+      <path d="M70 150 C175 95 300 105 470 165" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
+      <path d="M45 290 C175 245 330 255 500 325" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
+      <path d="M135 410 C210 300 330 215 485 155" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
     </g>
     <g id="svgAccentPaths" clip-path="url(#bounds)">
       <path d="M0 0 H390 V20 C290 8 190 14 105 17 C45 18 18 12 0 6Z" fill="#ffd400"/>
@@ -1822,7 +1863,7 @@ button:disabled,
       cursor:pointer;
       z-index:10;
       letter-spacing:0.3px;
-    ">V65.02 GESTION</button>
+    ">V65.03 GESTION</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Logo CAM Basket" style="cursor:default;">
@@ -6275,11 +6316,12 @@ ${joueurs.map(j => "• " + j).join("\n")}`;
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V65.02 GESTION</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V65.03 GESTION</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
-      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 04/05/2026</div>
+      <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 12/06/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V65.03 — Gestion : fond sport configurable via CONFIG</li>
         <li>V65.02 — Gestion : chargement CONFIG fiable + anti-écrasement multi-appareil</li>
         <li>V65.01 — Gestion : sécurité champs vides</li>
         <li>V65.00 — Gestion : Réglages app connectés à CONFIG</li>
@@ -6348,8 +6390,27 @@ window.addEventListener('focus', () => {
 // ══════════════════════════════════
 // ⚙️ CONFIG
 // ══════════════════════════════════
+function normaliserFondType(v) {
+  v = String(v || "basket").trim().toLowerCase();
+  if (["basket", "basketball"].includes(v)) return "basket";
+  if (["hand", "handball", "hand-ball"].includes(v)) return "hand";
+  if (["foot", "football", "soccer"].includes(v)) return "foot";
+  if (["neutre", "neutral", "simple", "none", "noir", "black"].includes(v)) return "neutre";
+  return "basket";
+}
+
+function appliquerFondSportConfig(cfg) {
+  const fondType = normaliserFondType(
+    (cfg && (cfg["fond_type"] || cfg["fond_sport"] || cfg["sport_club"])) || "basket"
+  );
+  document.body.setAttribute("data-fond-type", fondType);
+}
+
 function appliquerConfig() {
   const cfg = state.config || {};
+
+  // Fond configurable : basket / hand / foot / neutre via CONFIG en V65.03
+  appliquerFondSportConfig(cfg);
 
   // Couleur principale
   const c = cfg["couleur_principale"] || "";
@@ -6574,7 +6635,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V65.02-GESTION";
+window.CAM_BASKET_VERSION = "V65.03-GESTION";
 
 </script>
 
