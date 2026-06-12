@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.21 - Joueurs - Fond sport configurable sur page Joueurs -->
+<!-- CAM Basket V62.22 - Joueurs - Fond neutre noir stabilise -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.21-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.22-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1205,12 +1205,8 @@ body::before,body::after{content:none!important;display:none!important;}
 #sportBasketBg,#sportHandBg,#sportFootBg,#sportNeutralBg{display:none;}
 body[data-fond-type="basket"] #sportBasketBg,
 body:not([data-fond-type]) #sportBasketBg{display:block;}
-body[data-fond-type="hand"] #sportHandBg,
-body[data-fond-type="handball"] #sportHandBg{display:block;}
-body[data-fond-type="foot"] #sportFootBg,
-body[data-fond-type="football"] #sportFootBg{display:block;}
-body[data-fond-type="neutre"] #sportNeutralBg,
-body[data-fond-type="neutral"] #sportNeutralBg{display:block;}
+/* V62.22 : neutre = fond noir propre, sans dessin derrière.
+   Hand/foot sont temporairement affichés en noir neutre pour éviter un rendu brouillon. */
 body>*:not(#camSvgBackground){position:relative;z-index:1;}
 header,main,section,.screen,.container,.app,.wrapper,.page,.hero,.top,.app-header,.content,#home,#homeScreen,.home,.home-screen{background:transparent!important;}
 .card,.item,.match-card,.bureau-member-card,.convocation-card,.response-card,.menu-btn,.list-card,.team-card,.player-card{
@@ -1998,7 +1994,7 @@ body.player-app.bureau-visible #btn-bureau{display:block!important;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.21 JOUEURS</button>
+    ">V62.22 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -6589,11 +6585,12 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.21 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.22 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 12/06/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.22 — Joueurs : fond neutre noir propre via CONFIG, sans dessin en arrière-plan</li>
         <li>V62.21 — Joueurs : fond sport configurable via CONFIG, page Joueurs uniquement</li>
         <li>V62.20 — Joueurs : image événement affichée entière sans découpe</li>
         <li>V62.19 — Joueurs : Bureau dynamique via CONFIG</li>
@@ -6665,9 +6662,10 @@ window.addEventListener('focus', () => {
 // ══════════════════════════════════
 function normaliserFondType(valeur) {
   const v = String(valeur || "basket").trim().toLowerCase();
-  if (["hand", "handball", "hand-ball"].includes(v)) return "hand";
-  if (["foot", "football", "soccer"].includes(v)) return "foot";
-  if (["neutre", "neutral", "simple", "none"].includes(v)) return "neutre";
+  if (["basket", "basketball"].includes(v)) return "basket";
+  // V62.22 : tous les autres choix restent en fond noir neutre, plus propre.
+  // Les dessins hand/foot seront ajoutés seulement après validation visuelle.
+  if (["hand", "handball", "hand-ball", "foot", "football", "soccer", "neutre", "neutral", "simple", "none"].includes(v)) return "neutre";
   return "basket";
 }
 
@@ -6681,7 +6679,7 @@ function appliquerFondSportConfig(cfg) {
 function appliquerConfig() {
   const cfg = state.config || {};
 
-  // Fond sport configurable : basket par défaut si CONFIG vide
+  // Fond configurable : basket par défaut ; neutre/hand/foot = noir propre en V62.22
   appliquerFondSportConfig(cfg);
 
   // Couleur principale
@@ -6968,7 +6966,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.21-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.22-JOUEURS";
 
 </script>
 
