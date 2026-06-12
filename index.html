@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAM Basket V62.23 - Joueurs - Fonds hand et foot propres -->
+<!-- CAM Basket V62.24 - Joueurs - Fond hand distinct terrain/but -->
 
 <html lang="fr">
 <head>
@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CAM Basket Montrichard</title>
   <meta name="theme-color" content="#1f4e79" />
-  <meta name="cam-basket-version" content="V62.23-JOUEURS" />
+  <meta name="cam-basket-version" content="V62.24-JOUEURS" />
   <style>
     :root{
       --bg:#050505;
@@ -1207,8 +1207,8 @@ body[data-fond-type="basket"] #sportBasketBg,
 body:not([data-fond-type]) #sportBasketBg{display:block;}
 body[data-fond-type="hand"] #sportHandBg{display:block;}
 body[data-fond-type="foot"] #sportFootBg{display:block;}
-/* V62.23 : neutre = fond noir propre, sans dessin derrière.
-   Basket / hand / foot affichent uniquement le motif sportif choisi. */
+/* V62.24 : neutre = fond noir propre, sans dessin derrière.
+   Hand = motif terrain/but pour éviter l’effet ballon de basket. */
 body>*:not(#camSvgBackground){position:relative;z-index:1;}
 header,main,section,.screen,.container,.app,.wrapper,.page,.hero,.top,.app-header,.content,#home,#homeScreen,.home,.home-screen{background:transparent!important;}
 .card,.item,.match-card,.bureau-member-card,.convocation-card,.response-card,.menu-btn,.list-card,.team-card,.player-card{
@@ -1959,13 +1959,22 @@ body.player-app.bureau-visible #btn-bureau{display:block!important;}
       <path d="M40 235 C175 260 350 245 505 155" stroke="#050505" stroke-width="26" fill="none" stroke-linecap="round"/>
       <path d="M275 50 C290 150 310 260 360 405" stroke="#050505" stroke-width="22" fill="none" stroke-linecap="round"/>
     </g>
-    <g id="sportHandBg" opacity="0.14" transform="translate(-115 145) scale(1.34)">
-      <ellipse cx="265" cy="220" rx="205" ry="165" fill="#666"/>
-      <path d="M110 105 C190 58 315 65 425 130" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
-      <path d="M78 215 C165 165 310 160 455 220" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
-      <path d="M110 335 C205 280 340 285 430 355" stroke="#050505" stroke-width="24" fill="none" stroke-linecap="round"/>
-      <path d="M205 70 C185 155 190 292 230 405" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
-      <path d="M345 88 C298 170 295 280 350 395" stroke="#050505" stroke-width="21" fill="none" stroke-linecap="round"/>
+    <g id="sportHandBg" opacity="0.16">
+      <!-- V62.24 : hand = but + zone de terrain, sans gros ballon central pour éviter l'effet basket -->
+      <g transform="translate(20 118) rotate(-8 175 170)">
+        <path d="M38 245 L38 86 Q38 72 52 72 H322 Q336 72 336 86 V245" stroke="#666" stroke-width="26" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M38 245 H336" stroke="#666" stroke-width="22" fill="none" stroke-linecap="round"/>
+        <path d="M76 88 V236 M116 88 V236 M156 88 V236 M196 88 V236 M236 88 V236 M276 88 V236 M316 88 V236" stroke="#050505" stroke-width="7" fill="none" opacity="0.78" stroke-linecap="round"/>
+        <path d="M48 118 H326 M48 158 H326 M48 198 H326 M48 234 H326" stroke="#050505" stroke-width="7" fill="none" opacity="0.78" stroke-linecap="round"/>
+      </g>
+      <path d="M-35 505 C76 360 304 356 425 500" stroke="#666" stroke-width="24" fill="none" opacity="0.78" stroke-linecap="round"/>
+      <path d="M28 505 C118 410 282 410 365 505" stroke="#050505" stroke-width="9" fill="none" opacity="0.78" stroke-linecap="round"/>
+      <g transform="translate(285 300) rotate(-18)">
+        <circle cx="0" cy="0" r="47" fill="#666" opacity="0.86"/>
+        <path d="M-31 -14 C-12 -32 20 -31 36 -10" stroke="#050505" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M-34 13 C-11 32 17 31 35 12" stroke="#050505" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M-6 -41 C2 -18 4 16 -4 42" stroke="#050505" stroke-width="9" fill="none" stroke-linecap="round"/>
+      </g>
     </g>
     <g id="sportFootBg" opacity="0.13" transform="translate(-105 145) scale(1.32)">
       <circle cx="270" cy="220" r="174" fill="#666"/>
@@ -1997,7 +2006,7 @@ body.player-app.bureau-visible #btn-bureau{display:block!important;}
     <!-- Badge version cliquable — haut gauche -->
     <button onclick="openInfoModal()" id="versionBadge" style="
       display:none;
-    ">V62.23 JOUEURS</button>
+    ">V62.24 JOUEURS</button>
     <div class="hero">
       <div style="position:relative;display:inline-block;">
         <button class="hero-logo-btn" aria-label="Informations CAM Basket" onclick="openInfoModal()" style="cursor:pointer;">
@@ -6588,11 +6597,12 @@ openMatches = function(){
 <div id="infoModal" class="modal-overlay" onclick="closeInfoModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <h3>Application CAM Basket</h3>
-      <div class="modal-line"><span class="modal-label">Version :</span> V62.23 JOUEURS</div>
+      <div class="modal-line"><span class="modal-label">Version :</span> V62.24 JOUEURS</div>
       <div class="modal-line"><span class="modal-label">Date de création :</span> 20/04/2026</div>
       <div class="modal-line"><span class="modal-label">Dernière mise à jour :</span> 12/06/2026</div>
       <div class="modal-line"><span class="modal-label">Modifications :</span></div>
       <ul class="modal-list">
+        <li>V62.24 — Joueurs : fond hand distinct, moins proche du basket, avec motif but/terrain</li>
         <li>V62.23 — Joueurs : fonds hand et foot propres activés via CONFIG</li>
         <li>V62.22 — Joueurs : fond neutre noir propre via CONFIG, sans dessin en arrière-plan</li>
         <li>V62.21 — Joueurs : fond sport configurable via CONFIG, page Joueurs uniquement</li>
@@ -6683,7 +6693,7 @@ function appliquerFondSportConfig(cfg) {
 function appliquerConfig() {
   const cfg = state.config || {};
 
-  // Fond configurable : basket / hand / foot / neutre via CONFIG en V62.23
+  // Fond configurable : basket / hand / foot / neutre via CONFIG en V62.24
   appliquerFondSportConfig(cfg);
 
   // Couleur principale
@@ -6970,7 +6980,7 @@ function appliquerConfig() {
 
 
 /* V61.00 - Marqueur de version stabilisee */
-window.CAM_BASKET_VERSION = "V62.23-JOUEURS";
+window.CAM_BASKET_VERSION = "V62.24-JOUEURS";
 
 </script>
 
