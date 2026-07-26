@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<!-- Démo App Club — Portail unique V1.19 — reconstruit depuis demo-app-club-main (3).zip -->
+<html lang="fr">
+<head>
+<link rel="apple-touch-icon" href="assets/logos/clubs/demo-app-club.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/app-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/app-32.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-title" content="App Club">
+<meta name="app-version" content="V1.19-PORTAIL-TRANSITION">
+<link rel="manifest" href="manifest-portail.webmanifest">
+<title>Application du club — Mes espaces</title>
+<style>
+:root{
+  --bg:#050505;--card:#121212;--text:#ffffff;--muted:#cfcfcf;--line:#2d2d2d;
+  --accent:#4e8a47;--accent-rgb:78,138,71;--button-bg:#70a663;--button-text:#000000;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:#000!important;color:var(--text);overflow-x:hidden;overscroll-behavior-x:none}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+body::before,body::after{content:none!important;display:none!important}
+#camSvgBackground{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;background:#000}
+#camSvgBackground svg{width:100%;height:100%;display:block;position:absolute;top:0;left:0}
+#sportBasketBg,#sportHandBg,#sportFootBg,#sportNeutralBg{display:none}
+body[data-fond-type="basket"] #sportBasketBg,body:not([data-fond-type]) #sportBasketBg{display:block}
+body[data-fond-type="hand"] #sportHandBg{display:block}
+body[data-fond-type="foot"] #sportFootBg{display:block}
+body>*:not(#camSvgBackground){position:relative;z-index:1}
+header{background:transparent!important;color:var(--text);padding:max(18px,env(safe-area-inset-top)) 14px 14px;border-bottom:1px solid rgba(var(--accent-rgb),.18)}
+.hero{max-width:900px;margin:0 auto;text-align:center}
+.hero-logo-button{display:block;margin:0 auto 8px;padding:0;border:0;background:transparent;border-radius:50%;cursor:pointer;touch-action:manipulation}.hero-logo-button:active{transform:scale(.97)}.hero-logo{width:142px;height:142px;object-fit:contain;display:block;filter:drop-shadow(0 8px 18px rgba(0,0,0,.38))}
+.club-name{margin:0;color:var(--accent);font-size:13px;font-weight:950;letter-spacing:.07em;text-transform:uppercase}
+.hero-title{margin:16px 0 8px;font-size:clamp(34px,9.4vw,54px);line-height:1.02;color:var(--text);font-weight:950;letter-spacing:-.035em}
+.hero-sub{margin:0 auto;max-width:560px;color:var(--muted);font-size:17px;line-height:1.42}
+.portal-version{display:inline-flex;margin-top:12px;padding:4px 9px;border:1px solid rgba(var(--accent-rgb),.40);border-radius:999px;color:var(--accent);font-size:10px;font-weight:850}
+main{padding:16px 14px 32px;max-width:900px;margin:0 auto}
+.portal-card{background:linear-gradient(180deg,rgba(18,18,18,.72),rgba(3,3,3,.84));border:1px solid rgba(var(--accent-rgb),.55);border-radius:24px;padding:20px;margin-bottom:14px;box-shadow:0 10px 24px rgba(0,0,0,.36)}
+.section-title{display:flex;align-items:center;gap:10px;margin:0 0 15px;color:var(--accent);font-size:25px;font-weight:950}
+.section-title::before{content:"";width:6px;height:34px;border-radius:999px;background:var(--accent);flex:0 0 auto}
+.role-list,.spaces-list{display:grid;gap:12px}
+.role-choice,.space-link{width:100%;display:grid;grid-template-columns:58px minmax(0,1fr) 38px;align-items:center;gap:13px;text-align:left;text-decoration:none;background:rgba(0,0,0,.40);color:var(--text);border:2px solid var(--accent);border-radius:20px;padding:12px 14px;min-height:84px;box-shadow:none;cursor:pointer;touch-action:manipulation}
+.role-choice:active,.space-link:active,.portal-secondary:active,.portal-primary:active{transform:scale(.975)}
+.role-choice.selected{background:rgba(var(--accent-rgb),.20);box-shadow:inset 0 0 0 1px var(--accent)}
+.role-choice[hidden],.space-link[hidden]{display:none!important}
+/* V1.15 : correction ciblée — la saisie des codes est une vraie modale centrée. */
+body>.access-modal{position:fixed!important;
+}
+.access-modal{position:fixed!important;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.86)}
+.access-modal[hidden]{display:none!important}
+.access-modal-box{width:min(430px,100%);background:#0b0b0b;border:2px solid var(--accent);border-radius:22px;padding:20px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.access-modal-title{margin:0 0 8px;color:var(--accent);font-size:24px;font-weight:950}
+.access-modal-text{margin:0 0 12px;color:var(--muted);font-size:15px;line-height:1.4}
+.access-code-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:68px;margin:8px 0 2px;border:2px solid var(--accent);border-radius:18px;background:#000;cursor:text}
+.access-code-dots{display:flex;align-items:center;justify-content:center;gap:18px;pointer-events:none}
+.access-code-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.62);background:transparent;transition:transform .15s ease,background .15s ease,border-color .15s ease,box-shadow .15s ease}
+.access-code-dot.filled{background:var(--accent);border-color:var(--accent);transform:scale(1.08);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.16)}
+.access-modal-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;background:transparent;color:transparent;caret-color:transparent;font-size:24px;outline:none}
+.access-modal-status{min-height:22px;margin:9px 0 0;color:#ffcf70;text-align:center;font-size:13px;font-weight:850}
+.access-modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.access-modal-actions button{min-height:48px;border-radius:15px;padding:9px 12px;font-size:16px;font-weight:950;cursor:pointer}
+.access-modal-cancel{background:#191919;color:#fff;border:1px solid #555}
+.access-modal-validate{background:var(--button-bg);color:var(--button-text);border:2px solid var(--button-bg)}
+.role-icon{display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:rgba(var(--accent-rgb),.16);color:var(--accent)}
+.role-icon svg{width:32px;height:32px}
+.role-title,.space-title{font-size:20px;font-weight:950;line-height:1.13;color:var(--text)}
+.role-desc,.space-desc{margin-top:5px;color:var(--muted);font-size:14px;line-height:1.35}
+.selector{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.48);display:grid;place-items:center;color:#fff;font-size:20px;font-weight:950}
+.selected .selector{background:var(--accent);border-color:var(--accent)}
+.chevron{color:var(--accent);font-size:34px;font-weight:700;text-align:center}
+.active-summary{display:flex;flex-wrap:wrap;gap:9px}
+.role-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:2px solid var(--accent);border-radius:999px;background:rgba(0,0,0,.36);color:var(--text);font-size:14px;font-weight:900}
+.role-chip svg{width:18px;height:18px;color:var(--accent)}
+.portal-primary,.portal-secondary,.portal-reset{width:100%;min-height:54px;border-radius:18px;padding:11px 16px;font-size:17px;font-weight:950;cursor:pointer;touch-action:manipulation}
+.portal-primary{margin-top:14px;background:var(--button-bg);color:var(--button-text);border:2px solid var(--button-bg)}
+.portal-secondary{margin-top:10px;background:rgba(var(--accent-rgb),.10);color:var(--text);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;gap:10px}.portal-secondary-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(var(--accent-rgb),.18);color:var(--accent);font-size:17px;font-weight:950}
+.portal-reset{margin-top:4px;background:transparent;color:var(--accent);border:0;min-height:44px;font-size:14px}
+.notice{display:flex;align-items:flex-start;gap:10px;margin-top:10px;padding:12px 13px;border:1px solid rgba(var(--accent-rgb),.38);border-radius:16px;background:rgba(0,0,0,.32);color:var(--muted);font-size:13px;line-height:1.4}
+.notice svg{width:21px;min-width:21px;color:var(--accent)}
+.portal-status{min-height:20px;margin-top:8px;text-align:center;color:#ffcf70;font-size:13px;font-weight:850}
+[hidden]{display:none!important}
+
+.info-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.info-modal[hidden]{display:none!important}
+.info-modal-box{width:min(430px,100%);max-height:min(78vh,680px);overflow:auto;background:linear-gradient(180deg,rgba(24,24,24,.98),rgba(6,6,6,.98));border:2px solid var(--accent);border-radius:28px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.68)}
+.info-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+.info-modal-title{margin:0;color:var(--text);font-size:26px;font-weight:950;line-height:1.1}
+.info-modal-version{display:inline-flex;margin-top:8px;padding:5px 10px;border:1px solid rgba(var(--accent-rgb),.55);border-radius:999px;color:var(--accent);font-size:11px;font-weight:900}
+.info-modal-close{width:42px;height:42px;flex:0 0 auto;border-radius:50%;border:2px solid var(--accent);background:#090909;color:#fff;font-size:25px;line-height:1;cursor:pointer}
+.info-modal-subtitle{margin:0 0 10px;color:var(--accent);font-size:15px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}
+.info-modal-list{margin:0;padding-left:20px;color:var(--muted);font-size:14px;line-height:1.5}
+.info-modal-list li+li{margin-top:7px}
+@media(max-width:390px){.hero-logo{width:126px;height:126px}.hero-title{font-size:38px}.portal-card{padding:16px}.role-choice,.space-link{grid-template-columns:50px minmax(0,1fr) 32px;padding:12px;min-height:84px}.role-icon{width:48px;height:48px}.role-title,.space-title{font-size:18px}}
+
+
+/* V1.19 : transition noire indépendante, sans impact sur la page ni le scroll. */
+#appTransition{
+  position:fixed!important;
+  inset:0!important;
+  z-index:50000!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  background:#000!important;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  overflow:hidden!important;
+  transition:opacity .18s ease,visibility .18s ease;
+}
+#appTransition.is-hidden{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#appTransitionLogo{
+  display:block!important;
+  width:128px!important;
+  height:128px!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:38vw!important;
+  max-height:38vw!important;
+  margin:0!important;
+  padding:0!important;
+  object-fit:contain!important;
+  flex:0 0 auto!important;
+}
+
+/* iPhone : même stratégie que les pages source. Aucune fausse bande noire, aucun décalage du body. */
+</style>
+</head>
+<body data-fond-type="basket">
+
+<div id="appTransition" aria-hidden="true">
+  <img id="appTransitionLogo" src="assets/logos/clubs/demo-app-club.png" alt="">
+</div>
+
+<div aria-hidden="true" id="camSvgBackground" style="opacity:0;transition:opacity 0.2s ease;">
+<svg preserveaspectratio="none" viewbox="0 0 390 844">
+<defs>
+<radialgradient cx="50%" cy="25%" id="g" r="75%">
+<stop offset="0%" stop-color="#202020"></stop>
+<stop offset="70%" stop-color="#070707"></stop>
+<stop offset="100%" stop-color="#000000"></stop>
+</radialgradient>
+<clippath id="bounds"><rect height="844" width="390"></rect></clippath>
+</defs>
+<rect fill="url(#g)" height="844" width="390"></rect>
+<g id="sportBasketBg" opacity="0.16" transform="translate(-120 135) scale(1.35)">
+<ellipse cx="265" cy="220" fill="#666" rx="210" ry="170"></ellipse>
+<path d="M80 345 C170 230 260 120 455 55" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="28"></path>
+<path d="M160 410 C205 300 270 185 475 90" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="28"></path>
+<path d="M40 235 C175 260 350 245 505 155" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="26"></path>
+<path d="M275 50 C290 150 310 260 360 405" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="22"></path>
+</g>
+<g id="sportHandBg" opacity="0.16">
+<!-- V62.25 : hand = terrain sobre avec zone des 6 m / 9 m, sans gros ballon pour ne pas ressembler au basket -->
+<g transform="translate(15 95) rotate(-6 180 280)">
+<!-- contour terrain stylisé -->
+<rect fill="none" height="600" opacity="0.62" rx="34" stroke="#666" stroke-width="20" width="354" x="18" y="18"></rect>
+<path d="M18 318 H372" opacity="0.55" stroke="#666" stroke-linecap="round" stroke-width="13"></path>
+<!-- but haut, fin et rectangulaire -->
+<path d="M118 76 V28 H272 V76" fill="none" opacity="0.88" stroke="#666" stroke-linecap="round" stroke-linejoin="round" stroke-width="18"></path>
+<path d="M132 30 V72 M164 30 V72 M196 30 V72 M228 30 V72 M260 30 V72" opacity="0.82" stroke="#050505" stroke-linecap="round" stroke-width="5"></path>
+<path d="M124 48 H266" opacity="0.82" stroke="#050505" stroke-linecap="round" stroke-width="5"></path>
+<!-- zone hand : 6 m plein + 9 m pointillé -->
+<path d="M86 142 C112 224 278 224 304 142" fill="none" opacity="0.86" stroke="#666" stroke-linecap="round" stroke-width="18"></path>
+<path d="M58 176 C92 294 298 294 332 176" fill="none" opacity="0.68" stroke="#666" stroke-dasharray="28 24" stroke-linecap="round" stroke-width="12"></path>
+<path d="M165 132 H225" opacity="0.6" stroke="#666" stroke-linecap="round" stroke-width="11"></path>
+<!-- lignes de profondeur en bas, pour remplir sans créer un ballon -->
+<path d="M64 470 C120 416 270 416 326 470" fill="none" opacity="0.42" stroke="#666" stroke-linecap="round" stroke-width="12"></path>
+<path d="M44 532 C112 466 278 466 346 532" fill="none" opacity="0.34" stroke="#666" stroke-dasharray="24 22" stroke-linecap="round" stroke-width="10"></path>
+</g>
+</g>
+<g id="sportFootBg" opacity="0.13" transform="translate(-105 145) scale(1.32)">
+<circle cx="270" cy="220" fill="#666" r="174"></circle>
+<path d="M270 116 L342 168 L314 252 L226 252 L198 168 Z" fill="#050505" opacity="0.9"></path>
+<path d="M270 116 L270 54 M342 168 L410 140 M314 252 L360 322 M226 252 L180 322 M198 168 L130 140" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="23"></path>
+<path d="M155 95 C108 160 98 258 145 335" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="21"></path>
+<path d="M385 95 C432 160 442 258 395 335" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="21"></path>
+</g>
+<g id="sportNeutralBg" opacity="0.12" transform="translate(-95 130) scale(1.35)">
+<ellipse cx="265" cy="220" fill="#666" rx="215" ry="170"></ellipse>
+<path d="M70 150 C175 95 300 105 470 165" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="26"></path>
+<path d="M45 290 C175 245 330 255 500 325" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="26"></path>
+<path d="M135 410 C210 300 330 215 485 155" fill="none" stroke="#050505" stroke-linecap="round" stroke-width="24"></path>
+</g>
+<g clip-path="url(#bounds)" id="svgAccentPaths">
+<path d="M0 0 H390 V20 C290 8 190 14 105 17 C45 18 18 12 0 6Z" fill="var(--accent)"></path>
+<path d="M0 0 V844 H10 C5 744 8 636 7 520 C5 390 9 255 6 145 C4 68 7 25 0 0Z" fill="var(--accent)"></path>
+<path d="M390 0 V844 H380 C385 744 382 636 383 520 C385 390 381 255 384 145 C386 68 383 25 390 0Z" fill="var(--accent)"></path>
+<path d="M0 844 H390 V820 C310 834 238 828 150 824 C78 820 34 836 0 844Z" fill="var(--accent)"></path>
+<path d="M0 30 C80 20 170 28 250 20 C315 14 356 22 390 28" fill="none" opacity=".75" stroke="#050505" stroke-width="10"></path>
+<path d="M20 0 C10 90 30 175 19 265 C10 335 24 435 17 525 C10 635 24 745 18 844" fill="none" opacity=".75" stroke="#050505" stroke-width="10"></path>
+<path d="M370 0 C380 90 360 175 371 265 C380 335 366 435 373 525 C380 635 366 745 372 844" fill="none" opacity=".75" stroke="#050505" stroke-width="10"></path>
+<path d="M0 816 C78 830 160 812 252 824 C315 832 360 818 390 812" fill="none" opacity=".75" stroke="#050505" stroke-width="10"></path>
+</g>
+</svg>
+</div>
+<header>
+  <div class="hero">
+    <button id="portalLogoBtn" class="hero-logo-button" type="button" aria-label="Afficher les informations et la version"><img id="portalLogo" class="hero-logo" src="assets/logos/clubs/demo-app-club.png" alt="Logo du club"></button>
+    <p id="portalClubName" class="club-name">Démo App Club</p>
+    <h1 id="portalMainTitle" class="hero-title">Bienvenue dans l’application du club</h1>
+    <p id="portalSubtitle" class="hero-sub">Sélectionnez un ou plusieurs rôles pour personnaliser vos espaces.</p>
+  </div>
+</header>
+<main>
+  <section id="setupPanel" class="portal-card" hidden>
+    <h2 class="section-title">Choisir mes rôles</h2>
+    <div id="roleChooser" class="role-list"></div>
+    <div id="setupStatus" class="portal-status" aria-live="polite"></div>
+    <button id="continueBtn" class="portal-primary" type="button">Continuer</button>
+    <div class="notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>La sélection affiche les espaces souhaités. Les accès Coach et Gestion restent protégés par leurs codes.</span>
+    </div>
+  </section>
+
+  <section id="spacesPanel" hidden>
+    <div class="portal-card">
+      <h2 class="section-title">Mes espaces</h2>
+      <div id="activeSummary" class="active-summary"></div>
+    </div>
+    <div class="portal-card">
+      <h2 class="section-title">Ouvrir un espace</h2>
+      <div id="spaceLinks" class="spaces-list"></div>
+      <button id="editRolesBtn" class="portal-secondary" type="button"><span class="portal-secondary-icon" aria-hidden="true">✎</span><span>Modifier mes rôles</span></button>
+      <button id="resetBtn" class="portal-reset" type="button">Réinitialiser ce téléphone</button>
+      <div class="notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Les rôles sont mémorisés uniquement sur ce téléphone. Aucun droit Coach ou Gestion n’est accordé sans le code correspondant.</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="infoModal" class="info-modal" hidden role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+  <div class="info-modal-box">
+    <div class="info-modal-head">
+      <div>
+        <h2 id="infoModalTitle" class="info-modal-title">Informations</h2>
+        <span class="info-modal-version">PORTAIL V1.19</span>
+      </div>
+      <button id="infoModalClose" class="info-modal-close" type="button" aria-label="Fermer">×</button>
+    </div>
+    <p class="info-modal-subtitle">5 dernières modifications</p>
+    <ul class="info-modal-list">
+      <li>Transition noire avec logo avant l’ouverture d’un espace.</li>
+      <li>Champ de code réel masqué tout en conservant le clavier numérique.</li>
+      <li>Pastilles mises à jour automatiquement pendant la saisie.</li>
+      <li>Validation automatique après le quatrième chiffre.</li>
+      <li>Design de la fenêtre d’accès harmonisé avec le module Joueur.</li>
+    </ul>
+  </div>
+</div>
+<div id="accessModal" class="access-modal" hidden role="dialog" aria-modal="true" aria-labelledby="accessModalTitle">
+  <div class="access-modal-box">
+    <h2 id="accessModalTitle" class="access-modal-title">Accès protégé</h2>
+    <p id="accessModalText" class="access-modal-text"></p>
+    <div id="accessCodeWrap" class="access-code-wrap">
+      <div id="accessCodeDots" class="access-code-dots" aria-hidden="true">
+        <span class="access-code-dot"></span>
+        <span class="access-code-dot"></span>
+        <span class="access-code-dot"></span>
+        <span class="access-code-dot"></span>
+      </div>
+      <input id="accessCodeInput" class="access-modal-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" aria-label="Code d’accès à 4 chiffres">
+    </div>
+    <div id="accessModalStatus" class="access-modal-status" aria-live="polite"></div>
+    <div class="access-modal-actions">
+      <button id="accessCancelBtn" class="access-modal-cancel" type="button">Annuler</button>
+      <button id="accessValidateBtn" class="access-modal-validate" type="button">Valider</button>
+    </div>
+  </div>
+</div>
+<script src="assets/js/logo-paths.js"></script>
+<script src="app-config.js"></script>
+<script>
+(function(){
+  'use strict';
+  const STORAGE_KEY='demo_app_club_roles_v1';
+  const icons={
+    player:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>',
+    coach:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 12h7l3-4h4l3 3-3 3h-4l-3-2H3z"/><circle cx="6" cy="12" r="2"/><path d="M18 6V3M21 7l2-2M16 5l-1-2"/></svg>',
+    gestion:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.4.27.75.6 1 .99.24.39.39.83.4 1.3V12h.2v4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg>'
+  };
+  const roles={
+    player:{title:'Joueur / Parent',desc:'Consulter les matchs et répondre',spaceDesc:'Matchs, réponses et organisation',file:'index.html',icon:icons.player},
+    coach:{title:'Coach',desc:'Suivre les réponses et gérer les convocations',spaceDesc:'Convocations, réponses et suivi d’équipe',file:'coach.html',icon:icons.coach},
+    gestion:{title:'Gestion',desc:'Administrer les matchs, joueurs et paramètres',spaceDesc:'Administration du club',file:'gestion.html',icon:icons.gestion}
+  };
+  let config={};
+  let available={player:true,coach:true,gestion:true};
+  let draft=[];
+  const $=id=>document.getElementById(id);
+  const norm=v=>String(v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const boolCfg=(key,fallback=true)=>{const v=norm(config[key]);if(!v)return fallback;if(['oui','true','1','yes','actif','active'].includes(v))return true;if(['non','false','0','no','inactif','inactive'].includes(v))return false;return fallback};
+  const validColor=(v,fallback)=>{v=String(v||'').trim();if(/^#[0-9a-f]{6}$/i.test(v))return v;if(/^[0-9a-f]{6}$/i.test(v))return '#'+v;return fallback};
+  const rgb=hex=>{const v=hex.replace('#','');return [0,2,4].map(i=>parseInt(v.slice(i,i+2),16)).join(',')};
+  function loadRoles(){try{const a=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(a)?a.filter(r=>roles[r]&&available[r]):[]}catch(e){return[]}}
+  function saveRoles(list){const clean=[...new Set(list.filter(r=>roles[r]&&available[r]))];localStorage.setItem(STORAGE_KEY,JSON.stringify(clean));return clean}
+  function appUrl(role){const u=new URL(roles[role].file,location.href);u.searchParams.set('from','portail');return u.href}
+  function showTransition(){
+    const loader=$('appTransition');
+    if(loader)loader.classList.remove('is-hidden');
+  }
+  function hideTransition(){
+    const loader=$('appTransition');
+    if(!loader)return;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>loader.classList.add('is-hidden')));
+  }
+  function openPage(url){
+    showTransition();
+    setTimeout(()=>{location.href=url},40);
+  }
+  let pendingProtectedRole='';
+  let accessValidationInProgress=false;
+  function updateAccessDots(){
+    const length=$('accessCodeInput').value.length;
+    document.querySelectorAll('#accessCodeDots .access-code-dot').forEach((dot,index)=>dot.classList.toggle('filled',index<length));
+  }
+  function closeAccessModal(){
+    pendingProtectedRole='';
+    accessValidationInProgress=false;
+    $('accessModal').hidden=true;
+    $('accessCodeInput').value='';
+    $('accessModalStatus').textContent='';
+    $('accessValidateBtn').disabled=false;
+    updateAccessDots();
+  }
+  function openAccessModal(role){
+    pendingProtectedRole=role;
+    accessValidationInProgress=false;
+    $('accessModalTitle').textContent=role==='coach'?'Accès Coach':'Accès Gestion';
+    $('accessModalText').textContent=role==='coach'?'Saisissez le code équipe à 4 chiffres.':'Saisissez le code Gestion à 4 chiffres.';
+    $('accessCodeInput').value='';
+    $('accessModalStatus').textContent='';
+    $('accessValidateBtn').disabled=false;
+    updateAccessDots();
+    $('accessModal').hidden=false;
+    setTimeout(()=>$('accessCodeInput').focus(),60);
+  }
+  async function verifyCoachCode(code){
+    try{
+      const app=window.APP_CONFIG||{};if(!app.SHEET_ID)return false;
+      const url='https://docs.google.com/spreadsheets/d/'+encodeURIComponent(app.SHEET_ID)+'/gviz/tq?sheet=EQUIPES&tqx=out:json&_='+Date.now();
+      const r=await fetch(url,{cache:'no-store'});if(!r.ok)return false;
+      const text=await r.text(),start=text.indexOf('{'),end=text.lastIndexOf('}');if(start<0||end<start)return false;
+      const json=JSON.parse(text.slice(start,end+1));
+      return (json.table.rows||[]).some(row=>String(row.c&&row.c[4]&&(row.c[4].f??row.c[4].v)||'').trim()===code);
+    }catch(e){console.warn('Portail: contrôle code Coach impossible',e);return false}
+  }
+  async function verifyGestionCode(code){
+    try{
+      const app=window.APP_CONFIG||{};if(!app.APPS_SCRIPT_URL)return false;
+      const r=await fetch(app.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'verifierCodeGestionMatchs',codeGestionMatchs:code})});
+      const text=String(await r.text()||'').trim();
+      try{return JSON.parse(text).ok===true}catch(e){return text==='OK'}
+    }catch(e){console.warn('Portail: contrôle code Gestion impossible',e);return false}
+  }
+  async function validateProtectedAccess(){
+    const role=pendingProtectedRole,code=$('accessCodeInput').value.trim();if(!role||accessValidationInProgress)return;
+    if(code.length!==4){$('accessModalStatus').textContent='Saisissez les 4 chiffres du code.';return}
+    accessValidationInProgress=true;
+    $('accessValidateBtn').disabled=true;$('accessModalStatus').textContent='Vérification…';
+    const ok=role==='coach'?await verifyCoachCode(code):await verifyGestionCode(code);
+    accessValidationInProgress=false;
+    $('accessValidateBtn').disabled=false;
+    if(!ok){$('accessModalStatus').textContent='Code incorrect ou vérification impossible.';$('accessCodeInput').value='';updateAccessDots();setTimeout(()=>$('accessCodeInput').focus(),60);return}
+    if(role==='coach')sessionStorage.setItem('cam_coach_code',code);else sessionStorage.setItem('cam_gestion_matchs_code',code);
+    openPage(appUrl(role));
+  }
+  function applyConfig(){
+    available.player=true;
+    available.coach=boolCfg('activer_coach',true);
+    available.gestion=boolCfg('activer_gestion_club',true);
+    const bg=validColor(config.couleur_fond,'#050505');
+    const accent=validColor(config.couleur_secondaire,'#4e8a47');
+    const primary=validColor(config.couleur_principale,'#70a663');
+    const text=validColor(config.couleur_texte,'#ffffff');
+    const buttonText=validColor(config.couleur_bouton_texte,'#000000');
+    const root=document.documentElement;
+    root.style.setProperty('--bg',bg);root.style.setProperty('--accent',accent);root.style.setProperty('--accent-rgb',rgb(accent));root.style.setProperty('--button-bg',primary);root.style.setProperty('--button-text',buttonText);root.style.setProperty('--text',text);
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000000');
+    const fond=norm(config.fond_type||'basket');
+    document.body.setAttribute('data-fond-type',['basket','hand','foot','neutre'].includes(fond)?fond:'basket');
+    const logo=resolveClubLogoUrl(config.logo_url);
+    $('portalLogo').src=logo;$('portalLogo').onerror=()=>{$('portalLogo').src='assets/logos/clubs/demo-app-club.png'};
+    $('portalClubName').textContent=String(config.nom_club||'Démo App Club');
+    const subtitleActive=boolCfg('app_sous_titre_actif',true);
+    const subtitle=subtitleActive?String(config.app_sous_titre||'').trim():'';
+    $('portalSubtitle').textContent=subtitle||'Sélectionnez un ou plusieurs rôles pour personnaliser vos espaces.';
+    document.title=(config.nom_club||'Application du club')+' — Mes espaces';
+    document.querySelectorAll('#svgAccentPaths path[fill]').forEach(p=>p.setAttribute('fill',accent));
+    const bgLayer=document.getElementById('camSvgBackground');if(bgLayer)bgLayer.style.opacity='1';
+    const saved=saveRoles(loadRoles());
+    return saved;
+  }
+  async function fetchConfig(){
+    const app=window.APP_CONFIG||{};const url=String(app.APPS_SCRIPT_URL||'').trim();if(!url)return;
+    const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),7000);
+    try{const r=await fetch(url+'?action=getConfig&t='+Date.now(),{cache:'no-store',signal:controller.signal});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();if(d&&typeof d==='object')config=d}catch(e){console.warn('Portail: CONFIG non chargée',e)}finally{clearTimeout(timer)}
+  }
+  function makeRoleChoice(id){const r=roles[id];const b=document.createElement('button');b.type='button';b.className='role-choice'+(draft.includes(id)?' selected':'');b.hidden=!available[id];b.setAttribute('aria-pressed',draft.includes(id)?'true':'false');b.innerHTML='<span class="role-icon">'+r.icon+'</span><span><div class="role-title">'+r.title+'</div><div class="role-desc">'+r.desc+'</div></span><span class="selector">'+(draft.includes(id)?'✓':'')+'</span>';b.addEventListener('click',()=>{const i=draft.indexOf(id);if(i>=0)draft.splice(i,1);else draft.push(id);renderChooser()});return b}
+  function renderChooser(){const box=$('roleChooser');box.innerHTML='';['player','coach','gestion'].forEach(id=>box.appendChild(makeRoleChoice(id)))}
+  function showSetup(current){draft=[...(current||loadRoles())];$('spacesPanel').hidden=true;$('setupPanel').hidden=false;$('setupStatus').textContent='';$('portalMainTitle').textContent=draft.length?'Modifier mes rôles':'Bienvenue dans l’application du club';renderChooser();window.scrollTo(0,0)}
+  function makeChip(id){const r=roles[id];const c=document.createElement('span');c.className='role-chip';c.innerHTML=r.icon+'<span>'+r.title+' ✓</span>';return c}
+  function makeSpace(id){const r=roles[id];const a=document.createElement('a');a.className='space-link';a.href=appUrl(id);a.innerHTML='<span class="role-icon">'+r.icon+'</span><span><div class="space-title">Espace '+(id==='player'?'Joueur / Parent':r.title)+'</div><div class="space-desc">'+r.spaceDesc+'</div></span><span class="chevron">›</span>';a.addEventListener('click',e=>{e.preventDefault();if(id==='coach'||id==='gestion')openAccessModal(id);else openPage(a.href)});return a}
+  function showSpaces(){const saved=loadRoles();if(!saved.length){showSetup([]);return}$('setupPanel').hidden=true;$('spacesPanel').hidden=false;$('portalMainTitle').textContent='Mes espaces';$('portalSubtitle').textContent='Choisissez l’espace que vous souhaitez ouvrir.';const summary=$('activeSummary');summary.innerHTML='';saved.forEach(id=>summary.appendChild(makeChip(id)));const links=$('spaceLinks');links.innerHTML='';saved.forEach(id=>links.appendChild(makeSpace(id)));window.scrollTo(0,0)}
+
+  function openInfoModal(){$('infoModal').hidden=false}
+  function closeInfoModal(){$('infoModal').hidden=true}
+  $('portalLogoBtn').addEventListener('click',openInfoModal);
+  $('infoModalClose').addEventListener('click',closeInfoModal);
+  $('infoModal').addEventListener('click',e=>{if(e.target===$('infoModal'))closeInfoModal()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('infoModal').hidden)closeInfoModal()});
+  $('continueBtn').addEventListener('click',()=>{if(!draft.length){$('setupStatus').textContent='Sélectionnez au moins un rôle.';return}saveRoles(draft);showSpaces()});
+  $('editRolesBtn').addEventListener('click',()=>showSetup(loadRoles()));
+  $('resetBtn').addEventListener('click',()=>{if(confirm('Effacer les rôles mémorisés sur ce téléphone ?')){localStorage.removeItem(STORAGE_KEY);showSetup([])}});
+  $('accessCancelBtn').addEventListener('click',closeAccessModal);
+  $('accessValidateBtn').addEventListener('click',validateProtectedAccess);
+  $('accessCodeWrap').addEventListener('click',()=>$('accessCodeInput').focus());
+  $('accessCodeInput').addEventListener('input',()=>{
+    const cleaned=$('accessCodeInput').value.replace(/\D/g,'').slice(0,4);
+    if($('accessCodeInput').value!==cleaned)$('accessCodeInput').value=cleaned;
+    $('accessModalStatus').textContent='';
+    updateAccessDots();
+    if(cleaned.length===4)validateProtectedAccess();
+  });
+  $('accessCodeInput').addEventListener('keydown',e=>{if(e.key==='Enter')validateProtectedAccess()});
+  $('accessModal').addEventListener('click',e=>{if(e.target===$('accessModal'))closeAccessModal()});
+  (async()=>{
+    const edit=new URLSearchParams(location.search).get('edit')==='1';
+    let saved=applyConfig();
+    if(edit||!saved.length)showSetup(saved);else showSpaces();
+    await fetchConfig();
+    saved=applyConfig();
+    if(edit||!saved.length)showSetup(saved);else showSpaces();
+    hideTransition();
+    ['index.html','coach.html','gestion.html'].forEach(file=>{
+      const link=document.createElement('link');
+      link.rel='prefetch';
+      link.href=file;
+      document.head.appendChild(link);
+    });
+  })();
+  setTimeout(hideTransition,8000);
+})();
+</script>
+</body>
+</html>

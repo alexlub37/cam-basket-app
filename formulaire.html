@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<!-- CAM Basket formulaire V61.05 - message connexion instable au lieu de Failed to fetch -->
+<!-- Démo App Club formulaire V61.69-TRANSITION-SECURISEE -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Formulaire Match V61.05</title>
+<meta name="app-version" content="V61.69-TRANSITION-SECURISEE">
+<title>Réponse — Démo App Club</title>
 
 <style>
+:root{
+  --app-primary:#ffffff;
+  --app-secondary:#6600CC;
+  --app-bg:#000000;
+  --app-text:#ffffff;
+  --app-button-text:#000000;
+  --app-choice-bg:#222222;
+  --app-choice-border:#6600CC;
+  --app-note:#cfcfcf;
+}
 body{
-  background:#000;
-  color:#fff;
+  background:var(--app-bg);
+  color:var(--app-text);
   font-family:Arial,sans-serif;
   padding:20px;
   margin:0;
@@ -19,7 +30,7 @@ body{
   margin:0 auto;
 }
 h2{
-  color:#ffd400;
+  color:var(--app-primary);
   text-align:center;
   margin-bottom:20px;
 }
@@ -33,9 +44,11 @@ input, textarea, select{
   padding:12px;
   margin-top:6px;
   border-radius:10px;
-  border:none;
+  border:2px solid var(--app-choice-border);
   box-sizing:border-box;
   font-size:16px;
+  background:#ffffff;
+  color:#000000;
 }
 textarea{
   min-height:90px;
@@ -50,9 +63,9 @@ textarea{
   padding:14px;
   margin-top:10px;
   border-radius:12px;
-  background:#222;
-  color:#fff;
-  border:2px solid #444;
+  background:var(--app-choice-bg);
+  color:var(--app-text);
+  border:2px solid var(--app-choice-border);
   text-align:left;
   font-size:16px;
   font-weight:bold;
@@ -60,33 +73,40 @@ textarea{
   box-sizing:border-box;
 }
 .choice-btn.active{
-  background:#ffd400;
-  color:#000;
-  border-color:#ffd400;
+  background:var(--app-primary);
+  color:var(--app-button-text);
+  border-color:var(--app-primary);
 }
 .send{
   margin-top:24px;
   width:100%;
   padding:14px;
-  background:#ffd400;
-  color:#000;
+  background:var(--app-primary);
+  color:var(--app-button-text);
   font-weight:bold;
   border:none;
   border-radius:12px;
   font-size:17px;
   cursor:pointer;
 }
+.send.cancel{
+  background:transparent;
+  color:var(--app-text);
+  border:2px solid var(--app-secondary);
+}
 .note{
   margin-top:12px;
-  color:#cfcfcf;
+  color:var(--app-note);
   text-align:center;
   font-size:14px;
+  opacity:.82;
 }
 
 .apport-note{
   margin-top:6px;
-  color:#cfcfcf;
+  color:var(--app-note);
   font-size:14px;
+  opacity:.82;
 }
 
 .choice-btn.disabled{
@@ -105,72 +125,2583 @@ textarea{
     * { -webkit-tap-highlight-color: transparent; }
     input, select, textarea { font-size: 16px !important; }
     body { -webkit-overflow-scrolling: touch; }
+
+/* AUDIT FORM BUTTON SAFETY */
+.send, .choice-btn.active { background:var(--app-primary)!important; color:var(--app-button-text)!important; border-color:var(--app-primary)!important; }
+.send.cancel { background:var(--app-primary)!important; color:var(--app-button-text)!important; border-color:var(--app-primary)!important; }
+
+
+/* V61.58 — sélecteur joueur interne, sans roue iOS. */
+#joueur{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+.player-picker-trigger-v6158{
+  width:100%;
+  min-height:64px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 18px;
+  border:2px solid var(--app-secondary);
+  border-radius:18px;
+  background:#000;
+  color:var(--app-text);
+  font:inherit;
+  font-size:18px;
+  text-align:left;
+  cursor:pointer;
+}
+.player-picker-trigger-v6158:active{
+  transform:scale(.992);
+}
+.player-picker-trigger-v6158.has-value{
+  background:color-mix(in srgb,var(--app-primary) 16%,#000);
+}
+.player-picker-chevron-v6158{
+  flex:0 0 auto;
+  font-size:24px;
+  line-height:1;
+  color:var(--app-secondary);
+}
+.player-picker-modal-v6158{
+  position:fixed;
+  inset:0;
+  z-index:99998;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding:18px;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom));
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.player-picker-modal-v6158.open{display:flex;}
+.player-picker-card-v6158{
+  width:min(100%,430px);
+  max-height:min(72vh,620px);
+  display:flex;
+  flex-direction:column;
+  box-sizing:border-box;
+  padding:20px;
+  border:2px solid var(--app-secondary);
+  border-radius:24px;
+  background:linear-gradient(180deg,#111,#050505);
+  box-shadow:0 24px 70px rgba(0,0,0,.7);
+}
+.player-picker-head-v6158{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.player-picker-title-v6158{
+  margin:0;
+  color:var(--app-text);
+  font-size:22px;
+  font-weight:900;
+}
+.player-picker-close-v6158{
+  width:42px;
+  height:42px;
+  border:2px solid var(--app-secondary);
+  border-radius:13px;
+  background:#050505;
+  color:var(--app-text);
+  font-size:25px;
+  line-height:1;
+}
+.player-picker-search-v6158{
+  width:100%;
+  min-height:52px!important;
+  box-sizing:border-box;
+  margin:0 0 14px!important;
+  padding:10px 14px!important;
+  border:2px solid var(--app-secondary)!important;
+  border-radius:14px!important;
+  background:#000!important;
+  color:var(--app-text)!important;
+  font-size:17px!important;
+  outline:none;
+}
+.player-picker-list-v6158{
+  display:grid;
+  gap:10px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding-right:2px;
+}
+.player-picker-option-v6158{
+  width:100%;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 15px;
+  border:2px solid color-mix(in srgb,var(--app-secondary) 72%,transparent);
+  border-radius:15px;
+  background:#050505;
+  color:var(--app-text);
+  font-size:18px;
+  font-weight:800;
+  text-align:left;
+}
+.player-picker-option-v6158.selected{
+  background:color-mix(in srgb,var(--app-primary) 28%,#050505);
+  border-color:var(--app-secondary);
+}
+.player-picker-option-v6158 .check{
+  color:var(--app-secondary);
+  font-size:22px;
+  opacity:0;
+}
+.player-picker-option-v6158.selected .check{opacity:1;}
+.player-picker-empty-v6158{
+  padding:20px 10px;
+  color:color-mix(in srgb,var(--app-text) 65%,transparent);
+  text-align:center;
+}
+@media(min-width:700px){
+  .player-picker-modal-v6158{align-items:center;}
+}
+
 </style>
+
+<style id="_form_color_cleanup_v2">
+/* V61.12 : tous les anciens jaunes suivent maintenant CONFIG */
+:root{
+  --app-primary:#ffffff;
+  --app-secondary:#6600CC;
+  --app-bg:#000000;
+  --app-text:#ffffff;
+  --app-button-text:#000000;
+}
+h2{color:var(--app-primary)!important;}
+.send{background:var(--app-primary)!important;color:var(--app-button-text)!important;border-color:var(--app-primary)!important;}
+.choice-btn.active{background:var(--app-primary)!important;color:var(--app-button-text)!important;border-color:var(--app-primary)!important;}
+.choice-btn,.send.cancel,input,select,textarea{border-color:var(--app-secondary)!important;}
+</style>
+
+
+
+<style id="_form_color_cleanup_v3_forced">
+/* V61.13 : annuler reste secondaire et plus aucun jaune de secours */
+:root{
+  --app-primary:#ffffff;
+  --app-secondary:#6600CC;
+  --app-bg:#000000;
+  --app-text:#ffffff;
+  --app-button-text:#000000;
+}
+h2{color:var(--app-primary)!important;}
+.send:not(.cancel){
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border-color:var(--app-primary)!important;
+}
+.send.cancel{
+  background:transparent!important;
+  color:var(--app-text)!important;
+  border:2px solid var(--app-secondary)!important;
+}
+.choice-btn.active{
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border-color:var(--app-primary)!important;
+}
+.choice-btn,.send.cancel,input,select,textarea{border-color:var(--app-secondary)!important;}
+</style>
+
+
+<style id="_form_button_visibility_fix_v4">
+/* V61.14 : boutons visibles même si couleur_principale = blanc */
+.send:not(.cancel),
+.choice-btn.active{
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border-color:var(--app-primary)!important;
+}
+.send.cancel{
+  background:transparent!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-secondary)!important;
+}
+</style>
+
+
+<style id="_form_button_uniform_v5">
+/* V61.16 : audit couleurs boutons uniformes */
+.choice-btn,
+.choice-btn.active,
+.send,
+.send.cancel{
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border:2px solid var(--app-primary)!important;
+}
+.choice-btn *,
+.choice-btn.active *,
+.send *,
+.send.cancel *{
+  color:var(--app-button-text)!important;
+}
+.choice-btn.active{
+  box-shadow:0 0 0 3px var(--app-secondary)!important;
+}
+.choice-btn.disabled{
+  opacity:.45!important;
+}
+</style>
+
+
+<style id="_official_colors_form_v61_17">
+/* V61.17 — règle officielle couleurs
+   Fond = couleur_fond | Boutons importants = couleur_principale | Texte boutons = couleur_bouton_texte
+   Contours / lignes / accents = couleur_secondaire | Texte général = couleur_texte */
+html, body{
+  background:var(--app-bg)!important;
+  color:var(--app-text)!important;
+}
+.wrap{
+  background:linear-gradient(180deg, rgba(18,18,18,.94), rgba(8,8,8,.94))!important;
+  color:var(--app-text)!important;
+  border:1.5px solid var(--app-secondary)!important;
+  box-shadow:none!important;
+}
+h2, label, .question-title{
+  color:var(--app-text)!important;
+}
+.note, .apport-note{
+  color:color-mix(in srgb, var(--app-text) 72%, transparent)!important;
+}
+input, select, textarea{
+  background:rgba(0,0,0,.32)!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-secondary)!important;
+}
+input::placeholder, textarea::placeholder{
+  color:color-mix(in srgb, var(--app-text) 55%, transparent)!important;
+}
+.choice-btn{
+  background:rgba(0,0,0,.34)!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-secondary)!important;
+  box-shadow:none!important;
+}
+.choice-btn.active, .send:not(.cancel){
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border-color:var(--app-primary)!important;
+  box-shadow:none!important;
+}
+.choice-btn.active *, .send:not(.cancel) *{
+  color:var(--app-button-text)!important;
+}
+.send.cancel{
+  background:rgba(0,0,0,.35)!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-secondary)!important;
+  box-shadow:none!important;
+}
+.choice-btn.disabled{
+  opacity:.50!important;
+}
+</style>
+
+
+<style id="_form_contrast_safe_v61_18">
+/* V61.19 — thème sombre forcé formulaire joueur
+   Le formulaire garde des cartes sombres. Si Couleur texte arrive en noir depuis CONFIG,
+   le texte est sécurisé en blanc pour éviter l'écran illisible après chargement. */
+html, body{
+  background:var(--app-bg)!important;
+  color:var(--app-text)!important;
+}
+.wrap,
+h2,
+label,
+.note,
+.apport-note,
+.choice-btn:not(.active),
+.choice-btn:not(.active) *,
+.send.cancel,
+.send.cancel *{
+  color:var(--app-text)!important;
+}
+.wrap{
+  background:linear-gradient(180deg, rgba(18,18,18,.94), rgba(8,8,8,.94))!important;
+  border-color:var(--app-secondary)!important;
+}
+.choice-btn:not(.active){
+  background:rgba(0,0,0,.34)!important;
+  border-color:var(--app-secondary)!important;
+}
+input, select, textarea{
+  background:rgba(0,0,0,.32)!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-secondary)!important;
+}
+.choice-btn.active,
+.send:not(.cancel){
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border-color:var(--app-primary)!important;
+}
+.choice-btn.active *,
+.send:not(.cancel) *{
+  color:var(--app-button-text)!important;
+}
+.send.cancel{
+  background:rgba(0,0,0,.35)!important;
+  border-color:var(--app-secondary)!important;
+}
+</style>
+
+
+<style id="_formulaire_simple_v61_20">
+/* V61.20 — retour formulaire simple et lisible.
+   Ne pas reprendre couleur_fond/couleur_texte ici : le formulaire est une page externe courte. */
+html, body{
+  background:#000000!important;
+  color:#ffffff!important;
+}
+body{
+  padding:22px 18px!important;
+}
+.wrap{
+  max-width:720px!important;
+  margin:0 auto!important;
+  padding:24px 18px!important;
+  background:linear-gradient(180deg, rgba(18,18,18,.96), rgba(6,6,6,.96))!important;
+  border:1.5px solid var(--app-secondary)!important;
+  border-radius:26px!important;
+  box-shadow:none!important;
+  color:#ffffff!important;
+}
+h2{
+  color:#ffffff!important;
+  text-align:center!important;
+  font-size:clamp(28px,7vw,44px)!important;
+  line-height:1.18!important;
+  margin:8px 0 28px!important;
+}
+label{
+  color:#ffffff!important;
+  font-size:20px!important;
+  margin-top:22px!important;
+}
+input, select, textarea{
+  background:rgba(0,0,0,.36)!important;
+  color:#ffffff!important;
+  border:2px solid var(--app-secondary)!important;
+  border-radius:18px!important;
+  min-height:58px!important;
+  padding:14px 16px!important;
+}
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.55)!important;
+}
+.choice-btn{
+  background:rgba(0,0,0,.36)!important;
+  color:#ffffff!important;
+  border:2px solid var(--app-secondary)!important;
+  border-radius:18px!important;
+  padding:16px 18px!important;
+  margin-top:12px!important;
+  box-shadow:none!important;
+}
+.choice-btn *{
+  color:#ffffff!important;
+}
+.choice-btn.active{
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border-color:var(--app-primary)!important;
+}
+.choice-btn.active *{
+  color:var(--app-button-text)!important;
+}
+.note,
+.apport-note{
+  color:rgba(255,255,255,.72)!important;
+}
+.send:not(.cancel){
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border:2px solid var(--app-primary)!important;
+  border-radius:18px!important;
+  min-height:62px!important;
+  box-shadow:none!important;
+}
+.send:not(.cancel) *{
+  color:var(--app-button-text)!important;
+}
+.send.cancel{
+  background:rgba(0,0,0,.36)!important;
+  color:#ffffff!important;
+  border:2px solid var(--app-secondary)!important;
+  border-radius:18px!important;
+}
+.send.cancel *{
+  color:#ffffff!important;
+}
+</style>
+
+
+<script id="_form_theme_cache_boot_v61_21">
+(function(){
+  try{
+    var cached = localStorage.getItem("demo_app_form_theme_v1");
+    if(!cached) return;
+    var t = JSON.parse(cached);
+    var r = document.documentElement;
+    if(t.primary) r.style.setProperty("--app-primary", t.primary);
+    if(t.secondary) {
+      r.style.setProperty("--app-secondary", t.secondary);
+      r.style.setProperty("--app-choice-border", t.secondary);
+    }
+    r.style.setProperty("--app-bg", "#000000");
+    r.style.setProperty("--app-text", "#ffffff");
+    if(t.buttonText) r.style.setProperty("--app-button-text", t.buttonText);
+    r.style.setProperty("--app-note", "#cfcfcf");
+  }catch(e){}
+})();
+</script>
+
+
+<style id="_formulaire_premium_safe_v61_22">
+/* V61.22 — Formulaire joueur : style sobre premium, sans casser la logique couleurs.
+   Sombre fixe + contours couleur_secondaire + bouton couleur_principale. */
+
+html, body{
+  background:#000000!important;
+  color:#ffffff!important;
+}
+
+body{
+  padding:24px 16px calc(34px + env(safe-area-inset-bottom))!important;
+}
+
+.wrap{
+  position:relative!important;
+  max-width:720px!important;
+  margin:0 auto!important;
+  padding:26px 20px 24px!important;
+  border-radius:30px!important;
+  border:1.5px solid var(--app-secondary)!important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.075), transparent 34%),
+    linear-gradient(180deg, rgba(18,18,18,.98), rgba(5,5,5,.98))!important;
+  box-shadow:
+    0 18px 48px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.05)!important;
+  overflow:hidden!important;
+}
+
+.wrap::before{
+  content:""!important;
+  position:absolute!important;
+  top:0!important;
+  left:22px!important;
+  right:22px!important;
+  height:3px!important;
+  background:var(--app-secondary)!important;
+  border-radius:0 0 999px 999px!important;
+  opacity:.9!important;
+}
+
+h2#titreMatch{
+  color:#ffffff!important;
+  text-align:center!important;
+  font-size:clamp(26px,6.2vw,40px)!important;
+  line-height:1.15!important;
+  letter-spacing:-.03em!important;
+  margin:12px 0 30px!important;
+  font-weight:900!important;
+}
+
+h2#titreMatch::after{
+  content:""!important;
+  display:block!important;
+  width:74px!important;
+  height:3px!important;
+  margin:18px auto 0!important;
+  border-radius:999px!important;
+  background:var(--app-secondary)!important;
+  opacity:.95!important;
+}
+
+label{
+  color:#ffffff!important;
+  font-size:18px!important;
+  line-height:1.15!important;
+  font-weight:900!important;
+  margin:22px 0 8px!important;
+}
+
+select,
+input,
+textarea{
+  width:100%!important;
+  background:rgba(0,0,0,.46)!important;
+  color:#ffffff!important;
+  border:1.7px solid var(--app-secondary)!important;
+  border-radius:20px!important;
+  min-height:58px!important;
+  padding:14px 16px!important;
+  font-size:18px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.045),
+    0 8px 18px rgba(0,0,0,.18)!important;
+}
+
+select{
+  appearance:auto!important;
+}
+
+textarea{
+  min-height:120px!important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.50)!important;
+}
+
+.choice-group{
+  margin-top:8px!important;
+}
+
+.choice-btn{
+  display:flex!important;
+  align-items:center!important;
+  min-height:62px!important;
+  padding:15px 18px!important;
+  margin-top:12px!important;
+  border-radius:20px!important;
+  background:
+    linear-gradient(180deg, rgba(20,20,20,.92), rgba(4,4,4,.94))!important;
+  color:#ffffff!important;
+  border:1.7px solid var(--app-secondary)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.045),
+    0 8px 18px rgba(0,0,0,.16)!important;
+  font-size:18px!important;
+  font-weight:850!important;
+}
+
+.choice-btn *{
+  color:#ffffff!important;
+}
+
+.choice-btn.active{
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border-color:var(--app-primary)!important;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--app-secondary) 48%, transparent),
+    0 10px 24px rgba(0,0,0,.22)!important;
+}
+
+.choice-btn.active *{
+  color:var(--app-button-text)!important;
+}
+
+.note,
+.apport-note{
+  color:rgba(255,255,255,.68)!important;
+  font-size:16px!important;
+  line-height:1.35!important;
+}
+
+#domicileNote{
+  margin-top:16px!important;
+}
+
+.send{
+  width:100%!important;
+  min-height:64px!important;
+  border-radius:22px!important;
+  font-size:20px!important;
+  font-weight:900!important;
+  margin-top:26px!important;
+  box-shadow:none!important;
+}
+
+.send:not(.cancel){
+  background:var(--app-primary)!important;
+  color:var(--app-button-text)!important;
+  border:2px solid var(--app-primary)!important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+
+.send:not(.cancel) *{
+  color:var(--app-button-text)!important;
+}
+
+.send.cancel{
+  background:rgba(0,0,0,.38)!important;
+  color:#ffffff!important;
+  border:1.7px solid var(--app-secondary)!important;
+}
+
+.send.cancel *{
+  color:#ffffff!important;
+}
+
+.choice-btn.disabled{
+  opacity:.48!important;
+}
+
+@media (max-width:420px){
+  body{padding-left:14px!important;padding-right:14px!important;}
+  .wrap{padding:24px 18px 22px!important;border-radius:28px!important;}
+  h2#titreMatch{font-size:clamp(25px,6vw,36px)!important;}
+  label{font-size:17px!important;}
+  select,input,textarea,.choice-btn{font-size:17px!important;}
+}
+</style>
+
+
+<style id="_formulaire_brutal_v61_23">
+/* V61.23 — MODE BRUTAL : vraie différence visuelle.
+   Objectif : formulaire plus typé application, moins fade, sans toucher à la logique. */
+
+:root{
+  --form-card:#080808;
+  --form-panel:#111111;
+}
+
+html, body{
+  background:#000000!important;
+  color:#ffffff!important;
+}
+
+body{
+  padding:18px 12px calc(32px + env(safe-area-inset-bottom))!important;
+  min-height:100vh!important;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--app-secondary) 35%, transparent), transparent 28%),
+    linear-gradient(180deg, #000000 0%, #050505 50%, #000000 100%)!important;
+}
+
+.wrap{
+  position:relative!important;
+  max-width:720px!important;
+  margin:0 auto!important;
+  padding:0 0 22px!important;
+  border:2px solid var(--app-secondary)!important;
+  border-radius:34px!important;
+  background:
+    linear-gradient(180deg, rgba(22,22,22,.98), rgba(5,5,5,.99))!important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.05),
+    0 18px 48px rgba(0,0,0,.62),
+    0 0 42px color-mix(in srgb, var(--app-secondary) 32%, transparent)!important;
+  overflow:hidden!important;
+}
+
+/* Bande forte en haut */
+.wrap::before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  height:10px!important;
+  background:linear-gradient(90deg, transparent, var(--app-secondary), transparent)!important;
+  opacity:1!important;
+  border-radius:0!important;
+}
+
+/* Titre = vraie carte événement */
+h2#titreMatch{
+  display:block!important;
+  margin:0 0 20px!important;
+  padding:36px 22px 28px!important;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--app-secondary) 35%, transparent), transparent 45%),
+    linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.015))!important;
+  color:#ffffff!important;
+  text-align:center!important;
+  font-size:clamp(24px,5.8vw,36px)!important;
+  line-height:1.12!important;
+  letter-spacing:-.03em!important;
+  font-weight:950!important;
+  border-bottom:1px solid color-mix(in srgb, var(--app-secondary) 52%, transparent)!important;
+}
+
+h2#titreMatch::after{
+  content:""!important;
+  display:block!important;
+  width:92px!important;
+  height:5px!important;
+  margin:20px auto 0!important;
+  border-radius:999px!important;
+  background:var(--app-secondary)!important;
+  box-shadow:0 0 18px color-mix(in srgb, var(--app-secondary) 70%, transparent)!important;
+}
+
+/* Corps du formulaire */
+label,
+#domicileNote,
+.apport-note,
+.note,
+input,
+select,
+textarea,
+.choice-group,
+.send{
+  margin-left:22px!important;
+  margin-right:22px!important;
+}
+
+label{
+  color:#ffffff!important;
+  font-size:17px!important;
+  line-height:1.1!important;
+  font-weight:950!important;
+  margin-top:22px!important;
+  margin-bottom:10px!important;
+  letter-spacing:.01em!important;
+}
+
+/* Champs */
+select,
+input,
+textarea{
+  width:calc(100% - 44px)!important;
+  background:
+    linear-gradient(180deg, rgba(20,20,20,.96), rgba(3,3,3,.96))!important;
+  color:#ffffff!important;
+  border:2px solid var(--app-secondary)!important;
+  border-radius:22px!important;
+  min-height:60px!important;
+  padding:14px 18px!important;
+  font-size:18px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 8px 20px rgba(0,0,0,.34)!important;
+}
+
+textarea{
+  min-height:128px!important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.46)!important;
+}
+
+/* Boutons de choix = cartes plus marquées */
+.choice-group{
+  width:calc(100% - 44px)!important;
+}
+
+.choice-btn{
+  display:flex!important;
+  align-items:center!important;
+  min-height:66px!important;
+  padding:15px 20px!important;
+  margin-top:12px!important;
+  border-radius:22px!important;
+  background:
+    linear-gradient(180deg, rgba(18,18,18,.98), rgba(0,0,0,.98))!important;
+  color:#ffffff!important;
+  border:2px solid var(--app-secondary)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 10px 24px rgba(0,0,0,.34)!important;
+  font-size:18px!important;
+  font-weight:900!important;
+}
+
+.choice-btn::before{
+  content:""!important;
+  width:9px!important;
+  height:32px!important;
+  border-radius:999px!important;
+  background:var(--app-secondary)!important;
+  margin-right:14px!important;
+  opacity:.9!important;
+  box-shadow:0 0 14px color-mix(in srgb, var(--app-secondary) 58%, transparent)!important;
+}
+
+.choice-btn *{
+  color:#ffffff!important;
+}
+
+.choice-btn.active{
+  background:linear-gradient(180deg, var(--app-primary), color-mix(in srgb, var(--app-primary) 82%, #000000))!important;
+  color:var(--app-button-text)!important;
+  border-color:var(--app-primary)!important;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--app-secondary) 48%, transparent),
+    0 12px 28px rgba(0,0,0,.42)!important;
+}
+
+.choice-btn.active::before{
+  background:var(--app-button-text)!important;
+  box-shadow:none!important;
+}
+
+.choice-btn.active *{
+  color:var(--app-button-text)!important;
+}
+
+/* Texte d'aide */
+#domicileNote{
+  width:calc(100% - 44px)!important;
+  padding:12px 14px!important;
+  border-left:4px solid var(--app-secondary)!important;
+  border-radius:0 14px 14px 0!important;
+  background:rgba(255,255,255,.045)!important;
+  color:rgba(255,255,255,.72)!important;
+  text-align:left!important;
+  font-size:16px!important;
+}
+
+.note,
+.apport-note{
+  color:rgba(255,255,255,.70)!important;
+  font-size:15px!important;
+  line-height:1.35!important;
+}
+
+/* Bouton envoyer beaucoup plus marqué */
+.send{
+  width:calc(100% - 44px)!important;
+  min-height:68px!important;
+  border-radius:24px!important;
+  font-size:21px!important;
+  font-weight:950!important;
+  margin-top:28px!important;
+  border:2px solid var(--app-primary)!important;
+}
+
+.send:not(.cancel){
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--app-primary) 96%, #ffffff), var(--app-primary))!important;
+  color:var(--app-button-text)!important;
+  box-shadow:
+    0 14px 30px rgba(0,0,0,.46),
+    0 0 0 4px color-mix(in srgb, var(--app-secondary) 22%, transparent)!important;
+}
+
+.send:not(.cancel)::after{
+  content:"  ➜"!important;
+}
+
+.send:not(.cancel) *{
+  color:var(--app-button-text)!important;
+}
+
+.send.cancel{
+  background:rgba(0,0,0,.48)!important;
+  color:#ffffff!important;
+  border:2px solid var(--app-secondary)!important;
+}
+
+.send.cancel *{
+  color:#ffffff!important;
+}
+
+.choice-btn.disabled{
+  opacity:.46!important;
+}
+
+@media (max-width:420px){
+  body{padding-left:10px!important;padding-right:10px!important;}
+  .wrap{border-radius:30px!important;}
+  h2#titreMatch{
+    padding:34px 16px 26px!important;
+    font-size:clamp(23px,5.7vw,34px)!important;
+  }
+  label,
+  #domicileNote,
+  .apport-note,
+  .note,
+  input,
+  select,
+  textarea,
+  .choice-group,
+  .send{
+    margin-left:18px!important;
+    margin-right:18px!important;
+  }
+  select,input,textarea,.choice-group,.send,#domicileNote{
+    width:calc(100% - 36px)!important;
+  }
+}
+</style>
+
+
+<style id="_form_roles_v21">
+/* V21 — FORMULAIRE : champs et choix = cartes de formulaire, seul Envoyer est action */
+:root{
+  --ui-form-accent: var(--app-secondary, #6600CC);
+  --ui-form-action-bg: var(--app-primary, #ffffff);
+  --ui-form-action-text: var(--app-button-text, #000000);
+}
+
+html, body{
+  background:#000000!important;
+  color:#ffffff!important;
+}
+
+.wrap{
+  background:linear-gradient(180deg, rgba(18,18,18,.96), rgba(5,5,5,.98))!important;
+  color:#ffffff!important;
+  border-color:var(--ui-form-accent)!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.40)!important;
+}
+
+h2#titreMatch,
+label{
+  color:#ffffff!important;
+}
+
+h2#titreMatch::after,
+.wrap::before{
+  background:var(--ui-form-accent)!important;
+}
+
+select,
+input,
+textarea{
+  background:rgba(0,0,0,.42)!important;
+  color:#ffffff!important;
+  border-color:var(--ui-form-accent)!important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.50)!important;
+}
+
+/* Présent / Absent / Transport / Apport = choix, pas boutons d'action */
+.choice-btn{
+  background:linear-gradient(180deg, rgba(18,18,18,.96), rgba(0,0,0,.96))!important;
+  color:#ffffff!important;
+  border-color:var(--ui-form-accent)!important;
+  box-shadow:none!important;
+}
+
+.choice-btn::before{
+  background:var(--ui-form-accent)!important;
+}
+
+.choice-btn.active{
+  background:color-mix(in srgb, var(--ui-form-accent) 18%, rgba(0,0,0,.88))!important;
+  color:#ffffff!important;
+  border-color:var(--ui-form-accent)!important;
+  box-shadow:inset 0 0 0 1px var(--ui-form-accent)!important;
+}
+
+.choice-btn.active::before{
+  background:#ffffff!important;
+}
+
+.choice-btn.active *{
+  color:#ffffff!important;
+}
+
+.note,
+.apport-note,
+#domicileNote{
+  color:rgba(255,255,255,.72)!important;
+}
+
+#domicileNote{
+  border-left-color:var(--ui-form-accent)!important;
+}
+
+/* Seul le bouton d'envoi utilise couleur principale */
+.send:not(.cancel){
+  background:var(--ui-form-action-bg)!important;
+  color:var(--ui-form-action-text)!important;
+  border-color:var(--ui-form-action-bg)!important;
+}
+
+.send:not(.cancel) *{
+  color:var(--ui-form-action-text)!important;
+}
+
+.send.cancel{
+  background:rgba(0,0,0,.38)!important;
+  color:#ffffff!important;
+  border-color:var(--ui-form-accent)!important;
+}
+</style>
+
+
+<style id="_form_fix_v61_25">
+/* V61.25 — Formulaire joueur :
+   choix sobres, pas de barre trop forte, bouton Envoyer toujours lisible.
+*/
+
+.choice-btn::before{
+  display:none!important;
+}
+
+.choice-btn,
+.choice-btn.active{
+  padding-left:20px!important;
+  background:rgba(0,0,0,.42)!important;
+  color:#ffffff!important;
+  border-color:var(--app-secondary,#5A189A)!important;
+  box-shadow:none!important;
+}
+
+.choice-btn.active{
+  background:color-mix(in srgb, var(--app-secondary,#5A189A) 16%, rgba(0,0,0,.88))!important;
+  box-shadow:inset 0 0 0 1px var(--app-secondary,#5A189A)!important;
+}
+
+.choice-btn *,
+.choice-btn.active *{
+  color:#ffffff!important;
+}
+
+.send:not(.cancel){
+  background:var(--app-primary,#ffffff)!important;
+  color:var(--app-button-text,#000000)!important;
+  border-color:var(--app-primary,#ffffff)!important;
+  box-shadow:none!important;
+}
+
+.send:not(.cancel) *,
+.send:not(.cancel)::after{
+  color:var(--app-button-text,#000000)!important;
+}
+
+.send.cancel{
+  background:rgba(0,0,0,.42)!important;
+  color:#ffffff!important;
+  border-color:var(--app-secondary,#5A189A)!important;
+}
+</style>
+
+
+<style id="_form_clean_system_v61_26">
+/* V61.26 — formulaire nettoyé :
+   - choix = cartes de formulaire
+   - envoyer = action principale
+   - annuler = secondaire
+*/
+
+:root{
+  --clean-form-accent: var(--app-secondary, #5A189A);
+  --clean-form-action-bg: var(--app-primary, #ffffff);
+  --clean-form-action-text: var(--app-button-text, #000000);
+}
+
+html, body{
+  background:#000000 !important;
+  color:#ffffff !important;
+}
+
+.wrap{
+  background: linear-gradient(180deg, rgba(16,16,16,.96), rgba(4,4,4,.98)) !important;
+  color:#ffffff !important;
+  border:1.5px solid var(--clean-form-accent) !important;
+  border-radius:28px !important;
+  box-shadow:0 12px 32px rgba(0,0,0,.38) !important;
+}
+
+.wrap::before{
+  display:none !important;
+}
+
+h2#titreMatch{
+  color:#ffffff !important;
+  font-size:clamp(24px,5.7vw,36px) !important;
+  line-height:1.15 !important;
+}
+
+h2#titreMatch::after{
+  height:3px !important;
+  width:72px !important;
+  background:var(--clean-form-accent) !important;
+  box-shadow:none !important;
+}
+
+label{
+  color:#ffffff !important;
+}
+
+/* Champs */
+select,
+input,
+textarea{
+  background:rgba(0,0,0,.42) !important;
+  color:#ffffff !important;
+  border:1.8px solid var(--clean-form-accent) !important;
+  box-shadow:none !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.48) !important;
+}
+
+/* Choix présent / absent / apports : plus sobre */
+.choice-btn,
+.choice-btn.active{
+  background:rgba(0,0,0,.42) !important;
+  color:#ffffff !important;
+  border:1.8px solid var(--clean-form-accent) !important;
+  box-shadow:none !important;
+  padding-left:20px !important;
+}
+
+.choice-btn::before{
+  display:none !important;
+}
+
+.choice-btn.active{
+  background:color-mix(in srgb, var(--clean-form-accent) 16%, rgba(0,0,0,.88)) !important;
+  box-shadow:inset 0 0 0 1px var(--clean-form-accent) !important;
+}
+
+.choice-btn *,
+.choice-btn.active *{
+  color:#ffffff !important;
+}
+
+.note,
+.apport-note,
+#domicileNote{
+  color:rgba(255,255,255,.70) !important;
+}
+
+#domicileNote{
+  background:rgba(255,255,255,.035) !important;
+  border-left-color:var(--clean-form-accent) !important;
+}
+
+/* Action principale */
+.send:not(.cancel){
+  background:var(--clean-form-action-bg) !important;
+  color:var(--clean-form-action-text) !important;
+  border:2px solid var(--clean-form-action-bg) !important;
+  box-shadow:none !important;
+}
+
+.send:not(.cancel) *,
+.send:not(.cancel)::after{
+  color:var(--clean-form-action-text) !important;
+}
+
+/* Secondaire */
+.send.cancel{
+  background:rgba(0,0,0,.42) !important;
+  color:#ffffff !important;
+  border:1.8px solid var(--clean-form-accent) !important;
+  box-shadow:none !important;
+}
+
+.send.cancel *{
+  color:#ffffff !important;
+}
+</style>
+
+
+<style id="_design_roles_v27_css">
+/* ==========================================================
+   DESIGN ROLES V27 — système propre et réutilisable
+   On ne colore plus par page ou par hasard.
+   On classe les éléments par rôle visuel.
+   ========================================================== */
+
+:root{
+  --role-bg: var(--bg, var(--app-bg, #000000));
+  --role-text: var(--text, var(--app-text, #ffffff));
+  --role-secondary: var(--accent, var(--app-secondary, #5A189A));
+  --role-action-bg: var(--button-bg, var(--app-primary, #ffffff));
+  --role-action-text: var(--button-text, var(--app-button-text, #000000));
+  --role-card-bg: rgba(5,5,5,.74);
+  --role-card-bg-2: rgba(16,16,16,.80);
+}
+
+html, body{
+  background:var(--role-bg)!important;
+  color:var(--role-text)!important;
+}
+
+/* LOGO */
+.role-logo,
+.role-logo button,
+.role-logo-link,
+button.role-logo-link{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.role-logo img,
+img.role-logo{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  object-fit:contain!important;
+}
+
+/* NAVIGATION */
+.role-nav{
+  background:rgba(0,0,0,.40)!important;
+  color:var(--role-text)!important;
+  border:2px solid var(--role-secondary)!important;
+  box-shadow:none!important;
+}
+.role-nav.active,
+.role-nav.is-active,
+.role-nav[aria-current="page"]{
+  background:color-mix(in srgb, var(--role-secondary) 16%, rgba(0,0,0,.42))!important;
+  color:var(--role-text)!important;
+  border-color:var(--role-secondary)!important;
+  box-shadow:inset 0 0 0 1px var(--role-secondary)!important;
+}
+.role-nav *{ color:var(--role-text)!important; }
+
+/* CARTES */
+.role-card,
+.role-card-click{
+  background:linear-gradient(180deg, var(--role-card-bg-2), var(--role-card-bg))!important;
+  color:var(--role-text)!important;
+  border:1.5px solid color-mix(in srgb, var(--role-secondary) 65%, transparent)!important;
+  box-shadow:none!important;
+}
+.role-card-click{
+  cursor:pointer;
+}
+.role-card-click:active{
+  transform:scale(.995);
+  filter:brightness(1.08);
+}
+.role-card *,
+.role-card-click *{ color:inherit; }
+
+/* CHAMPS */
+.role-field,
+input.role-field,
+select.role-field,
+textarea.role-field{
+  background:rgba(0,0,0,.42)!important;
+  color:var(--role-text)!important;
+  border:1.8px solid var(--role-secondary)!important;
+  box-shadow:none!important;
+}
+.role-field::placeholder,
+input.role-field::placeholder,
+textarea.role-field::placeholder{
+  color:color-mix(in srgb, var(--role-text) 48%, transparent)!important;
+}
+
+/* CHOIX / SÉLECTION */
+.role-choice{
+  background:rgba(0,0,0,.42)!important;
+  color:var(--role-text)!important;
+  border:1.8px solid var(--role-secondary)!important;
+  box-shadow:none!important;
+}
+.role-choice.active,
+.role-choice.selected,
+.role-choice.is-selected,
+.role-choice[aria-pressed="true"],
+.role-choice input:checked + span{
+  background:color-mix(in srgb, var(--role-secondary) 16%, rgba(0,0,0,.88))!important;
+  color:var(--role-text)!important;
+}
+.role-choice *{ color:var(--role-text)!important; }
+
+/* BADGES / STATUTS */
+.role-badge{
+  background:color-mix(in srgb, var(--role-secondary) 12%, rgba(0,0,0,.35))!important;
+  color:var(--role-secondary)!important;
+  border:1px solid color-mix(in srgb, var(--role-secondary) 70%, transparent)!important;
+  box-shadow:none!important;
+}
+
+/* BOUTONS SECONDAIRES */
+.role-secondary{
+  background:rgba(0,0,0,.40)!important;
+  color:var(--role-text)!important;
+  border:2px solid var(--role-secondary)!important;
+  box-shadow:none!important;
+}
+.role-secondary *{ color:var(--role-text)!important; }
+
+/* ACTIONS PRINCIPALES */
+.role-action{
+  background:var(--role-action-bg)!important;
+  color:var(--role-action-text)!important;
+  border:2px solid var(--role-action-bg)!important;
+  box-shadow:none!important;
+}
+.role-action *{ color:var(--role-action-text)!important; }
+
+/* Textes secondaires */
+.role-muted,
+.muted,
+.note,
+small{
+  color:color-mix(in srgb, var(--role-text) 68%, transparent)!important;
+}
+
+/* Titres ou accents */
+.role-accent,
+.section-title,
+.home-section-title,
+.coach-title,
+.officials-label,
+.apports-title,
+.detail-label{
+  color:var(--role-secondary)!important;
+}
+</style>
+
+
+<style id="_form_apports_exterieur_v61_37">
+/* V61.37 — première tentative de masquage CSS (conservée pour historique).
+   La classe utilise !important pour rester prioritaire sur le thème des cartes. */
+#apportGroup .choice-btn.apport-option-hidden{
+  display:none!important;
+}
+</style>
+
+<style id="_formulaire_compact_premium_v61_49">
+:root{
+  --c49-primary:var(--app-primary,#70A663);
+  --c49-secondary:var(--app-secondary,#4E8A47);
+  --c49-button-text:var(--app-button-text,#000000);
+}
+html,body{
+  margin:0!important;
+  background:#060706!important;
+  color:#fff!important;
+}
+body{
+  min-height:100vh!important;
+  padding:0 0 calc(20px + env(safe-area-inset-bottom))!important;
+  background:
+    radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--c49-secondary) 14%,transparent),transparent 34%),
+    linear-gradient(180deg,#080a08,#020302 72%,#000)!important;
+}
+.compact-page-v6149{
+  width:min(100%,700px)!important;
+  margin:0 auto!important;
+}
+.compact-header-v6149{
+  min-height:68px!important;
+  display:grid!important;
+  grid-template-columns:44px 1fr 44px!important;
+  align-items:center!important;
+  padding:8px 14px!important;
+  border-bottom:1px solid rgba(255,255,255,.07)!important;
+}
+.compact-back-v6149{
+  width:40px!important;
+  height:40px!important;
+  border-radius:14px!important;
+  border:1.5px solid var(--c49-secondary)!important;
+  background:rgba(0,0,0,.32)!important;
+  color:#fff!important;
+  font-size:24px!important;
+}
+.compact-title-v6149{
+  justify-self:center!important;
+  color:#fff!important;
+  font-size:21px!important;
+  font-weight:900!important;
+}
+.compact-spacer-v6149{width:40px;height:40px}
+
+.compact-match-v6149{
+  margin:12px 12px 0!important;
+  padding:14px!important;
+  border-radius:22px!important;
+  border:1.5px solid var(--c49-secondary)!important;
+  background:
+    radial-gradient(circle at 50% 20%,color-mix(in srgb,var(--c49-secondary) 16%,transparent),transparent 52%),
+    linear-gradient(180deg,#0d160e,#050805)!important;
+}
+.compact-teams-v6149{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+.compact-team-v6149{
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  text-align:center!important;
+  gap:7px!important;
+}
+.compact-logo-v6149{
+  width:64px!important;
+  height:64px!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.compact-team-name-v6149{
+  width:100%!important;
+  color:#fff!important;
+  font-size:clamp(16px,4.4vw,22px)!important;
+  line-height:1.08!important;
+  font-weight:900!important;
+  overflow-wrap:anywhere!important;
+}
+.compact-center-v6149{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+.compact-vs-v6149{
+  color:var(--c49-primary)!important;
+  font-size:27px!important;
+  font-weight:1000!important;
+}
+.compact-type-v6149{
+  padding:4px 8px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.08)!important;
+  color:rgba(255,255,255,.72)!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+.compact-meta-v6149{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:8px!important;
+  margin-top:14px!important;
+}
+.compact-meta-row-v6149{
+  min-height:42px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  padding:7px!important;
+  border-radius:12px!important;
+  background:rgba(0,0,0,.34)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  text-align:center!important;
+}
+.compact-meta-row-v6149 strong{
+  font-size:13px!important;
+  line-height:1.1!important;
+}
+
+.compact-form-v6149{
+  padding:4px 12px 0!important;
+}
+.compact-section-v6149{
+  margin-top:18px!important;
+}
+.compact-section-title-v6149{
+  margin:0 0 8px!important;
+  color:#fff!important;
+  font-size:16px!important;
+  font-weight:900!important;
+}
+.compact-optional-v6149{
+  color:rgba(255,255,255,.46)!important;
+  font-size:12px!important;
+  font-weight:700!important;
+}
+select,input,textarea{
+  width:100%!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  min-height:54px!important;
+  border-radius:15px!important;
+  padding:13px 15px!important;
+  background:linear-gradient(180deg,#121312,#060706)!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  border:1.5px solid var(--c49-secondary)!important;
+  box-shadow:none!important;
+  font-size:16px!important;
+}
+textarea{
+  min-height:96px!important;
+  resize:vertical!important;
+}
+.choice-group{
+  width:100%!important;
+  margin:0!important;
+}
+.choice-btn{
+  min-height:54px!important;
+  margin:0!important;
+  padding:12px 14px!important;
+  border-radius:15px!important;
+  background:linear-gradient(180deg,#121312,#050605)!important;
+  border:1.5px solid var(--c49-secondary)!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  box-shadow:none!important;
+  font-size:16px!important;
+  font-weight:850!important;
+}
+.compact-presence-grid-v6149{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+}
+.compact-presence-v6149{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:9px!important;
+}
+.compact-choice-icon-v6149{
+  width:30px!important;
+  height:30px!important;
+  border-radius:50%!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:#fff!important;
+  color:#111!important;
+  -webkit-text-fill-color:#111!important;
+  font-size:20px!important;
+  font-weight:1000!important;
+}
+.compact-list-v6149{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:8px!important;
+}
+.compact-field-label-v6149{
+  margin:11px 0 7px!important;
+  color:#fff!important;
+  font-size:14px!important;
+}
+.compact-info-v6149{
+  margin:12px 0 0!important;
+  padding:9px 11px!important;
+  border-left:3px solid var(--c49-secondary)!important;
+  border-radius:0 10px 10px 0!important;
+  background:rgba(255,255,255,.035)!important;
+  color:rgba(255,255,255,.68)!important;
+  font-size:13px!important;
+}
+.compact-apports-v6149{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:8px!important;
+  margin-top:9px!important;
+}
+.compact-apport-v6149{
+  min-height:82px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  text-align:center!important;
+}
+.compact-apport-icon-v6149{
+  font-size:26px!important;
+}
+.choice-btn.active{
+  background:color-mix(in srgb,var(--c49-secondary) 22%,#060806)!important;
+  border:2px solid #fff!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--c49-primary) 24%,transparent)!important;
+}
+.compact-submit-v6149{
+  width:100%!important;
+  min-height:58px!important;
+  margin:22px 0 0!important;
+  border-radius:15px!important;
+  background:var(--c49-primary)!important;
+  color:var(--c49-button-text)!important;
+  -webkit-text-fill-color:var(--c49-button-text)!important;
+  border:0!important;
+  font-size:16px!important;
+  font-weight:1000!important;
+}
+.compact-cancel-v6149{
+  width:100%!important;
+  min-height:48px!important;
+  margin:9px 0 0!important;
+  border-radius:15px!important;
+}
+.compact-footer-v6149{
+  margin:10px 0 0!important;
+  text-align:center!important;
+  font-size:11px!important;
+  opacity:.56!important;
+}
+.visually-hidden-v6149{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+@media(max-width:390px){
+  .compact-meta-v6149{
+    grid-template-columns:1fr 1fr 1fr!important;
+  }
+  .compact-presence-grid-v6149{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .compact-apports-v6149{
+    grid-template-columns:1fr!important;
+  }
+  .compact-apport-v6149{
+    min-height:58px!important;
+    flex-direction:row!important;
+  }
+}
+</style>
+
+
+<style id="_formulaire_match_prioritaire_v61_50">
+/* V61.50 — priorité absolue à l'identification immédiate du match. */
+
+.compact-match-v6149{
+  padding:18px 16px 16px!important;
+  background:
+    radial-gradient(circle at 50% 12%,color-mix(in srgb,var(--c49-secondary) 22%,transparent),transparent 54%),
+    linear-gradient(180deg,#0f1a10,#050805)!important;
+}
+
+.compact-teams-v6149{
+  grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr)!important;
+  gap:10px!important;
+  margin-top:2px!important;
+}
+
+.compact-logo-v6149{
+  width:82px!important;
+  height:82px!important;
+}
+
+.compact-team-name-v6149{
+  min-height:46px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:clamp(18px,5vw,24px)!important;
+  line-height:1.08!important;
+}
+
+.compact-vs-v6149{
+  font-size:32px!important;
+}
+
+.compact-type-v6149{
+  margin-top:2px!important;
+  padding:5px 10px!important;
+  background:color-mix(in srgb,var(--c49-secondary) 34%,rgba(0,0,0,.55))!important;
+  color:#fff!important;
+  font-size:11px!important;
+}
+
+.compact-meta-v6149{
+  grid-template-columns:1.45fr .85fr 1.1fr!important;
+  gap:7px!important;
+  margin-top:16px!important;
+}
+
+.compact-meta-row-v6149{
+  min-height:52px!important;
+  flex-direction:column!important;
+  gap:4px!important;
+  padding:7px 6px!important;
+}
+
+.compact-meta-row-v6149 span{
+  font-size:18px!important;
+}
+
+.compact-meta-row-v6149 strong{
+  font-size:14px!important;
+  line-height:1.12!important;
+}
+
+.compact-meta-row-v6149:first-child strong{
+  font-size:13px!important;
+}
+
+/* Le formulaire passe au second plan visuel. */
+.compact-section-v6149{
+  margin-top:16px!important;
+}
+
+.compact-section-title-v6149{
+  font-size:15px!important;
+}
+
+select,input,textarea,.choice-btn{
+  min-height:52px!important;
+}
+
+.compact-presence-v6149{
+  min-height:56px!important;
+}
+
+.compact-choice-icon-v6149{
+  width:28px!important;
+  height:28px!important;
+  font-size:18px!important;
+}
+
+@media(max-width:390px){
+  .compact-logo-v6149{
+    width:74px!important;
+    height:74px!important;
+  }
+
+  .compact-team-name-v6149{
+    font-size:18px!important;
+  }
+
+  .compact-meta-v6149{
+    grid-template-columns:1.35fr .8fr 1fr!important;
+  }
+}
+</style>
+
+
+<style id="_formulaire_selections_propres_v61_51">
+/* V61.51 — correction purement visuelle des choix sélectionnés. */
+
+/* Présence : l'icône ✓ / × existe déjà dans le HTML.
+   On supprime donc la deuxième coche générée par les anciens styles. */
+#presenceGroup .choice-btn.active::after,
+#presenceGroup .choice-btn.selected::after,
+#presenceGroup .choice-btn.is-selected::after,
+#presenceGroup .choice-btn[aria-pressed="true"]::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* Présence sélectionnée : fond clair, sans doublon ni chevauchement. */
+#presenceGroup .choice-btn.active{
+  background:rgba(var(--accent-rgb,78,138,71),.35)!important;
+  border:3px solid var(--app-secondary,var(--accent,#4E8A47))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)!important;
+}
+
+/* Icône Présent / Absent stable et de taille uniforme. */
+#presenceGroup .compact-choice-icon-v6149{
+  flex:0 0 auto!important;
+  width:30px!important;
+  height:30px!important;
+  font-size:20px!important;
+}
+
+/* Transport : boutons moins hauts et coche discrète à droite. */
+#transportGroup .choice-btn{
+  min-height:54px!important;
+  padding:12px 54px 12px 16px!important;
+  line-height:1.22!important;
+}
+#transportGroup .choice-btn.active::after{
+  width:30px!important;
+  height:30px!important;
+  right:14px!important;
+  font-size:20px!important;
+}
+
+/* Apports : sélection lisible sans énorme indicateur. */
+#apportGroup .choice-btn.active:not(.disabled)::after{
+  width:30px!important;
+  height:30px!important;
+  right:14px!important;
+  font-size:20px!important;
+}
+
+/* Évite que le texte soit masqué par la coche. */
+#apportGroup .choice-btn:not(.disabled){
+  padding-right:52px!important;
+}
+
+/* Sélection homogène sur tous les choix. */
+#transportGroup .choice-btn.active,
+#apportGroup .choice-btn.active:not(.disabled){
+  background:rgba(var(--accent-rgb,78,138,71),.35)!important;
+  border:3px solid var(--app-secondary,var(--accent,#4E8A47))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)!important;
+}
+</style>
+
+
+<style id="_formulaire_finitions_v61_57">
+/* V61.57 — finitions visuelles et modale club configurable. */
+
+/* Sélecteur joueur : composant plus lisible, toujours natif et fonctionnel. */
+#joueur{
+  min-height:58px!important;
+  padding:12px 52px 12px 18px!important;
+  font-weight:500!important;
+  background-color:#050505!important;
+  background-image:
+    linear-gradient(45deg,transparent 50%,var(--app-secondary) 50%),
+    linear-gradient(135deg,var(--app-secondary) 50%,transparent 50%)!important;
+  background-position:
+    calc(100% - 24px) 50%,
+    calc(100% - 16px) 50%!important;
+  background-size:8px 8px,8px 8px!important;
+  background-repeat:no-repeat!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+}
+
+/* Présence : deux états sémantiques distincts. */
+#presenceGroup .choice-btn:first-child.active{
+  background:rgba(20,92,46,.72)!important;
+  border-color:color-mix(in srgb,var(--app-secondary) 82%,#36b65c)!important;
+}
+#presenceGroup .choice-btn:last-child.active{
+  background:rgba(122,30,30,.82)!important;
+  border-color:#c74646!important;
+}
+
+/* Transport légèrement plus compact sans changer les zones tactiles. */
+#transportGroup .choice-btn{
+  min-height:50px!important;
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+}
+
+/* Encart apports plus explicite. */
+#apportBloc .compact-info-v6149{
+  position:relative!important;
+  padding:13px 14px 13px 46px!important;
+  border-left:4px solid var(--app-secondary)!important;
+  background:color-mix(in srgb,var(--app-secondary) 10%,#0b0b0b)!important;
+  border-radius:0 12px 12px 0!important;
+  line-height:1.35!important;
+}
+#apportBloc .compact-info-v6149::before{
+  content:"i"!important;
+  position:absolute!important;
+  left:14px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:22px!important;
+  height:22px!important;
+  border-radius:50%!important;
+  display:grid!important;
+  place-items:center!important;
+  color:var(--app-button-text)!important;
+  background:var(--app-primary)!important;
+  font-size:14px!important;
+  font-weight:900!important;
+}
+
+#commentaire{
+  min-height:100px!important;
+}
+
+.compact-submit-v6149::after{
+  content:" →";
+  display:inline-block;
+  margin-left:5px;
+}
+.compact-cancel-v6149{
+  min-height:50px!important;
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+}
+
+/* Modale interne : remplace la fenêtre iOS pour les codes joueurs. */
+.club-modal-v6157{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.club-modal-v6157.open{display:flex;}
+.club-modal-card-v6157{
+  width:min(100%,430px);
+  box-sizing:border-box;
+  padding:22px;
+  border-radius:24px;
+  background:linear-gradient(180deg,#111,#050505);
+  color:var(--app-text);
+  border:2px solid var(--app-secondary);
+  box-shadow:0 24px 70px rgba(0,0,0,.65),0 0 30px color-mix(in srgb,var(--app-secondary) 28%,transparent);
+}
+.club-modal-title-v6157{
+  margin:0 0 8px;
+  font-size:23px;
+  line-height:1.15;
+  font-weight:900;
+  color:var(--app-text);
+}
+.club-modal-text-v6157{
+  margin:0 0 18px;
+  color:color-mix(in srgb,var(--app-text) 78%,transparent);
+  font-size:16px;
+  line-height:1.4;
+}
+.club-modal-input-v6157{
+  width:100%;
+  min-height:58px!important;
+  box-sizing:border-box;
+  margin:0 0 18px!important;
+  padding:12px 16px!important;
+  border-radius:14px!important;
+  border:2px solid var(--app-secondary)!important;
+  background:#000!important;
+  color:var(--app-text)!important;
+  text-align:center;
+  font-size:28px!important;
+  font-weight:900;
+  letter-spacing:.28em;
+  outline:none;
+}
+.club-modal-input-v6157:focus{
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--app-secondary) 28%,transparent)!important;
+}
+.club-modal-actions-v6157{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.club-modal-btn-v6157{
+  min-height:50px;
+  border-radius:14px;
+  border:2px solid var(--app-secondary);
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+}
+.club-modal-cancel-v6157{
+  background:#080808;
+  color:var(--app-text);
+}
+.club-modal-confirm-v6157{
+  background:var(--app-primary);
+  border-color:var(--app-primary);
+  color:var(--app-button-text);
+}
+.club-modal-actions-v6157.single{
+  grid-template-columns:1fr;
+}
+@media(max-width:390px){
+  .club-modal-v6157{padding:18px;}
+  .club-modal-card-v6157{padding:19px;border-radius:20px;}
+}
+</style>
+
+
+
+<style id="_formulaire_premium_modals_v61_59">
+/* V61.59 — finition premium du badge match et des fenêtres internes.
+   Visuel uniquement : aucune règle métier ni fonction modifiée. */
+
+/* Badge Domicile / Extérieur / Forfait : centré au-dessus du VS. */
+.compact-center-v6149{
+  align-self:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+  transform:translateY(-3px)!important;
+}
+.compact-type-v6149{
+  width:max-content!important;
+  max-width:112px!important;
+  min-height:28px!important;
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:0 auto!important;
+  padding:3px 10px!important;
+  border-width:1.5px!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  letter-spacing:.55px!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.25)!important;
+}
+.compact-vs-v6149{
+  line-height:1!important;
+  margin-bottom:1px!important;
+}
+
+/* Déclencheur joueur plus proche d'une carte native de l'application. */
+.player-picker-trigger-v6158{
+  min-height:62px!important;
+  padding:13px 18px!important;
+  border-radius:22px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005))!important;
+  border:2px solid var(--app-secondary)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 22px rgba(0,0,0,.18)!important;
+}
+.player-picker-trigger-v6158.has-value{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--app-primary) 18%,#101010),color-mix(in srgb,var(--app-primary) 9%,#030303))!important;
+}
+.player-picker-chevron-v6158{
+  width:32px!important;
+  height:32px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  background:color-mix(in srgb,var(--app-secondary) 14%,transparent)!important;
+  font-size:22px!important;
+}
+
+/* Voile commun : profondeur et flou plus naturels. */
+.player-picker-modal-v6158,
+.club-modal-v6157{
+  background:rgba(0,0,0,.76)!important;
+  backdrop-filter:blur(13px) saturate(115%)!important;
+  -webkit-backdrop-filter:blur(13px) saturate(115%)!important;
+}
+
+/* Fenêtre de choix joueur : carte arrondie et structurée. */
+.player-picker-modal-v6158{
+  align-items:center!important;
+  padding:22px!important;
+  padding-top:calc(22px + env(safe-area-inset-top))!important;
+  padding-bottom:calc(22px + env(safe-area-inset-bottom))!important;
+}
+.player-picker-card-v6158{
+  width:min(100%,440px)!important;
+  max-height:min(76vh,650px)!important;
+  padding:22px!important;
+  border:2px solid var(--app-secondary)!important;
+  border-radius:32px!important;
+  background:
+    radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--app-secondary) 16%,transparent),transparent 40%),
+    linear-gradient(180deg,#151515 0%,#090909 58%,#050505 100%)!important;
+  box-shadow:
+    0 28px 80px rgba(0,0,0,.78),
+    0 0 0 1px rgba(255,255,255,.035) inset,
+    0 0 34px color-mix(in srgb,var(--app-secondary) 18%,transparent)!important;
+  overflow:hidden!important;
+}
+.player-picker-head-v6158{
+  margin-bottom:18px!important;
+  padding:0 2px!important;
+}
+.player-picker-title-v6158{
+  flex:1!important;
+  text-align:left!important;
+  font-size:25px!important;
+  line-height:1.05!important;
+  letter-spacing:-.35px!important;
+}
+.player-picker-close-v6158{
+  flex:0 0 auto!important;
+  width:44px!important;
+  height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  border-radius:50%!important;
+  border:2px solid color-mix(in srgb,var(--app-secondary) 80%,#fff 8%)!important;
+  background:linear-gradient(180deg,#151515,#050505)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07)!important;
+}
+.player-picker-search-v6158{
+  min-height:54px!important;
+  margin-bottom:16px!important;
+  padding:12px 16px!important;
+  border-radius:18px!important;
+  background:rgba(0,0,0,.62)!important;
+  border:2px solid color-mix(in srgb,var(--app-secondary) 78%,transparent)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+.player-picker-search-v6158:focus{
+  border-color:var(--app-secondary)!important;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--app-secondary) 20%,transparent)!important;
+}
+.player-picker-list-v6158{
+  gap:10px!important;
+  padding:1px 3px 3px!important;
+}
+.player-picker-option-v6158{
+  min-height:56px!important;
+  padding:12px 16px!important;
+  border-radius:19px!important;
+  border:1.5px solid color-mix(in srgb,var(--app-secondary) 66%,transparent)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.008))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+  font-size:17px!important;
+}
+.player-picker-option-v6158:active{
+  transform:scale(.988)!important;
+}
+.player-picker-option-v6158.selected{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--app-primary) 32%,#0b0b0b),color-mix(in srgb,var(--app-primary) 18%,#050505))!important;
+  border-color:var(--app-secondary)!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--app-secondary) 25%,transparent) inset!important;
+}
+.player-picker-option-v6158 .check{
+  width:30px!important;
+  height:30px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#050505!important;
+  font-size:18px!important;
+}
+
+/* Fenêtre du code : même langage graphique que les cartes principales. */
+.club-modal-v6157{
+  padding:22px!important;
+  padding-top:calc(22px + env(safe-area-inset-top))!important;
+  padding-bottom:calc(22px + env(safe-area-inset-bottom))!important;
+}
+.club-modal-card-v6157{
+  width:min(100%,430px)!important;
+  padding:26px 24px 24px!important;
+  border-radius:32px!important;
+  border:2px solid var(--app-secondary)!important;
+  background:
+    radial-gradient(circle at 50% -8%,color-mix(in srgb,var(--app-secondary) 18%,transparent),transparent 42%),
+    linear-gradient(180deg,#151515 0%,#090909 58%,#050505 100%)!important;
+  box-shadow:
+    0 30px 86px rgba(0,0,0,.8),
+    0 0 0 1px rgba(255,255,255,.035) inset,
+    0 0 36px color-mix(in srgb,var(--app-secondary) 18%,transparent)!important;
+}
+.club-modal-title-v6157{
+  margin:0 0 12px!important;
+  text-align:left!important;
+  font-size:27px!important;
+  line-height:1.06!important;
+  letter-spacing:-.4px!important;
+}
+.club-modal-text-v6157{
+  margin:0 0 20px!important;
+  font-size:16px!important;
+  line-height:1.42!important;
+}
+.club-modal-input-v6157{
+  min-height:66px!important;
+  margin-bottom:20px!important;
+  padding:12px 18px!important;
+  border-radius:20px!important;
+  border:2px solid var(--app-secondary)!important;
+  background:linear-gradient(180deg,#050505,#000)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+  font-size:30px!important;
+  letter-spacing:.42em!important;
+  text-indent:.42em!important;
+}
+.club-modal-input-v6157:focus{
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--app-secondary) 22%,transparent),inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+.club-modal-actions-v6157{
+  grid-template-columns:.92fr 1.08fr!important;
+  gap:12px!important;
+}
+.club-modal-btn-v6157{
+  min-height:54px!important;
+  border-radius:18px!important;
+  font-size:16px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 18px rgba(0,0,0,.16)!important;
+}
+.club-modal-cancel-v6157{
+  background:linear-gradient(180deg,#111,#050505)!important;
+}
+.club-modal-confirm-v6157{
+  background:var(--app-primary)!important;
+  border-color:var(--app-primary)!important;
+}
+
+@media(max-width:390px){
+  .compact-type-v6149{max-width:104px!important;font-size:9.5px!important;padding:3px 8px!important;}
+  .player-picker-modal-v6158,.club-modal-v6157{padding-left:16px!important;padding-right:16px!important;}
+  .player-picker-card-v6158,.club-modal-card-v6157{border-radius:27px!important;padding:20px!important;}
+  .player-picker-title-v6158{font-size:23px!important;}
+  .club-modal-title-v6157{font-size:25px!important;}
+}
+</style>
+
+
+<style id="_formulaire_v61_67_badge_final">
+/* V61.68 — badge descendu de 15 px et VS remonté de 5 px, sans changement fonctionnel. */
+.compact-center-v6149{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  transform:none!important;
+}
+.compact-type-v6149{
+  max-width:102px!important;
+  min-height:25px!important;
+  padding:3px 8px!important;
+  font-size:9px!important;
+  letter-spacing:.4px!important;
+  transform:translateY(-40px)!important;
+}
+.compact-vs-v6149{
+  margin:0!important;
+  transform:translateY(1px)!important;
+}
+@media(max-width:390px){
+  .compact-type-v6149{
+    max-width:96px!important;
+    font-size:8.5px!important;
+    transform:translateY(-38px)!important;
+  }
+  .compact-vs-v6149{transform:translateY(0)!important;}
+}
+</style>
+
+<style id="_v6168_player_pin_finish">
+/* V61.68 — finition sélection joueur + saisie code, sans modification métier */
+.player-picker-option-v6158.selected{
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--app-primary) 24%,#111),
+    color-mix(in srgb,var(--app-primary) 13%,#050505))!important;
+  border-color:var(--app-secondary)!important;
+}
+.player-picker-option-v6158 .player-selected-state-v6168{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--app-secondary);
+  font-size:13px;
+  font-weight:900;
+  opacity:0;
+}
+.player-picker-option-v6158.selected .player-selected-state-v6168{opacity:1;}
+.player-picker-option-v6158 .player-selected-state-v6168 .check{
+  width:28px!important;height:28px!important;opacity:1!important;
+  background:var(--app-secondary)!important;
+  color:#000!important;
+}
+.club-modal-pin-wrap-v6168{
+  position:relative;
+  margin-bottom:20px;
+}
+.club-modal-pin-dots-v6168{
+  pointer-events:none;
+  position:absolute;inset:0;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  align-items:center;gap:12px;padding:0 18px;
+}
+.club-modal-pin-dot-v6168{
+  width:14px;height:14px;border-radius:50%;
+  justify-self:center;
+  border:2px solid color-mix(in srgb,var(--app-text) 45%,transparent);
+  background:transparent;
+  transition:transform .16s ease,background .16s ease,border-color .16s ease;
+}
+.club-modal-pin-dot-v6168.filled{
+  background:var(--app-secondary);
+  border-color:var(--app-secondary);
+  transform:scale(1.08);
+}
+.club-modal-input-v6157.pin-visual-v6168{
+  margin-bottom:0!important;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  caret-color:transparent!important;
+  letter-spacing:2em!important;
+}
+@media(max-width:420px){
+  .player-picker-option-v6158 .player-selected-state-v6168 .label{display:none;}
+}
+</style>
+
+<style id="_form_transition_secure_v61_69">
+#formSplashScreen{
+  position:fixed!important;
+  inset:0!important;
+  z-index:100000!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  background:#000!important;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  overflow:hidden!important;
+  transition:opacity .18s ease,visibility .18s ease;
+}
+#formSplashScreen.is-hidden{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#formSplashLogo{
+  display:block!important;
+  width:128px!important;
+  height:128px!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:38vw!important;
+  max-height:38vw!important;
+  margin:0!important;
+  padding:0!important;
+  object-fit:contain!important;
+}
+</style>
+
 </head>
 
 <body>
 
-<div class="wrap">
-
-  <h2 id="titreMatch">Réponse Match</h2>
-
-  <label for="joueur">Prénom du joueur</label>
-  <select id="joueur">
-    <option value="">Choisir un joueur</option>
-  </select>
-
-  <label>Présence</label>
-  <div class="choice-group" id="presenceGroup">
-    <div class="choice-btn" onclick="selectPresence(this, 'Présent')">Présent</div>
-    <div class="choice-btn" onclick="selectPresence(this, 'Absent')">Absent</div>
-  </div>
-
-  <div id="domicileNote" class="note" style="display:none;text-align:left;">
-    Match à domicile : aucun transport à renseigner.
-  </div>
-
-  <div id="transportBloc" style="display:none;">
-    <label>Transport</label>
-    <div class="choice-group" id="transportGroup">
-      <div class="choice-btn" onclick="selectTransport(this, 'Direct')">Je me rends directement au match</div>
-      <div class="choice-btn" onclick="selectTransport(this, 'Gymnase')">Je pars du gymnase</div>
-      <div class="choice-btn" onclick="selectTransport(this, 'Besoin')">J’ai besoin d’un transport</div>
-    </div>
-
-    <label for="places">Places disponibles</label>
-    <input id="places" type="number" min="0" placeholder="Exemple : 2">
-  </div>
-
-  <div id="apportBloc" style="display:none;">
-    <label>Tu participes à l’organisation ?</label>
-    <div class="apport-note">Optionnel — objectif : 2 boissons, 2 nourritures et 1 personne pour les maillots.</div>
-    <div class="choice-group" id="apportGroup">
-      <div class="choice-btn" onclick="selectApport(this, 'Boisson')">Boisson</div>
-      <div class="choice-btn" onclick="selectApport(this, 'Nourriture')">Nourriture</div>
-      <div class="choice-btn" onclick="selectApport(this, 'Maillots')">Maillots</div>
-    </div>
-  </div>
-
-  <label for="commentaire">Commentaire</label>
-  <textarea id="commentaire" placeholder="Ajoute un commentaire si besoin"></textarea>
-
-  <button class="send" onclick="envoyerFormulaire()">Envoyer la réponse</button>
-
-  <button class="send" style="background:#333;color:#fff;border:2px solid #555;margin-top:10px;" onclick="annulerFormulaire()">Annuler</button>
-
-  <div class="note">Après envoi, retour automatique à l’application.</div>
-
+<div id="formSplashScreen" aria-hidden="true">
+  <img id="formSplashLogo" src="assets/logos/clubs/demo-app-club.png" alt="">
 </div>
 
+
+<div class="compact-page-v6149">
+
+  <header class="compact-header-v6149">
+    <button type="button" class="compact-back-v6149" onclick="annulerFormulaire()" aria-label="Retour">←</button>
+    <div class="compact-title-v6149">Réponse au match</div>
+    <div class="compact-spacer-v6149"></div>
+  </header>
+
+  <section class="compact-match-v6149" aria-labelledby="titreMatch">
+    <div class="compact-teams-v6149">
+      <div class="compact-team-v6149">
+        <img id="compactLeftLogoV6149" class="compact-logo-v6149" alt="" style="display:none;">
+        <div id="compactLeftNameV6149" class="compact-team-name-v6149">Équipe</div>
+      </div>
+
+      <div class="compact-center-v6149">
+        <div id="compactTypeV6149" class="compact-type-v6149">Match</div>
+        <div class="compact-vs-v6149">VS</div>
+      </div>
+
+      <div class="compact-team-v6149">
+        <img id="compactRightLogoV6149" class="compact-logo-v6149" alt="" style="display:none;">
+        <div id="compactRightNameV6149" class="compact-team-name-v6149">Adversaire</div>
+      </div>
+    </div>
+
+    <div class="compact-meta-v6149">
+      <div class="compact-meta-row-v6149">
+        <span>📅</span>
+        <strong id="compactDateV6149">—</strong>
+      </div>
+      <div class="compact-meta-row-v6149">
+        <span>🕒</span>
+        <strong id="compactTimeV6149">—</strong>
+      </div>
+      <div class="compact-meta-row-v6149">
+        <span id="compactPlaceIconV6149">📍</span>
+        <strong id="compactPlaceV6149">—</strong>
+      </div>
+    </div>
+
+    <h2 id="titreMatch" class="visually-hidden-v6149">Réponse Match</h2>
+  </section>
+
+  <main class="compact-form-v6149">
+
+    <section class="compact-section-v6149">
+      <div class="compact-section-title-v6149">Joueur</div>
+      <label class="visually-hidden-v6149" for="joueur">Prénom du joueur</label>
+      <select id="joueur" aria-hidden="true" tabindex="-1">
+        <option value="">Choisir un joueur</option>
+      </select>
+      <button id="playerPickerTriggerV6158" type="button" class="player-picker-trigger-v6158" aria-haspopup="dialog" aria-controls="playerPickerModalV6158">
+        <span id="playerPickerLabelV6158">Choisir un joueur</span>
+        <span class="player-picker-chevron-v6158" aria-hidden="true">⌄</span>
+      </button>
+    </section>
+
+    <section class="compact-section-v6149">
+      <div class="compact-section-title-v6149">Présence</div>
+      <div class="choice-group compact-presence-grid-v6149" id="presenceGroup">
+        <div class="choice-btn compact-presence-v6149" onclick="selectPresence(this, 'Présent')">
+          <span class="compact-choice-icon-v6149">✓</span>
+          <span>Présent</span>
+        </div>
+        <div class="choice-btn compact-presence-v6149" onclick="selectPresence(this, 'Absent')">
+          <span class="compact-choice-icon-v6149">×</span>
+          <span>Absent</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="domicileNote" class="note compact-info-v6149" style="display:none;text-align:left;">
+      Match à domicile : aucun transport à renseigner.
+    </div>
+
+    <section id="transportBloc" class="compact-section-v6149" style="display:none;">
+      <div class="compact-section-title-v6149">Transport</div>
+
+      <div class="choice-group compact-list-v6149" id="transportGroup">
+        <div class="choice-btn" onclick="selectTransport(this, 'Direct')">Je me rends directement au match</div>
+        <div class="choice-btn" onclick="selectTransport(this, 'Gymnase')">Je pars du gymnase</div>
+        <div class="choice-btn" onclick="selectTransport(this, 'Besoin')">J’ai besoin d’un transport</div>
+      </div>
+
+      <label class="compact-field-label-v6149" for="places">Places disponibles</label>
+      <input id="places" type="number" min="0" placeholder="Exemple : 2">
+    </section>
+
+    <section id="apportBloc" class="compact-section-v6149" style="display:none;">
+      <div class="compact-section-title-v6149">Apports</div>
+      <div class="apport-note compact-info-v6149">
+        Optionnel — objectif : 2 boissons, 2 nourritures et 1 personne pour les maillots.
+      </div>
+
+      <div class="choice-group compact-apports-v6149" id="apportGroup">
+        <div class="choice-btn compact-apport-v6149" onclick="selectApport(this, 'Boisson')">
+          <span class="compact-apport-icon-v6149">🥤</span>
+          <span>Boisson</span>
+        </div>
+        <div class="choice-btn compact-apport-v6149" onclick="selectApport(this, 'Nourriture')">
+          <span class="compact-apport-icon-v6149">🧁</span>
+          <span>Nourriture</span>
+        </div>
+        <div class="choice-btn compact-apport-v6149" onclick="selectApport(this, 'Maillots')">
+          <span class="compact-apport-icon-v6149">👕</span>
+          <span>Maillots</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="compact-section-v6149">
+      <div class="compact-section-title-v6149">
+        Commentaire <span class="compact-optional-v6149">(optionnel)</span>
+      </div>
+      <label class="visually-hidden-v6149" for="commentaire">Commentaire</label>
+      <textarea id="commentaire" placeholder="Ajouter un commentaire (facultatif)"></textarea>
+    </section>
+
+    <button class="send compact-submit-v6149" onclick="envoyerFormulaire()">Enregistrer ma réponse</button>
+    <button class="send cancel compact-cancel-v6149" onclick="annulerFormulaire()">Annuler</button>
+
+    <div class="note compact-footer-v6149">Après envoi, retour automatique à l’application.</div>
+  </main>
+</div>
+
+
+
+<div id="playerPickerModalV6158" class="player-picker-modal-v6158" role="dialog" aria-modal="true" aria-labelledby="playerPickerTitleV6158" aria-hidden="true">
+  <div class="player-picker-card-v6158">
+    <div class="player-picker-head-v6158">
+      <h2 id="playerPickerTitleV6158" class="player-picker-title-v6158">Choisir un joueur</h2>
+      <button id="playerPickerCloseV6158" type="button" class="player-picker-close-v6158" aria-label="Fermer">×</button>
+    </div>
+    <input id="playerPickerSearchV6158" class="player-picker-search-v6158" type="search" placeholder="Rechercher un joueur" autocomplete="off" aria-label="Rechercher un joueur">
+    <div id="playerPickerListV6158" class="player-picker-list-v6158"></div>
+  </div>
+</div>
+
+<div id="clubModalV6157" class="club-modal-v6157" role="dialog" aria-modal="true" aria-labelledby="clubModalTitleV6157" aria-hidden="true">
+  <div class="club-modal-card-v6157">
+    <h2 id="clubModalTitleV6157" class="club-modal-title-v6157">Code d’accès</h2>
+    <p id="clubModalTextV6157" class="club-modal-text-v6157"></p>
+    <div class="club-modal-pin-wrap-v6168">
+      <input id="clubModalInputV6157" class="club-modal-input-v6157 pin-visual-v6168" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" aria-label="Code à quatre chiffres">
+      <div id="clubModalPinDotsV6168" class="club-modal-pin-dots-v6168" aria-hidden="true">
+        <span class="club-modal-pin-dot-v6168"></span><span class="club-modal-pin-dot-v6168"></span><span class="club-modal-pin-dot-v6168"></span><span class="club-modal-pin-dot-v6168"></span>
+      </div>
+    </div>
+    <div id="clubModalActionsV6157" class="club-modal-actions-v6157">
+      <button id="clubModalCancelV6157" type="button" class="club-modal-btn-v6157 club-modal-cancel-v6157">Annuler</button>
+      <button id="clubModalConfirmV6157" type="button" class="club-modal-btn-v6157 club-modal-confirm-v6157">Valider</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/logo-paths.js"></script>
+<script src="app-config.js"></script>
 <script>
-// V60.39 quotas organisation pilotés par CONFIG + correction codes joueurs partagés
+// V61.12 couleurs propres : fond séparé, boutons, titres et contours pilotés par CONFIG
 
 let presenceValue = "";
 let transportValue = "";
 let apportValue = "";
 let playerCodeValidated = false;
 let playerCodeValue = "";
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsAagDE1Hvc7iAZSkkJPzDn9Q4INQuZdphxUEPrwz65veoF3_sEJ_LzSVsYMZLsAGiwA/exec";
+const APP_CONFIG = window.APP_CONFIG || {};
+const APPS_SCRIPT_URL = APP_CONFIG.APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbzkdFa0ccvvusu1nZeTQWDT2ea0EXgkxJQDproZ3606stimYFzrm0mNqzKSIoy2rMT3/exec";
+const APP_HOME_URL = APP_CONFIG.APP_HOME_URL || "https://alexlub37.github.io/demo-app-club/";
+
+function showFormTransition(){
+  const splash = document.getElementById("formSplashScreen");
+  if (!splash) return;
+  splash.classList.remove("is-hidden");
+  splash.style.display = "flex";
+}
+
+function hideFormTransition(){
+  const splash = document.getElementById("formSplashScreen");
+  if (!splash) return;
+  requestAnimationFrame(() => requestAnimationFrame(() => splash.classList.add("is-hidden")));
+}
+
+function openAppWithTransition(url){
+  showFormTransition();
+  setTimeout(() => {
+    window.location.href = url;
+  }, 40);
+}
+
+const APP_NAME = APP_CONFIG.APP_NAME || "Démo App Club";
+const APP_CLUB_NAME = APP_CONFIG.CLUB_NAME || APP_NAME;
+const APP_HOME_CLUB_NAME = APP_CONFIG.HOME_CLUB_NAME || APP_CLUB_NAME;
+const APP_WHATSAPP_CONVOCATION_TITLE = APP_CONFIG.WHATSAPP_CONVOCATION_TITLE || ("Convocation " + APP_CLUB_NAME);
+let FORM_CLUB_NAME = APP_HOME_CLUB_NAME;
+let FORM_LOGO_URL = "assets/logos/clubs/demo-app-club.png";
+
+function appEscapeRegExp(str){
+  return String(str || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function removeHomeClubPrefixForm(text){
+  const club = String(APP_HOME_CLUB_NAME || "").trim();
+  const raw = String(text || "").trim();
+  if (!club) return raw;
+  return raw.replace(new RegExp("^" + appEscapeRegExp(club) + "\\s+", "i"), "").trim();
+}
+function startsWithHomeClubForm(text){
+  const club = String(APP_HOME_CLUB_NAME || "").trim();
+  if (!club) return false;
+  return normalizeQuota(text).startsWith(normalizeQuota(club) + " ");
+}
+
 
 
 let organisationConfig = {
@@ -203,11 +2734,67 @@ function configBoolForm(cfg, key, fallback){
   return fallback;
 }
 
+
+function luminanceHexForm(hex){
+  const raw = String(hex || "").trim();
+  const m = raw.match(/^#?([0-9a-f]{6})$/i);
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
+  const conv = v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  return 0.2126 * conv(r) + 0.7152 * conv(g) + 0.0722 * conv(b);
+}
+
+function autoContrastTextForm(bg, fallback = "#000000"){
+  const lum = luminanceHexForm(bg);
+  if (lum === null) return fallback;
+  return lum > 0.52 ? "#000000" : "#ffffff";
+}
+
+function appliquerThemeFormulaire(cfg){
+  const root = document.documentElement;
+  const primary = configValueForm(cfg, "couleur_principale", "#ffffff");
+  const secondary = configValueForm(cfg, "couleur_secondaire", "#555555");
+  const buttonTextCfg = configValueForm(cfg, "couleur_bouton_texte", "").trim();
+
+  // V61.20 : retour visuel simple.
+  // Le formulaire joueur reste sombre/lisible.
+  // CONFIG pilote uniquement : contours, bouton principal, texte du bouton.
+  const safeButtonText = buttonTextCfg || "#000000";
+
+  root.style.setProperty("--app-primary", primary);
+  root.style.setProperty("--app-secondary", secondary);
+  root.style.setProperty("--app-bg", "#000000");
+  root.style.setProperty("--app-text", "#ffffff");
+  root.style.setProperty("--app-button-text", safeButtonText);
+  root.style.setProperty("--app-choice-border", secondary);
+  root.style.setProperty("--app-note", "#cfcfcf");
+
+  // V61.21 : mémorise le thème pour éviter le flash de couleur au prochain chargement.
+  try{
+    localStorage.setItem("demo_app_form_theme_v1", JSON.stringify({
+      primary: primary,
+      secondary: secondary,
+      buttonText: safeButtonText
+    }));
+  }catch(e){}
+}
+
+
 async function chargerConfigOrganisation(){
   try{
     const url = APPS_SCRIPT_URL + "?action=getConfig&t=" + encodeURIComponent(Date.now());
     const res = await fetch(url, { cache: "no-store" });
     const cfg = await res.json();
+    appliquerThemeFormulaire(cfg);
+
+    FORM_CLUB_NAME = configValueForm(cfg, "nom_club", APP_HOME_CLUB_NAME);
+    FORM_LOGO_URL = resolveClubLogoUrl(configValueForm(cfg, "logo_url", ""));
+    const formSplashLogo = document.getElementById("formSplashLogo");
+    if (formSplashLogo && FORM_LOGO_URL) formSplashLogo.src = FORM_LOGO_URL;
+    document.title = "Réponse — " + (FORM_CLUB_NAME || "Démo App Club");
 
     organisationConfig = {
       maillots: configIntForm(cfg, "quota_maillots", 1),
@@ -270,6 +2857,13 @@ function getParam(param) {
   return urlParams.get(param) || "";
 }
 
+function normaliserCodeAccesJoueur(code) {
+  const valeur = String(code === null || code === undefined ? "" : code).trim();
+  if (!valeur) return "";
+  if (/^\d{1,4}$/.test(valeur)) return valeur.padStart(4, "0");
+  return valeur;
+}
+
 function chargerJoueurs() {
   const joueursParam = getParam("joueurs");
   const select = document.getElementById("joueur");
@@ -285,7 +2879,7 @@ function chargerJoueurs() {
   liste.forEach(j => {
     const [prenomRaw, codeRaw] = j.split("§");
     const prenom = String(prenomRaw || "").trim();
-    const code = String(codeRaw || "").trim();
+    const code = normaliserCodeAccesJoueur(codeRaw);
 
     const option = document.createElement("option");
     option.value = prenom;
@@ -294,7 +2888,105 @@ function chargerJoueurs() {
     select.appendChild(option);
   });
 
-  select.onchange = verifierCodeJoueur;
+  initialiserSelecteurJoueurV6158();
+}
+
+
+
+function mettreAJourLibelleJoueurV6158(){
+  const select = document.getElementById("joueur");
+  const label = document.getElementById("playerPickerLabelV6158");
+  const trigger = document.getElementById("playerPickerTriggerV6158");
+  if (!select || !label || !trigger) return;
+  const value = select.value || "";
+  label.textContent = value || "Choisir un joueur";
+  trigger.classList.toggle("has-value", !!value);
+}
+
+function construireListeJoueursV6158(filtre = ""){
+  const select = document.getElementById("joueur");
+  const list = document.getElementById("playerPickerListV6158");
+  if (!select || !list) return;
+  const recherche = String(filtre || "").trim().toLocaleLowerCase("fr");
+  const options = Array.from(select.options).filter(option => option.value);
+  const visibles = options.filter(option => option.textContent.toLocaleLowerCase("fr").includes(recherche));
+  list.innerHTML = "";
+  if (!visibles.length){
+    const empty = document.createElement("div");
+    empty.className = "player-picker-empty-v6158";
+    empty.textContent = recherche ? "Aucun joueur trouvé" : "Aucun joueur disponible";
+    list.appendChild(empty);
+    return;
+  }
+  visibles.forEach(option => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "player-picker-option-v6158" + (select.value === option.value ? " selected" : "");
+    const name = document.createElement("span");
+    name.textContent = option.textContent;
+    const selectedState = document.createElement("span");
+    selectedState.className = "player-selected-state-v6168";
+    const selectedLabel = document.createElement("span");
+    selectedLabel.className = "label";
+    selectedLabel.textContent = "Sélectionné";
+    const check = document.createElement("span");
+    check.className = "check";
+    check.textContent = "✓";
+    selectedState.append(selectedLabel, check);
+    button.append(name, selectedState);
+    button.addEventListener("click", async () => {
+      select.value = option.value;
+      fermerSelecteurJoueurV6158();
+      mettreAJourLibelleJoueurV6158();
+      await verifierCodeJoueur();
+      mettreAJourLibelleJoueurV6158();
+    });
+    list.appendChild(button);
+  });
+}
+
+function ouvrirSelecteurJoueurV6158(){
+  const modal = document.getElementById("playerPickerModalV6158");
+  const search = document.getElementById("playerPickerSearchV6158");
+  if (!modal) return;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+  if (search){
+    search.value = "";
+    construireListeJoueursV6158("");
+    setTimeout(() => search.focus({preventScroll:true}), 80);
+  }
+}
+
+function fermerSelecteurJoueurV6158(){
+  const modal = document.getElementById("playerPickerModalV6158");
+  if (!modal) return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden","true");
+  document.body.style.overflow = "";
+}
+
+function initialiserSelecteurJoueurV6158(){
+  const trigger = document.getElementById("playerPickerTriggerV6158");
+  const close = document.getElementById("playerPickerCloseV6158");
+  const modal = document.getElementById("playerPickerModalV6158");
+  const search = document.getElementById("playerPickerSearchV6158");
+  if (!trigger || trigger.dataset.ready === "1"){
+    mettreAJourLibelleJoueurV6158();
+    return;
+  }
+  trigger.dataset.ready = "1";
+  trigger.addEventListener("click", ouvrirSelecteurJoueurV6158);
+  close?.addEventListener("click", fermerSelecteurJoueurV6158);
+  modal?.addEventListener("click", event => {
+    if (event.target === modal) fermerSelecteurJoueurV6158();
+  });
+  search?.addEventListener("input", () => construireListeJoueursV6158(search.value));
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && modal?.classList.contains("open")) fermerSelecteurJoueurV6158();
+  });
+  mettreAJourLibelleJoueurV6158();
 }
 
 function resetValidationCodeJoueur(){
@@ -303,60 +2995,186 @@ function resetValidationCodeJoueur(){
   resetApport();
 }
 
+
+function mettreAJourPinVisuelV6168(){
+  const input = document.getElementById("clubModalInputV6157");
+  const dots = Array.from(document.querySelectorAll("#clubModalPinDotsV6168 .club-modal-pin-dot-v6168"));
+  const longueur = String(input?.value || "").length;
+  dots.forEach((dot,index) => dot.classList.toggle("filled", index < longueur));
+}
+
+function ouvrirModaleClubV6157(options = {}){
+  const modal = document.getElementById("clubModalV6157");
+  const title = document.getElementById("clubModalTitleV6157");
+  const text = document.getElementById("clubModalTextV6157");
+  const input = document.getElementById("clubModalInputV6157");
+  const actions = document.getElementById("clubModalActionsV6157");
+  const cancelBtn = document.getElementById("clubModalCancelV6157");
+  const confirmBtn = document.getElementById("clubModalConfirmV6157");
+  const avecSaisie = options.input !== false;
+  const avecAnnulation = options.cancel !== false;
+
+  title.textContent = options.title || "Code d’accès";
+  text.textContent = options.message || "";
+  input.style.display = avecSaisie ? "block" : "none";
+  input.value = "";
+  mettreAJourPinVisuelV6168();
+  input.type = options.secret === false ? "text" : "password";
+  cancelBtn.style.display = avecAnnulation ? "block" : "none";
+  cancelBtn.textContent = options.cancelLabel || "Annuler";
+  confirmBtn.textContent = options.confirmLabel || "Valider";
+  actions.classList.toggle("single", !avecAnnulation);
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden","false");
+
+  return new Promise(resolve => {
+    let termine = false;
+    const fermer = valeur => {
+      if (termine) return;
+      termine = true;
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden","true");
+      confirmBtn.onclick = null;
+      cancelBtn.onclick = null;
+      input.onkeydown = null;
+      resolve(valeur);
+    };
+    confirmBtn.onclick = () => fermer(avecSaisie ? input.value.trim() : true);
+    cancelBtn.onclick = () => fermer(null);
+    input.oninput = () => { input.value = input.value.replace(/\D/g,"").slice(0,4); mettreAJourPinVisuelV6168(); };
+    input.onkeydown = event => {
+      if (event.key === "Enter") confirmBtn.click();
+      if (event.key === "Escape" && avecAnnulation) cancelBtn.click();
+    };
+    setTimeout(() => (avecSaisie ? input : confirmBtn).focus(),60);
+  });
+}
+
+function afficherMessageClubV6157(message, title = "Information"){
+  return ouvrirModaleClubV6157({title,message,input:false,cancel:false,confirmLabel:"OK"});
+}
+
 function codeValideFormat(code){
   return /^\d{4}$/.test(String(code || "").trim());
+}
+
+async function obtenirStatutCodeJoueur(prenom){
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "getJoueurCodeStatus",
+      equipe: getParam("equipe"),
+      prenom: prenom
+    })
+  });
+
+  const data = await res.json();
+  if (!data || data.ok !== true) {
+    throw new Error((data && data.error) || "STATUT_CODE_INDISPONIBLE");
+  }
+
+  return data.hasCode === true;
+}
+
+async function verifierCodeJoueurServeur(prenom, code){
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "codeJoueurValide",
+      equipe: getParam("equipe"),
+      prenom: prenom,
+      code: String(code || "").trim()
+    })
+  });
+
+  const data = await res.json();
+  return !!(data && data.ok === true);
 }
 
 async function verifierCodeJoueur(){
   const select = document.getElementById("joueur");
   const option = select.options[select.selectedIndex];
   const prenom = option ? option.value : "";
-  const codeExistant = option ? String(option.dataset.code || "").trim() : "";
 
   resetValidationCodeJoueur();
-
   if (!prenom) return;
 
-  if (codeExistant) {
-    const saisie = prompt("Entre ton code d'accès pour " + prenom + " :");
+  let codeExiste = false;
+  try {
+    codeExiste = await obtenirStatutCodeJoueur(prenom);
+  } catch(e) {
+    await afficherMessageClubV6157("Impossible de vérifier le code du joueur. Clique sur Mettre à jour puis réessaie.", "Connexion impossible");
+    select.value = "";
+    return;
+  }
+
+  if (codeExiste) {
+    const saisie = await ouvrirModaleClubV6157({
+      title:"Code d’accès",
+      message:"Entre ton code à 4 chiffres pour " + prenom + ".",
+      confirmLabel:"Valider"
+    });
     if (saisie === null) {
       select.value = "";
       return;
     }
 
-    if (String(saisie).trim() !== codeExistant) {
-      alert("Code incorrect ❌");
+    const codeSaisi = String(saisie).trim();
+    if (!codeValideFormat(codeSaisi)) {
+      await afficherMessageClubV6157("Le code doit contenir exactement 4 chiffres.", "Code invalide");
+      select.value = "";
+      return;
+    }
+
+    let codeValide = false;
+    try {
+      codeValide = await verifierCodeJoueurServeur(prenom, codeSaisi);
+    } catch(e) {
+      await afficherMessageClubV6157("Impossible de vérifier le code du joueur. Réessaie.", "Connexion impossible");
+      select.value = "";
+      return;
+    }
+
+    if (!codeValide) {
+      await afficherMessageClubV6157("Le code saisi est incorrect.", "Code incorrect");
       select.value = "";
       return;
     }
 
     playerCodeValidated = true;
-    playerCodeValue = codeExistant;
+    playerCodeValue = codeSaisi;
     return;
   }
 
-  const nouveauCode = prompt("Première connexion pour " + prenom + ". Crée ton code d'accès :");
+  const nouveauCode = await ouvrirModaleClubV6157({
+    title:"Créer mon code",
+    message:"Première connexion pour " + prenom + ". Choisis un code personnel à 4 chiffres.",
+    confirmLabel:"Continuer"
+  });
   if (nouveauCode === null) {
     select.value = "";
     return;
   }
 
   const code1 = String(nouveauCode).trim();
-
   if (!codeValideFormat(code1)) {
-    alert("Le code doit contenir exactement 4 chiffres.");
+    await afficherMessageClubV6157("Le code doit contenir exactement 4 chiffres.", "Code invalide");
     select.value = "";
     return;
   }
 
-  const confirmation = prompt("Confirme ton code d'accès :");
+  const confirmation = await ouvrirModaleClubV6157({
+    title:"Confirmer mon code",
+    message:"Saisis une deuxième fois ton code pour le confirmer.",
+    confirmLabel:"Créer le code"
+  });
   if (confirmation === null) {
     select.value = "";
     return;
   }
 
   if (String(confirmation).trim() !== code1) {
-    alert("Les deux codes ne correspondent pas ❌");
+    await afficherMessageClubV6157("Les deux codes ne correspondent pas.", "Confirmation incorrecte");
     select.value = "";
     return;
   }
@@ -364,7 +3182,7 @@ async function verifierCodeJoueur(){
   try {
     await enregistrerCodeJoueur(prenom, code1);
   } catch(e) {
-    alert("Erreur création code : " + (e.message || e));
+    await afficherMessageClubV6157("Erreur lors de la création du code : " + (e.message || e), "Code non enregistré");
     select.value = "";
     return;
   }
@@ -372,7 +3190,7 @@ async function verifierCodeJoueur(){
   option.dataset.code = code1;
   playerCodeValidated = true;
   playerCodeValue = code1;
-  alert("Code enregistré ✅");
+  await afficherMessageClubV6157("Ton code a bien été enregistré.", "Code créé");
 }
 
 async function enregistrerCodeJoueur(prenom, code){
@@ -408,10 +3226,14 @@ function afficherOptionsOrganisation(){
       visible = false;
     }
 
-    btn.style.display = visible ? "block" : "none";
+    // Une classe avec !important est nécessaire : le thème applique
+    // display:flex!important sur .choice-btn.
+    btn.classList.toggle("apport-option-hidden", !visible);
+    btn.style.removeProperty("display");
     if (!visible) {
       btn.classList.remove("active");
       btn.classList.remove("disabled");
+      btn.removeAttribute("aria-disabled");
     }
   });
 
@@ -433,6 +3255,121 @@ function afficherOptionsOrganisation(){
   }
 }
 
+
+
+function jourDateV6150(dateTexte){
+  const txt = String(dateTexte || "").trim();
+  const m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(!m) return txt;
+
+  const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  if(Number.isNaN(d.getTime())) return txt;
+
+  const jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+  return jours[d.getDay()] + " " + txt;
+}
+
+function appliquerCompactPremiumV6149(){
+  const displayRaw = String(getParam("display") || getParam("match") || "").replace(/\s+/g," ").trim();
+  const equipe = String(getParam("equipe") || "").trim() || "Équipe";
+  const info = extraireMatchInfoQuota(displayRaw);
+
+  let adversaire = String(info.adversaire || "").trim();
+  let date = String(info.date || "").trim();
+  let heure = String(info.heure || "").trim();
+  let lieu = String(info.lieu || "").trim();
+
+  if(displayRaw.includes("|")){
+    const p = displayRaw.split("|").map(x => x.trim());
+    adversaire = adversaire || p[1] || "";
+    lieu = lieu || badgeLieuQuota(p[2] || "");
+    date = date || normaliserDateQuota(p[3] || "");
+    heure = heure || normaliserHeureQuota(p[4] || "");
+  }
+
+  if(!adversaire){
+    const titre = (displayRaw.split(" - ")[0] || displayRaw).trim();
+    [" vs "," contre "].some(function(sep){
+      if(!titre.includes(sep)) return false;
+      const parts = titre.split(sep).map(x => x.trim());
+      const left = parts[0] || "";
+      const right = parts[1] || "";
+      adversaire = normalizeQuota(left).includes(normalizeQuota(equipe)) ? right : left;
+      return true;
+    });
+  }
+
+  if(!date){
+    const m = displayRaw.match(/\b\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}\b|\b\d{4}-\d{1,2}-\d{1,2}\b/);
+    if(m) date = normaliserDateQuota(m[0]);
+  }
+  if(!heure){
+    const m = displayRaw.match(/\b\d{1,2}h\d{0,2}\b|\b\d{1,2}:\d{2}\b/);
+    if(m) heure = normaliserHeureQuota(m[0]);
+  }
+
+  lieu = lieu || (isAwayMatch() ? "Extérieur" : "Domicile");
+  adversaire = adversaire || "Adversaire";
+
+  const away = isAwayMatch();
+  const clubLogo = String(FORM_LOGO_URL || "assets/logos/clubs/demo-app-club.png").trim();
+  const opponentLogo = String(
+    getParam("logoAdversaire") ||
+    getParam("adversaireLogo") ||
+    getParam("opponentLogo") ||
+    getParam("logo_adversaire") ||
+    ""
+  ).trim();
+
+  function setSide(side, name, logo, isClub){
+    const nameEl = document.getElementById("compact" + side + "NameV6149");
+    const logoEl = document.getElementById("compact" + side + "LogoV6149");
+
+    if(nameEl) nameEl.textContent = name;
+    if(!logoEl) return;
+
+    logoEl.style.display = "none";
+    logoEl.removeAttribute("src");
+    logoEl.alt = "";
+
+    if(!logo) return;
+
+    logoEl.src = logo;
+    logoEl.alt = isClub ? ("Logo " + (FORM_CLUB_NAME || equipe)) : ("Logo " + adversaire);
+    logoEl.style.display = "block";
+    logoEl.onerror = function(){
+      this.onerror = null;
+      if(isClub){
+        this.src = "assets/logos/clubs/demo-app-club.png";
+        this.style.display = "block";
+      }else{
+        this.style.display = "none";
+        this.removeAttribute("src");
+      }
+    };
+  }
+
+  if(away){
+    setSide("Left", adversaire, opponentLogo, false);
+    setSide("Right", equipe, clubLogo, true);
+  }else{
+    setSide("Left", equipe, clubLogo, true);
+    setSide("Right", adversaire, opponentLogo, false);
+  }
+
+  const dateEl = document.getElementById("compactDateV6149");
+  const timeEl = document.getElementById("compactTimeV6149");
+  const placeEl = document.getElementById("compactPlaceV6149");
+  const placeIcon = document.getElementById("compactPlaceIconV6149");
+  const typeEl = document.getElementById("compactTypeV6149");
+
+  if(dateEl) dateEl.textContent = date ? jourDateV6150(date) : "—";
+  if(timeEl) timeEl.textContent = heure || "—";
+  if(placeEl) placeEl.textContent = lieu || "—";
+  if(placeIcon) placeIcon.textContent = away ? "🚌" : "🏠";
+  if(typeEl) typeEl.textContent = away ? "Extérieur" : "Domicile";
+}
+
 window.onload = async function() {
   const display = getParam("display") || getParam("match");
   if (display) {
@@ -444,9 +3381,12 @@ window.onload = async function() {
   }
 
   await chargerConfigOrganisation();
+  appliquerCompactPremiumV6149();
   chargerJoueurs();
   afficherOptionsOrganisation();
+  hideFormTransition();
 };
+setTimeout(hideFormTransition, 8000);
 
 function selectPresence(el, value) {
   presenceValue = value;
@@ -498,6 +3438,180 @@ function getApportFinal(){
 }
 
 let sending = false;
+
+
+function afficherConfirmationEnvoi(){
+  const accent = getComputedStyle(document.documentElement).getPropertyValue("--app-secondary").trim() || "#4E8A47";
+  const primary = getComputedStyle(document.documentElement).getPropertyValue("--app-primary").trim() || "#70A663";
+  const buttonText = getComputedStyle(document.documentElement).getPropertyValue("--app-button-text").trim() || "#000000";
+  const clubName = String(FORM_CLUB_NAME || APP_HOME_CLUB_NAME || APP_CLUB_NAME || "Le club").trim();
+  const logoUrl = String(FORM_LOGO_URL || "assets/logos/clubs/demo-app-club.png").trim();
+
+  document.body.innerHTML = `
+    <style id="success-inline-v61-33">
+      :root{ color-scheme:dark; }
+      html,body{
+        margin:0;
+        min-height:100%;
+        background:#000000;
+        color:#ffffff;
+        font-family:Arial,Helvetica,sans-serif;
+      }
+      body{
+        min-height:100vh;
+        min-height:100dvh;
+      }
+      .success-screen{
+        min-height:100vh;
+        min-height:100dvh;
+        display:flex;
+        align-items:flex-start;
+        justify-content:center;
+        box-sizing:border-box;
+        padding:
+          max(14px, env(safe-area-inset-top))
+          14px
+          max(16px, env(safe-area-inset-bottom));
+        background:
+          radial-gradient(circle at 50% 0%, color-mix(in srgb, ${accent} 22%, transparent), transparent 34%),
+          #000000;
+        overflow:auto;
+      }
+      .success-card{
+        width:min(680px,100%);
+        max-height:calc(100dvh - max(30px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom)));
+        margin:auto 0;
+        overflow:auto;
+        box-sizing:border-box;
+        background:linear-gradient(180deg,rgba(18,18,18,.97),rgba(4,4,4,.99));
+        border:2px solid ${accent};
+        border-radius:24px;
+        box-shadow:0 16px 42px rgba(0,0,0,.55);
+      }
+      .success-head{
+        padding:18px 18px 12px;
+        text-align:center;
+      }
+      .success-logo{
+        display:block;
+        width:78px;
+        height:78px;
+        object-fit:contain;
+        margin:0 auto 8px;
+        background:transparent;
+        border:0;
+        box-shadow:none;
+      }
+      .success-badge{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width:46px;
+        height:46px;
+        border-radius:50%;
+        margin:0 auto 8px;
+        background:${primary};
+        color:${buttonText};
+        font-size:27px;
+        font-weight:1000;
+      }
+      .success-title{
+        margin:0;
+        color:#ffffff;
+        font-size:clamp(27px,6.5vw,40px);
+        line-height:1.08;
+        font-weight:1000;
+      }
+      .success-subtitle{
+        margin:7px 0 0;
+        color:${accent};
+        font-size:clamp(15px,3.8vw,20px);
+        font-weight:900;
+      }
+      .success-divider{
+        width:100px;
+        height:5px;
+        border-radius:999px;
+        background:${accent};
+        margin:12px auto 0;
+      }
+      .success-body{
+        padding:15px 18px 18px;
+      }
+      .success-message{
+        margin:0 0 9px;
+        color:#ffffff;
+        font-size:clamp(20px,4.8vw,26px);
+        line-height:1.3;
+        font-weight:900;
+      }
+      .success-text{
+        margin:0 0 10px;
+        color:rgba(255,255,255,.84);
+        font-size:clamp(16px,4vw,20px);
+        line-height:1.4;
+      }
+      .success-note{
+        margin:0 0 14px;
+        color:${accent};
+        font-size:clamp(15px,3.8vw,18px);
+        font-weight:900;
+      }
+      .success-return{
+        width:100%;
+        min-height:54px;
+        border-radius:16px;
+        border:2px solid ${primary};
+        background:${primary};
+        color:${buttonText};
+        -webkit-text-fill-color:${buttonText};
+        font-size:17px;
+        font-weight:950;
+      }
+
+      @media (max-height:700px){
+        .success-screen{ padding-top:max(8px,env(safe-area-inset-top)); }
+        .success-head{ padding:12px 14px 8px; }
+        .success-logo{ width:58px;height:58px;margin-bottom:5px; }
+        .success-badge{ width:38px;height:38px;font-size:23px;margin-bottom:5px; }
+        .success-title{ font-size:25px; }
+        .success-subtitle{ font-size:14px; }
+        .success-divider{ margin-top:8px;height:4px; }
+        .success-body{ padding:10px 14px 14px; }
+        .success-message{ font-size:18px;margin-bottom:6px; }
+        .success-text{ font-size:15px;margin-bottom:7px; }
+        .success-note{ font-size:14px;margin-bottom:10px; }
+        .success-return{ min-height:48px;font-size:16px; }
+      }
+    </style>
+
+    <div class="success-screen">
+      <div class="success-card">
+        <div class="success-head">
+          <img
+            class="success-logo"
+            src="${logoUrl}"
+            alt="Logo ${clubName}"
+            onerror="this.onerror=null;this.src='assets/logos/clubs/demo-app-club.png';"
+          >
+          <div class="success-badge">✓</div>
+          <h1 class="success-title">Réponse enregistrée</h1>
+          <p class="success-subtitle">${clubName}</p>
+          <div class="success-divider"></div>
+        </div>
+
+        <div class="success-body">
+          <p class="success-message">Merci, ta réponse a bien été prise en compte.</p>
+          <p class="success-text">Ton choix a été enregistré dans l’application du club.</p>
+          <p class="success-note">Retour automatique à l’application…</p>
+          <button class="success-return" onclick="openAppWithTransition(APP_HOME_URL)">
+            Retour à l’application
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
 async function envoyerFormulaire() {
   if (sending) return;
@@ -575,11 +3689,10 @@ async function envoyerFormulaire() {
   .then(res => res.text())
   .then(txt => {
     if (txt !== "OK") throw new Error(txt);
-    document.body.innerHTML = "<h2 style='color:#ffd400;text-align:center;margin-top:50px;'>Réponse envoyée 👍<br>Retour...</h2>";
+    afficherConfirmationEnvoi();
     setTimeout(() => {
-      try { window.close(); } catch(e) {}
-      window.location.href = "https://alexlub37.github.io/cam-basket-app/";
-    }, 1200);
+      window.location.href = APP_HOME_URL;
+    }, 2200);
   })
   .catch((err) => {
     sending = false;
@@ -619,8 +3732,11 @@ async function envoyerFormulaire() {
 }
 
 function annulerFormulaire(){
+  showFormTransition();
   try { window.close(); } catch(e) {}
-  window.location.href = "https://alexlub37.github.io/cam-basket-app/";
+  setTimeout(() => {
+    window.location.href = APP_HOME_URL;
+  }, 40);
 }
 
 function normalizeQuota(str){
@@ -720,12 +3836,12 @@ function extraireMatchInfoQuota(matchText){
     const parts = titre.split(" vs ").map(x => x.trim());
     const left = parts[0] || "";
     const right = parts[1] || "";
-    if (normalizeQuota(left).startsWith("montrichard ")) {
-      info.equipe = left.replace(/^Montrichard\s+/i, "").trim();
+    if (startsWithHomeClubForm(left)) {
+      info.equipe = removeHomeClubPrefixForm(left);
       info.adversaire = right;
-    } else if (normalizeQuota(right).startsWith("montrichard ")) {
+    } else if (startsWithHomeClubForm(right)) {
       info.adversaire = left;
-      info.equipe = right.replace(/^Montrichard\s+/i, "").trim();
+      info.equipe = removeHomeClubPrefixForm(right);
     }
   }
 
@@ -760,6 +3876,23 @@ function memeMatchQuota(rowMatch){
 }
 
 
+function getJoueurSelectionneQuota(){
+  const select = document.getElementById("joueur");
+  return normalizeQuota(select && select.value ? select.value : "");
+}
+
+function compterQuotaHorsJoueurActuel(total, joueurs){
+  const totalNum = Math.max(0, Number(total || 0));
+  const joueurActuel = getJoueurSelectionneQuota();
+  if (!joueurActuel || !Array.isArray(joueurs)) return totalNum;
+
+  const possedeDeja = joueurs.some(function(prenom){
+    return normalizeQuota(prenom) === joueurActuel;
+  });
+
+  return Math.max(0, totalNum - (possedeDeja ? 1 : 0));
+}
+
 async function chargerQuotasOrganisationDepuisServeur(){
   try{
     const params = new URLSearchParams();
@@ -778,10 +3911,19 @@ async function chargerQuotasOrganisationDepuisServeur(){
 
     const q = getOrganisationQuotas();
     const counts = data.counts || {};
+    const joueurs = data.joueurs || {};
 
-    appliquerQuotaBouton("Boisson", Number(counts.boisson || 0) >= q.boisson);
-    appliquerQuotaBouton("Nourriture", Number(counts.nourriture || 0) >= q.nourriture);
-    appliquerQuotaBouton("Maillots", Number(counts.maillots || 0) >= q.maillots);
+    // V61.39 : lors de la modification d'une réponse, les apports déjà
+    // attribués au joueur courant ne doivent pas bloquer ses propres boutons.
+    // On les retire uniquement du calcul visuel ; le contrôle serveur final
+    // exclut déjà ce même joueur avant d'accepter la mise à jour.
+    const boisson = compterQuotaHorsJoueurActuel(counts.boisson, joueurs.boisson);
+    const nourriture = compterQuotaHorsJoueurActuel(counts.nourriture, joueurs.nourriture);
+    const maillots = compterQuotaHorsJoueurActuel(counts.maillots, joueurs.maillots);
+
+    appliquerQuotaBouton("Boisson", boisson >= q.boisson);
+    appliquerQuotaBouton("Nourriture", nourriture >= q.nourriture);
+    appliquerQuotaBouton("Maillots", maillots >= q.maillots);
 
     return true;
   }catch(e){
@@ -795,7 +3937,7 @@ async function chargerQuotasOrganisation(){
   if (okServeur) return;
 
   try{
-    const sheetId = "1CbySOHD6ykiSSIWvptNF6vs2AtJPmRHigaE1h73VRoA";
+    const sheetId = APP_CONFIG.SHEET_ID || "1-Jc5y_mSHZSOk4Lm1ptz8NjqTowsFh9n_NRb3rIuu8g";
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=REPONSES&t=${encodeURIComponent(Date.now())}`;
     const res = await fetch(url, { cache: "no-store" });
     const txt = await res.text();
@@ -823,6 +3965,11 @@ async function chargerQuotasOrganisation(){
 
       const prenom = normalizeQuota(getRowQuota(row, "Prénom") || getRowQuota(row, "Prenom"));
       const code = normalizeQuota(getRowQuota(row, "Code accès") || getRowQuota(row, "Code acces") || getRowQuota(row, "Code"));
+      const joueurActuel = getJoueurSelectionneQuota();
+
+      // V61.39 : en mode modification, ne pas compter la réponse actuelle
+      // du joueur dans les quotas qui lui sont présentés.
+      if (joueurActuel && prenom === joueurActuel) return;
 
       // V60.39 : on déduplique par joueur, pas par code.
       // Plusieurs joueurs peuvent avoir le même code en test : si on déduplique par code,
@@ -858,7 +4005,9 @@ function appliquerQuotaBouton(label, complet){
       if (!isOrganisationOptionEnabled(btn.textContent) || getQuotaByLabel(label) <= 0) {
         btn.classList.remove("active");
         btn.classList.remove("disabled");
-        btn.style.display = "none";
+        btn.classList.add("apport-option-hidden");
+        btn.style.removeProperty("display");
+        btn.removeAttribute("aria-disabled");
         return;
       }
 
@@ -872,6 +4021,1450 @@ function appliquerQuotaBouton(label, complet){
   });
 }
 
+</script>
+
+
+<script id="_form_action_contrast_v61_25">
+(function(){
+  function hexToRgb(v){
+    v = String(v || "").trim();
+    var m = v.match(/^#?([0-9a-f]{6})$/i);
+    if(!m) return null;
+    var n = parseInt(m[1],16);
+    return [(n>>16)&255,(n>>8)&255,n&255];
+  }
+  function lum(rgb){
+    if(!rgb) return null;
+    var a = rgb.map(function(x){
+      x/=255;
+      return x <= .03928 ? x/12.92 : Math.pow((x+.055)/1.055,2.4);
+    });
+    return .2126*a[0]+.7152*a[1]+.0722*a[2];
+  }
+  function contrast(a,b){
+    var la = lum(hexToRgb(a)), lb = lum(hexToRgb(b));
+    if(la === null || lb === null) return 99;
+    var hi = Math.max(la,lb), lo = Math.min(la,lb);
+    return (hi+.05)/(lo+.05);
+  }
+  function autoText(bg){
+    var l = lum(hexToRgb(bg));
+    if(l === null) return "#000000";
+    return l > .55 ? "#000000" : "#ffffff";
+  }
+  function run(){
+    var r = document.documentElement;
+    var cs = getComputedStyle(r);
+    var bg = (cs.getPropertyValue("--app-primary") || "#ffffff").trim();
+    var txt = (cs.getPropertyValue("--app-button-text") || "#000000").trim();
+    if(contrast(bg, txt) < 3.8){
+      r.style.setProperty("--app-button-text", autoText(bg));
+    }
+    var st = document.getElementById("_form_fix_v61_25");
+    if(st && st.parentNode) st.parentNode.appendChild(st);
+  }
+  document.addEventListener("DOMContentLoaded", run);
+  window.addEventListener("load", run);
+  [0,250,700,1500,3000].forEach(function(t){ setTimeout(run,t); });
+})();
+</script>
+
+
+<script id="_clean_contrast_and_order_v23">
+(function(){
+  function hexToRgb(v){
+    v = String(v || "").trim();
+    var m = v.match(/^#?([0-9a-f]{6})$/i);
+    if(!m) return null;
+    var n = parseInt(m[1],16);
+    return [(n>>16)&255,(n>>8)&255,n&255];
+  }
+  function lum(rgb){
+    if(!rgb) return null;
+    var a = rgb.map(function(x){
+      x/=255;
+      return x <= .03928 ? x/12.92 : Math.pow((x+.055)/1.055,2.4);
+    });
+    return .2126*a[0]+.7152*a[1]+.0722*a[2];
+  }
+  function contrast(a,b){
+    var la = lum(hexToRgb(a)), lb = lum(hexToRgb(b));
+    if(la === null || lb === null) return 99;
+    var hi = Math.max(la,lb), lo = Math.min(la,lb);
+    return (hi+.05)/(lo+.05);
+  }
+  function autoText(bg){
+    var l = lum(hexToRgb(bg));
+    if(l === null) return "#000000";
+    return l > .55 ? "#000000" : "#ffffff";
+  }
+  function run(){
+    var root = document.documentElement;
+    var cs = getComputedStyle(root);
+    var bg = (cs.getPropertyValue("--button-bg") || cs.getPropertyValue("--app-primary") || "#ffffff").trim();
+    var txt = (cs.getPropertyValue("--button-text") || cs.getPropertyValue("--app-button-text") || "#000000").trim();
+    if(contrast(bg, txt) < 3.8){
+      var fixed = autoText(bg);
+      root.style.setProperty("--button-text", fixed);
+      root.style.setProperty("--app-button-text", fixed);
+    }
+    ["_clean_design_system_v23","_form_clean_system_v61_26"].forEach(function(id){
+      var st = document.getElementById(id);
+      if(st && st.parentNode) st.parentNode.appendChild(st);
+    });
+  }
+  document.addEventListener("DOMContentLoaded", run);
+  window.addEventListener("load", run);
+  [0,250,700,1500,3000,5000].forEach(function(t){ setTimeout(run,t); });
+})();
+</script>
+
+
+<script id="_design_roles_v27_js">
+(function(){
+  "use strict";
+
+  function qsa(sel){
+    try { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+    catch(e){ return []; }
+  }
+
+  function addRole(sel, role){
+    qsa(sel).forEach(function(el){ el.classList.add(role); });
+  }
+
+  function cssVar(name, fallback){
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }
+
+  function hexToRgb(v){
+    v = String(v || "").trim();
+    var m = v.match(/^#?([0-9a-f]{6})$/i);
+    if(!m) return null;
+    var n = parseInt(m[1], 16);
+    return [(n>>16)&255, (n>>8)&255, n&255];
+  }
+
+  function luminance(rgb){
+    if(!rgb) return null;
+    var a = rgb.map(function(x){
+      x /= 255;
+      return x <= .03928 ? x/12.92 : Math.pow((x+.055)/1.055, 2.4);
+    });
+    return .2126*a[0] + .7152*a[1] + .0722*a[2];
+  }
+
+  function contrast(a,b){
+    var la = luminance(hexToRgb(a)), lb = luminance(hexToRgb(b));
+    if(la === null || lb === null) return 99;
+    var hi = Math.max(la,lb), lo = Math.min(la,lb);
+    return (hi+.05)/(lo+.05);
+  }
+
+  function autoText(bg){
+    var l = luminance(hexToRgb(bg));
+    return l !== null && l > .55 ? "#000000" : "#ffffff";
+  }
+
+  function important(el, prop, value){
+    if(el && el.style) el.style.setProperty(prop, value, "important");
+  }
+
+  function applyInlineRoleStyles(){
+    var text = cssVar("--role-text", cssVar("--text", cssVar("--app-text", "#ffffff")));
+    var secondary = cssVar("--role-secondary", cssVar("--accent", cssVar("--app-secondary", "#5A189A")));
+    var actionBg = cssVar("--role-action-bg", cssVar("--button-bg", cssVar("--app-primary", "#ffffff")));
+    var actionText = cssVar("--role-action-text", cssVar("--button-text", cssVar("--app-button-text", "#000000")));
+
+    if(contrast(actionBg, actionText) < 3.8){
+      actionText = autoText(actionBg);
+      document.documentElement.style.setProperty("--button-text", actionText);
+      document.documentElement.style.setProperty("--app-button-text", actionText);
+      document.documentElement.style.setProperty("--role-action-text", actionText);
+    }
+
+    qsa(".role-nav").forEach(function(el){
+      important(el, "color", text);
+      important(el, "border-color", secondary);
+      important(el, "box-shadow", "none");
+      important(el, "background", el.classList.contains("active") ? "rgba(90,24,154,.16)" : "rgba(0,0,0,.40)");
+    });
+
+    qsa(".role-secondary").forEach(function(el){
+      important(el, "background", "rgba(0,0,0,.40)");
+      important(el, "color", text);
+      important(el, "border-color", secondary);
+      important(el, "box-shadow", "none");
+    });
+
+    qsa(".role-action").forEach(function(el){
+      important(el, "background", actionBg);
+      important(el, "color", actionText);
+      important(el, "border-color", actionBg);
+      important(el, "box-shadow", "none");
+      Array.prototype.slice.call(el.children || []).forEach(function(ch){
+        important(ch, "color", actionText);
+      });
+    });
+
+    qsa(".role-card,.role-card-click").forEach(function(el){
+      important(el, "color", text);
+      important(el, "border-color", "color-mix(in srgb, " + secondary + " 65%, transparent)");
+      important(el, "box-shadow", "none");
+    });
+
+    qsa(".role-field").forEach(function(el){
+      important(el, "background", "rgba(0,0,0,.42)");
+      important(el, "color", text);
+      important(el, "border-color", secondary);
+      important(el, "box-shadow", "none");
+    });
+
+    qsa(".role-choice").forEach(function(el){
+      important(el, "color", text);
+      important(el, "border-color", secondary);
+      important(el, "box-shadow", "none");
+    });
+  }
+
+  function fixKnownTexts(){
+    var wa = document.getElementById("btnWhatsappCoach");
+    if(wa && wa.textContent.trim().length <= 3) wa.textContent = "📲 Envoyer WhatsApp";
+
+    var gen = document.getElementById("btnGenererConvocation");
+    if(gen && !gen.textContent.trim()) gen.textContent = "Enregistrer la convocation";
+
+    var faire = document.getElementById("btnFaireConvocationCoach");
+    if(faire && !faire.textContent.trim()) faire.textContent = "Générer la convocation";
+
+    var rep = document.getElementById("btnReponseMatch");
+    if(rep && !rep.textContent.trim()) rep.textContent = "Répondre / confirmer";
+  }
+
+  function assignRoles(){
+    /* Logo */
+    addRole(".hero-logo-btn, button.hero-logo-btn, .logo-link", "role-logo-link");
+    addRole(".hero-logo, #mainLogo, header img", "role-logo");
+
+    /* Navigation */
+    addRole("header .top-actions button, header .top-actions .btn-light, header .top-actions .btn-outline, header .header-mini-actions button", "role-nav");
+    addRole("#btn-home,#btn-teams,#btn-myteams,#btn-bureau,#btn-benevoles,#btn-coach,#btn-gestion,#btn-update", "role-nav");
+
+    /* Cartes */
+    addRole(".card,.home-info-card,.player-help-card,.home-week-card,.apports-card,.convocation-card,.convoc-card,.convoc-result,.coach-block,.gm-lock-card,.reglages-preview-card,.club-event-card", "role-card");
+
+    /* Cartes cliquables */
+    addRole(".match-card,.home-match-card,.weekend-match,.team-card,.player-card,.gj-player-card,.ge-team-card,.bureau-member-card,.gestion-home-tile,.gestion-settings-tile,.menu-btn,.role-menu-card,.coach-match-card,.coach-player-row,#coachTeamsList .card,#coachMatchesList .card", "role-card-click");
+
+    /* Champs */
+    addRole("input,select,textarea", "role-field");
+
+    /* Choix */
+    addRole(".choice-btn,.player-choice,.team-choice,.selection-choice,.convocation-player,.convocation-item,.coach-player-select,label:has(input[type='checkbox']),label:has(input[type='radio'])", "role-choice");
+
+    /* Badges */
+    addRole(".pill,.badge,.status-badge,.gm-status-badge,.match-badge,.weekend-status,.weekend-match-type,.type-ext,.player-team-check", "role-badge");
+
+    /* Secondaires */
+    addRole(".back,.cancel,.secondary,.ghost,.send.cancel,.gm-cancel,.gj-cancel,.btn-outline:not(.primary),.link-btn:not(.primary),#mapsLink,#btnAnnulerConvocation", "role-secondary");
+
+    /* Actions principales */
+    addRole(".send:not(.cancel),.primary,.btn-primary,.action-primary,.convoc-action,.whatsapp-btn,.gm-save,.gm-submit,.gm-send-btn,.gj-save,#grSaveBtn,button[type='submit']", "role-action");
+    addRole("#btnReponseMatch,#btnValiderCodeCoach,#btnCoachCode,#btnGenererConvocation,#btnWhatsappCoach,#btnFaireConvocationCoach,#btnValiderConvocation,#btnEnregistrerConvocation,#gmAddBtn,#gmEditBtn,#gjSaveBtn,#geSaveBtn,#gaSaveBtn,#btnAjouterMatch,#btnModifierMatch,#btnAjouterJoueur,#btnModifierJoueur,#btnAjouterEquipe,#btnModifierEquipe,#btnAjouterAdversaire,#btnModifierAdversaire", "role-action");
+
+    fixKnownTexts();
+    applyInlineRoleStyles();
+
+    var st = document.getElementById("_design_roles_v27_css");
+    if(st && st.parentNode) st.parentNode.appendChild(st);
+  }
+
+  document.addEventListener("DOMContentLoaded", assignRoles);
+  window.addEventListener("load", assignRoles);
+
+  /* Pas de MutationObserver agressif : on relance juste pendant le chargement des données dynamiques. */
+  [0,250,700,1500,3000,6000,10000,15000].forEach(function(t){
+    setTimeout(assignRoles, t);
+  });
+
+  window.APP_APPLY_DESIGN_ROLES = assignRoles;
+})();
+</script>
+
+
+
+<style id="_form_couleur_club_v61_31">
+/* ==========================================================
+   V61.31 — FORMULAIRE COULEUR CLUB
+   Les choix suivent Couleur secondaire.
+   Aucune logique métier n'est modifiée.
+   ========================================================== */
+
+/* Champs */
+input,
+select,
+textarea{
+  background-color:rgba(0,0,0,.48)!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+  border:2px solid var(--app-secondary,var(--accent,#4E8A47))!important;
+  box-shadow:none!important;
+}
+
+/* Flèche du sélecteur visible sur iPhone */
+select{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  padding-right:54px!important;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;
+  background-position:right 18px center!important;
+  background-size:22px 22px!important;
+}
+
+/* Choix disponible mais non sélectionné */
+.choice-btn{
+  position:relative!important;
+  background:linear-gradient(180deg,rgba(10,10,10,.98),rgba(0,0,0,.98))!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+  border:2px solid var(--app-secondary,var(--accent,#4E8A47))!important;
+  box-shadow:none!important;
+  opacity:1!important;
+}
+
+/* Choix sélectionné : couleur secondaire du club à 35 % */
+.choice-btn.active:not(.disabled),
+.choice-btn.selected:not(.disabled),
+.choice-btn.is-selected:not(.disabled),
+.choice-btn[aria-pressed="true"]:not(.disabled){
+  background:rgba(var(--accent-rgb,78,138,71),.35)!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+  border:3px solid #ffffff!important;
+  box-shadow:0 0 0 3px rgba(var(--accent-rgb,78,138,71),.58)!important;
+}
+
+/* Coche uniquement sur le choix réellement sélectionné */
+.choice-btn.active:not(.disabled)::after,
+.choice-btn.selected:not(.disabled)::after,
+.choice-btn.is-selected:not(.disabled)::after,
+.choice-btn[aria-pressed="true"]:not(.disabled)::after{
+  content:"✓";
+  position:absolute;
+  right:22px;
+  top:50%;
+  transform:translateY(-50%);
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  background:#ffffff!important;
+  color:#000000!important;
+  -webkit-text-fill-color:#000000!important;
+  border:0!important;
+  font-size:25px;
+  font-weight:1000;
+}
+
+/* Quota atteint : conserver l'information Complet et empêcher le clic */
+#apportGroup .choice-btn.disabled,
+#apportGroup .choice-btn[aria-disabled="true"]{
+  pointer-events:none!important;
+  cursor:not-allowed!important;
+  opacity:1!important;
+  background:linear-gradient(180deg,rgba(6,6,6,.96),rgba(0,0,0,.98))!important;
+  color:rgba(255,255,255,.42)!important;
+  -webkit-text-fill-color:rgba(255,255,255,.42)!important;
+  border:2px solid rgba(var(--accent-rgb,78,138,71),.42)!important;
+  box-shadow:none!important;
+  padding-right:150px!important;
+}
+
+#apportGroup .choice-btn.disabled::after,
+#apportGroup .choice-btn[aria-disabled="true"]::after{
+  content:"Complet";
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  min-width:92px;
+  height:34px;
+  padding:0 12px;
+  border-radius:999px;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  background:rgba(var(--accent-rgb,78,138,71),.22)!important;
+  color:#7BE69A!important;
+  -webkit-text-fill-color:#7BE69A!important;
+  border:1px solid rgba(123,230,154,.60)!important;
+  font-size:15px!important;
+  font-weight:950!important;
+}
+
+/* Bouton principal Envoyer */
+.send:not(.cancel){
+  background:var(--app-primary,#70A663)!important;
+  color:var(--app-button-text,#000000)!important;
+  -webkit-text-fill-color:var(--app-button-text,#000000)!important;
+  border:2px solid var(--app-primary,#70A663)!important;
+}
+
+/* Bouton secondaire Annuler */
+.send.cancel{
+  background:rgba(0,0,0,.46)!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+  border:2px solid var(--app-secondary,var(--accent,#4E8A47))!important;
+}
+</style>
+
+<style id="_form_quota_complet_v61_29">
+/* V61.29 — Information quota complet.
+   Ne modifie pas la logique : uniquement affichage clair pour le joueur.
+*/
+
+#apportGroup .choice-btn.disabled,
+#apportGroup .choice-btn[aria-disabled="true"]{
+  opacity:1!important;
+  pointer-events:none!important;
+  cursor:not-allowed!important;
+  background:linear-gradient(180deg, rgba(6,6,6,.96), rgba(0,0,0,.98))!important;
+  color:rgba(255,255,255,.42)!important;
+  -webkit-text-fill-color:rgba(255,255,255,.42)!important;
+  border:2px solid rgba(var(--accent-rgb,90,24,154),.42)!important;
+  box-shadow:none!important;
+  position:relative!important;
+  padding-right:150px!important;
+}
+
+#apportGroup .choice-btn.disabled::after,
+#apportGroup .choice-btn[aria-disabled="true"]::after{
+  content:"Complet";
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  min-width:92px;
+  height:34px;
+  padding:0 12px;
+  border-radius:999px;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  background:rgba(31,170,89,.20)!important;
+  color:#64f08c!important;
+  -webkit-text-fill-color:#64f08c!important;
+  border:1px solid rgba(100,240,140,.55)!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  letter-spacing:.02em;
+}
+
+#apportGroup .choice-btn.disabled::before,
+#apportGroup .choice-btn[aria-disabled="true"]::before{
+  content:"Quota atteint";
+  position:absolute;
+  right:18px;
+  top:calc(50% + 30px);
+  color:rgba(255,255,255,.50)!important;
+  -webkit-text-fill-color:rgba(255,255,255,.50)!important;
+  font-size:11px!important;
+  font-weight:700!important;
+  line-height:1;
+  display:block!important;
+  background:transparent!important;
+}
+
+/* Choix disponible : reste clairement cliquable */
+#apportGroup .choice-btn:not(.disabled):not([aria-disabled="true"]){
+  opacity:1!important;
+  cursor:pointer!important;
+}
+
+/* Sélection disponible : garde la coche claire */
+#apportGroup .choice-btn.active:not(.disabled)::after{
+  content:"✓";
+  position:absolute;
+  right:22px;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  background:#ffffff!important;
+  color:#000000!important;
+  -webkit-text-fill-color:#000000!important;
+  font-weight:1000;
+  font-size:22px;
+  border:0!important;
+}
+</style>
+
+
+<script id="_form_quota_complet_v61_29_js">
+(function(){
+  function improveQuotaLabels(){
+    try{
+      var group = document.getElementById("apportGroup");
+      if(!group) return;
+      group.querySelectorAll(".choice-btn").forEach(function(el){
+        var isDisabled = el.classList.contains("disabled");
+        if(isDisabled){
+          el.setAttribute("aria-disabled", "true");
+          el.setAttribute("title", "Quota atteint : ce choix est déjà complet");
+        }else{
+          el.removeAttribute("aria-disabled");
+          el.removeAttribute("title");
+        }
+      });
+      var st = document.getElementById("_form_quota_complet_v61_29");
+      if(st && st.parentNode) st.parentNode.appendChild(st);
+    }catch(e){}
+  }
+  document.addEventListener("DOMContentLoaded", improveQuotaLabels);
+  window.addEventListener("load", improveQuotaLabels);
+  document.addEventListener("click", function(){
+    setTimeout(improveQuotaLabels, 0);
+    setTimeout(improveQuotaLabels, 150);
+    setTimeout(improveQuotaLabels, 500);
+  }, true);
+  [0,250,700,1500,3000,6000].forEach(function(t){ setTimeout(improveQuotaLabels, t); });
+})();
+</script>
+
+
+<style id="_form_confirmation_v61_33">
+/* V61.32 — ancien bloc conservé, styles principaux injectés dynamiquement */
+.success-screen{
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px 18px;
+  background:#000000;
+  color:#ffffff;
+  box-sizing:border-box;
+}
+
+.success-card{
+  width:min(680px, 100%);
+  border:2px solid var(--app-secondary,#5A189A);
+  border-radius:28px;
+  background:linear-gradient(180deg, rgba(18,18,18,.96), rgba(4,4,4,.98));
+  padding:34px 22px;
+  text-align:center;
+  box-shadow:0 16px 46px rgba(0,0,0,.50);
+}
+
+.success-icon{
+  font-size:56px;
+  line-height:1;
+  margin-bottom:16px;
+}
+
+.success-card h1{
+  color:#ffffff!important;
+  font-size:clamp(30px, 7vw, 46px);
+  line-height:1.12;
+  margin:0 0 16px;
+}
+
+.success-card p{
+  color:rgba(255,255,255,.86);
+  font-size:20px;
+  line-height:1.35;
+  margin:0 0 12px;
+}
+
+.success-small{
+  color:var(--app-secondary,#5A189A)!important;
+  font-weight:900;
+  font-size:17px!important;
+}
+
+.success-return{
+  margin-top:18px;
+  width:100%;
+  min-height:58px;
+  border-radius:18px;
+  border:2px solid var(--app-primary,#ffffff);
+  background:var(--app-primary,#ffffff);
+  color:var(--app-button-text,#000000);
+  -webkit-text-fill-color:var(--app-button-text,#000000);
+  font-size:18px;
+  font-weight:950;
+}
+</style>
+
+
+<!-- V61.39 : correction des quotas lors de la modification d'une réponse existante. -->
+
+<style id="_form_apports_exterieur_v61_38">
+/* V61.38 — sécurité finale : les apports domicile interdits à l'extérieur
+   ne doivent jamais réapparaître à cause d'une règle CSS tardive. */
+#apportGroup .apport-away-forbidden{
+  display:none!important;
+  visibility:hidden!important;
+}
+</style>
+
+<script id="_form_apports_exterieur_v61_38_js">
+(function(){
+  "use strict";
+
+  function normalizeV6138(value){
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function matchExterieurV6138(){
+    try{
+      if (typeof isAwayMatch === "function" && isAwayMatch()) return true;
+    }catch(e){}
+
+    var params = new URLSearchParams(window.location.search || "");
+    var type = normalizeV6138(params.get("type"));
+    if (["e", "ext", "exterieur"].indexOf(type) !== -1) return true;
+
+    var display = normalizeV6138(params.get("display") || params.get("match"));
+    return /(^|\s|\|)exterieur($|\s|\|)/.test(display);
+  }
+
+  function appliquerRegleV6138(){
+    var group = document.getElementById("apportGroup");
+    if (!group) return;
+
+    var away = matchExterieurV6138();
+    var buttons = Array.prototype.slice.call(group.querySelectorAll(".choice-btn"));
+
+    buttons.forEach(function(btn){
+      var label = normalizeV6138(btn.textContent);
+      var interdit = away && (label.indexOf("boisson") !== -1 || label.indexOf("nourriture") !== -1);
+
+      if (interdit){
+        btn.classList.remove("active", "selected", "is-selected", "disabled");
+        btn.classList.add("apport-option-hidden", "apport-away-forbidden");
+        btn.setAttribute("hidden", "hidden");
+        btn.setAttribute("aria-hidden", "true");
+        btn.style.setProperty("display", "none", "important");
+
+        /* Suppression physique : aucune feuille de style tardive ne peut le réafficher. */
+        if (btn.parentNode) btn.parentNode.removeChild(btn);
+      }
+    });
+
+    if (away){
+      var note = document.querySelector(".apport-note");
+      var q = null;
+      try{ q = (typeof getOrganisationQuotas === "function") ? getOrganisationQuotas() : null; }catch(e){}
+      var quotaMaillots = q && Number(q.maillots) > 0 ? Number(q.maillots) : 1;
+      var maillotsActifs = !q || q.activerMaillots !== false;
+      if (note){
+        note.textContent = maillotsActifs
+          ? "Optionnel — objectif : " + quotaMaillots + " personne(s) pour les maillots."
+          : "Aucun apport demandé pour ce match extérieur.";
+      }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", appliquerRegleV6138);
+  window.addEventListener("load", appliquerRegleV6138);
+  [0, 100, 350, 800, 1500, 3000, 6000].forEach(function(delay){
+    setTimeout(appliquerRegleV6138, delay);
+  });
+
+  document.addEventListener("click", function(){
+    setTimeout(appliquerRegleV6138, 0);
+    setTimeout(appliquerRegleV6138, 250);
+  }, true);
+})();
+</script>
+
+
+<style id="_formulaire_selections_finales_v61_52">
+/* V61.52 — verrouillage final des sélections.
+   Aucun changement JavaScript ou métier. */
+
+/* PRÉSENCE
+   L'icône ✓ / × est déjà présente dans le HTML.
+   On interdit définitivement toute seconde coche pseudo-élément. */
+#presenceGroup .choice-btn::before,
+#presenceGroup .choice-btn::after,
+#presenceGroup .choice-btn.active::before,
+#presenceGroup .choice-btn.active::after,
+#presenceGroup .choice-btn.selected::before,
+#presenceGroup .choice-btn.selected::after,
+#presenceGroup .choice-btn.is-selected::before,
+#presenceGroup .choice-btn.is-selected::after,
+#presenceGroup .choice-btn[aria-pressed="true"]::before,
+#presenceGroup .choice-btn[aria-pressed="true"]::after{
+  content:none!important;
+  display:none!important;
+}
+
+#presenceGroup .choice-btn{
+  position:relative!important;
+  padding:12px 14px!important;
+}
+
+#presenceGroup .choice-btn.active{
+  background:rgba(var(--accent-rgb,78,138,71),.35)!important;
+  border:3px solid var(--app-secondary,var(--accent,#4E8A47))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)!important;
+}
+
+#presenceGroup .compact-choice-icon-v6149{
+  flex:0 0 auto!important;
+  width:30px!important;
+  height:30px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#111!important;
+  -webkit-text-fill-color:#111!important;
+  font-size:20px!important;
+  font-weight:1000!important;
+}
+
+/* TRANSPORT
+   Une seule coche, compacte et à droite. */
+#transportGroup .choice-btn{
+  min-height:54px!important;
+  padding:12px 52px 12px 16px!important;
+  line-height:1.22!important;
+}
+#transportGroup .choice-btn::before{
+  content:none!important;
+  display:none!important;
+}
+#transportGroup .choice-btn:not(.active)::after{
+  content:none!important;
+  display:none!important;
+}
+#transportGroup .choice-btn.active::after{
+  content:"✓"!important;
+  position:absolute!important;
+  right:14px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:30px!important;
+  height:30px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:20px!important;
+  font-weight:1000!important;
+  border:0!important;
+}
+
+/* APPORTS
+   Même logique : une seule coche compacte.
+   Le badge "Complet" reste inchangé. */
+#apportGroup .choice-btn:not(.disabled){
+  padding-right:52px!important;
+}
+#apportGroup .choice-btn:not(.disabled)::before{
+  content:none!important;
+  display:none!important;
+}
+#apportGroup .choice-btn:not(.active):not(.disabled)::after{
+  content:none!important;
+  display:none!important;
+}
+#apportGroup .choice-btn.active:not(.disabled)::after{
+  content:"✓"!important;
+  position:absolute!important;
+  right:14px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:30px!important;
+  height:30px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-size:20px!important;
+  font-weight:1000!important;
+  border:0!important;
+}
+
+/* Fond sélectionné homogène */
+#transportGroup .choice-btn.active,
+#apportGroup .choice-btn.active:not(.disabled){
+  background:rgba(var(--accent-rgb,78,138,71),.35)!important;
+  border:3px solid var(--app-secondary,var(--accent,#4E8A47))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)!important;
+}
+</style>
+
+
+<style id="_form_match_mobile_empile_v61_53">
+/* V61.53 — carte match mobile empilée.
+   Logo + nom sur une ligne, VS entre les deux équipes. */
+@media(max-width:520px){
+  .compact-match-v6149{
+    padding:14px 12px 13px!important;
+  }
+
+  .compact-teams-v6149{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:10px!important;
+    margin-top:0!important;
+  }
+
+  .compact-team-v6149{
+    display:grid!important;
+    grid-template-columns:82px minmax(0,1fr)!important;
+    align-items:center!important;
+    gap:14px!important;
+    min-height:84px!important;
+    padding:8px 12px!important;
+    border-radius:16px!important;
+    background:rgba(0,0,0,.22)!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    text-align:left!important;
+  }
+
+  .compact-logo-v6149{
+    width:74px!important;
+    height:74px!important;
+    justify-self:center!important;
+  }
+
+  .compact-team-name-v6149{
+    min-height:0!important;
+    display:block!important;
+    text-align:left!important;
+    font-size:21px!important;
+    line-height:1.12!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+    hyphens:none!important;
+  }
+
+  .compact-center-v6149{
+    min-height:42px!important;
+    display:flex!important;
+    flex-direction:row!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:8px!important;
+  }
+
+  .compact-vs-v6149{
+    width:56px!important;
+    height:38px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:999px!important;
+    background:rgba(var(--accent-rgb,78,138,71),.16)!important;
+    font-size:24px!important;
+  }
+
+  .compact-type-v6149{
+    margin:0!important;
+    padding:6px 10px!important;
+  }
+
+  .compact-meta-v6149{
+    display:grid!important;
+    grid-template-columns:1.35fr .85fr 1fr!important;
+    gap:7px!important;
+    margin-top:12px!important;
+  }
+
+  .compact-meta-row-v6149{
+    min-height:50px!important;
+    padding:7px 5px!important;
+  }
+
+  .compact-meta-row-v6149 strong{
+    font-size:13px!important;
+  }
+
+  .compact-meta-row-v6149:first-child strong{
+    font-size:12px!important;
+  }
+}
+
+@media(max-width:370px){
+  .compact-team-v6149{
+    grid-template-columns:70px minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+
+  .compact-logo-v6149{
+    width:64px!important;
+    height:64px!important;
+  }
+
+  .compact-team-name-v6149{
+    font-size:19px!important;
+  }
+
+  .compact-meta-v6149{
+    grid-template-columns:1fr!important;
+  }
+
+  .compact-meta-row-v6149{
+    flex-direction:row!important;
+  }
+}
+</style>
+
+
+<style id="_form_match_harmonise_v61_54">
+/* V61.54 — carte formulaire harmonisée.
+   Logos côte à côte, texte réduit, deux lignes maximum. */
+@media(max-width:520px){
+
+  .compact-match-v6149{
+    padding:15px 12px 13px!important;
+  }
+
+  .compact-teams-v6149{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 46px minmax(0,1fr)!important;
+    align-items:center!important;
+    gap:6px!important;
+    margin-top:0!important;
+  }
+
+  .compact-team-v6149{
+    min-width:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:7px!important;
+    padding:0!important;
+    background:transparent!important;
+    border:0!important;
+    text-align:center!important;
+  }
+
+  .compact-logo-v6149{
+    width:74px!important;
+    height:74px!important;
+    object-fit:contain!important;
+  }
+
+  .compact-team-name-v6149{
+    width:100%!important;
+    min-height:40px!important;
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    overflow:hidden!important;
+    text-align:center!important;
+    font-size:16px!important;
+    line-height:1.12!important;
+    font-weight:850!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+    hyphens:none!important;
+  }
+
+  .compact-center-v6149{
+    min-height:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+  }
+
+  .compact-vs-v6149{
+    width:auto!important;
+    height:auto!important;
+    padding:0!important;
+    background:transparent!important;
+    font-size:24px!important;
+    line-height:1!important;
+  }
+
+  .compact-type-v6149{
+    margin:0!important;
+    padding:5px 9px!important;
+    font-size:10px!important;
+  }
+
+  .compact-meta-v6149{
+    grid-template-columns:1.35fr .75fr 1fr!important;
+    gap:7px!important;
+    margin-top:13px!important;
+  }
+
+  .compact-meta-row-v6149{
+    min-height:48px!important;
+    padding:7px 5px!important;
+  }
+
+  .compact-meta-row-v6149 span{
+    font-size:16px!important;
+  }
+
+  .compact-meta-row-v6149 strong{
+    font-size:12px!important;
+  }
+
+  .compact-meta-row-v6149:first-child strong{
+    font-size:11px!important;
+  }
+}
+
+@media(max-width:370px){
+  .compact-logo-v6149{
+    width:66px!important;
+    height:66px!important;
+  }
+  .compact-team-name-v6149{
+    font-size:15px!important;
+  }
+}
+</style>
+
+
+<style id="_formulaire_reponse_v2_v61_55">
+/* V61.55 — refonte visuelle de la réponse joueur uniquement.
+   Aucun ID, aucune fonction JavaScript et aucune règle métier modifiés. */
+
+:root{
+  --form-surface:#080a08;
+  --form-surface-soft:#0d100d;
+  --form-line:rgba(255,255,255,.09);
+}
+
+.compact-page-v6149{
+  width:min(100%,760px)!important;
+  margin:0 auto!important;
+  padding-bottom:max(28px,env(safe-area-inset-bottom))!important;
+}
+
+.compact-header-v6149{
+  min-height:82px!important;
+  padding:14px 18px 12px!important;
+  gap:14px!important;
+  border-bottom:1px solid var(--form-line)!important;
+}
+.compact-back-v6149{
+  width:58px!important;
+  height:58px!important;
+  flex:0 0 58px!important;
+  border-radius:18px!important;
+  font-size:34px!important;
+  background:#050605!important;
+  border:2px solid var(--c49-secondary)!important;
+}
+.compact-title-v6149{
+  font-size:clamp(25px,6vw,34px)!important;
+  line-height:1.05!important;
+  letter-spacing:-.5px!important;
+}
+
+/* Carte match : même langage graphique, sans écraser la priorité du formulaire. */
+.compact-match-v6149{
+  margin:18px 16px 0!important;
+  padding:18px 14px 15px!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(var(--accent-rgb,78,138,71),.16),transparent 52%),
+    linear-gradient(180deg,#0b110c,#040604)!important;
+  border:2px solid var(--c49-secondary)!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.28)!important;
+}
+.compact-logo-v6149{
+  width:78px!important;
+  height:78px!important;
+}
+.compact-team-name-v6149{
+  font-size:17px!important;
+  line-height:1.12!important;
+  min-height:42px!important;
+}
+.compact-vs-v6149{
+  font-size:27px!important;
+}
+.compact-type-v6149{
+  border:1px solid color-mix(in srgb,var(--c49-secondary) 70%,transparent)!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  letter-spacing:.2px!important;
+}
+.compact-meta-v6149{
+  margin-top:15px!important;
+  gap:8px!important;
+}
+.compact-meta-row-v6149{
+  min-height:58px!important;
+  border-radius:15px!important;
+  background:rgba(0,0,0,.42)!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+}
+.compact-meta-row-v6149 strong{
+  color:#fff!important;
+  font-weight:900!important;
+}
+
+.compact-form-v6149{
+  padding:0 16px!important;
+}
+.compact-section-v6149{
+  margin-top:19px!important;
+}
+.compact-section-title-v6149{
+  margin:0 0 9px!important;
+  font-size:18px!important;
+  line-height:1.15!important;
+  font-weight:950!important;
+  letter-spacing:-.15px!important;
+}
+.compact-optional-v6149{
+  font-size:.72em!important;
+  font-weight:700!important;
+  opacity:.52!important;
+}
+
+/* Champs : composants homogènes et plus propres. */
+select,input,textarea{
+  width:100%!important;
+  box-sizing:border-box!important;
+  border:2px solid var(--c49-secondary)!important;
+  border-radius:18px!important;
+  background:linear-gradient(180deg,#0b0d0b,#050605)!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)!important;
+  font-size:17px!important;
+}
+select{
+  min-height:62px!important;
+  padding:0 52px 0 18px!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  background-image:
+    linear-gradient(45deg,transparent 50%,var(--c49-secondary) 50%),
+    linear-gradient(135deg,var(--c49-secondary) 50%,transparent 50%),
+    linear-gradient(180deg,#0b0d0b,#050605)!important;
+  background-position:
+    calc(100% - 23px) 27px,
+    calc(100% - 16px) 27px,
+    0 0!important;
+  background-size:7px 7px,7px 7px,100% 100%!important;
+  background-repeat:no-repeat!important;
+}
+textarea{
+  min-height:104px!important;
+  padding:15px 17px!important;
+  line-height:1.35!important;
+}
+select:focus,input:focus,textarea:focus{
+  outline:none!important;
+  border-color:#fff!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--c49-secondary) 28%,transparent)!important;
+}
+
+/* Présence : cartes de décision principales. */
+.compact-presence-grid-v6149{
+  gap:12px!important;
+}
+#presenceGroup .choice-btn{
+  min-height:76px!important;
+  padding:12px 10px!important;
+  border-radius:20px!important;
+  border:2px solid var(--c49-secondary)!important;
+  background:linear-gradient(180deg,#0c0e0c,#050605)!important;
+  font-size:19px!important;
+  font-weight:950!important;
+  transition:transform .14s ease,background .14s ease,border-color .14s ease,box-shadow .14s ease!important;
+}
+#presenceGroup .choice-btn:active{
+  transform:scale(.985)!important;
+}
+#presenceGroup .compact-choice-icon-v6149{
+  width:42px!important;
+  height:42px!important;
+  font-size:27px!important;
+  border:2px solid rgba(0,0,0,.08)!important;
+}
+#presenceGroup .choice-btn:first-child.active{
+  background:linear-gradient(180deg,rgba(35,150,70,.46),rgba(14,72,34,.48))!important;
+  border-color:#54d47a!important;
+  box-shadow:0 0 0 2px rgba(84,212,122,.16),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+#presenceGroup .choice-btn:last-child.active{
+  background:linear-gradient(180deg,rgba(184,48,57,.46),rgba(94,20,26,.50))!important;
+  border-color:#ff6470!important;
+  box-shadow:0 0 0 2px rgba(255,100,112,.15),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+
+/* Transport et apports : secondaires, compacts et lisibles. */
+.compact-list-v6149{
+  gap:9px!important;
+}
+#transportGroup .choice-btn{
+  min-height:58px!important;
+  border-radius:17px!important;
+  justify-content:flex-start!important;
+  text-align:left!important;
+  font-size:15px!important;
+}
+.compact-field-label-v6149{
+  margin:13px 0 7px!important;
+  font-size:14px!important;
+  opacity:.82!important;
+}
+#places{
+  min-height:56px!important;
+  padding:0 16px!important;
+}
+.compact-info-v6149{
+  margin-top:11px!important;
+  padding:11px 13px!important;
+  border-left:3px solid var(--c49-secondary)!important;
+  background:rgba(255,255,255,.04)!important;
+  color:rgba(255,255,255,.74)!important;
+  line-height:1.35!important;
+}
+.compact-apports-v6149{
+  gap:9px!important;
+}
+.compact-apport-v6149{
+  min-height:86px!important;
+  border-radius:17px!important;
+}
+
+/* Actions : primaire forte, secondaire clairement distincte. */
+.compact-submit-v6149{
+  min-height:64px!important;
+  margin-top:24px!important;
+  border-radius:20px!important;
+  font-size:18px!important;
+  letter-spacing:-.15px!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.16)!important;
+  transition:transform .14s ease,filter .14s ease!important;
+}
+.compact-submit-v6149:active{
+  transform:translateY(1px) scale(.992)!important;
+  filter:brightness(.94)!important;
+}
+.compact-cancel-v6149{
+  min-height:56px!important;
+  margin-top:11px!important;
+  border:2px solid var(--c49-secondary)!important;
+  border-radius:18px!important;
+  background:#050605!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  font-size:17px!important;
+  font-weight:900!important;
+}
+.compact-footer-v6149{
+  margin-top:12px!important;
+  padding-bottom:4px!important;
+  font-size:12px!important;
+  line-height:1.35!important;
+  opacity:.48!important;
+}
+
+@media(max-width:520px){
+  .compact-header-v6149{
+    min-height:76px!important;
+    padding:12px 15px 10px!important;
+  }
+  .compact-back-v6149{
+    width:54px!important;
+    height:54px!important;
+    flex-basis:54px!important;
+  }
+  .compact-title-v6149{
+    font-size:27px!important;
+  }
+  .compact-match-v6149{
+    margin:16px 14px 0!important;
+  }
+  .compact-form-v6149{
+    padding:0 14px!important;
+  }
+  .compact-presence-grid-v6149{
+    grid-template-columns:1fr 1fr!important;
+  }
+}
+
+@media(max-width:370px){
+  #presenceGroup .choice-btn{
+    min-height:70px!important;
+    font-size:17px!important;
+  }
+  #presenceGroup .compact-choice-icon-v6149{
+    width:37px!important;
+    height:37px!important;
+    font-size:24px!important;
+  }
+  .compact-title-v6149{
+    font-size:24px!important;
+  }
+}
+</style>
+
+
+
+<style id="_formulaire_match_meta_v61_56">
+/* V61.56 — correction visuelle de la carte match.
+   Type de match affiché une seule fois sous VS, avec le code couleur officiel.
+   Suppression du doublon Domicile/Extérieur avec pictogramme transport.
+   Date et heure réparties sur deux blocs plus espacés. */
+
+/* Le troisième bloc répétait le type de match : il est masqué. */
+.compact-meta-v6149 .compact-meta-row-v6149:nth-child(3){
+  display:none!important;
+}
+
+/* Date et heure occupent désormais toute la largeur disponible. */
+.compact-meta-v6149{
+  grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr)!important;
+  gap:16px!important;
+}
+
+.compact-meta-row-v6149{
+  min-width:0!important;
+  padding-left:12px!important;
+  padding-right:12px!important;
+}
+
+.compact-meta-row-v6149 strong{
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+}
+
+/* Badge officiel : Domicile bleu, Extérieur orange, Forfait rouge. */
+.compact-type-v6149{
+  background:rgba(255,255,255,.04)!important;
+  border-width:2px!important;
+  border-style:solid!important;
+  border-radius:999px!important;
+  text-transform:uppercase!important;
+  font-weight:950!important;
+  letter-spacing:.45px!important;
+}
+.compact-type-v6149.match-type-home-v6156{
+  color:#79b8ff!important;
+  -webkit-text-fill-color:#79b8ff!important;
+  border-color:#2f80ed!important;
+  background:rgba(47,128,237,.14)!important;
+}
+.compact-type-v6149.match-type-away-v6156{
+  color:#ff9a45!important;
+  -webkit-text-fill-color:#ff9a45!important;
+  border-color:#ff7a1a!important;
+  background:rgba(255,122,26,.14)!important;
+}
+.compact-type-v6149.match-type-forfeit-v6156{
+  color:#ff7580!important;
+  -webkit-text-fill-color:#ff7580!important;
+  border-color:#ef4050!important;
+  background:rgba(239,64,80,.14)!important;
+}
+
+@media(max-width:520px){
+  .compact-meta-v6149{
+    grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr)!important;
+    gap:14px!important;
+  }
+  .compact-meta-row-v6149{
+    min-height:60px!important;
+    padding:8px 9px!important;
+  }
+  .compact-meta-row-v6149:first-child strong{
+    font-size:13px!important;
+    line-height:1.12!important;
+  }
+  .compact-meta-row-v6149:nth-child(2) strong{
+    font-size:15px!important;
+    white-space:nowrap!important;
+  }
+}
+
+@media(max-width:370px){
+  .compact-meta-v6149{
+    grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr)!important;
+    gap:9px!important;
+  }
+  .compact-meta-row-v6149{
+    flex-direction:column!important;
+  }
+}
+</style>
+
+<script id="_formulaire_match_meta_v61_56_js">
+(function(){
+  "use strict";
+
+  function normaliserTypeV6156(value){
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function appliquerCouleurTypeV6156(){
+    var badge=document.getElementById("compactTypeV6149");
+    if(!badge) return;
+
+    var type=normaliserTypeV6156(badge.textContent);
+    badge.classList.remove(
+      "match-type-home-v6156",
+      "match-type-away-v6156",
+      "match-type-forfeit-v6156"
+    );
+
+    if(type.indexOf("forfait")!==-1){
+      badge.classList.add("match-type-forfeit-v6156");
+    }else if(type.indexOf("exterieur")!==-1 || type==="ext" || type==="e"){
+      badge.classList.add("match-type-away-v6156");
+    }else if(type.indexOf("domicile")!==-1 || type==="dom" || type==="d"){
+      badge.classList.add("match-type-home-v6156");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", appliquerCouleurTypeV6156);
+  window.addEventListener("load", appliquerCouleurTypeV6156);
+  [0,100,350,800,1500].forEach(function(delay){
+    setTimeout(appliquerCouleurTypeV6156,delay);
+  });
+
+  var badge=document.getElementById("compactTypeV6149");
+  if(badge && window.MutationObserver){
+    new MutationObserver(appliquerCouleurTypeV6156).observe(badge,{childList:true,subtree:true,characterData:true});
+  }
+})();
 </script>
 
 </body>
